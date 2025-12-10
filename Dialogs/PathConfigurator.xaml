@@ -5,8 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StarfieldLoadOrderManager.Dialogs"
         mc:Ignorable="d"
-        Title="PathConfigurator" Height="450" Width="800">
-    <Grid>
-        
+        Title="Configure Starfield Folder"
+        Height="220"
+        Width="600"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Select the folder containing your Starfield installation"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,12"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="FolderPathTextBox" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <Button Grid.Column="1"
+                    Content="Browse..."
+                    Width="100"
+                    Click="BrowseButton_Click"/>
+        </Grid>
+
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="Exit"
+                    Width="100"
+                    Margin="0,0,12,0"
+                    IsCancel="True"
+                    Click="ExitButton_Click"/>
+            <Button Content="OK"
+                    Width="100"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

@@ -26,11 +26,6 @@ namespace StarfieldLoadOrderManager
                     return;
                 }
             }
-
-            // By default, the application is set to StartupUri="MainWindow.xaml" in App.xaml.
-            // If you removed that, you would manually create and show the MainWindow here:
-            // MainWindow mainWindow = new MainWindow();
-            // mainWindow.Show();
         }
     }
 }

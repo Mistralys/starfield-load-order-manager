@@ -42,19 +42,25 @@
                     </TextBlock>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            Margin="0,0,0,12">
-                    <Button Content="{Binding ReferenceButtonText}"
-                            Width="150"
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Content="{Binding ReferenceButtonText}"
                             Margin="0,0,8,0"
                             Command="{Binding CreateReferenceCommand}"
+                            HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignRaisedButton}" />
-                    <Button Content="Fix Load Order"
-                            Width="150"
+                    <Button Grid.Column="1"
+                            Content="Fix Load Order"
+                            Margin="8,0,0,0"
                             Command="{Binding FixLoadOrderCommand}"
+                            HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignRaisedButton}" />
-                </StackPanel>
+                </Grid>
 
                 <ProgressBar Height="18"
                              Margin="0,0,0,12"

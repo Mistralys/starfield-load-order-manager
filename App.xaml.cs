@@ -1,31 +1,19 @@
-﻿using StarfieldLoadOrderManager.Classes;
-using StarfieldLoadOrderManager.Dialogs;
-using System.Windows;
+﻿using LoadOrderKeeper.ViewModels;
 
-namespace StarfieldLoadOrderManager
+namespace LoadOrderKeeper
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(System.Windows.StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            if (!LoadOrderManager.Instance.StarfieldFolderExists)
+            var window = new MainWindow
             {
-                PathConfigurator configWindow = new PathConfigurator();
+                DataContext = new MainViewModel()
+            };
 
-                bool? configSucceeded = configWindow.ShowDialog();
-
-                if (configSucceeded != true)
-                {
-                    MessageBox.Show("Application cannot run without configuration.", "Startup Error");
-                    Shutdown(); 
-                    return;
-                }
-            }
+            window.Show();
         }
     }
 }

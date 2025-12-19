@@ -22,18 +22,14 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0"
-                   Grid.Column="0"
-                   Grid.ColumnSpan="2"
-                   Margin="0,0,0,4"
-                   Text="Starfield AppData Path:" />
         <TextBox Grid.Row="1"
                  Grid.Column="0"
                  Margin="0,0,8,8"
                  MinWidth="360"
                  Text="{Binding StarfieldAppDataPath, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 materialDesign:HintAssist.Hint="Starfield AppData Path" />
+                 materialDesign:HintAssist.Hint="Starfield AppData Path"
+                 Foreground="{DynamicResource MaterialDesignBodyLight}" />
         <Button Grid.Row="1"
                 Grid.Column="1"
                 Content="Browse..."
@@ -42,17 +38,13 @@
                 Command="{Binding BrowseAppDataCommand}"
                 Style="{StaticResource MaterialDesignRaisedButton}" />
 
-        <TextBlock Grid.Row="2"
-                   Grid.Column="0"
-                   Grid.ColumnSpan="2"
-                   Margin="0,8,0,4"
-                   Text="Starfield Game Path:" />
         <TextBox Grid.Row="3"
                  Grid.Column="0"
                  Margin="0,0,8,8"
                  Text="{Binding StarfieldGamePath, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 materialDesign:HintAssist.Hint="Starfield Game Path" />
+                 materialDesign:HintAssist.Hint="Starfield Game Path"
+                 Foreground="{DynamicResource MaterialDesignBodyLight}" />
         <Button Grid.Row="3"
                 Grid.Column="1"
                 Content="Browse..."

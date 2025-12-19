@@ -35,8 +35,10 @@
             <StackPanel>
                 <StackPanel Margin="0,0,0,12">
                     <TextBlock FontWeight="Bold"
-                               Text="Current Plugins.txt target:" />
-                    <TextBlock TextWrapping="Wrap">
+                               Text="Current Plugins.txt target:"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                    <TextBlock TextWrapping="Wrap"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}">
                         <Run Text="Target: " />
                         <Run Text="{Binding Config.StarfieldAppDataPath}" />
                     </TextBlock>
@@ -71,7 +73,8 @@
                         Padding="8"
                         CornerRadius="4">
                     <TextBlock TextWrapping="Wrap"
-                               Text="{Binding StatusMessage}" />
+                               Text="{Binding StatusMessage}"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 </Border>
             </StackPanel>
         </Border>

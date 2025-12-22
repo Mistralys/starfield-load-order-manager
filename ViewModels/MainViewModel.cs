@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
@@ -12,6 +13,9 @@ namespace LoadOrderKeeper.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private readonly DispatcherTimer _pluginsMonitorTimer;
+        private bool _isCheckingPluginsFile;
+
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
         [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
@@ -33,8 +37,16 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _referenceButtonText = "Create Reference";
 
+        [ObservableProperty]
+        private bool _pluginsFileChangedExternally;
+
         public MainViewModel()
         {
+            _pluginsMonitorTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(_config.PluginCheckIntervalSeconds > 0 ? _config.PluginCheckIntervalSeconds : 5)
+            };
+            _pluginsMonitorTimer.Tick += OnPluginsMonitorTick;
             _ = LoadInitialStateAsync();
         }
 
@@ -43,9 +55,10 @@ namespace LoadOrderKeeper.ViewModels
             Config = await SettingsService.LoadSettingsAsync();
             RefExists = FileService.DoesReferenceFileExist(Config);
 
-            StatusMessage = Config.IsValid()
-                ? "Ready. Configuration is valid."
-                : "Configuration is required. Please set paths in the Settings window.";
+            StatusMessage = GetReadyStatusMessage();
+
+            ConfigurePluginsMonitor();
+            await CheckPluginsFileAsync();
         }
 
         [RelayCommand(CanExecute = nameof(CanFixLoadOrder))]
@@ -68,6 +81,8 @@ namespace LoadOrderKeeper.ViewModels
             {
                 IsBusy = false;
             }
+
+            await CheckPluginsFileAsync();
         }
 
         private bool CanFixLoadOrder() => Config.IsValid() && RefExists && !IsBusy;
@@ -93,13 +108,21 @@ namespace LoadOrderKeeper.ViewModels
             {
                 IsBusy = false;
             }
+
+            await CheckPluginsFileAsync();
         }
 
         private bool CanCreateReference() => Config.IsValid() && !IsBusy;
-
+ 
         partial void OnRefExistsChanged(bool value)
         {
             ReferenceButtonText = value ? "Update reference file" : "Create Reference";
+            ConfigurePluginsMonitor();
+        }
+        
+        partial void OnConfigChanged(AppConfigModel value)
+        {
+            ConfigurePluginsMonitor();
         }
 
         [RelayCommand]
@@ -121,6 +144,8 @@ namespace LoadOrderKeeper.ViewModels
                 StatusMessage = Config.IsValid()
                     ? "Configuration updated."
                     : "Configuration is invalid.";
+                ConfigurePluginsMonitor();
+                await CheckPluginsFileAsync();
             }
         }
 
@@ -128,6 +153,84 @@ namespace LoadOrderKeeper.ViewModels
         private void ExitApplication()
         {
             WpfApplication.Current?.Shutdown();
+        }
+
+        private string GetReadyStatusMessage()
+        {
+            return Config.IsValid()
+                ? "Ready. Configuration is valid."
+                : "Configuration is required. Please set paths in the Settings window.";
+        }
+
+        private void ConfigurePluginsMonitor()
+        {
+            _pluginsMonitorTimer.Interval = GetMonitorInterval();
+
+            if (Config.IsValid() && RefExists)
+            {
+                if (!_pluginsMonitorTimer.IsEnabled)
+                {
+                    _pluginsMonitorTimer.Start();
+                }
+            }
+            else
+            {
+                if (_pluginsMonitorTimer.IsEnabled)
+                {
+                    _pluginsMonitorTimer.Stop();
+                }
+
+                PluginsFileChangedExternally = false;
+            }
+        }
+
+        private TimeSpan GetMonitorInterval()
+        {
+            int intervalSeconds = Config.PluginCheckIntervalSeconds > 0
+                ? Config.PluginCheckIntervalSeconds
+                : 5;
+            return TimeSpan.FromSeconds(intervalSeconds);
+        }
+
+        private async void OnPluginsMonitorTick(object? sender, EventArgs e)
+        {
+            await CheckPluginsFileAsync();
+        }
+
+        private async Task CheckPluginsFileAsync()
+        {
+            if (_isCheckingPluginsFile || IsBusy)
+            {
+                return;
+            }
+
+            if (!Config.IsValid() || !RefExists)
+            {
+                PluginsFileChangedExternally = false;
+                return;
+            }
+
+            _isCheckingPluginsFile = true;
+
+            try
+            {
+                bool hasChanged = await FileService.HasPluginsFileChangedAsync(Config);
+                if (hasChanged != PluginsFileChangedExternally)
+                {
+                    PluginsFileChangedExternally = hasChanged;
+                    StatusMessage = hasChanged
+                        ? "Plugins.txt was modified outside Load Order Keeper."
+                        : GetReadyStatusMessage();
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"ERROR: Failed to monitor Plugins.txt: {ex.Message}";
+            }
+            finally
+            {
+                _isCheckingPluginsFile = false;
+            }
         }
     }
 }

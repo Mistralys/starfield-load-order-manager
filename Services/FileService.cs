@@ -10,6 +10,8 @@ namespace LoadOrderKeeper.Services
 {
     public static class FileService
     {
+        private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
+
         private static Dictionary<string, string> GetCaseLookup(string gamePath)
         {
             string dataPath = Path.Combine(gamePath, "Data");
@@ -54,7 +56,7 @@ namespace LoadOrderKeeper.Services
             }
 
             string content = await File.ReadAllTextAsync(targetPath, Encoding.UTF8);
-            await File.WriteAllTextAsync(referencePath, content, Encoding.UTF8);
+            await File.WriteAllTextAsync(referencePath, content, Utf8NoBom);
         }
 
         public static async Task ApplyLoadOrderAsync(AppConfigModel config)
@@ -99,7 +101,7 @@ namespace LoadOrderKeeper.Services
                 finalOrder.Add(FormatLine(newMod, caseLookup));
             }
 
-            await File.WriteAllLinesAsync(targetPath, finalOrder, Encoding.UTF8);
+            await File.WriteAllLinesAsync(targetPath, finalOrder, Utf8NoBom);
         }
 
         private static string FormatLine(ModEntryModel mod, Dictionary<string, string> caseLookup)

@@ -14,6 +14,9 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _starfieldGamePath = SettingsService.TryGetDefaultSteamPath();
 
+        [ObservableProperty]
+        private int _pluginCheckIntervalSeconds = 5;
+
         public event EventHandler? BrowseAppDataRequested;
         public event EventHandler? BrowseGamePathRequested;
         public event EventHandler? SaveRequested;
@@ -28,6 +31,11 @@ namespace LoadOrderKeeper.ViewModels
             if (!string.IsNullOrWhiteSpace(initialConfig.StarfieldGamePath))
             {
                 StarfieldGamePath = initialConfig.StarfieldGamePath;
+            }
+
+            if (initialConfig.PluginCheckIntervalSeconds > 0)
+            {
+                PluginCheckIntervalSeconds = initialConfig.PluginCheckIntervalSeconds;
             }
         }
 
@@ -70,7 +78,8 @@ namespace LoadOrderKeeper.ViewModels
             return new AppConfigModel
             {
                 StarfieldAppDataPath = StarfieldAppDataPath,
-                StarfieldGamePath = StarfieldGamePath
+                StarfieldGamePath = StarfieldGamePath,
+                PluginCheckIntervalSeconds = PluginCheckIntervalSeconds
             };
         }
     }

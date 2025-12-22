@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Load Order Keeper Settings"
-        Height="239"
+        Height="382"
         Width="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -16,12 +16,20 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="0,0,0,4"
+                   Text="Starfield AppData Path:"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
         <TextBox Grid.Row="1"
                  Grid.Column="0"
                  Margin="0,0,8,8"
@@ -38,6 +46,12 @@
                 Command="{Binding BrowseAppDataCommand}"
                 Style="{StaticResource MaterialDesignRaisedButton}" />
 
+        <TextBlock Grid.Row="2"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="0,8,0,4"
+                   Text="Starfield Game Path:"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
         <TextBox Grid.Row="3"
                  Grid.Column="0"
                  Margin="0,0,8,8"
@@ -53,7 +67,22 @@
                 Command="{Binding BrowseGamePathCommand}"
                 Style="{StaticResource MaterialDesignRaisedButton}" />
 
-        <StackPanel Grid.Row="4"
+        <TextBlock Grid.Row="4"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="0,8,0,4"
+                   Text="Check for modifications every (seconds):"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
+        <TextBox Grid.Row="5"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="2"
+                 Margin="0,0,8,8"
+                 Text="{Binding PluginCheckIntervalSeconds, UpdateSourceTrigger=PropertyChanged}"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 materialDesign:HintAssist.Hint="Interval in seconds"
+                 Foreground="{DynamicResource MaterialDesignBodyLight}" />
+
+        <StackPanel Grid.Row="6"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Orientation="Horizontal"

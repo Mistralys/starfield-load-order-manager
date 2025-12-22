@@ -76,6 +76,10 @@
                                Text="{Binding StatusMessage}"
                                Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 </Border>
+                <TextBlock Margin="0,8,0,0"
+                           Text="Plugins.txt was modified outside Load Order Keeper."
+                           Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
+                           Visibility="{Binding PluginsFileChangedExternally, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </StackPanel>
         </Border>
     </DockPanel>

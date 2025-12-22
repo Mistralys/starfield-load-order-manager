@@ -104,6 +104,66 @@ namespace LoadOrderKeeper.Services
             await File.WriteAllLinesAsync(targetPath, finalOrder, Utf8NoBom);
         }
 
+        public static async Task<bool> HasPluginsFileChangedAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                return false;
+            }
+
+            string targetPath = config.GetPluginsFilePath();
+            string referencePath = config.GetReferenceFilePath();
+
+            if (!File.Exists(referencePath) || !File.Exists(targetPath))
+            {
+                return false;
+            }
+
+            var referenceLines = await File.ReadAllLinesAsync(referencePath, Encoding.UTF8);
+            var targetLines = await File.ReadAllLinesAsync(targetPath, Encoding.UTF8);
+
+            return !SequencesEqualIgnoringTrailingEmpty(referenceLines, targetLines);
+        }
+
+        private static bool SequencesEqualIgnoringTrailingEmpty(string[] first, string[] second)
+        {
+            var normalizedFirst = TrimTrailingEmptyLines(first);
+            var normalizedSecond = TrimTrailingEmptyLines(second);
+
+            if (normalizedFirst.Count != normalizedSecond.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < normalizedFirst.Count; i++)
+            {
+                if (!string.Equals(normalizedFirst[i], normalizedSecond[i], StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static IReadOnlyList<string> TrimTrailingEmptyLines(string[] lines)
+        {
+            int lastIndex = lines.Length - 1;
+            while (lastIndex >= 0 && string.IsNullOrWhiteSpace(lines[lastIndex]))
+            {
+                lastIndex--;
+            }
+
+            if (lastIndex == lines.Length - 1)
+            {
+                return lines;
+            }
+
+            var result = new string[lastIndex + 1];
+            Array.Copy(lines, result, lastIndex + 1);
+            return result;
+        }
+
         private static string FormatLine(ModEntryModel mod, Dictionary<string, string> caseLookup)
         {
             var cleanFileName = mod.FileName.ToLowerInvariant();

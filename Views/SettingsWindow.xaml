@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Load Order Keeper Settings"
-        Height="220"
+        Height="239"
         Width="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -57,7 +57,7 @@
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Orientation="Horizontal"
-                    HorizontalAlignment="Right"
+                    HorizontalAlignment="Center"
                     Margin="0,12,0,0">
             <Button Content="Save"
                     Width="100"

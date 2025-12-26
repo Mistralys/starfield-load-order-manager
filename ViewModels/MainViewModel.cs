@@ -39,6 +39,13 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _referenceButtonText = "Create Reference";
 
+        private string _playButtonText = "Play (Vanilla)";
+        public string PlayButtonText
+        {
+            get => _playButtonText;
+            private set => SetProperty(ref _playButtonText, value);
+        }
+
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
 
@@ -46,6 +53,7 @@ namespace LoadOrderKeeper.ViewModels
         public IRelayCommand OpenReferenceFileCommand { get; }
         public IRelayCommand OpenAppDataFolderCommand { get; }
         public IRelayCommand OpenGameFolderCommand { get; }
+        public IRelayCommand PlayGameCommand { get; }
 
         public MainViewModel()
         {
@@ -59,6 +67,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenReferenceFileCommand = new RelayCommand(OpenReferenceFile, CanAccessAppDataPath);
             OpenAppDataFolderCommand = new RelayCommand(OpenAppDataFolder, CanAccessAppDataPath);
             OpenGameFolderCommand = new RelayCommand(OpenGameFolder, CanAccessGamePath);
+            PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
 
             _ = LoadInitialStateAsync();
         }
@@ -137,11 +146,14 @@ namespace LoadOrderKeeper.ViewModels
         {
             ConfigurePluginsMonitor();
             NotifyFileCommandsCanExecuteChanged();
+            PlayGameCommand?.NotifyCanExecuteChanged();
+            UpdatePlayButtonText();
         }
 
         partial void OnIsBusyChanged(bool value)
         {
             NotifyFileCommandsCanExecuteChanged();
+            PlayGameCommand?.NotifyCanExecuteChanged();
         }
  
         private void OpenPluginsFile()
@@ -190,6 +202,41 @@ namespace LoadOrderKeeper.ViewModels
             }
 
             LaunchShellTarget(path, "Failed to open game folder");
+        }
+
+        private void PlayGame()
+        {
+            var gamePath = Config.StarfieldGamePath;
+            if (string.IsNullOrWhiteSpace(gamePath) || !Directory.Exists(gamePath))
+            {
+                ShowError("Game folder is not configured or does not exist.");
+                return;
+            }
+
+            string executablePath = HasSfseExecutable()
+                ? Path.Combine(gamePath, "sfse_loader.exe")
+                : Path.Combine(gamePath, "starfield.exe");
+
+            if (!File.Exists(executablePath))
+            {
+                ShowError($"Unable to find executable: {executablePath}");
+                return;
+            }
+
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = executablePath,
+                    WorkingDirectory = gamePath,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Failed to launch Starfield: {ex.Message}");
+            }
         }
 
         private bool CanAccessAppDataPath()
@@ -264,6 +311,13 @@ namespace LoadOrderKeeper.ViewModels
             OpenGameFolderCommand?.NotifyCanExecuteChanged();
         }
 
+        private void UpdatePlayButtonText()
+        {
+            PlayButtonText = HasSfseExecutable()
+                ? "Play (SFSE)"
+                : "Play (Vanilla)";
+        }
+ 
         private string GetReadyStatusMessage()
         {
             return Config.IsValid()
@@ -340,6 +394,18 @@ namespace LoadOrderKeeper.ViewModels
             {
                 _isCheckingPluginsFile = false;
             }
+        }
+
+        private bool HasSfseExecutable()
+        {
+            var gamePath = Config?.StarfieldGamePath;
+            if (string.IsNullOrWhiteSpace(gamePath))
+            {
+                return false;
+            }
+
+            string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
+            return File.Exists(sfsePath);
         }
     }
 }

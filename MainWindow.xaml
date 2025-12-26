@@ -6,7 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Starfield Load Order Keeper"
-        Height="320"
+        Height="386"
         Width="520"
         MinWidth="480"
         MinHeight="280"
@@ -93,7 +93,12 @@
                            Text="Plugins.txt was modified outside Load Order Keeper."
                            Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
                            Visibility="{Binding PluginsFileChangedExternally, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            </StackPanel>
+                <Button Margin="0,16,0,0"
+                        Content="{Binding PlayButtonText}"
+                        Command="{Binding PlayGameCommand}"
+                        HorizontalAlignment="Stretch"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
+             </StackPanel>
         </Border>
     </DockPanel>
 </Window>

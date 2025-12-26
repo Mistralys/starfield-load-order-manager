@@ -64,13 +64,17 @@
                             Margin="0,0,8,0"
                             Command="{Binding FixLoadOrderCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Background="{DynamicResource PrimaryHueMidBrush}"
+                            Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" />
                     <Button Grid.Column="1"
                             Content="{Binding ReferenceButtonText}"
                             Margin="8,0,0,0"
                             Command="{Binding CreateReferenceCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Background="{DynamicResource SecondaryHueMidBrush}"
+                            Foreground="{DynamicResource SecondaryHueMidForegroundBrush}" />
                 </Grid>
 
                 <ProgressBar Height="18"

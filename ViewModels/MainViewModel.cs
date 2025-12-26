@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -40,6 +42,11 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
 
+        public IRelayCommand OpenPluginsFileCommand { get; }
+        public IRelayCommand OpenReferenceFileCommand { get; }
+        public IRelayCommand OpenAppDataFolderCommand { get; }
+        public IRelayCommand OpenGameFolderCommand { get; }
+
         public MainViewModel()
         {
             _pluginsMonitorTimer = new DispatcherTimer
@@ -47,6 +54,12 @@ namespace LoadOrderKeeper.ViewModels
                 Interval = TimeSpan.FromSeconds(_config.PluginCheckIntervalSeconds > 0 ? _config.PluginCheckIntervalSeconds : 5)
             };
             _pluginsMonitorTimer.Tick += OnPluginsMonitorTick;
+
+            OpenPluginsFileCommand = new RelayCommand(OpenPluginsFile, CanAccessAppDataPath);
+            OpenReferenceFileCommand = new RelayCommand(OpenReferenceFile, CanAccessAppDataPath);
+            OpenAppDataFolderCommand = new RelayCommand(OpenAppDataFolder, CanAccessAppDataPath);
+            OpenGameFolderCommand = new RelayCommand(OpenGameFolder, CanAccessGamePath);
+
             _ = LoadInitialStateAsync();
         }
 
@@ -119,12 +132,76 @@ namespace LoadOrderKeeper.ViewModels
             ReferenceButtonText = value ? "Update reference file" : "Create Reference";
             ConfigurePluginsMonitor();
         }
-        
+ 
         partial void OnConfigChanged(AppConfigModel value)
         {
             ConfigurePluginsMonitor();
+            NotifyFileCommandsCanExecuteChanged();
         }
 
+        partial void OnIsBusyChanged(bool value)
+        {
+            NotifyFileCommandsCanExecuteChanged();
+        }
+ 
+        private void OpenPluginsFile()
+        {
+            var path = Config.GetPluginsFilePath();
+            if (!File.Exists(path))
+            {
+                ShowError($"Plugins file not found: {path}");
+                return;
+            }
+
+            LaunchShellTarget(path, "Failed to open Plugins.txt");
+        }
+
+        private void OpenReferenceFile()
+        {
+            var path = Config.GetReferenceFilePath();
+            if (!File.Exists(path))
+            {
+                ShowError($"Reference file not found: {path}");
+                return;
+            }
+
+            LaunchShellTarget(path, "Failed to open reference file");
+        }
+
+        private void OpenAppDataFolder()
+        {
+            var path = Config.StarfieldAppDataPath;
+            if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+            {
+                ShowError("AppData folder is not configured or does not exist.");
+                return;
+            }
+
+            LaunchShellTarget(path, "Failed to open AppData folder");
+        }
+
+        private void OpenGameFolder()
+        {
+            var path = Config.StarfieldGamePath;
+            if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+            {
+                ShowError("Game folder is not configured or does not exist.");
+                return;
+            }
+
+            LaunchShellTarget(path, "Failed to open game folder");
+        }
+
+        private bool CanAccessAppDataPath()
+        {
+            return !IsBusy && !string.IsNullOrWhiteSpace(Config?.StarfieldAppDataPath);
+        }
+
+        private bool CanAccessGamePath()
+        {
+            return !IsBusy && !string.IsNullOrWhiteSpace(Config?.StarfieldGamePath);
+        }
+ 
         [RelayCommand]
         private async Task OpenSettingsAsync()
         {
@@ -153,6 +230,38 @@ namespace LoadOrderKeeper.ViewModels
         private void ExitApplication()
         {
             WpfApplication.Current?.Shutdown();
+        }
+
+        private void LaunchShellTarget(string target, string failureMessage)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = target,
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"{failureMessage}: {ex.Message}");
+            }
+        }
+
+        private void ShowError(string message)
+        {
+            StatusMessage = $"ERROR: {message}";
+            WpfMessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+
+        private void NotifyFileCommandsCanExecuteChanged()
+        {
+            OpenPluginsFileCommand?.NotifyCanExecuteChanged();
+            OpenReferenceFileCommand?.NotifyCanExecuteChanged();
+            OpenAppDataFolderCommand?.NotifyCanExecuteChanged();
+            OpenGameFolderCommand?.NotifyCanExecuteChanged();
         }
 
         private string GetReadyStatusMessage()

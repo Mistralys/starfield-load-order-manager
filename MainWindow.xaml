@@ -21,6 +21,16 @@
               Background="{DynamicResource MaterialDesignPaper}"
               Foreground="{DynamicResource MaterialDesignBody}">
             <MenuItem Header="_File">
+                <MenuItem Header="Open _Plugins.txt"
+                          Command="{Binding OpenPluginsFileCommand}" />
+                <MenuItem Header="Open _Reference File"
+                          Command="{Binding OpenReferenceFileCommand}" />
+                <Separator />
+                <MenuItem Header="Open _AppData Folder"
+                          Command="{Binding OpenAppDataFolderCommand}" />
+                <MenuItem Header="Open _Game Folder"
+                          Command="{Binding OpenGameFolderCommand}" />
+                <Separator />
                 <MenuItem Header="E_xit"
                           Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
@@ -49,17 +59,16 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-
                     <Button Grid.Column="0"
-                            Content="{Binding ReferenceButtonText}"
+                            Content="Fix Load Order"
                             Margin="0,0,8,0"
-                            Command="{Binding CreateReferenceCommand}"
+                            Command="{Binding FixLoadOrderCommand}"
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignRaisedButton}" />
                     <Button Grid.Column="1"
-                            Content="Fix Load Order"
+                            Content="{Binding ReferenceButtonText}"
                             Margin="8,0,0,0"
-                            Command="{Binding FixLoadOrderCommand}"
+                            Command="{Binding CreateReferenceCommand}"
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignRaisedButton}" />
                 </Grid>

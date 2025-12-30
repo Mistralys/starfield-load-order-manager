@@ -1,13 +1,11 @@
-using LoadOrderKeeper.Models;
-using LoadOrderKeeper.Services;
-
 namespace LoadOrderKeeper.Models
 {
     public enum DiffChangeType
     {
         Unchanged,
         Added,
-        Removed
+        Removed,
+        Moved
     }
 
     public sealed class DiffLineModel
@@ -26,7 +24,8 @@ namespace LoadOrderKeeper.Models
         {
             DiffChangeType.Added => "+",
             DiffChangeType.Removed => "-",
-            _ => ""
+            DiffChangeType.Moved => "~",
+            _ => string.Empty
         };
     }
 }

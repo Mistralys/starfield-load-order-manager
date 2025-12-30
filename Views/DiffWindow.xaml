@@ -53,6 +53,9 @@
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
                                     <Setter Property="Background" Value="#1AF44336" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
+                                    <Setter Property="Background" Value="#1A2196F3" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>

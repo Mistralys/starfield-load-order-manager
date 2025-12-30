@@ -6,12 +6,16 @@ namespace LoadOrderKeeper.Models
     {
         public string FileName { get; }
         public bool IsEnabled { get; }
+        public int? LineNumber { get; set; }
+        public int? OriginalLineNumber { get; set; }
 
-        public ModEntryModel(string line)
+        public ModEntryModel(string line, int? lineNumber = null, int? originalLineNumber = null)
         {
             var trimmed = line?.Trim() ?? string.Empty;
             IsEnabled = trimmed.StartsWith("*", StringComparison.Ordinal);
             FileName = trimmed.TrimStart('*').Trim();
+            LineNumber = lineNumber;
+            OriginalLineNumber = originalLineNumber ?? lineNumber;
         }
 
         public string ToLine() => $"{(IsEnabled ? "*" : string.Empty)}{FileName}";

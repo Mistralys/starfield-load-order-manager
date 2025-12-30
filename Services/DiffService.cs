@@ -33,74 +33,30 @@ namespace LoadOrderKeeper.Services
                 throw new FileNotFoundException("Plugins file not found.", targetPath);
             }
 
-            var currentLines = await File.ReadAllLinesAsync(targetPath).ConfigureAwait(false);
-            var referenceLines = await File.ReadAllLinesAsync(referencePath).ConfigureAwait(false);
-
-            return BuildDiff(referenceLines, currentLines);
-        }
-
-        private static IReadOnlyList<DiffLineModel> BuildDiff(string[] referenceLines, string[] currentLines)
-        {
+            var diffs = await FileService.GetModDiffAsync(config).ConfigureAwait(false);
             var result = new List<DiffLineModel>();
-            var lcs = BuildLcsMatrix(referenceLines, currentLines);
 
-            int i = 0;
-            int j = 0;
-            while (i < referenceLines.Length && j < currentLines.Length)
+            foreach (var diff in diffs)
             {
-                if (string.Equals(referenceLines[i], currentLines[j], StringComparison.Ordinal))
+                string displayName = $"*{diff.FileName}";
+                if (diff.IsRemoved)
                 {
-                    result.Add(new DiffLineModel(referenceLines[i], DiffChangeType.Unchanged));
-                    i++;
-                    j++;
+                    string text = $"#{diff.ReferenceNumber}: {displayName} removed from load order";
+                    result.Add(new DiffLineModel(text, DiffChangeType.Removed));
                 }
-                else if (lcs[i + 1, j] >= lcs[i, j + 1])
+                else if (diff.IsNew)
                 {
-                    result.Add(new DiffLineModel(referenceLines[i], DiffChangeType.Removed));
-                    i++;
+                    string text = $"#{diff.CurrentNumber}: {displayName} added to load order";
+                    result.Add(new DiffLineModel(text, DiffChangeType.Added));
                 }
-                else
+                else if (diff.IsMoved)
                 {
-                    result.Add(new DiffLineModel(currentLines[j], DiffChangeType.Added));
-                    j++;
+                    string text = $"{displayName} moved from #{diff.ReferenceNumber} to #{diff.CurrentNumber}";
+                    result.Add(new DiffLineModel(text, DiffChangeType.Moved));
                 }
-            }
-
-            while (i < referenceLines.Length)
-            {
-                result.Add(new DiffLineModel(referenceLines[i++], DiffChangeType.Removed));
-            }
-
-            while (j < currentLines.Length)
-            {
-                result.Add(new DiffLineModel(currentLines[j++], DiffChangeType.Added));
             }
 
             return result;
-        }
-
-        private static int[,] BuildLcsMatrix(string[] referenceLines, string[] currentLines)
-        {
-            int m = referenceLines.Length;
-            int n = currentLines.Length;
-            var lcs = new int[m + 1, n + 1];
-
-            for (int i = m - 1; i >= 0; i--)
-            {
-                for (int j = n - 1; j >= 0; j--)
-                {
-                    if (string.Equals(referenceLines[i], currentLines[j], StringComparison.Ordinal))
-                    {
-                        lcs[i, j] = lcs[i + 1, j + 1] + 1;
-                    }
-                    else
-                    {
-                        lcs[i, j] = Math.Max(lcs[i + 1, j], lcs[i, j + 1]);
-                    }
-                }
-            }
-
-            return lcs;
         }
     }
 }

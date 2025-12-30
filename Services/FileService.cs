@@ -28,16 +28,35 @@ namespace LoadOrderKeeper.Services
                 p => Path.GetFileName(p));
         }
 
-        private static async Task<List<ModEntryModel>> ReadFileAsync(string filePath)
+        private static async Task<List<ModEntryModel>> ReadFileAsync(string filePath, bool isReferenceFile = false)
         {
-            if (!File.Exists(filePath)) return new List<ModEntryModel>();
+            var result = new List<ModEntryModel>();
+            if (!File.Exists(filePath))
+            {
+                return result;
+            }
 
             var lines = await File.ReadAllLinesAsync(filePath, Encoding.UTF8);
+            int logicalIndex = 0;
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
 
-            return lines
-                .Where(line => !string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("#"))
-                .Select(line => new ModEntryModel(line))
-                .ToList();
+                var trimmed = line.TrimStart();
+                if (trimmed.StartsWith("#", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                logicalIndex++;
+                var entry = new ModEntryModel(line, logicalIndex, isReferenceFile ? logicalIndex : null);
+                result.Add(entry);
+            }
+
+            return result;
         }
 
         public static bool DoesReferenceFileExist(AppConfigModel config)
@@ -80,7 +99,7 @@ namespace LoadOrderKeeper.Services
             }
 
             var caseLookup = GetCaseLookup(config.StarfieldGamePath);
-            var referenceMods = await ReadFileAsync(referencePath);
+            var referenceMods = await ReadFileAsync(referencePath, true);
             var currentMods = await ReadFileAsync(targetPath);
 
             var currentModSet = new HashSet<ModEntryModel>(currentMods);
@@ -149,6 +168,66 @@ namespace LoadOrderKeeper.Services
             return new PluginsComparisonResult(hasDifferences, signature);
         }
 
+        public static async Task<IReadOnlyList<ModDiffModel>> GetModDiffAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                throw new InvalidOperationException("Configuration paths are invalid.");
+            }
+
+            string targetPath = config.GetPluginsFilePath();
+            string referencePath = config.GetReferenceFilePath();
+
+            if (!File.Exists(referencePath))
+            {
+                throw new FileNotFoundException("Reference file not found.", referencePath);
+            }
+
+            if (!File.Exists(targetPath))
+            {
+                throw new FileNotFoundException("Plugins file not found.", targetPath);
+            }
+
+            var referenceMods = await ReadFileAsync(referencePath, true);
+            var currentMods = await ReadFileAsync(targetPath);
+
+            var referenceLookup = referenceMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
+            var currentLookup = currentMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
+
+            var orderedNames = referenceLookup.Keys
+                .Union(currentLookup.Keys, StringComparer.OrdinalIgnoreCase)
+                .Select(name => new
+                {
+                    Name = name,
+                    ReferenceNumber = referenceLookup.TryGetValue(name, out var refMod) ? refMod.LineNumber : (int?)null,
+                    CurrentNumber = currentLookup.TryGetValue(name, out var curMod) ? curMod.LineNumber : (int?)null
+                })
+                .OrderBy(x => x.ReferenceNumber ?? int.MaxValue)
+                .ThenBy(x => x.CurrentNumber ?? int.MaxValue)
+                .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var diffs = new List<ModDiffModel>(orderedNames.Count);
+
+            foreach (var entry in orderedNames)
+            {
+                diffs.Add(new ModDiffModel
+                {
+                    FileName = entry.Name,
+                    ReferenceNumber = entry.ReferenceNumber,
+                    CurrentNumber = entry.CurrentNumber
+                });
+            }
+
+            return diffs;
+        }
+
+        public static async Task<bool> HasDeletedModsAsync(AppConfigModel config)
+        {
+            var diffs = await GetModDiffAsync(config);
+            return diffs.Any(d => d.IsRemoved);
+        }
+
         private static bool SequencesEqualIgnoringTrailingEmpty(string[] first, string[] second)
         {
             var normalizedFirst = TrimTrailingEmptyLines(first);
@@ -195,7 +274,7 @@ namespace LoadOrderKeeper.Services
                 ? correctCase
                 : mod.FileName;
 
-            return $"*{resolvedName}";
+            return $"{(mod.IsEnabled ? "*" : string.Empty)}{resolvedName}";
         }
 
         public static async Task DiscardChangesAsync(AppConfigModel config)

@@ -112,10 +112,26 @@ namespace LoadOrderKeeper.ViewModels
             IsBusy = true;
             StatusMessage = "Applying load order fix...";
 
+            var shouldApply = true;
+
             try
             {
-                await FileService.ApplyLoadOrderAsync(Config);
-                StatusMessage = "Load order successfully applied and fixed!";
+                if (await FileService.HasDeletedModsAsync(Config))
+                {
+                    var warningMessage = "One or more mods were removed from Plugins.txt. Removing lines changes the numbered load order and can break save games.\n\nDo you want to continue anyway?";
+                    var dialogResult = WpfMessageBox.Show(warningMessage, "Deleted mods detected", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning);
+                    if (dialogResult != System.Windows.MessageBoxResult.Yes)
+                    {
+                        shouldApply = false;
+                        StatusMessage = "Load order fix canceled. Restore removed mods or replace them before continuing.";
+                    }
+                }
+
+                if (shouldApply)
+                {
+                    await FileService.ApplyLoadOrderAsync(Config);
+                    StatusMessage = "Load order successfully applied and fixed!";
+                }
             }
             catch (Exception ex)
             {

@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
@@ -9,7 +8,7 @@ namespace LoadOrderKeeper.Tests;
 public class DiffServiceTests
 {
     [Fact]
-    public async Task GetPluginsDiffAsync_ReturnsExpectedChangeTypes()
+    public async Task GetPluginsDiffAsync_ReportsAddedAndRemovedMods()
     {
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*a.esm", "*b.esm");
@@ -21,18 +20,15 @@ public class DiffServiceTests
             diff,
             item =>
             {
-                Assert.Equal("*a.esm", item.Text);
-                Assert.Equal(DiffChangeType.Unchanged, item.ChangeType);
-            },
-            item =>
-            {
-                Assert.Equal("*b.esm", item.Text);
                 Assert.Equal(DiffChangeType.Removed, item.ChangeType);
+                Assert.Contains("*b.esm", item.Text);
+                Assert.Contains("#2", item.Text);
             },
             item =>
             {
-                Assert.Equal("*c.esm", item.Text);
                 Assert.Equal(DiffChangeType.Added, item.ChangeType);
+                Assert.Contains("*c.esm", item.Text);
+                Assert.Contains("#2", item.Text);
             });
     }
 
@@ -45,6 +41,6 @@ public class DiffServiceTests
 
         var diff = await DiffService.GetPluginsDiffAsync(context.Config);
 
-        Assert.Empty(diff.Where(d => d.ChangeType != DiffChangeType.Unchanged));
+        Assert.Empty(diff);
     }
 }

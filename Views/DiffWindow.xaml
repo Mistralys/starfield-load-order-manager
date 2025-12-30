@@ -24,6 +24,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
@@ -75,11 +76,17 @@
                 </ListView>
             </Border>
             <TextBlock Grid.Row="2"
+                       Text="{Binding SortingRecommendationMessage}"
+                       Margin="0,8,0,0"
+                       Foreground="{DynamicResource MaterialDesignBody}"
+                       FontWeight="SemiBold"
+                       Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <TextBlock Grid.Row="3"
                        Text="{Binding DiffStatusMessage}"
                        Margin="0,8,0,0"
                        Foreground="{DynamicResource MaterialDesignBodyLight}"
                        Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            <TextBlock Grid.Row="3"
+            <TextBlock Grid.Row="4"
                         Text="No differences detected."
                         Margin="0,8,0,0"
                         Foreground="{DynamicResource MaterialDesignBodyLight}">
@@ -94,7 +101,7 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <StackPanel Grid.Row="4"
+            <StackPanel Grid.Row="5"
                          Orientation="Horizontal"
                          HorizontalAlignment="Right"
                          Margin="0,16,0,0">

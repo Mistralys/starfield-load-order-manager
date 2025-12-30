@@ -43,6 +43,10 @@ namespace LoadOrderKeeper.ViewModels
 
         public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
 
+        public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
+
+        public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
+
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
 
         public IAsyncRelayCommand FixLoadOrderCommand { get; }
@@ -104,12 +108,19 @@ namespace LoadOrderKeeper.ViewModels
             {
                 OnPropertyChanged(nameof(FixLoadOrderButtonText));
             }
+            else if (e.PropertyName == nameof(MainViewModel.SortingRecommendationMessage) ||
+                     e.PropertyName == nameof(MainViewModel.SortingRecommendationActive))
+            {
+                OnPropertyChanged(nameof(SortingRecommendationMessage));
+                OnPropertyChanged(nameof(ShowSortingRecommendation));
+            }
         }
 
         private void UpdateDiffState()
         {
             HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged);
             ScrollTargetIndex = ComputeScrollTargetIndex();
+            OnPropertyChanged(nameof(ShowSortingRecommendation));
         }
 
         private int ComputeScrollTargetIndex()

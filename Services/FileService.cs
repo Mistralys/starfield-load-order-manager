@@ -181,6 +181,11 @@ namespace LoadOrderKeeper.Services
 
         public static async Task<IReadOnlyList<ModDiffModel>> GetModDiffAsync(AppConfigModel config)
         {
+            return await GetModDiffInternalAsync(config, alignCurrentToReference: false);
+        }
+
+        private static async Task<IReadOnlyList<ModDiffModel>> GetModDiffInternalAsync(AppConfigModel config, bool alignCurrentToReference)
+        {
             if (!config.IsValid())
             {
                 throw new InvalidOperationException("Configuration paths are invalid.");
@@ -201,6 +206,11 @@ namespace LoadOrderKeeper.Services
 
             var referenceMods = await ReadFileAsync(referencePath, true);
             var currentMods = await ReadFileAsync(targetPath);
+
+            if (alignCurrentToReference)
+            {
+                AlignCurrentModsWithReference(referenceMods, currentMods);
+            }
 
             var referenceLookup = referenceMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
             var currentLookup = currentMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
@@ -233,9 +243,72 @@ namespace LoadOrderKeeper.Services
             return diffs;
         }
 
+        public static async Task<bool> WouldSortingChangeDiffsAsync(AppConfigModel config)
+        {
+            var currentDiffs = await GetModDiffInternalAsync(config, alignCurrentToReference: false);
+            var sortedDiffs = await GetModDiffInternalAsync(config, alignCurrentToReference: true);
+            return !DiffSequencesEqual(currentDiffs, sortedDiffs);
+        }
+
+        private static void AlignCurrentModsWithReference(IReadOnlyList<ModEntryModel> referenceMods, List<ModEntryModel> currentMods)
+        {
+            if (referenceMods.Count == 0 || currentMods.Count == 0)
+            {
+                return;
+            }
+
+            var currentLookup = currentMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
+            var assigned = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            int normalizedIndex = 0;
+
+            foreach (var referenceMod in referenceMods)
+            {
+                if (currentLookup.TryGetValue(referenceMod.FileName, out var currentMod))
+                {
+                    normalizedIndex++;
+                    currentMod.LineNumber = normalizedIndex;
+                    assigned.Add(referenceMod.FileName);
+                }
+            }
+
+            foreach (var mod in currentMods)
+            {
+                if (!assigned.Contains(mod.FileName))
+                {
+                    normalizedIndex++;
+                    mod.LineNumber = normalizedIndex;
+                }
+            }
+        }
+
+        private static bool DiffSequencesEqual(IReadOnlyList<ModDiffModel> first, IReadOnlyList<ModDiffModel> second)
+        {
+            if (first.Count != second.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < first.Count; i++)
+            {
+                var left = first[i];
+                var right = second[i];
+                if (!string.Equals(left.FileName, right.FileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                if (left.ReferenceNumber != right.ReferenceNumber || left.CurrentNumber != right.CurrentNumber)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static async Task<bool> HasDeletedModsAsync(AppConfigModel config)
         {
-            var diffs = await GetModDiffAsync(config);
+            var diffs = await GetModDiffInternalAsync(config, alignCurrentToReference: false);
             return diffs.Any(d => d.IsRemoved);
         }
 

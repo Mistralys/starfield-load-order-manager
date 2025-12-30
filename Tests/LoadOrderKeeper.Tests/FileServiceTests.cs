@@ -98,4 +98,28 @@ public class FileServiceTests
 
         Assert.True(hasDeleted);
     }
+
+    [Fact]
+    public async Task WouldSortingChangeDiffsAsync_ReturnsTrue_ForOrderChanges()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm");
+        await context.WritePluginsAsync("*b.esm", "*a.esm");
+
+        bool result = await FileService.WouldSortingChangeDiffsAsync(context.Config);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task WouldSortingChangeDiffsAsync_ReturnsFalse_WhenRealChangesRemain()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm");
+        await context.WritePluginsAsync("*a.esm", "*c.esm");
+
+        bool result = await FileService.WouldSortingChangeDiffsAsync(context.Config);
+
+        Assert.False(result);
+    }
 }

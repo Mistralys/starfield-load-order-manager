@@ -70,6 +70,12 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
 
+        [ObservableProperty]
+        private string _sortingRecommendationMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool _sortingRecommendationActive;
+
         public IRelayCommand OpenPluginsFileCommand { get; }
         public IRelayCommand OpenReferenceFileCommand { get; }
         public IRelayCommand OpenAppDataFolderCommand { get; }
@@ -460,15 +466,23 @@ namespace LoadOrderKeeper.ViewModels
                 bool hasChanged = comparison.HasDifferences;
                 bool signatureChanged = !string.Equals(_lastObservedPluginsSignature, comparison.PluginsSignature, StringComparison.Ordinal);
                 _lastObservedPluginsSignature = comparison.PluginsSignature;
+                bool sortingRecommendation = false;
+
+                if (hasChanged)
+                {
+                    sortingRecommendation = await FileService.WouldSortingChangeDiffsAsync(Config);
+                }
 
                 if (hasChanged != PluginsFileChangedExternally)
                 {
                     PluginsFileChangedExternally = hasChanged;
                     StatusMessage = hasChanged
-                        ? "Plugins.txt was modified outside Load Order Keeper."
+                        ? PluginsModifiedWarningText
                         : GetReadyStatusMessage();
                     ShowDiffCommand?.NotifyCanExecuteChanged();
                 }
+
+                UpdateSortingRecommendationState(sortingRecommendation);
 
                 if (_activeDiffDialog is not null && signatureChanged)
                 {
@@ -537,5 +551,19 @@ namespace LoadOrderKeeper.ViewModels
         }
 
         private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
+
+        private void UpdateSortingRecommendationState(bool sortingRecommended)
+        {
+            if (sortingRecommended)
+            {
+                SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
+                SortingRecommendationActive = true;
+            }
+            else
+            {
+                SortingRecommendationMessage = string.Empty;
+                SortingRecommendationActive = false;
+            }
+        }
     }
 }

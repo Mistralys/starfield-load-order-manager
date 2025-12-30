@@ -38,7 +38,7 @@ namespace LoadOrderKeeper.Services
 
             foreach (var diff in diffs)
             {
-                string displayName = $"*{diff.FileName}";
+                string displayName = diff.FileName;
                 if (diff.IsRemoved)
                 {
                     string text = $"#{diff.ReferenceNumber}: {displayName} removed from load order";

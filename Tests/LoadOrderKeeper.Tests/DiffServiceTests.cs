@@ -21,13 +21,13 @@ public class DiffServiceTests
             item =>
             {
                 Assert.Equal(DiffChangeType.Removed, item.ChangeType);
-                Assert.Contains("*b.esm", item.Text);
+                Assert.Contains("b.esm", item.Text);
                 Assert.Contains("#2", item.Text);
             },
             item =>
             {
                 Assert.Equal(DiffChangeType.Added, item.ChangeType);
-                Assert.Contains("*c.esm", item.Text);
+                Assert.Contains("c.esm", item.Text);
                 Assert.Contains("#2", item.Text);
             });
     }
@@ -55,7 +55,7 @@ public class DiffServiceTests
 
         Assert.Single(diff);
         Assert.Equal(DiffChangeType.Removed, diff[0].ChangeType);
-        Assert.Contains("*a.esm", diff[0].Text);
+        Assert.Contains("a.esm", diff[0].Text);
     }
 
     [Fact]
@@ -72,14 +72,14 @@ public class DiffServiceTests
             item =>
             {
                 Assert.Equal(DiffChangeType.Moved, item.ChangeType);
-                Assert.Contains("*a.esm", item.Text);
+                Assert.Contains("a.esm", item.Text);
                 Assert.Contains("#1", item.Text);
                 Assert.Contains("#2", item.Text);
             },
             item =>
             {
                 Assert.Equal(DiffChangeType.Moved, item.ChangeType);
-                Assert.Contains("*b.esm", item.Text);
+                Assert.Contains("b.esm", item.Text);
                 Assert.Contains("#2", item.Text);
                 Assert.Contains("#1", item.Text);
             });

@@ -5,11 +5,11 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+
                 <materialDesign:BundledTheme BaseTheme="Dark"
-                                             PrimaryColor="DeepPurple"
-                                             SecondaryColor="Lime" />
+                                             PrimaryColor="Lime"
+                                             SecondaryColor="DeepPurple" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="MaterialDesignDefaultWindowStyle"

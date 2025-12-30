@@ -21,6 +21,9 @@ around - hence the need for a small application to observe and fix these changes
 - When you run the tool, it will load the reference file and sort all entries according to the reference file's order.
 - Any new mod files are appended at the end.
 - Every mod is assigned a numerical position according to the line on which it was found, starting at 1 for the first line.
+- A periodic check is performed on the `Plugins.txt` file to see if it has been changed on disk.
+- A DIFF window can show a detail of what changes have been made.
+- The user can choose what to do with the changes: either accept them (update the reference file) or revert them (restore the `Plugins.txt` file to match the reference file).
 
 ## The technology
 

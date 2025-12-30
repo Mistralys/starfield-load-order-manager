@@ -40,19 +40,7 @@ namespace LoadOrderKeeper.Services
             int logicalIndex = 0;
             foreach (var line in lines)
             {
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                var trimmed = line.TrimStart();
-                if (trimmed.StartsWith("#", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                var entry = new ModEntryModel(line);
-                if (!entry.IsEnabled)
+                if (!TryParseEnabledModEntry(line, out var entry))
                 {
                     continue;
                 }
@@ -120,6 +108,11 @@ namespace LoadOrderKeeper.Services
 
             foreach (var referenceMod in referenceMods)
             {
+                if (!referenceMod.IsEnabled)
+                {
+                    continue;
+                }
+
                 if (currentModSet.Contains(referenceMod))
                 {
                     finalOrder.Add(FormatLine(referenceMod, caseLookup));
@@ -128,6 +121,11 @@ namespace LoadOrderKeeper.Services
 
             foreach (var newMod in newMods)
             {
+                if (!newMod.IsEnabled)
+                {
+                    continue;
+                }
+
                 finalOrder.Add(FormatLine(newMod, caseLookup));
             }
 
@@ -347,12 +345,46 @@ namespace LoadOrderKeeper.Services
 
         private static string FormatLine(ModEntryModel mod, Dictionary<string, string> caseLookup)
         {
+            if (!mod.IsEnabled)
+            {
+                throw new InvalidOperationException("Cannot format a disabled mod entry.");
+            }
+
             var cleanFileName = mod.FileName.ToLowerInvariant();
             var resolvedName = caseLookup.TryGetValue(cleanFileName, out var correctCase)
                 ? correctCase
                 : mod.FileName;
 
             return $"*{resolvedName}";
+        }
+
+        private static bool TryParseEnabledModEntry(string line, out ModEntryModel entry)
+        {
+            entry = default!;
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                return false;
+            }
+
+            var trimmed = line.TrimStart();
+            if (trimmed.StartsWith("#", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (!trimmed.StartsWith("*", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var candidate = new ModEntryModel(line);
+            if (!candidate.IsEnabled)
+            {
+                return false;
+            }
+
+            entry = candidate;
+            return true;
         }
 
         public static async Task DiscardChangesAsync(AppConfigModel config)

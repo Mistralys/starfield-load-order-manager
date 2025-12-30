@@ -156,4 +156,17 @@ public class FileServiceTests
         var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
         Assert.Equal(new[] { "*FancySuit.esm" }, lines);
     }
+
+    [Fact]
+    public async Task ApplyLoadOrderAsync_IgnoresCommentsAndDisabledLines()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("# initial comment", "*a.esm", "b.esm");
+        await context.WritePluginsAsync("\t#a runtime comment", "  *a.esm  ", "b.esm");
+
+        await FileService.ApplyLoadOrderAsync(context.Config);
+
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*a.esm" }, lines);
+    }
 }

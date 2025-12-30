@@ -43,6 +43,10 @@ namespace LoadOrderKeeper.ViewModels
 
         public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
 
+        public string DiscardChangesButtonText { get; } = "Discard all changes";
+
+        public string CloseButtonText { get; } = "Close";
+
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;

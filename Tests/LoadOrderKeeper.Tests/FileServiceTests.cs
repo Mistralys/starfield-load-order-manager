@@ -122,4 +122,22 @@ public class FileServiceTests
 
         Assert.False(result);
     }
+
+    [Fact]
+    public async Task ApplyLoadOrderAsync_RestoresCase_ForNestedDataFiles()
+    {
+        using var context = new TestConfigContext();
+        var nestedFolder = Path.Combine(context.StarfieldGamePath, "Data", "Mods", "Pack1");
+        Directory.CreateDirectory(nestedFolder);
+        var nestedModPath = Path.Combine(nestedFolder, "FancyMOD.ESM");
+        await File.WriteAllTextAsync(nestedModPath, string.Empty);
+
+        await context.WriteReferenceAsync("*fancymod.esm");
+        await context.WritePluginsAsync("*fancymod.esm");
+
+        await FileService.ApplyLoadOrderAsync(context.Config);
+
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*FancyMOD.ESM" }, lines);
+    }
 }

@@ -20,8 +20,8 @@ namespace LoadOrderKeeper.Services
                 return new Dictionary<string, string>();
             }
 
-            var files = Directory.EnumerateFiles(dataPath, "*.esm", SearchOption.TopDirectoryOnly)
-                .Concat(Directory.EnumerateFiles(dataPath, "*.esp", SearchOption.TopDirectoryOnly));
+            var files = Directory.EnumerateFiles(dataPath, "*.esm", SearchOption.AllDirectories)
+                .Concat(Directory.EnumerateFiles(dataPath, "*.esp", SearchOption.AllDirectories));
 
             return files.ToDictionary(
                 p => Path.GetFileName(p).ToLowerInvariant(),

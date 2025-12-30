@@ -39,6 +39,9 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _referenceButtonText = "Create Reference";
 
+        [ObservableProperty]
+        private string _fixLoadOrderButtonText = "Fix Load Order";
+
         private string _playButtonText = "Play (Vanilla)";
         public string PlayButtonText
         {
@@ -321,7 +324,7 @@ namespace LoadOrderKeeper.ViewModels
         private string GetReadyStatusMessage()
         {
             return Config.IsValid()
-                ? "Ready. Configuration is valid."
+                ? "Ready."
                 : "Configuration is required. Please set paths in the Settings window.";
         }
 

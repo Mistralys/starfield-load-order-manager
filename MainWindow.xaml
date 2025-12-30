@@ -43,24 +43,13 @@
                 CornerRadius="6"
                 Background="{DynamicResource MaterialDesignCardBackground}">
             <StackPanel>
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock FontWeight="Bold"
-                               Text="Current Plugins.txt target:"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                    <TextBlock TextWrapping="Wrap"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}">
-                        <Run Text="Target: " />
-                        <Run Text="{Binding Config.StarfieldAppDataPath}" />
-                    </TextBlock>
-                </StackPanel>
-
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0"
-                            Content="Fix Load Order"
+                            Content="{Binding FixLoadOrderButtonText}"
                             Margin="0,0,8,0"
                             Command="{Binding FixLoadOrderCommand}"
                             HorizontalAlignment="Stretch"

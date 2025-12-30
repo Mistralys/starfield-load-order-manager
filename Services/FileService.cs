@@ -51,8 +51,19 @@ namespace LoadOrderKeeper.Services
                     continue;
                 }
 
+                var entry = new ModEntryModel(line);
+                if (!entry.IsEnabled)
+                {
+                    continue;
+                }
+
                 logicalIndex++;
-                var entry = new ModEntryModel(line, logicalIndex, isReferenceFile ? logicalIndex : null);
+                entry.LineNumber = logicalIndex;
+                if (isReferenceFile)
+                {
+                    entry.OriginalLineNumber = logicalIndex;
+                }
+
                 result.Add(entry);
             }
 
@@ -274,7 +285,7 @@ namespace LoadOrderKeeper.Services
                 ? correctCase
                 : mod.FileName;
 
-            return $"{(mod.IsEnabled ? "*" : string.Empty)}{resolvedName}";
+            return $"*{resolvedName}";
         }
 
         public static async Task DiscardChangesAsync(AppConfigModel config)

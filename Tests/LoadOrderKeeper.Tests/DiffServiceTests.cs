@@ -43,4 +43,18 @@ public class DiffServiceTests
 
         Assert.Empty(diff);
     }
+
+    [Fact]
+    public async Task GetPluginsDiffAsync_TreatsDisabledModsAsRemoved()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm");
+        await context.WritePluginsAsync("a.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        Assert.Single(diff);
+        Assert.Equal(DiffChangeType.Removed, diff[0].ChangeType);
+        Assert.Contains("*a.esm", diff[0].Text);
+    }
 }

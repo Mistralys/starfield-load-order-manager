@@ -18,7 +18,7 @@ namespace LoadOrderKeeper.Models
             OriginalLineNumber = originalLineNumber ?? lineNumber;
         }
 
-        public string ToLine() => $"{(IsEnabled ? "*" : string.Empty)}{FileName}";
+        public string ToLine() => $"*{FileName}";
 
         public override string ToString() => ToLine();
 

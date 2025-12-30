@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Services;
@@ -44,6 +45,46 @@ public class FileServiceTests
         Assert.Equal(2, moved.Count);
         Assert.Contains(moved, d => d.FileName == "a.esm" && d.ReferenceNumber == 1 && d.CurrentNumber == 2);
         Assert.Contains(moved, d => d.FileName == "b.esm" && d.ReferenceNumber == 2 && d.CurrentNumber == 1);
+    }
+
+    [Fact]
+    public async Task GetModDiffAsync_TreatsDisabledModsAsRemoved()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm");
+        await context.WritePluginsAsync("*a.esm", "b.esm");
+
+        var diffs = await FileService.GetModDiffAsync(context.Config);
+
+        var removed = diffs.First(d => d.FileName == "b.esm");
+        Assert.True(removed.IsRemoved);
+        Assert.Null(removed.CurrentNumber);
+        Assert.Equal(2, removed.ReferenceNumber);
+    }
+
+    [Fact]
+    public async Task GetModDiffAsync_IgnoresDisabledNewMods()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm");
+        await context.WritePluginsAsync("*a.esm", "new.esm");
+
+        var diffs = await FileService.GetModDiffAsync(context.Config);
+
+        Assert.DoesNotContain(diffs, d => d.FileName == "new.esm");
+    }
+
+    [Fact]
+    public async Task ApplyLoadOrderAsync_WritesOnlyEnabledMods()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm");
+        await context.WritePluginsAsync("*a.esm", "*b.esm", "c.esm");
+
+        await FileService.ApplyLoadOrderAsync(context.Config);
+
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*a.esm", "*b.esm" }, lines);
     }
 
     [Fact]

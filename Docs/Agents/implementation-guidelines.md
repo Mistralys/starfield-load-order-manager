@@ -26,9 +26,8 @@ goals, features and architecture.
 
 ### Implementation Details
 
-- The [Periodic Change Checking System](./impl-periodic-change-checking.md).
-- The [DIFF Detection System](./impl-diff-detection-overview.md).
-- The [MVVM Architecture Overview](./impl-mvvm-architecture-overview.md).
+The [Project Manifest](./project-manifest.md) document is the Source-of-truth overview for AI agents, detailing
+the tech stack, file tree, architecture, MVVM patterns and key components of the application.
 
 ### Development history
 

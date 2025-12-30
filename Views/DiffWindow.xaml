@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:LoadOrderKeeper.Models"
+        xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="494"
@@ -15,6 +16,7 @@
         Background="{DynamicResource MaterialDesignPaper}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:ReplacementCommandParameterConverter x:Key="ReplacementCommandParameterConverter" />
     </Window.Resources>
     <DockPanel Margin="16" Background="{DynamicResource MaterialDesignPaper}">
         <Grid>
@@ -47,6 +49,77 @@
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                             <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Re-enable mod"
+                                                  Command="{Binding ReEnableModCommand}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                            <MenuItem.Style>
+                                                <Style TargetType="MenuItem">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                     Value="{x:Static models:DiffChangeType.Removed}">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </MenuItem.Style>
+                                        </MenuItem>
+                                        <MenuItem Header="Replace with...">
+                                            <MenuItem.Style>
+                                                <Style TargetType="MenuItem">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                           Value="{x:Static models:DiffChangeType.Removed}" />
+                                                                <Condition Binding="{Binding HasAddedMods}" Value="True" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </MenuItem.Style>
+                                            <MenuItem.ItemsSource>
+                                                <Binding Path="AddedMods" />
+                                            </MenuItem.ItemsSource>
+                                            <MenuItem.ItemContainerStyle>
+                                                <Style TargetType="MenuItem">
+                                                    <Setter Property="Header" Value="{Binding FileName}" />
+                                                    <Setter Property="Command" Value="{Binding DataContext.ReplaceRemovedModCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                                    <Setter Property="CommandParameter">
+                                                        <Setter.Value>
+                                                            <MultiBinding Converter="{StaticResource ReplacementCommandParameterConverter}">
+                                                                <Binding />
+                                                                <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.DataContext" />
+                                                            </MultiBinding>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </MenuItem.ItemContainerStyle>
+                                        </MenuItem>
+                                        <MenuItem Header="Remove mod"
+                                                  Command="{Binding RemoveNewModCommand}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                            <MenuItem.Style>
+                                                <Style TargetType="MenuItem">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                     Value="{x:Static models:DiffChangeType.Added}">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </MenuItem.Style>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Added}">
                                     <Setter Property="Background" Value="#1A4CAF50" />
@@ -56,6 +129,7 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
                                     <Setter Property="Background" Value="#1A2196F3" />
+                                    <Setter Property="ContextMenu" Value="{x:Null}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

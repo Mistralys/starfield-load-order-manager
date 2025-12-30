@@ -169,4 +169,46 @@ public class FileServiceTests
         var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
         Assert.Equal(new[] { "*a.esm" }, lines);
     }
+
+    [Fact]
+    public async Task ReEnableModAsync_RestoresMissingMod()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm");
+        await context.WritePluginsAsync("*a.esm");
+
+        bool result = await FileService.ReEnableModAsync(context.Config, "b.esm");
+
+        Assert.True(result);
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*a.esm", "*b.esm" }, lines);
+    }
+
+    [Fact]
+    public async Task RemoveNewModAsync_RemovesLine()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm");
+        await context.WritePluginsAsync("*a.esm", "*c.esm");
+
+        bool result = await FileService.RemoveNewModAsync(context.Config, "c.esm");
+
+        Assert.True(result);
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*a.esm" }, lines);
+    }
+
+    [Fact]
+    public async Task ReplaceModWithNewAsync_RestoresReferenceEntry()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm");
+        await context.WritePluginsAsync("*a.esm", "*c.esm");
+
+        bool result = await FileService.ReplaceModWithNewAsync(context.Config, "b.esm", "c.esm");
+
+        Assert.True(result);
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*a.esm", "*b.esm" }, lines);
+    }
 }

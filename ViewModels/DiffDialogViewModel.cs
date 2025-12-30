@@ -27,6 +27,9 @@ namespace LoadOrderKeeper.ViewModels
             DiffLines.CollectionChanged += OnDiffCollectionChanged;
             UpdateReferenceCommand = _mainViewModel.CreateReferenceCommand;
             FixLoadOrderCommand = _mainViewModel.FixLoadOrderCommand;
+            ReEnableModCommand = new AsyncRelayCommand<DiffLineModel>(ReEnableModAsync);
+            RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
+            ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(ReplaceRemovedModAsync);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
@@ -51,9 +54,19 @@ namespace LoadOrderKeeper.ViewModels
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
 
+        public IReadOnlyList<DiffLineModel> AddedMods => DiffLines.Where(line => line.ChangeType == DiffChangeType.Added).ToList();
+
+        public bool HasAddedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Added);
+
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
 
         public IAsyncRelayCommand FixLoadOrderCommand { get; }
+
+        public IAsyncRelayCommand<DiffLineModel> ReEnableModCommand { get; }
+
+        public IAsyncRelayCommand<DiffLineModel> RemoveNewModCommand { get; }
+
+        public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
@@ -125,6 +138,8 @@ namespace LoadOrderKeeper.ViewModels
             HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged);
             ScrollTargetIndex = ComputeScrollTargetIndex();
             OnPropertyChanged(nameof(ShowSortingRecommendation));
+            OnPropertyChanged(nameof(AddedMods));
+            OnPropertyChanged(nameof(HasAddedMods));
         }
 
         private int ComputeScrollTargetIndex()
@@ -236,6 +251,87 @@ namespace LoadOrderKeeper.ViewModels
 
             await discardCommand.ExecuteAsync(null);
             CloseRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async Task ReEnableModAsync(DiffLineModel? line)
+        {
+            if (line is null || line.ChangeType != DiffChangeType.Removed)
+            {
+                return;
+            }
+
+            try
+            {
+                bool changed = await FileService.ReEnableModAsync(_mainViewModel.Config, line.FileName);
+                if (changed)
+                {
+                    await RefreshDiffAsync($"Re-enabled {line.FileName}");
+                }
+                else
+                {
+                    DiffStatusMessage = $"{line.FileName} is already enabled.";
+                }
+            }
+            catch (Exception ex)
+            {
+                DiffStatusMessage = $"Failed to re-enable {line.FileName}: {ex.Message}";
+            }
+        }
+
+        private async Task RemoveNewModAsync(DiffLineModel? line)
+        {
+            if (line is null || line.ChangeType != DiffChangeType.Added)
+            {
+                return;
+            }
+
+            try
+            {
+                bool changed = await FileService.RemoveNewModAsync(_mainViewModel.Config, line.FileName);
+                if (changed)
+                {
+                    await RefreshDiffAsync($"Removed {line.FileName}");
+                }
+                else
+                {
+                    DiffStatusMessage = $"{line.FileName} is already removed.";
+                }
+            }
+            catch (Exception ex)
+            {
+                DiffStatusMessage = $"Failed to remove {line.FileName}: {ex.Message}";
+            }
+        }
+
+        private async Task ReplaceRemovedModAsync((DiffLineModel Removed, DiffLineModel Replacement) request)
+        {
+            var (removed, replacement) = request;
+            if (removed is null || replacement is null)
+            {
+                return;
+            }
+
+            if (removed.ChangeType != DiffChangeType.Removed || replacement.ChangeType != DiffChangeType.Added)
+            {
+                return;
+            }
+
+            try
+            {
+                bool changed = await FileService.ReplaceModWithNewAsync(_mainViewModel.Config, removed.FileName, replacement.FileName);
+                if (changed)
+                {
+                    await RefreshDiffAsync($"Replaced {removed.FileName} with {replacement.FileName}");
+                }
+                else
+                {
+                    DiffStatusMessage = $"{replacement.FileName} is no longer pending.";
+                }
+            }
+            catch (Exception ex)
+            {
+                DiffStatusMessage = $"Failed to replace {removed.FileName}: {ex.Message}";
+            }
         }
 
         public void Dispose()

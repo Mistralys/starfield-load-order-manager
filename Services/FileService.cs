@@ -84,52 +84,8 @@ namespace LoadOrderKeeper.Services
                 throw new InvalidOperationException("Configuration paths are invalid.");
             }
 
-            string targetPath = config.GetPluginsFilePath();
-            string referencePath = config.GetReferenceFilePath();
-
-            if (!File.Exists(referencePath))
-            {
-                throw new FileNotFoundException("Reference file not found.", referencePath);
-            }
-
-            if (!File.Exists(targetPath))
-            {
-                throw new FileNotFoundException("Plugins file not found.", targetPath);
-            }
-
-            var caseLookup = GetCaseLookup(config.StarfieldGamePath);
-            var referenceMods = await ReadFileAsync(referencePath, true);
-            var currentMods = await ReadFileAsync(targetPath);
-
-            var currentModSet = new HashSet<ModEntryModel>(currentMods);
-            var newMods = currentMods.Where(mod => !referenceMods.Contains(mod)).ToList();
-
-            var finalOrder = new List<string>();
-
-            foreach (var referenceMod in referenceMods)
-            {
-                if (!referenceMod.IsEnabled)
-                {
-                    continue;
-                }
-
-                if (currentModSet.Contains(referenceMod))
-                {
-                    finalOrder.Add(FormatLine(referenceMod, caseLookup));
-                }
-            }
-
-            foreach (var newMod in newMods)
-            {
-                if (!newMod.IsEnabled)
-                {
-                    continue;
-                }
-
-                finalOrder.Add(FormatLine(newMod, caseLookup));
-            }
-
-            await File.WriteAllLinesAsync(targetPath, finalOrder, Utf8NoBom);
+            var (referenceMods, currentMods, targetPath) = await LoadModStateAsync(config);
+            await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
         }
 
         public static async Task<bool> HasPluginsFileChangedAsync(AppConfigModel config)
@@ -421,6 +377,154 @@ namespace LoadOrderKeeper.Services
             }
 
             return builder.ToString();
+        }
+
+        private static async Task<(List<ModEntryModel> referenceMods, List<ModEntryModel> currentMods, string targetPath)> LoadModStateAsync(AppConfigModel config)
+        {
+            if (config is null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (!config.IsValid())
+            {
+                throw new InvalidOperationException("Configuration paths are invalid.");
+            }
+
+            string targetPath = config.GetPluginsFilePath();
+            string referencePath = config.GetReferenceFilePath();
+
+            if (!File.Exists(referencePath))
+            {
+                throw new FileNotFoundException("Reference file not found.", referencePath);
+            }
+
+            if (!File.Exists(targetPath))
+            {
+                throw new FileNotFoundException("Plugins file not found.", targetPath);
+            }
+
+            var referenceMods = await ReadFileAsync(referencePath, isReferenceFile: true).ConfigureAwait(false);
+            var currentMods = await ReadFileAsync(targetPath).ConfigureAwait(false);
+            return (referenceMods, currentMods, targetPath);
+        }
+
+        private static async Task WriteAlignedLoadOrderAsync(AppConfigModel config, List<ModEntryModel> referenceMods, List<ModEntryModel> currentMods, string targetPath)
+        {
+            var caseLookup = GetCaseLookup(config.StarfieldGamePath);
+            var currentModSet = new HashSet<ModEntryModel>(currentMods);
+            var newMods = currentMods.Where(mod => !referenceMods.Contains(mod)).ToList();
+
+            var finalOrder = new List<string>(referenceMods.Count + newMods.Count);
+
+            foreach (var referenceMod in referenceMods)
+            {
+                if (!referenceMod.IsEnabled)
+                {
+                    continue;
+                }
+
+                if (currentModSet.Contains(referenceMod))
+                {
+                    finalOrder.Add(FormatLine(referenceMod, caseLookup));
+                }
+            }
+
+            foreach (var newMod in newMods)
+            {
+                if (!newMod.IsEnabled)
+                {
+                    continue;
+                }
+
+                finalOrder.Add(FormatLine(newMod, caseLookup));
+            }
+
+            await File.WriteAllLinesAsync(targetPath, finalOrder, Utf8NoBom).ConfigureAwait(false);
+        }
+
+        public static async Task<bool> ReEnableModAsync(AppConfigModel config, string modFileName)
+        {
+            if (string.IsNullOrWhiteSpace(modFileName))
+            {
+                throw new ArgumentException("Mod file name is required.", nameof(modFileName));
+            }
+
+            var (referenceMods, currentMods, targetPath) = await LoadModStateAsync(config);
+            var comparer = StringComparer.OrdinalIgnoreCase;
+
+            if (currentMods.Any(m => comparer.Equals(m.FileName, modFileName)))
+            {
+                return false;
+            }
+
+            var referenceMod = referenceMods.FirstOrDefault(m => comparer.Equals(m.FileName, modFileName));
+            if (referenceMod is null)
+            {
+                throw new InvalidOperationException($"Reference file does not contain the mod '{modFileName}'.");
+            }
+
+            currentMods.Add(new ModEntryModel(referenceMod.ToLine()));
+            await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
+            return true;
+        }
+
+        public static async Task<bool> RemoveNewModAsync(AppConfigModel config, string modFileName)
+        {
+            if (string.IsNullOrWhiteSpace(modFileName))
+            {
+                throw new ArgumentException("Mod file name is required.", nameof(modFileName));
+            }
+
+            var (referenceMods, currentMods, targetPath) = await LoadModStateAsync(config);
+            var comparer = StringComparer.OrdinalIgnoreCase;
+
+            int removedCount = currentMods.RemoveAll(m => comparer.Equals(m.FileName, modFileName));
+            if (removedCount == 0)
+            {
+                return false;
+            }
+
+            await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
+            return true;
+        }
+
+        public static async Task<bool> ReplaceModWithNewAsync(AppConfigModel config, string removedModFileName, string replacementModFileName)
+        {
+            if (string.IsNullOrWhiteSpace(removedModFileName))
+            {
+                throw new ArgumentException("Removed mod name is required.", nameof(removedModFileName));
+            }
+
+            if (string.IsNullOrWhiteSpace(replacementModFileName))
+            {
+                throw new ArgumentException("Replacement mod name is required.", nameof(replacementModFileName));
+            }
+
+            var (referenceMods, currentMods, targetPath) = await LoadModStateAsync(config);
+            var comparer = StringComparer.OrdinalIgnoreCase;
+
+            int replacementIndex = currentMods.FindIndex(m => comparer.Equals(m.FileName, replacementModFileName));
+            if (replacementIndex < 0)
+            {
+                return false;
+            }
+
+            currentMods.RemoveAt(replacementIndex);
+
+            if (!currentMods.Any(m => comparer.Equals(m.FileName, removedModFileName)))
+            {
+                var referenceMod = referenceMods.FirstOrDefault(m => comparer.Equals(m.FileName, removedModFileName));
+                if (referenceMod is null)
+                {
+                    throw new InvalidOperationException($"Reference file does not contain the mod '{removedModFileName}'.");
+                }
+
+                currentMods.Add(new ModEntryModel(referenceMod.ToLine()));
+            }
+
+            await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
+            return true;
         }
     }
 }

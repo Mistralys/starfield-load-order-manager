@@ -42,17 +42,17 @@ namespace LoadOrderKeeper.Services
                 if (diff.IsRemoved)
                 {
                     string text = $"#{diff.ReferenceNumber}: {displayName} removed from load order";
-                    result.Add(new DiffLineModel(text, DiffChangeType.Removed));
+                    result.Add(new DiffLineModel(displayName, text, DiffChangeType.Removed, diff.ReferenceNumber, diff.CurrentNumber));
                 }
                 else if (diff.IsNew)
                 {
                     string text = $"#{diff.CurrentNumber}: {displayName} added to load order";
-                    result.Add(new DiffLineModel(text, DiffChangeType.Added));
+                    result.Add(new DiffLineModel(displayName, text, DiffChangeType.Added, diff.ReferenceNumber, diff.CurrentNumber));
                 }
                 else if (diff.IsMoved)
                 {
                     string text = $"{displayName} moved from #{diff.ReferenceNumber} to #{diff.CurrentNumber}";
-                    result.Add(new DiffLineModel(text, DiffChangeType.Moved));
+                    result.Add(new DiffLineModel(displayName, text, DiffChangeType.Moved, diff.ReferenceNumber, diff.CurrentNumber));
                 }
             }
 

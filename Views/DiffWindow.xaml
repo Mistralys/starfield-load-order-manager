@@ -103,6 +103,11 @@
                         Command="{Binding DiscardChangesCommand}"
                         IsEnabled="{Binding HasDifferences}"
                         Style="{StaticResource MaterialDesignFlatButton}" />
+                <Button Content="{Binding FixLoadOrderButtonText}"
+                        Margin="0,0,8,0"
+                        Command="{Binding FixLoadOrderCommand}"
+                        IsEnabled="{Binding HasDifferences}"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
                 <Button Content="{Binding UpdateReferenceButtonText}"
                         Command="{Binding UpdateReferenceCommand}"
                         IsEnabled="{Binding HasDifferences}"

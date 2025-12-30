@@ -57,4 +57,31 @@ public class DiffServiceTests
         Assert.Equal(DiffChangeType.Removed, diff[0].ChangeType);
         Assert.Contains("*a.esm", diff[0].Text);
     }
+
+    [Fact]
+    public async Task GetPluginsDiffAsync_ReportsMovedModsForOrderChanges()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm");
+        await context.WritePluginsAsync("*b.esm", "*a.esm", "*c.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        Assert.Collection(
+            diff,
+            item =>
+            {
+                Assert.Equal(DiffChangeType.Moved, item.ChangeType);
+                Assert.Contains("*a.esm", item.Text);
+                Assert.Contains("#1", item.Text);
+                Assert.Contains("#2", item.Text);
+            },
+            item =>
+            {
+                Assert.Equal(DiffChangeType.Moved, item.ChangeType);
+                Assert.Contains("*b.esm", item.Text);
+                Assert.Contains("#2", item.Text);
+                Assert.Contains("#1", item.Text);
+            });
+    }
 }

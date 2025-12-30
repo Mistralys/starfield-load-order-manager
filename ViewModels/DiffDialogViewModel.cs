@@ -26,6 +26,7 @@ namespace LoadOrderKeeper.ViewModels
             DiffLines = new ObservableCollection<DiffLineModel>(diffLines);
             DiffLines.CollectionChanged += OnDiffCollectionChanged;
             UpdateReferenceCommand = _mainViewModel.CreateReferenceCommand;
+            FixLoadOrderCommand = _mainViewModel.FixLoadOrderCommand;
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
@@ -40,7 +41,11 @@ namespace LoadOrderKeeper.ViewModels
 
         public string UpdateReferenceButtonText => _mainViewModel.ReferenceButtonText;
 
+        public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
+
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
+
+        public IAsyncRelayCommand FixLoadOrderCommand { get; }
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
@@ -94,6 +99,10 @@ namespace LoadOrderKeeper.ViewModels
             if (e.PropertyName == nameof(MainViewModel.ReferenceButtonText))
             {
                 OnPropertyChanged(nameof(UpdateReferenceButtonText));
+            }
+            else if (e.PropertyName == nameof(MainViewModel.FixLoadOrderButtonText))
+            {
+                OnPropertyChanged(nameof(FixLoadOrderButtonText));
             }
         }
 

@@ -1,4 +1,4 @@
-﻿# Load order profiles
+﻿# New Feature: Load order profiles
 
 Starfield supports playing with different characters, which have separate folders for savegames. 
 These characters can (but must not) have different load orders. In fact, my mod manager tool facilitates 
@@ -10,8 +10,12 @@ I think that it makes sense to use the "Profile" terminology as it is already fa
 
 ## Implementation guidelines
 
-See the [Implementation Guidelines](../implementation-guidelines.md) document for general guidelines
-on implementing features (code behind and UI).
+Refer to the [Application Description](./application-description.md) for a high-level overview of the
+application's goals, features and architecture.
+
+Refer to the [Implementation Guidelines](../implementation-guidelines.md) document for guidelines
+on implementing features (code behind and UI). Don't ask about existing architecture; follow the 
+established patterns in the codebase.
 
 ## The Profile System
 

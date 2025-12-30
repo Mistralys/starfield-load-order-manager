@@ -511,17 +511,18 @@ namespace LoadOrderKeeper.Services
             }
 
             currentMods.RemoveAt(replacementIndex);
+            currentMods.RemoveAll(m => comparer.Equals(m.FileName, removedModFileName));
 
-            if (!currentMods.Any(m => comparer.Equals(m.FileName, removedModFileName)))
+            int referenceIndex = referenceMods.FindIndex(m => comparer.Equals(m.FileName, removedModFileName));
+            if (referenceIndex < 0)
             {
-                var referenceMod = referenceMods.FirstOrDefault(m => comparer.Equals(m.FileName, removedModFileName));
-                if (referenceMod is null)
-                {
-                    throw new InvalidOperationException($"Reference file does not contain the mod '{removedModFileName}'.");
-                }
-
-                currentMods.Add(new ModEntryModel(referenceMod.ToLine()));
+                throw new InvalidOperationException($"Reference file does not contain the mod '{removedModFileName}'.");
             }
+
+            var referenceSlot = referenceMods[referenceIndex];
+            var replacementEntry = new ModEntryModel($"*{replacementModFileName}", referenceSlot.LineNumber, referenceSlot.OriginalLineNumber);
+            referenceMods[referenceIndex] = replacementEntry;
+            currentMods.Add(new ModEntryModel(replacementEntry.ToLine()));
 
             await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
             return true;

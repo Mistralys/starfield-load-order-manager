@@ -199,7 +199,7 @@ public class FileServiceTests
     }
 
     [Fact]
-    public async Task ReplaceModWithNewAsync_RestoresReferenceEntry()
+    public async Task ReplaceModWithNewAsync_ReplacesReferenceEntry()
     {
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*a.esm", "*b.esm");
@@ -209,6 +209,6 @@ public class FileServiceTests
 
         Assert.True(result);
         var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
-        Assert.Equal(new[] { "*a.esm", "*b.esm" }, lines);
+        Assert.Equal(new[] { "*a.esm", "*c.esm" }, lines);
     }
 }

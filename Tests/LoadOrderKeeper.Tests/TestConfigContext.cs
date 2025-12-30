@@ -1,0 +1,62 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using LoadOrderKeeper.Models;
+
+namespace LoadOrderKeeper.Tests;
+
+internal sealed class TestConfigContext : IDisposable
+{
+    private readonly string _rootPath;
+
+    public TestConfigContext()
+    {
+        _rootPath = Path.Combine(Path.GetTempPath(), "LoadOrderKeeperTests", Guid.NewGuid().ToString("N"));
+        StarfieldAppDataPath = Path.Combine(_rootPath, "AppData");
+        StarfieldGamePath = Path.Combine(_rootPath, "Game");
+        Directory.CreateDirectory(StarfieldAppDataPath);
+        Directory.CreateDirectory(Path.Combine(StarfieldGamePath, "Data"));
+
+        Config = new AppConfigModel
+        {
+            StarfieldAppDataPath = StarfieldAppDataPath,
+            StarfieldGamePath = StarfieldGamePath,
+            PluginCheckIntervalSeconds = 1
+        };
+    }
+
+    public AppConfigModel Config { get; }
+
+    public string StarfieldAppDataPath { get; }
+
+    public string StarfieldGamePath { get; }
+
+    public string PluginsFilePath => Config.GetPluginsFilePath();
+
+    public string ReferenceFilePath => Config.GetReferenceFilePath();
+
+    public async Task WritePluginsAsync(params string[] lines)
+    {
+        await File.WriteAllLinesAsync(PluginsFilePath, lines);
+    }
+
+    public async Task WriteReferenceAsync(params string[] lines)
+    {
+        await File.WriteAllLinesAsync(ReferenceFilePath, lines);
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            if (Directory.Exists(_rootPath))
+            {
+                Directory.Delete(_rootPath, recursive: true);
+            }
+        }
+        catch
+        {
+            // Swallow exceptions in cleanup to avoid hiding test results.
+        }
+    }
+}

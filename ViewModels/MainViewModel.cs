@@ -108,7 +108,11 @@ namespace LoadOrderKeeper.ViewModels
 
             await EnsureValidConfigurationAsync();
 
-            StatusMessage = GetReadyStatusMessage();
+            var referenceResult = await EnsureReferenceFileExistsAsync();
+            if (referenceResult == ReferenceInitializationResult.AlreadyExists)
+            {
+                StatusMessage = GetReadyStatusMessage();
+            }
 
             ConfigurePluginsMonitor();
             await CheckPluginsFileAsync();
@@ -339,9 +343,17 @@ namespace LoadOrderKeeper.ViewModels
                 Config = settingsVm.GetConfig();
                 await SettingsService.SaveSettingsAsync(Config);
                 RefExists = FileService.DoesReferenceFileExist(Config);
-                StatusMessage = Config.IsValid()
-                    ? "Configuration updated."
-                    : "Configuration is invalid.";
+                var referenceResult = await EnsureReferenceFileExistsAsync();
+                if (referenceResult == ReferenceInitializationResult.AlreadyExists)
+                {
+                    StatusMessage = Config.IsValid()
+                        ? "Configuration updated."
+                        : "Configuration is invalid.";
+                }
+                else if (referenceResult == ReferenceInitializationResult.InvalidConfiguration)
+                {
+                    StatusMessage = "Configuration is invalid.";
+                }
                 ConfigurePluginsMonitor();
                 await CheckPluginsFileAsync();
                 return true;
@@ -593,6 +605,49 @@ namespace LoadOrderKeeper.ViewModels
             {
                 SortingRecommendationMessage = string.Empty;
                 SortingRecommendationActive = false;
+            }
+        }
+
+        private enum ReferenceInitializationResult
+        {
+            AlreadyExists,
+            Created,
+            MissingPluginsFile,
+            InvalidConfiguration,
+            Failed
+        }
+
+        private async Task<ReferenceInitializationResult> EnsureReferenceFileExistsAsync()
+        {
+            if (!Config.IsValid())
+            {
+                return ReferenceInitializationResult.InvalidConfiguration;
+            }
+
+            if (RefExists)
+            {
+                return ReferenceInitializationResult.AlreadyExists;
+            }
+
+            string pluginsPath = Config.GetPluginsFilePath();
+            if (!File.Exists(pluginsPath))
+            {
+                StatusMessage = $"Plugins.txt not found at {pluginsPath}. Unable to create reference automatically.";
+                return ReferenceInitializationResult.MissingPluginsFile;
+            }
+
+            try
+            {
+                StatusMessage = "No reference file found. Creating one from current Plugins.txt...";
+                await FileService.CreateReferenceFileAsync(Config);
+                RefExists = true;
+                StatusMessage = "Reference file created automatically from current Plugins.txt.";
+                return ReferenceInitializationResult.Created;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"ERROR: Failed to create reference automatically: {ex.Message}";
+                return ReferenceInitializationResult.Failed;
             }
         }
     }

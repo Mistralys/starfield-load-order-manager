@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Starfield Load Order Keeper"
+        Title="{Binding WindowTitle}"
         Height="386"
         Width="520"
         MinWidth="480"
@@ -20,21 +20,21 @@
         <Menu DockPanel.Dock="Top"
               Background="{DynamicResource MaterialDesignPaper}"
               Foreground="{DynamicResource MaterialDesignBody}">
-            <MenuItem Header="_File">
-                <MenuItem Header="Open _Plugins.txt"
+            <MenuItem Header="{Binding FileMenuHeader}">
+                <MenuItem Header="{Binding OpenPluginsMenuText}"
                           Command="{Binding OpenPluginsFileCommand}" />
-                <MenuItem Header="Open _Reference File"
+                <MenuItem Header="{Binding OpenReferenceMenuText}"
                           Command="{Binding OpenReferenceFileCommand}" />
                 <Separator />
-                <MenuItem Header="Open _AppData Folder"
+                <MenuItem Header="{Binding OpenAppDataFolderMenuText}"
                           Command="{Binding OpenAppDataFolderCommand}" />
-                <MenuItem Header="Open _Game Folder"
+                <MenuItem Header="{Binding OpenGameFolderMenuText}"
                           Command="{Binding OpenGameFolderCommand}" />
                 <Separator />
-                <MenuItem Header="E_xit"
+                <MenuItem Header="{Binding ExitMenuText}"
                           Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
-            <MenuItem Header="_Settings..."
+            <MenuItem Header="{Binding SettingsMenuHeader}"
                       Command="{Binding OpenSettingsCommand}" />
         </Menu>
 
@@ -79,7 +79,7 @@
                                Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 </Border>
                 <TextBlock Margin="0,8,0,0"
-                           Text="Plugins.txt was modified outside Load Order Keeper."
+                           Text="{Binding PluginsModifiedWarningText}"
                            Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
                            Visibility="{Binding PluginsFileChangedExternally, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 <Button Margin="0,16,0,0"

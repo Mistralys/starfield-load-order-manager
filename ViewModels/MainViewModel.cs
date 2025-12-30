@@ -49,6 +49,18 @@ namespace LoadOrderKeeper.ViewModels
             private set => SetProperty(ref _playButtonText, value);
         }
 
+        public string WindowTitle { get; } = "Starfield Load Order Keeper";
+        public string FileMenuHeader { get; } = "_File";
+        public string OpenPluginsMenuText { get; } = "Open _Plugins.txt";
+        public string OpenReferenceMenuText { get; } = "Open _Reference File";
+        public string OpenAppDataFolderMenuText { get; } = "Open _AppData Folder";
+        public string OpenGameFolderMenuText { get; } = "Open _Game Folder";
+        public string ExitMenuText { get; } = "E_xit";
+        public string SettingsMenuHeader { get; } = "_Settings...";
+        public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
+        public string TargetPrefixText { get; } = "Target: ";
+        public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
+
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
 

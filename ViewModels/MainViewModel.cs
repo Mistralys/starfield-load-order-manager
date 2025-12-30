@@ -106,10 +106,32 @@ namespace LoadOrderKeeper.ViewModels
             Config = await SettingsService.LoadSettingsAsync();
             RefExists = FileService.DoesReferenceFileExist(Config);
 
+            await EnsureValidConfigurationAsync();
+
             StatusMessage = GetReadyStatusMessage();
 
             ConfigurePluginsMonitor();
             await CheckPluginsFileAsync();
+        }
+
+        private async Task EnsureValidConfigurationAsync()
+        {
+            if (Config.IsValid())
+            {
+                return;
+            }
+
+            await ShowSettingsDialogInternalAsync();
+
+            if (!Config.IsValid())
+            {
+                WpfMessageBox.Show(
+                    "Configuration is required before using Starfield Load Order Keeper. The application will now exit.",
+                    "Configuration required",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+                WpfApplication.Current?.Shutdown();
+            }
         }
 
         [RelayCommand(CanExecute = nameof(CanFixLoadOrder))]
@@ -299,6 +321,11 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private async Task OpenSettingsAsync()
         {
+            await ShowSettingsDialogInternalAsync();
+        }
+
+        private async Task<bool> ShowSettingsDialogInternalAsync()
+        {
             var settingsVm = new SettingsViewModel(Config);
             var window = new SettingsWindow
             {
@@ -317,7 +344,10 @@ namespace LoadOrderKeeper.ViewModels
                     : "Configuration is invalid.";
                 ConfigurePluginsMonitor();
                 await CheckPluginsFileAsync();
+                return true;
             }
+
+            return false;
         }
 
         [RelayCommand]

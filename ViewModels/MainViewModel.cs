@@ -17,15 +17,19 @@ namespace LoadOrderKeeper.ViewModels
     {
         private readonly DispatcherTimer _pluginsMonitorTimer;
         private bool _isCheckingPluginsFile;
+        private DiffDialogViewModel? _activeDiffDialog;
+        private string _lastObservedPluginsSignature = string.Empty;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
         [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private AppConfigModel _config = new();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
         [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private bool _refExists;
 
         [ObservableProperty]
@@ -34,6 +38,7 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
         [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private bool _isBusy;
 
         [ObservableProperty]
@@ -60,6 +65,7 @@ namespace LoadOrderKeeper.ViewModels
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
+        public string ShowChangesButtonText { get; } = "Show Changes";
 
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
@@ -69,6 +75,7 @@ namespace LoadOrderKeeper.ViewModels
         public IRelayCommand OpenAppDataFolderCommand { get; }
         public IRelayCommand OpenGameFolderCommand { get; }
         public IRelayCommand PlayGameCommand { get; }
+        public IAsyncRelayCommand ShowDiffCommand { get; }
 
         public MainViewModel()
         {
@@ -83,6 +90,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenAppDataFolderCommand = new RelayCommand(OpenAppDataFolder, CanAccessAppDataPath);
             OpenGameFolderCommand = new RelayCommand(OpenGameFolder, CanAccessGamePath);
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
+            ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync, CanShowDiff);
 
             _ = LoadInitialStateAsync();
         }
@@ -162,6 +170,7 @@ namespace LoadOrderKeeper.ViewModels
             ConfigurePluginsMonitor();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
+            ShowDiffCommand?.NotifyCanExecuteChanged();
             UpdatePlayButtonText();
         }
 
@@ -169,6 +178,7 @@ namespace LoadOrderKeeper.ViewModels
         {
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
+            ShowDiffCommand?.NotifyCanExecuteChanged();
         }
  
         private void OpenPluginsFile()
@@ -333,11 +343,49 @@ namespace LoadOrderKeeper.ViewModels
                 : "Play (Vanilla)";
         }
  
-        private string GetReadyStatusMessage()
+        private bool CanShowDiff()
         {
-            return Config.IsValid()
-                ? "Ready."
-                : "Configuration is required. Please set paths in the Settings window.";
+            return PluginsFileChangedExternally && Config.IsValid() && !IsBusy;
+        }
+ 
+        private async Task ShowDiffAsync()
+        {
+            if (!Config.IsValid())
+            {
+                return;
+            }
+
+            try
+            {
+                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                if (diffLines.Count == 0)
+                {
+                    WpfMessageBox.Show("No differences detected.", "Show Changes", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                    PluginsFileChangedExternally = false;
+                    return;
+                }
+
+                var diffViewModel = new DiffDialogViewModel(diffLines, this);
+                var diffWindow = new DiffWindow
+                {
+                    Owner = WpfApplication.Current?.MainWindow,
+                    DataContext = diffViewModel
+                };
+
+                _activeDiffDialog = diffViewModel;
+                try
+                {
+                    diffWindow.ShowDialog();
+                }
+                finally
+                {
+                    _activeDiffDialog = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Failed to display changes: {ex.Message}");
+            }
         }
 
         private void ConfigurePluginsMonitor()
@@ -374,7 +422,7 @@ namespace LoadOrderKeeper.ViewModels
         {
             await CheckPluginsFileAsync();
         }
-
+ 
         private async Task CheckPluginsFileAsync()
         {
             if (_isCheckingPluginsFile || IsBusy)
@@ -392,13 +440,26 @@ namespace LoadOrderKeeper.ViewModels
 
             try
             {
-                bool hasChanged = await FileService.HasPluginsFileChangedAsync(Config);
+                var comparison = await FileService.ComparePluginsWithReferenceAsync(Config);
+                bool hasChanged = comparison.HasDifferences;
+                bool signatureChanged = !string.Equals(_lastObservedPluginsSignature, comparison.PluginsSignature, StringComparison.Ordinal);
+                _lastObservedPluginsSignature = comparison.PluginsSignature;
+
                 if (hasChanged != PluginsFileChangedExternally)
                 {
                     PluginsFileChangedExternally = hasChanged;
                     StatusMessage = hasChanged
                         ? "Plugins.txt was modified outside Load Order Keeper."
                         : GetReadyStatusMessage();
+                    ShowDiffCommand?.NotifyCanExecuteChanged();
+                }
+
+                if (_activeDiffDialog is not null && signatureChanged)
+                {
+                    string reason = hasChanged
+                        ? "Detected new external modifications"
+                        : "Plugins.txt now matches the reference";
+                    await _activeDiffDialog.RefreshDiffAsync(reason);
                 }
             }
             catch (Exception ex)
@@ -409,6 +470,13 @@ namespace LoadOrderKeeper.ViewModels
             {
                 _isCheckingPluginsFile = false;
             }
+        }
+
+        private string GetReadyStatusMessage()
+        {
+            return Config.IsValid()
+                ? "Ready. Configuration is valid."
+                : "Configuration is required. Please set paths in the Settings window.";
         }
 
         private bool HasSfseExecutable()
@@ -422,5 +490,36 @@ namespace LoadOrderKeeper.ViewModels
             string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
             return File.Exists(sfsePath);
         }
+ 
+        partial void OnPluginsFileChangedExternallyChanged(bool value)
+        {
+            ShowDiffCommand?.NotifyCanExecuteChanged();
+        }
+
+        [RelayCommand(CanExecute = nameof(CanDiscardChanges))]
+        private async Task DiscardChangesAsync()
+        {
+            IsBusy = true;
+            StatusMessage = "Discarding load order changes...";
+
+            try
+            {
+                await FileService.DiscardChangesAsync(Config);
+                StatusMessage = "Plugins.txt restored from reference.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"ERROR: {ex.Message}";
+                WpfMessageBox.Show($"Failed to discard changes: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+
+            await CheckPluginsFileAsync();
+        }
+
+        private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
     }
 }

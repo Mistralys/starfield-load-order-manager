@@ -12,9 +12,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Tests\LoadOrderKeeper.Tests\LoadOrderKeeper.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="MaterialDesignColors" Version="4.9.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Tests\**\*.cs" />
+    <Page Remove="Tests\**\*.xaml" />
+    <None Remove="Tests\**\*" />
   </ItemGroup>
 
 </Project>

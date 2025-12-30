@@ -125,6 +125,30 @@ namespace LoadOrderKeeper.Services
             return !SequencesEqualIgnoringTrailingEmpty(referenceLines, targetLines);
         }
 
+        public static async Task<PluginsComparisonResult> ComparePluginsWithReferenceAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                return new PluginsComparisonResult(false, string.Empty);
+            }
+
+            string targetPath = config.GetPluginsFilePath();
+            string referencePath = config.GetReferenceFilePath();
+
+            if (!File.Exists(referencePath) || !File.Exists(targetPath))
+            {
+                return new PluginsComparisonResult(false, string.Empty);
+            }
+
+            var referenceLines = await File.ReadAllLinesAsync(referencePath, Encoding.UTF8);
+            var targetLines = await File.ReadAllLinesAsync(targetPath, Encoding.UTF8);
+
+            bool hasDifferences = !SequencesEqualIgnoringTrailingEmpty(referenceLines, targetLines);
+            string signature = BuildPluginsSignature(targetLines);
+
+            return new PluginsComparisonResult(hasDifferences, signature);
+        }
+
         private static bool SequencesEqualIgnoringTrailingEmpty(string[] first, string[] second)
         {
             var normalizedFirst = TrimTrailingEmptyLines(first);
@@ -172,6 +196,42 @@ namespace LoadOrderKeeper.Services
                 : mod.FileName;
 
             return $"*{resolvedName}";
+        }
+
+        public static async Task DiscardChangesAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                throw new InvalidOperationException("Configuration paths are invalid.");
+            }
+
+            string referencePath = config.GetReferenceFilePath();
+            string pluginsPath = config.GetPluginsFilePath();
+
+            if (!File.Exists(referencePath))
+            {
+                throw new FileNotFoundException("Reference file not found.", referencePath);
+            }
+
+            if (!File.Exists(pluginsPath))
+            {
+                throw new FileNotFoundException("Plugins file not found.", pluginsPath);
+            }
+
+            string content = await File.ReadAllTextAsync(referencePath, Encoding.UTF8);
+            await File.WriteAllTextAsync(pluginsPath, content, Encoding.UTF8);
+        }
+
+        private static string BuildPluginsSignature(string[] lines)
+        {
+            var normalized = TrimTrailingEmptyLines(lines);
+            var builder = new StringBuilder();
+            foreach (var line in normalized)
+            {
+                builder.AppendLine(line);
+            }
+
+            return builder.ToString();
         }
     }
 }

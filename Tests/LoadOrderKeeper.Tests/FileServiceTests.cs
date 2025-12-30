@@ -88,18 +88,6 @@ public class FileServiceTests
     }
 
     [Fact]
-    public async Task HasDeletedModsAsync_ReturnsTrue_WhenReferenceEntryMissing()
-    {
-        using var context = new TestConfigContext();
-        await context.WriteReferenceAsync("*only.esm");
-        await context.WritePluginsAsync();
-
-        bool hasDeleted = await FileService.HasDeletedModsAsync(context.Config);
-
-        Assert.True(hasDeleted);
-    }
-
-    [Fact]
     public async Task WouldSortingChangeDiffsAsync_ReturnsTrue_ForOrderChanges()
     {
         using var context = new TestConfigContext();

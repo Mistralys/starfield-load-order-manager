@@ -65,7 +65,8 @@ namespace LoadOrderKeeper.ViewModels
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
-        public string ShowChangesButtonText { get; } = "Show Changes";
+        [ObservableProperty]
+        private string _showChangesButtonText = "Manage changes (0)";
 
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
@@ -144,26 +145,10 @@ namespace LoadOrderKeeper.ViewModels
             IsBusy = true;
             StatusMessage = "Applying load order fix...";
 
-            var shouldApply = true;
-
             try
             {
-                if (await FileService.HasDeletedModsAsync(Config))
-                {
-                    var warningMessage = "One or more mods were removed from Plugins.txt. Removing lines changes the numbered load order and can break save games.\n\nDo you want to continue anyway?";
-                    var dialogResult = WpfMessageBox.Show(warningMessage, "Deleted mods detected", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning);
-                    if (dialogResult != System.Windows.MessageBoxResult.Yes)
-                    {
-                        shouldApply = false;
-                        StatusMessage = "Load order fix canceled. Restore removed mods or replace them before continuing.";
-                    }
-                }
-
-                if (shouldApply)
-                {
-                    await FileService.ApplyLoadOrderAsync(Config);
-                    StatusMessage = "Load order successfully applied and fixed!";
-                }
+                await FileService.ApplyLoadOrderAsync(Config);
+                StatusMessage = "Load order successfully applied and fixed!";
             }
             catch (Exception ex)
             {
@@ -497,6 +482,7 @@ namespace LoadOrderKeeper.ViewModels
             if (!Config.IsValid() || !RefExists)
             {
                 PluginsFileChangedExternally = false;
+                UpdateChangeCountDisplay(0);
                 return;
             }
 
@@ -515,14 +501,16 @@ namespace LoadOrderKeeper.ViewModels
                     sortingRecommendation = await FileService.WouldSortingChangeDiffsAsync(Config);
                 }
 
-                if (hasChanged != PluginsFileChangedExternally)
-                {
-                    PluginsFileChangedExternally = hasChanged;
-                    StatusMessage = hasChanged
+                await UpdateChangeCountDisplayAsync(hasChanged);
+
+                 if (hasChanged != PluginsFileChangedExternally)
+                 {
+                     PluginsFileChangedExternally = hasChanged;
+                     StatusMessage = hasChanged
                         ? PluginsModifiedWarningText
                         : GetReadyStatusMessage();
                     ShowDiffCommand?.NotifyCanExecuteChanged();
-                }
+                 }
 
                 UpdateSortingRecommendationState(sortingRecommendation);
 
@@ -537,6 +525,7 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 StatusMessage = $"ERROR: Failed to monitor Plugins.txt: {ex.Message}";
+                UpdateChangeCountDisplay(0);
             }
             finally
             {
@@ -558,16 +547,35 @@ namespace LoadOrderKeeper.ViewModels
             {
                 return false;
             }
-
+ 
             string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
             return File.Exists(sfsePath);
         }
- 
-        partial void OnPluginsFileChangedExternallyChanged(bool value)
+
+        private async Task UpdateChangeCountDisplayAsync(bool hasDifferences)
         {
-            ShowDiffCommand?.NotifyCanExecuteChanged();
+            if (!hasDifferences)
+            {
+                UpdateChangeCountDisplay(0);
+                return;
+            }
+
+            try
+            {
+                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                UpdateChangeCountDisplay(diffLines.Count);
+            }
+            catch
+            {
+                UpdateChangeCountDisplay(0);
+            }
         }
 
+        private void UpdateChangeCountDisplay(int changeCount)
+        {
+            SetProperty(ref _showChangesButtonText, $"Manage changes ({changeCount})", "ShowChangesButtonText");
+         }
+ 
         [RelayCommand(CanExecute = nameof(CanDiscardChanges))]
         private async Task DiscardChangesAsync()
         {

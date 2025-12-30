@@ -306,12 +306,6 @@ namespace LoadOrderKeeper.Services
             return true;
         }
 
-        public static async Task<bool> HasDeletedModsAsync(AppConfigModel config)
-        {
-            var diffs = await GetModDiffInternalAsync(config, alignCurrentToReference: false);
-            return diffs.Any(d => d.IsRemoved);
-        }
-
         private static bool SequencesEqualIgnoringTrailingEmpty(string[] first, string[] second)
         {
             var normalizedFirst = TrimTrailingEmptyLines(first);

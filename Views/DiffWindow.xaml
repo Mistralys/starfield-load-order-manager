@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:LoadOrderKeeper.Models"
         xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="494"
@@ -52,12 +53,13 @@
                             <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
-                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                    <ContextMenu Style="{StaticResource MaterialDesignContextMenu}"
+                                                 DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="Re-enable mod"
                                                   Command="{Binding ReEnableModCommand}"
                                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                             <MenuItem.Style>
-                                                <Style TargetType="MenuItem">
+                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
@@ -70,7 +72,7 @@
                                         </MenuItem>
                                         <MenuItem Header="Replace with...">
                                             <MenuItem.Style>
-                                                <Style TargetType="MenuItem">
+                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                     <Style.Triggers>
                                                         <MultiDataTrigger>
@@ -88,7 +90,7 @@
                                                 <Binding Path="AddedMods" />
                                             </MenuItem.ItemsSource>
                                             <MenuItem.ItemContainerStyle>
-                                                <Style TargetType="MenuItem">
+                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
                                                     <Setter Property="Header" Value="{Binding FileName}" />
                                                     <Setter Property="Command" Value="{Binding DataContext.ReplaceRemovedModCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                                     <Setter Property="CommandParameter">
@@ -106,7 +108,7 @@
                                                   Command="{Binding RemoveNewModCommand}"
                                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                             <MenuItem.Style>
-                                                <Style TargetType="MenuItem">
+                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"

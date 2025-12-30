@@ -8,7 +8,20 @@ namespace LoadOrderKeeper.Tests;
 public class DiffServiceTests
 {
     [Fact]
-    public async Task GetPluginsDiffAsync_ReportsAddedAndRemovedMods()
+    public async Task GetPluginsDiffAsync_ReportsUnpairedAddedAndRemovedMods()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm");
+        await context.WritePluginsAsync("*d.esm", "*a.esm", "*c.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        Assert.Contains(diff, item => item.ChangeType == DiffChangeType.Removed && item.FileName == "b.esm");
+        Assert.Contains(diff, item => item.ChangeType == DiffChangeType.Added && item.FileName == "d.esm");
+    }
+
+    [Fact]
+    public async Task GetPluginsDiffAsync_DetectsReplacements()
     {
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*a.esm", "*b.esm");
@@ -16,20 +29,11 @@ public class DiffServiceTests
 
         var diff = await DiffService.GetPluginsDiffAsync(context.Config);
 
-        Assert.Collection(
-            diff,
-            item =>
-            {
-                Assert.Equal(DiffChangeType.Removed, item.ChangeType);
-                Assert.Contains("b.esm", item.Text);
-                Assert.Contains("#2", item.Text);
-            },
-            item =>
-            {
-                Assert.Equal(DiffChangeType.Added, item.ChangeType);
-                Assert.Contains("c.esm", item.Text);
-                Assert.Contains("#2", item.Text);
-            });
+        var entry = Assert.Single(diff);
+        Assert.Equal(DiffChangeType.Replaced, entry.ChangeType);
+        Assert.Contains("b.esm", entry.Text);
+        Assert.Contains("c.esm", entry.Text);
+        Assert.Contains("line 2", entry.Text);
     }
 
     [Fact]

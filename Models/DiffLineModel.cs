@@ -5,18 +5,20 @@ namespace LoadOrderKeeper.Models
         Unchanged,
         Added,
         Removed,
-        Moved
+        Moved,
+        Replaced
     }
 
     public sealed class DiffLineModel
     {
-        public DiffLineModel(string fileName, string text, DiffChangeType changeType, int? referenceNumber = null, int? currentNumber = null)
+        public DiffLineModel(string fileName, string text, DiffChangeType changeType, int? referenceNumber = null, int? currentNumber = null, string? replacementFileName = null)
         {
             FileName = fileName;
             Text = text;
             ChangeType = changeType;
             ReferenceNumber = referenceNumber;
             CurrentNumber = currentNumber;
+            ReplacementFileName = replacementFileName;
         }
 
         public string FileName { get; }
@@ -29,11 +31,14 @@ namespace LoadOrderKeeper.Models
 
         public int? CurrentNumber { get; }
 
+        public string? ReplacementFileName { get; }
+
         public string Prefix => ChangeType switch
         {
             DiffChangeType.Added => "+",
             DiffChangeType.Removed => "-",
             DiffChangeType.Moved => "~",
+            DiffChangeType.Replaced => ">",
             _ => string.Empty
         };
     }

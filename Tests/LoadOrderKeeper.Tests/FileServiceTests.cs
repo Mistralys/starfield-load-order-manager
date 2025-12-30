@@ -128,4 +128,32 @@ public class FileServiceTests
         var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
         Assert.Equal(new[] { "*FancyMOD.ESM" }, lines);
     }
+
+    [Fact]
+    public async Task HasPluginsFileChangedAsync_IgnoresTrailingEmptyLines()
+    {
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm");
+        await context.WritePluginsAsync("*a.esm", "*b.esm", string.Empty, "   ");
+
+        bool changed = await FileService.HasPluginsFileChangedAsync(context.Config);
+
+        Assert.False(changed);
+    }
+
+    [Fact]
+    public async Task ApplyLoadOrderAsync_TrimsWhitespaceAroundEntries()
+    {
+        using var context = new TestConfigContext();
+        var dataFile = Path.Combine(context.StarfieldGamePath, "Data", "FancySuit.esm");
+        await File.WriteAllTextAsync(dataFile, string.Empty);
+
+        await context.WriteReferenceAsync("   *fancysuit.esm   ");
+        await context.WritePluginsAsync("\t*fancysuit.esm  ");
+
+        await FileService.ApplyLoadOrderAsync(context.Config);
+
+        var lines = await File.ReadAllLinesAsync(context.PluginsFilePath);
+        Assert.Equal(new[] { "*FancySuit.esm" }, lines);
+    }
 }

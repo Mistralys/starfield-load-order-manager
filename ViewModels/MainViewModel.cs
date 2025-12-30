@@ -314,12 +314,12 @@ namespace LoadOrderKeeper.ViewModels
 
         private bool CanAccessAppDataPath()
         {
-            return !IsBusy && !string.IsNullOrWhiteSpace(Config?.StarfieldAppDataPath);
+            return !IsBusy && Config.IsValid();
         }
 
         private bool CanAccessGamePath()
         {
-            return !IsBusy && !string.IsNullOrWhiteSpace(Config?.StarfieldGamePath);
+            return !IsBusy && Config.IsValid();
         }
  
         [RelayCommand]

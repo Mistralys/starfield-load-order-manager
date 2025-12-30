@@ -109,21 +109,21 @@
                         Margin="0,0,8,0"
                         Command="{Binding DiscardChangesCommand}"
                         IsEnabled="{Binding HasDifferences}"
-                        Style="{StaticResource MaterialDesignFlatButton}" />
+                        Style="{StaticResource MaterialDesignOutlinedButton}" />
                 <Button Content="{Binding FixLoadOrderButtonText}"
                         Margin="0,0,8,0"
                         Command="{Binding FixLoadOrderCommand}"
                         IsEnabled="{Binding HasDifferences}"
-                        Style="{StaticResource MaterialDesignRaisedButton}" />
+                        Style="{StaticResource MaterialDesignOutlinedButton}" />
                 <Button Content="{Binding UpdateReferenceButtonText}"
                         Command="{Binding UpdateReferenceCommand}"
                         IsEnabled="{Binding HasDifferences}"
-                        Style="{StaticResource MaterialDesignRaisedButton}" />
+                        Style="{StaticResource MaterialDesignOutlinedButton}" />
                 <Button Content="{Binding CloseButtonText}"
                         Margin="8,0,0,0"
                         IsCancel="True"
                         Click="OnCloseClicked"
-                        Style="{StaticResource MaterialDesignFlatButton}" />
+                        Style="{StaticResource MaterialDesignOutlinedButton}" />
             </StackPanel>
         </Grid>
     </DockPanel>

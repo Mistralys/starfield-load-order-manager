@@ -57,13 +57,11 @@
                             Background="{DynamicResource PrimaryHueMidBrush}"
                             Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" />
                     <Button Grid.Column="1"
-                            Content="{Binding ReferenceButtonText}"
+                            Content="{Binding ShowChangesButtonText}"
                             Margin="8,0,0,0"
-                            Command="{Binding CreateReferenceCommand}"
+                            Command="{Binding ShowDiffCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            Background="{DynamicResource SecondaryHueMidBrush}"
-                            Foreground="{DynamicResource SecondaryHueMidForegroundBrush}" />
+                            Style="{StaticResource MaterialDesignOutlinedButton}" />
                 </Grid>
 
                 <ProgressBar Height="18"

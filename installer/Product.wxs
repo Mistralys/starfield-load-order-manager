@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product
+      Id="*"
+      Name="Starfield Load Order Keeper"
+      Language="1033"
+      Version="$(var.ProductVersion)"
+      Manufacturer="Mistralys"
+      UpgradeCode="e3c0d9a9-6902-46f7-8912-0f12978a8431">
+
+    <Package
+        InstallerVersion="500"
+        Compressed="yes"
+        InstallScope="perMachine" />
+
+    <MajorUpgrade
+        AllowDowngrades="no"
+        DowngradeErrorMessage="A newer version of Starfield Load Order Keeper is already installed." />
+
+    <MediaTemplate />
+
+    <!-- Installation directory -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="Starfield Load Order Keeper" />
+      </Directory>
+
+      <!-- Start Menu folder -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Starfield Load Order Keeper" />
+      </Directory>
+    </Directory>
+
+    <!-- Files -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="0b7e8c4e-3e4a-4e0b-9c3e-2a0f2f8b8c11">
+        <File
+            Id="AppExe"
+            Source="$(var.PublishDir)\Starfield Load Order Keeper.exe"
+            KeyPath="yes" />
+      </Component>
+
+      <ComponentGroup Id="AppFiles">
+        <Component Id="AllFiles" Guid="c4f1a2d1-7b3d-4c8e-9f1a-1b7e2d4c9f22">
+          <File
+              Id="AllFilesWildcard"
+              Source="$(var.PublishDir)\*.*"
+              KeyPath="no" />
+        </Component>
+      </ComponentGroup>
+    </DirectoryRef>
+
+    <!-- Start Menu Shortcut -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcut" Guid="f1a7b3c2-9d4e-4f8b-8a1c-3e2d7c4b1f33">
+        <Shortcut
+            Id="ApplicationStartMenuShortcut"
+            Name="Starfield Load Order Keeper"
+            Target="[INSTALLFOLDER]Starfield Load Order Keeper.exe"
+            WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RemoveShortcutFolder" On="uninstall" />
+        <RegistryValue
+            Root="HKCU"
+            Key="Software\StarfieldLoadOrderKeeper"
+            Name="installed"
+            Type="integer"
+            Value="1"
+            KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="MainFeature" Title="Starfield Load Order Keeper" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+  </Product>
+</Wix>

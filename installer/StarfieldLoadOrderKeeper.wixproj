@@ -1,0 +1,24 @@
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <OutputName>StarfieldLoadOrderKeeper</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+
+    <!-- These will be overridden by GitHub Actions -->
+    <ProductVersion>1.0.0.0</ProductVersion>
+    <PublishDir>publish</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <DefineConstants>
+      ProductVersion=$(ProductVersion);
+      PublishDir=$(PublishDir)
+    </DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="$(WixTargetsPath)" />
+</Project>

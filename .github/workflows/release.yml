@@ -1,0 +1,69 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          $tag = "${{ github.ref_name }}"
+          echo "version=$tag.0" >> $env:GITHUB_OUTPUT
+
+      - name: Install .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install WiX Toolset
+        run: choco install wixtoolset --version=3.11.2 -y
+
+      - name: Publish WPF application
+        run: |
+          dotnet publish "Starfield Load Order Keeper.csproj" `
+            -c Release `
+            -o installer/publish
+
+      - name: Build MSI installer
+        run: |
+          cd installer
+          msbuild StarfieldLoadOrderKeeper.wixproj `
+            /p:ProductVersion=${{ steps.version.outputs.version }} `
+            /p:PublishDir=publish
+
+      - name: Create ZIP package
+        run: |
+          Compress-Archive -Path installer/publish/* -DestinationPath StarfieldLoadOrderKeeper.zip
+
+      - name: Generate SHA256 hashes
+        run: |
+          Get-FileHash StarfieldLoadOrderKeeper.zip -Algorithm SHA256 | Out-File SHA256SUMS.txt
+          Get-FileHash installer/bin/Release/StarfieldLoadOrderKeeper.msi -Algorithm SHA256 | Out-File -Append SHA256SUMS.txt
+
+      - name: Prepare release notes with hashes
+        run: |
+          "## File Integrity (SHA-256 Hashes)" | Out-File RELEASE_NOTES.txt
+          "" | Out-File -Append RELEASE_NOTES.txt
+          Get-Content SHA256SUMS.txt | Out-File -Append RELEASE_NOTES.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.txt
+          draft: false
+          prerelease: false
+          files: |
+            installer/bin/Release/StarfieldLoadOrderKeeper.msi
+            StarfieldLoadOrderKeeper.zip
+            SHA256SUMS.txt

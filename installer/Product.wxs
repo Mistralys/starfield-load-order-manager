@@ -36,18 +36,23 @@
       <Component Id="MainExecutable" Guid="0b7e8c4e-3e4a-4e0b-9c3e-2a0f2f8b8c11">
         <File
             Id="AppExe"
-            Source="$(var.PublishDir)\Starfield Load Order Keeper.exe"
+            Source="$(var.PublishDir)\StarfieldLoadOrderKeeper.exe"
             KeyPath="yes" />
       </Component>
 
-      <ComponentGroup Id="AppFiles">
-        <Component Id="AllFiles" Guid="c4f1a2d1-7b3d-4c8e-9f1a-1b7e2d4c9f22">
-          <File
-              Id="AllFilesWildcard"
-              Source="$(var.PublishDir)\*.*"
-              KeyPath="no" />
-        </Component>
-      </ComponentGroup>
+      <Component Id="AppConfig" Guid="c4f1a2d1-7b3d-4c8e-9f1a-1b7e2d4c9f22">
+        <File
+            Id="AppConfigFile"
+            Source="$(var.PublishDir)\StarfieldLoadOrderKeeper.dll.config"
+            KeyPath="yes" />
+      </Component>
+
+      <Component Id="AppDependencies" Guid="a1b2c3d4-e5f6-7890-1234-567890abcdef">
+        <File
+            Id="AppRuntimeConfig"
+            Source="$(var.PublishDir)\StarfieldLoadOrderKeeper.runtimeconfig.json"
+            KeyPath="yes" />
+      </Component>
     </DirectoryRef>
 
     <!-- Start Menu Shortcut -->
@@ -56,7 +61,7 @@
         <Shortcut
             Id="ApplicationStartMenuShortcut"
             Name="Starfield Load Order Keeper"
-            Target="[INSTALLFOLDER]Starfield Load Order Keeper.exe"
+            Target="[INSTALLFOLDER]StarfieldLoadOrderKeeper.exe"
             WorkingDirectory="INSTALLFOLDER" />
         <RemoveFolder Id="RemoveShortcutFolder" On="uninstall" />
         <RegistryValue
@@ -71,7 +76,8 @@
 
     <Feature Id="MainFeature" Title="Starfield Load Order Keeper" Level="1">
       <ComponentRef Id="MainExecutable" />
-      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="AppConfig" />
+      <ComponentRef Id="AppDependencies" />
       <ComponentRef Id="StartMenuShortcut" />
     </Feature>
 

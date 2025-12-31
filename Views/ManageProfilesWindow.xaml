@@ -1,0 +1,96 @@
+<Window x:Class="LoadOrderKeeper.Views.ManageProfilesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="{Binding WindowTitle}"
+        Height="500"
+        Width="600"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource MaterialDesignDefaultWindowStyle}"
+        Background="{DynamicResource MaterialDesignPaper}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0"
+              Background="{DynamicResource MaterialDesignPaper}"
+              Foreground="{DynamicResource MaterialDesignBody}">
+            <MenuItem Header="{Binding FileMenuText}">
+                <MenuItem Header="{Binding AddProfileMenuText}"
+                          Command="{Binding AddProfileCommand}"
+                          Icon="{materialDesign:PackIcon Kind=Plus}" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Profile List -->
+        <ListView Grid.Row="1"
+                  x:Name="ProfileListView"
+                  ItemsSource="{Binding Profiles}"
+                  SelectedItem="{Binding SelectedProfile}"
+                  Margin="16,8,16,8"
+                  Background="{DynamicResource MaterialDesignPaper}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Label" 
+                                    Width="200"
+                                    DisplayMemberBinding="{Binding Label}" />
+                    <GridViewColumn Header="Description" 
+                                    Width="350"
+                                    DisplayMemberBinding="{Binding Description}" />
+                </GridView>
+            </ListView.View>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                    <EventSetter Event="MouseDoubleClick" Handler="OnProfileDoubleClick" />
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="{Binding DataContext.EditProfileMenuText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Command="{Binding DataContext.EditProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Icon="{materialDesign:PackIcon Kind=Edit}" />
+                                <MenuItem Header="{Binding DataContext.CopyProfileMenuText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Command="{Binding DataContext.CopyProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Icon="{materialDesign:PackIcon Kind=ContentCopy}" />
+                                <Separator />
+                                <MenuItem Header="{Binding DataContext.DeleteProfileMenuText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          Icon="{materialDesign:PackIcon Kind=Delete}" />
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+
+        <!-- Loading Indicator -->
+        <ProgressBar Grid.Row="2"
+                     IsIndeterminate="True"
+                     Height="4"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <!-- Bottom Buttons -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="16">
+            <Button Content="{Binding AddProfileButtonText}"
+                    Width="120"
+                    Margin="0,0,8,0"
+                    Command="{Binding AddProfileCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button Content="{Binding CloseButtonText}"
+                    Width="120"
+                    Command="{Binding CloseCommand}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}" />
+        </StackPanel>
+    </Grid>
+</Window>

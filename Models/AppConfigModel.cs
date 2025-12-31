@@ -7,6 +7,7 @@ namespace LoadOrderKeeper.Models
         public string StarfieldAppDataPath { get; set; } = string.Empty;
         public string StarfieldGamePath { get; set; } = string.Empty;
         public int PluginCheckIntervalSeconds { get; set; } = 5;
+        public string? ActiveProfileId { get; set; } = "default";
 
         public bool IsValid()
         {
@@ -22,6 +23,11 @@ namespace LoadOrderKeeper.Models
         }
 
         public string GetPluginsFilePath() => Path.Combine(StarfieldAppDataPath, "Plugins.txt");
-        public string GetReferenceFilePath() => Path.Combine(StarfieldAppDataPath, "Plugins.reference.txt");
+        
+        public string GetReferenceFilePath()
+        {
+            // Returns Profiles/{activeProfileId}/reference.txt
+            return Path.Combine(StarfieldAppDataPath, "Profiles", ActiveProfileId ?? "default", "reference.txt");
+        }
     }
 }

@@ -1,7 +1,8 @@
 ﻿<Application x:Class="LoadOrderKeeper.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:LoadOrderKeeper.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -12,6 +13,8 @@
                                              PrimaryColor="Lime"
                                              SecondaryColor="LightGreen" />
             </ResourceDictionary.MergedDictionaries>
+
+            <converters:ActiveProfileVisibilityConverter x:Key="ActiveProfileVisibilityConverter" />
 
             <Style x:Key="MaterialDesignCompactOutlinedSecondaryButton"
                    TargetType="Button"

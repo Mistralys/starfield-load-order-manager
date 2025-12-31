@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:models="clr-namespace:LoadOrderKeeper.Models"
+        xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
         Title="{Binding WindowTitle}"
         Height="500"
         Width="600"
@@ -11,6 +12,7 @@
         Background="{DynamicResource MaterialDesignPaper}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:ActiveProfileVisibilityConverter x:Key="ActiveProfileVisibilityConverter" />
         
         <Style x:Key="ProfileCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}" />
@@ -93,7 +95,14 @@
                                                          Height="32"
                                                          VerticalAlignment="Center"
                                                          Foreground="{DynamicResource PrimaryHueMidBrush}"
-                                                         x:Name="ActiveIcon" />
+                                                         x:Name="ActiveIcon">
+                                    <materialDesign:PackIcon.Visibility>
+                                        <MultiBinding Converter="{StaticResource ActiveProfileVisibilityConverter}">
+                                            <Binding Path="Id" />
+                                            <Binding RelativeSource="{RelativeSource AncestorType=Window}" Path="DataContext.ActiveProfileId" />
+                                        </MultiBinding>
+                                    </materialDesign:PackIcon.Visibility>
+                                </materialDesign:PackIcon>
                             </Grid>
                         </Border>
                     </DataTemplate>

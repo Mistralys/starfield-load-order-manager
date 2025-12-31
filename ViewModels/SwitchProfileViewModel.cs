@@ -14,6 +14,7 @@ public partial class SwitchProfileViewModel : ObservableObject
 {
     private readonly AppConfigModel _config;
     private readonly string _activeProfileId;
+    public string ActiveProfileId => _activeProfileId;
 
     [ObservableProperty]
     private ObservableCollection<ProfileModel> _profiles = new();

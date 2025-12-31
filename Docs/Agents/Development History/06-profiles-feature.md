@@ -67,9 +67,10 @@ creating a new profile):
 - Label
 	- Required
 	- Editable
+	- Min. 2 chars
 	- Max. 30 chars
 	- Trim whitespace
-	- Must be unique (case-insensitive)
+	- Must be unique accross all profiles (case-insensitive)
 - Description
 	- Optional
 	- Editable
@@ -94,6 +95,9 @@ as necessary.
 - Word separator: dashes
 - Case: lowercase
 - Accented characters: replaced with unaccented equivalents (do not use any external libraries, lossy conversion is acceptable)
+
+If the transliteration results in an empty ID (e.g. the label contains only disallowed characters), the ID
+`profile` should be used as base, with numeric suffixes appended as necessary to make it unique.
 
 ### Profiles Storage
 
@@ -243,3 +247,16 @@ On adding or updating a profile, the manage profiles window is shown with the up
 
 Validation of inputs should be done following industry standards. If Material Design has dedicated error display
 paradigms, please use those.
+
+## Code Example: Getting the reference file path for the active profile
+
+Update the method below to return the correct reference file path for the active profile, 
+which has the added benefit of being backwards compatible.
+
+```csharp
+public string GetReferenceFilePath()
+{
+    // Returns Profiles/{activeProfileId}/reference.txt
+    return Path.Combine(StarfieldAppDataPath, "Profiles", activeProfileId ?? "default", "reference.txt");
+}
+```

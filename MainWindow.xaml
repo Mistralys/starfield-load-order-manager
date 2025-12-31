@@ -57,7 +57,7 @@
             <TextBlock Grid.Column="1"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Right">
-                <Run Text="Active Profile: " Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 <Hyperlink Command="{Binding SwitchProfileCommand}"
                            Foreground="{DynamicResource PrimaryHueMidBrush}">
                     <Run Text="{Binding ActiveProfileLabel, Mode=OneWay}" />

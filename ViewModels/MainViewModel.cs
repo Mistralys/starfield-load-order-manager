@@ -65,6 +65,7 @@ namespace LoadOrderKeeper.ViewModels
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
+        public string ActiveProfilePrefixText { get; } = "Active Profile: ";
         [ObservableProperty]
         private string _showChangesButtonText = "Manage changes (0)";
 

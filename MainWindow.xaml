@@ -47,8 +47,7 @@
         </Menu>
 
         <Grid DockPanel.Dock="Top"
-              Margin="16,0,16,0"
-              Height="32">
+              Margin="16,0,16,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -64,7 +63,7 @@
                         VerticalAlignment="Center">
                     <TextBlock VerticalAlignment="Center"
                            Foreground="{DynamicResource MaterialDesignBodyLight}">
-                    <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" />
+                        <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" />
                     </TextBlock>
                     <Button VerticalAlignment="Center"
                         Margin="4,0,0,0"

@@ -3,7 +3,7 @@ name: Release Build
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?'
 
 jobs:
   build:
@@ -12,12 +12,47 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Required to detect previous tag
 
       - name: Extract version from tag
         id: version
         run: |
           $tag = "${{ github.ref_name }}"
-          echo "version=$tag.0" >> $env:GITHUB_OUTPUT
+          $pattern = '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<pre>[0-9A-Za-z.-]+))?$'
+          $match = [regex]::Match($tag, $pattern)
+          if (-not $match.Success) {
+            throw "Tag '$tag' does not follow the expected semantic versioning pattern."
+          }
+
+          # Derive an MSI-safe fourth segment and keep prereleases lower than finals.
+          $build = 0
+          if ($match.Groups['pre'].Success) {
+            $digits = [regex]::Match($match.Groups['pre'].Value, '\d+').Value
+            if ([string]::IsNullOrEmpty($digits)) {
+              $build = 1
+            } else {
+              $build = [int]$digits
+            }
+
+            if ($build -gt 65535) {
+              $build = 65535
+            }
+          }
+
+          $version = '{0}.{1}.{2}.{3}' -f $match.Groups['major'].Value, $match.Groups['minor'].Value, $match.Groups['patch'].Value, $build
+
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Determine previous tag
+        id: prev
+        run: |
+          $current = "${{ github.ref_name }}"
+          $tags = git tag --sort=-v:refname
+          $previous = $tags | Where-Object { $_ -ne $current } | Select-Object -First 1
+          if (-not $previous) { $previous = "N/A" }
+          echo "previous=$previous" >> $env:GITHUB_OUTPUT
 
       - name: Install .NET 9
         uses: actions/setup-dotnet@v4
@@ -31,14 +66,19 @@ jobs:
         run: |
           dotnet publish "Starfield Load Order Keeper.csproj" `
             -c Release `
-            -o installer/publish
+            -r win-x64 `
+            --self-contained true `
+            -o installer/publish `
+            -p:PublishSingleFile=true `
+            -p:PublishReadyToRun=true
 
       - name: Build MSI installer
         run: |
           cd installer
           msbuild StarfieldLoadOrderKeeper.wixproj `
             /p:ProductVersion=${{ steps.version.outputs.version }} `
-            /p:PublishDir=publish
+            /p:PublishDir=publish `
+            /p:Configuration=Release
 
       - name: Create ZIP package
         run: |
@@ -46,14 +86,65 @@ jobs:
 
       - name: Generate SHA256 hashes
         run: |
-          Get-FileHash StarfieldLoadOrderKeeper.zip -Algorithm SHA256 | Out-File SHA256SUMS.txt
-          Get-FileHash installer/bin/Release/StarfieldLoadOrderKeeper.msi -Algorithm SHA256 | Out-File -Append SHA256SUMS.txt
+          Get-FileHash StarfieldLoadOrderKeeper.zip -Algorithm SHA256 | Out-File -FilePath SHA256SUMS.txt -Encoding utf8
+          Get-FileHash installer/bin/Release/StarfieldLoadOrderKeeper.msi -Algorithm SHA256 | Out-File -FilePath SHA256SUMS.txt -Append -Encoding utf8
 
-      - name: Prepare release notes with hashes
+      - name: Extract changelog entry
+        id: changelog
         run: |
-          "## File Integrity (SHA-256 Hashes)" | Out-File RELEASE_NOTES.txt
-          "" | Out-File -Append RELEASE_NOTES.txt
-          Get-Content SHA256SUMS.txt | Out-File -Append RELEASE_NOTES.txt
+          $tag = "${{ steps.version.outputs.tag }}"
+          $content = Get-Content changelog.md
+
+          # Find the line number of the current version header
+          $start = ($content | Select-String -Pattern "^## $tag\b").LineNumber
+          if (-not $start) {
+            echo "entry=No changelog entry found." >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          # Find the next version header
+          $next = ($content | Select-String -Pattern "^## " | Where-Object { $_.LineNumber -gt $start } | Select-Object -First 1).LineNumber
+          if (-not $next) {
+            $next = $content.Length + 1
+          }
+
+          # Extract the lines for this version
+          $entry = $content[($start - 1)..($next - 2)] -join "`n"
+
+          # Escape for GitHub Actions output
+          $entry = $entry -replace '%','%25'
+          $entry = $entry -replace "`r",""
+          $entry = $entry -replace "`n","%0A"
+          echo "entry=$entry" >> $env:GITHUB_OUTPUT
+
+      - name: Prepare release notes
+        run: |
+          $tag = "${{ steps.version.outputs.tag }}"
+          $prev = "${{ steps.prev.outputs.previous }}"
+          $repo = "${{ github.repository }}"
+          $changes = "${{ steps.changelog.outputs.entry }}"
+          $notesPath = "RELEASE_NOTES.txt"
+
+          "## Starfield Load Order Keeper $tag" | Out-File -FilePath $notesPath -Encoding utf8
+          "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+
+          if ($prev -ne "N/A") {
+            "### Changes since $prev" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+            "[View comparison on GitHub](https://github.com/$repo/compare/$prev...$tag)" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+            "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          } else {
+            "### First Release" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+            "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          }
+
+          "### Changelog" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          $changes | Out-File -FilePath $notesPath -Encoding utf8 -Append
+
+          "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          "### File Integrity (SHA-256 Hashes)" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          Get-Content SHA256SUMS.txt | Out-File -FilePath $notesPath -Encoding utf8 -Append
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -62,7 +153,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           body_path: RELEASE_NOTES.txt
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
             installer/bin/Release/StarfieldLoadOrderKeeper.msi
             StarfieldLoadOrderKeeper.zip

@@ -73,6 +73,13 @@ namespace LoadOrderKeeper.Services
                 throw new FileNotFoundException($"Target file not found: {targetPath}");
             }
 
+            // Ensure the profile folder exists
+            var referenceDir = Path.GetDirectoryName(referencePath);
+            if (!string.IsNullOrEmpty(referenceDir) && !Directory.Exists(referenceDir))
+            {
+                Directory.CreateDirectory(referenceDir);
+            }
+
             string content = await File.ReadAllTextAsync(targetPath, Encoding.UTF8);
             await File.WriteAllTextAsync(referencePath, content, Utf8NoBom);
         }

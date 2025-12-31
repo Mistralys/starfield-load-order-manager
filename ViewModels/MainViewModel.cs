@@ -77,6 +77,13 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private bool _sortingRecommendationActive;
 
+        [ObservableProperty]
+        private string _activeProfileLabel = "Default";
+
+        public string ProfileMenuHeader { get; } = "_Profile";
+        public string SwitchProfileMenuText { get; } = "_Switch Profile...";
+        public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
+
         public IRelayCommand OpenPluginsFileCommand { get; }
         public IRelayCommand OpenReferenceFileCommand { get; }
         public IRelayCommand OpenAppDataFolderCommand { get; }
@@ -105,6 +112,10 @@ namespace LoadOrderKeeper.ViewModels
         private async Task LoadInitialStateAsync()
         {
             Config = await SettingsService.LoadSettingsAsync();
+            
+            // Ensure default profile exists
+            await ProfileService.EnsureDefaultProfileFilesAsync(Config);
+            
             RefExists = FileService.DoesReferenceFileExist(Config);
 
             await EnsureValidConfigurationAsync();
@@ -114,6 +125,8 @@ namespace LoadOrderKeeper.ViewModels
             {
                 StatusMessage = GetReadyStatusMessage();
             }
+
+            await UpdateActiveProfileLabelAsync();
 
             ConfigurePluginsMonitor();
             await CheckPluginsFileAsync();
@@ -353,6 +366,58 @@ namespace LoadOrderKeeper.ViewModels
             WpfApplication.Current?.Shutdown();
         }
 
+        [RelayCommand]
+        private async Task SwitchProfileAsync()
+        {
+            var switchVm = new SwitchProfileViewModel(Config);
+            var switchWindow = new SwitchProfileWindow(Config)
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = switchVm
+            };
+
+            bool? result = switchWindow.ShowDialog();
+            if (result == true)
+            {
+                // Profile was switched, reload state
+                await UpdateActiveProfileLabelAsync();
+                RefExists = FileService.DoesReferenceFileExist(Config);
+                await EnsureReferenceFileExistsAsync();
+                ConfigurePluginsMonitor();
+                await CheckPluginsFileAsync();
+                StatusMessage = $"Switched to profile '{ActiveProfileLabel}'.";
+            }
+        }
+
+        [RelayCommand]
+        private async Task ManageProfilesAsync()
+        {
+            var manageVm = new ManageProfilesViewModel(Config);
+            var manageWindow = new ManageProfilesWindow(Config)
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = manageVm
+            };
+
+            manageWindow.ShowDialog();
+            
+            // Refresh active profile label in case it was edited
+            await UpdateActiveProfileLabelAsync();
+        }
+
+        private async Task UpdateActiveProfileLabelAsync()
+        {
+            try
+            {
+                var activeProfile = await ProfileService.GetActiveProfileAsync(Config);
+                ActiveProfileLabel = activeProfile.Label;
+            }
+            catch
+            {
+                ActiveProfileLabel = "Default";
+            }
+        }
+ 
         private void LaunchShellTarget(string target, string failureMessage)
         {
             try

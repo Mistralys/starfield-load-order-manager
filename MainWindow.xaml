@@ -1,4 +1,4 @@
-﻿<Window x:Class="LoadOrderKeeper.MainWindow"
+<Window x:Class="LoadOrderKeeper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -34,9 +34,36 @@
                 <MenuItem Header="{Binding ExitMenuText}"
                           Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
+            <MenuItem Header="{Binding ProfileMenuHeader}">
+                <MenuItem Header="{Binding SwitchProfileMenuText}"
+                          Command="{Binding SwitchProfileCommand}"
+                          Icon="{materialDesign:PackIcon Kind=SwapHorizontal}" />
+                <MenuItem Header="{Binding ManageProfilesMenuText}"
+                          Command="{Binding ManageProfilesCommand}"
+                          Icon="{materialDesign:PackIcon Kind=FolderMultiple}" />
+            </MenuItem>
             <MenuItem Header="{Binding SettingsMenuHeader}"
                       Command="{Binding OpenSettingsCommand}" />
         </Menu>
+
+        <Grid DockPanel.Dock="Top"
+              Margin="16,0,16,0"
+              Height="32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="1"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Right">
+                <Run Text="Active Profile: " Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                <Hyperlink Command="{Binding SwitchProfileCommand}"
+                           Foreground="{DynamicResource PrimaryHueMidBrush}">
+                    <Run Text="{Binding ActiveProfileLabel, Mode=OneWay}" />
+                </Hyperlink>
+            </TextBlock>
+        </Grid>
 
         <Border Margin="16"
                 Padding="16"

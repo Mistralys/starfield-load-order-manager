@@ -13,21 +13,26 @@
 - **Libraries / Frameworks**
   - `CommunityToolkit.Mvvm`
     - `ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`, `RelayCommand`, `AsyncRelayCommand`, `IRelayCommand`, `IAsyncRelayCommand`
-  - Standard .NET `System.*` APIs for I/O, processes, and collections
+  - `MaterialDesignThemes` / `MaterialDesignColors` for dialogs, icons, and card layouts
+  - Standard .NET `System.*` APIs for I/O, processes, collections, and JSON serialization
 
 - **Architectural Patterns**
   - **MVVM**
-    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`
-    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`
+    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`
+    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`
   - **Static Services**
     - `SettingsService`: configuration persistence and default path discovery
-    - `FileService`: all plugins/reference file operations and diff helpers
+    - `FileService`: plugins/reference file operations plus diff helpers
     - `DiffService`: diff line construction for the UI
+    - `ProfileService`: profile discovery, CRUD, switching, and file scaffolding
   - **Modal Navigation**
     - `MainWindow` as shell
-    - `SettingsWindow` and `DiffWindow` opened modally from `MainViewModel`
+    - Secondary windows opened modally: `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`
   - **File Monitoring**
-    - `MainViewModel` uses `DispatcherTimer` to monitor `Plugins.txt` vs reference
+    - `MainViewModel` uses `DispatcherTimer` to monitor `Plugins.txt` vs the active profile reference
+  - **Profile Management**
+    - Profiles stored per active configuration under `Profiles/{profileId}` with `main.txt`, `reference.txt`, and `profile.json`
+    - Commands and dialogs coordinate through `ProfileService` to switch and manage profiles
 
 ---
 
@@ -47,21 +52,34 @@
 │  ├─ ModDiffModel.cs
 │  ├─ ModEntryModel.cs
 │  ├─ PluginsComparisonResult.cs
+│  └─ ProfileModel.cs
 ├─ Services/
 │  ├─ DiffService.cs
 │  ├─ FileService.cs
-│  ├─ SettingsService.cs
+│  ├─ ProfileService.cs
+│  └─ SettingsService.cs
 ├─ ViewModels/
 │  ├─ DiffDialogViewModel.cs
 │  ├─ MainViewModel.cs
+│  ├─ ManageProfilesViewModel.cs
+│  ├─ ProfilePropertiesViewModel.cs
 │  ├─ SettingsViewModel.cs
+│  └─ SwitchProfileViewModel.cs
 ├─ Views/
 │  ├─ DiffWindow.xaml
 │  ├─ DiffWindow.xaml.cs
+│  ├─ ManageProfilesWindow.xaml
+│  ├─ ManageProfilesWindow.xaml.cs
+│  ├─ ProfilePropertiesWindow.xaml
+│  ├─ ProfilePropertiesWindow.xaml.cs
 │  ├─ SettingsWindow.xaml
 │  ├─ SettingsWindow.xaml.cs
+│  ├─ SwitchProfileWindow.xaml
+│  ├─ SwitchProfileWindow.xaml.cs
+│  ├─ MainWindow.xaml
+│  └─ MainWindow.xaml.cs
 ├─ Converters/
-│  ├─ ReplacementCommandParameterConverter.cs
+│  └─ ReplacementCommandParameterConverter.cs
 ├─ Docs/
 │  ├─ project-manifest.md (this file)
 │  ├─ Agents/
@@ -79,11 +97,11 @@
 │  │     ├─ 05-problem-resolution-controls.md
 │  │     └─ 06-profiles-feature.md
 ├─ Tests/
-│  ├─ LoadOrderKeeper.Tests/
-│  │  ├─ LoadOrderKeeper.Tests.csproj
-│  │  ├─ DiffServiceTests.cs
-│  │  ├─ FileServiceTests.cs
-│  │  └─ TestConfigContext.cs
+│  └─ LoadOrderKeeper.Tests/
+│     ├─ LoadOrderKeeper.Tests.csproj
+│     ├─ DiffServiceTests.cs
+│     ├─ FileServiceTests.cs
+│     └─ TestConfigContext.cs
 ```
 
 ---
@@ -100,6 +118,7 @@ public class AppConfigModel
     public string StarfieldAppDataPath { get; set; }
     public string StarfieldGamePath { get; set; }
     public int PluginCheckIntervalSeconds { get; set; }
+    public string? ActiveProfileId { get; set; }
 
     public bool IsValid();
     public string GetPluginsFilePath();
@@ -184,7 +203,22 @@ public sealed class ModDiffModel
 public readonly record struct PluginsComparisonResult(bool HasDifferences, string PluginsSignature);
 ```
 
----
+#### `LoadOrderKeeper.Models.ProfileModel`
+
+```csharp
+public sealed class ProfileModel
+{
+    public string Id { get; init; }
+    public string Label { get; set; }
+    public string Description { get; set; }
+    public bool IsDefault { get; }
+
+    public ProfileModel();
+    public ProfileModel(string id, string label, string description = "");
+
+    public static ProfileModel CreateDefault();
+}
+```
 
 ### 3.2 Services
 
@@ -222,6 +256,29 @@ public static class FileService
 }
 ```
 
+#### `LoadOrderKeeper.Services.ProfileService`
+
+```csharp
+public static class ProfileService
+{
+    public static Task<IReadOnlyList<ProfileModel>> LoadProfilesAsync(AppConfigModel config);
+    public static Task<ProfileModel> GetActiveProfileAsync(AppConfigModel config);
+    public static Task<ProfileModel> CreateProfileAsync(AppConfigModel config, string label, string description);
+    public static Task UpdateProfileAsync(AppConfigModel config, ProfileModel oldProfile, string newLabel, string newDescription);
+    public static Task DeleteProfileAsync(AppConfigModel config, string profileId);
+    public static Task<ProfileModel> CopyProfileAsync(AppConfigModel config, string sourceProfileId, string newLabel);
+    public static Task SwitchProfileAsync(AppConfigModel config, string targetProfileId);
+    public static string GenerateProfileId(string label, ISet<string> existingIds);
+    public static Task EnsureProfileMainFileAsync(AppConfigModel config, string profileId);
+    public static Task EnsureProfileReferenceFileAsync(AppConfigModel config, string profileId);
+    public static Task EnsureDefaultProfileFilesAsync(AppConfigModel config);
+    public static string GetProfilesFolder(AppConfigModel config);
+    public static string GetProfileFolder(AppConfigModel config, string profileId);
+    public static string GetProfileMainFilePath(AppConfigModel config, string profileId);
+    public static string GetProfileReferenceFilePath(AppConfigModel config, string profileId);
+}
+```
+
 #### `LoadOrderKeeper.Services.DiffService`
 
 ```csharp
@@ -231,9 +288,9 @@ public static class DiffService
 }
 ```
 
----
-
 ### 3.3 ViewModels
+
+> Commands emitted by `[RelayCommand]` follow the `{MethodName}Command` naming pattern and expose `IRelayCommand` / `IAsyncRelayCommand` properties automatically.
 
 #### `LoadOrderKeeper.ViewModels.SettingsViewModel`
 
@@ -256,8 +313,6 @@ public partial class SettingsViewModel : ObservableObject
 }
 ```
 
-> Commands generated by `[RelayCommand]` are not declared as public fields or properties here; they are exposed indirectly through the view and events.
-
 #### `LoadOrderKeeper.ViewModels.MainViewModel`
 
 ```csharp
@@ -272,7 +327,6 @@ public partial class MainViewModel : ObservableObject
     public string ReferenceButtonText { get; set; }
     public string FixLoadOrderButtonText { get; set; }
     public string PlayButtonText { get; }
-
     public string WindowTitle { get; }
     public string FileMenuHeader { get; }
     public string OpenPluginsMenuText { get; }
@@ -281,6 +335,9 @@ public partial class MainViewModel : ObservableObject
     public string OpenGameFolderMenuText { get; }
     public string ExitMenuText { get; }
     public string SettingsMenuHeader { get; }
+    public string ProfileMenuHeader { get; }
+    public string SwitchProfileMenuText { get; }
+    public string ManageProfilesMenuText { get; }
     public string CurrentTargetLabel { get; }
     public string TargetPrefixText { get; }
     public string PluginsModifiedWarningText { get; }
@@ -288,6 +345,7 @@ public partial class MainViewModel : ObservableObject
     public bool PluginsFileChangedExternally { get; set; }
     public string SortingRecommendationMessage { get; set; }
     public bool SortingRecommendationActive { get; set; }
+    public string ActiveProfileLabel { get; set; }
 
     public IRelayCommand OpenPluginsFileCommand { get; }
     public IRelayCommand OpenReferenceFileCommand { get; }
@@ -295,6 +353,13 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand OpenGameFolderCommand { get; }
     public IRelayCommand PlayGameCommand { get; }
     public IAsyncRelayCommand ShowDiffCommand { get; }
+    public IAsyncRelayCommand FixLoadOrderCommand { get; }
+    public IAsyncRelayCommand CreateReferenceCommand { get; }
+    public IAsyncRelayCommand DiscardChangesCommand { get; }
+    public IAsyncRelayCommand SwitchProfileCommand { get; }
+    public IAsyncRelayCommand ManageProfilesCommand { get; }
+    public IAsyncRelayCommand OpenSettingsCommand { get; }
+    public IRelayCommand ExitApplicationCommand { get; }
 }
 ```
 
@@ -306,7 +371,6 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel);
 
     public ObservableCollection<DiffLineModel> DiffLines { get; }
-
     public string Title { get; }
     public string Description { get; }
     public string UpdateReferenceButtonText { get; }
@@ -317,28 +381,91 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public string SortingRecommendationMessage { get; }
     public IReadOnlyList<DiffLineModel> AddedMods { get; }
     public bool HasAddedMods { get; }
-
-    public IAsyncRelayCommand UpdateReferenceCommand { get; }
-    public IAsyncRelayCommand FixLoadOrderCommand { get; }
-    public IAsyncRelayCommand<DiffLineModel> ReEnableModCommand { get; }
-    public IAsyncRelayCommand<DiffLineModel> RemoveNewModCommand { get; }
-    public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
-
     public event EventHandler? CloseRequested;
     public event EventHandler? ScrollRequested;
-
     public bool HasDifferences { get; }
     public int ScrollTargetIndex { get; }
     public string DiffStatusMessage { get; }
     public bool HasStatusMessage { get; }
 
     public Task<bool> RefreshDiffAsync(string? reason = null);
-
     public void Dispose();
 }
 ```
 
----
+#### `LoadOrderKeeper.ViewModels.SwitchProfileViewModel`
+
+```csharp
+public partial class SwitchProfileViewModel : ObservableObject
+{
+    public SwitchProfileViewModel(AppConfigModel config);
+
+    public ObservableCollection<ProfileModel> Profiles { get; set; }
+    public bool IsLoading { get; set; }
+    public string WindowTitle { get; }
+
+    public event EventHandler<ProfileModel>? ProfileSelected;
+
+    public Task LoadProfilesAsync();
+    public void SelectProfile(ProfileModel profile);
+    public bool IsActiveProfile(ProfileModel profile);
+}
+```
+
+#### `LoadOrderKeeper.ViewModels.ManageProfilesViewModel`
+
+```csharp
+public partial class ManageProfilesViewModel : ObservableObject
+{
+    public ManageProfilesViewModel(AppConfigModel config);
+
+    public ObservableCollection<ProfileModel> Profiles { get; set; }
+    public ProfileModel? SelectedProfile { get; set; }
+    public bool IsLoading { get; set; }
+    public string WindowTitle { get; }
+    public string AddProfileButtonText { get; }
+    public string FileMenuText { get; }
+    public string AddProfileMenuText { get; }
+    public string EditProfileMenuText { get; }
+    public string DeleteProfileMenuText { get; }
+    public string CopyProfileMenuText { get; }
+    public string CloseButtonText { get; }
+
+    public event EventHandler? CloseRequested;
+    public event EventHandler<ProfileModel>? AddProfileRequested;
+    public event EventHandler<ProfileModel>? EditProfileRequested;
+    public event EventHandler<ProfileModel>? CopyProfileRequested;
+
+    public Task LoadProfilesAsync();
+}
+```
+
+#### `LoadOrderKeeper.ViewModels.ProfilePropertiesViewModel`
+
+```csharp
+public partial class ProfilePropertiesViewModel : ObservableObject
+{
+    public ProfilePropertiesViewModel(IReadOnlyList<ProfileModel> existingProfiles);
+    public ProfilePropertiesViewModel(ProfileModel profileToEdit, IReadOnlyList<ProfileModel> existingProfiles);
+
+    public string Label { get; set; }
+    public string Description { get; set; }
+    public string? LabelError { get; set; }
+    public string? DescriptionError { get; set; }
+    public bool HasErrors { get; set; }
+    public bool IsEditMode { get; }
+    public string WindowTitle { get; }
+    public string SaveButtonText { get; }
+    public string CancelButtonText { get; }
+    public string LabelLabelText { get; }
+    public string DescriptionLabelText { get; }
+
+    public event EventHandler? SaveRequested;
+    public event EventHandler? CancelRequested;
+
+    public (string Label, string Description) GetProfileData();
+}
+```
 
 ### 3.4 Views / Application
 
@@ -378,6 +505,33 @@ public partial class DiffWindow : Window
 }
 ```
 
+#### `LoadOrderKeeper.Views.SwitchProfileWindow`
+
+```csharp
+public partial class SwitchProfileWindow : Window
+{
+    public SwitchProfileWindow(AppConfigModel config);
+}
+```
+
+#### `LoadOrderKeeper.Views.ManageProfilesWindow`
+
+```csharp
+public partial class ManageProfilesWindow : Window
+{
+    public ManageProfilesWindow(AppConfigModel config);
+}
+```
+
+#### `LoadOrderKeeper.Views.ProfilePropertiesWindow`
+
+```csharp
+public partial class ProfilePropertiesWindow : Window
+{
+    public ProfilePropertiesWindow();
+}
+```
+
 #### `LoadOrderKeeper.Converters.ReplacementCommandParameterConverter`
 
 ```csharp
@@ -392,66 +546,54 @@ public sealed class ReplacementCommandParameterConverter : IMultiValueConverter
 
 ## 4. Key Data Flows
 
-- `App.OnStartup` creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows the window.
-- `MainViewModel` startup:
-  - Calls `SettingsService.LoadSettingsAsync()` to get `AppConfigModel`.
-  - Sets `RefExists = FileService.DoesReferenceFileExist(Config)`.
-  - Ensures valid configuration by opening `SettingsWindow` with `SettingsViewModel` if needed.
-  - Ensures reference file exists; may call `FileService.CreateReferenceFileAsync(Config)`.
-  - Configures a `DispatcherTimer` to periodically call `CheckPluginsFileAsync()`.
-- Settings flow:
-  - `MainViewModel.OpenSettingsAsync()` (via command) creates `SettingsViewModel` from `Config` and opens `SettingsWindow` modally.
-  - `SettingsWindow` responds to `BrowseAppDataRequested` / `BrowseGamePathRequested` with folder dialogs, then calls `UpdateAppDataPath` / `UpdateGamePath`.
-  - `SaveSettings` command raises `SaveRequested`; window sets `DialogResult = true` and closes.
-  - `MainViewModel` then calls `settingsVm.GetConfig()`, assigns `Config`, calls `SettingsService.SaveSettingsAsync(Config)`, recomputes `RefExists`, may auto-create reference, and refreshes monitoring state.
-- Reference & load order:
-  - `MainViewModel.CreateReferenceAsync()` (via `CreateReferenceCommand`) calls `FileService.CreateReferenceFileAsync(Config)` and sets `RefExists = true`.
-  - `MainViewModel.FixLoadOrderAsync()` (via `FixLoadOrderCommand`) calls `FileService.ApplyLoadOrderAsync(Config)`.
-  - `FileService.ApplyLoadOrderAsync` uses case lookup from `StarfieldGamePath/Data` to restore correct case, orders mods by reference file and appends new mods, and writes `Plugins.txt` in UTF-8 without BOM.
-- Monitoring & diff:
-  - `DispatcherTimer` in `MainViewModel` periodically calls `CheckPluginsFileAsync()`.
-  - `CheckPluginsFileAsync()` calls `FileService.ComparePluginsWithReferenceAsync(Config)` to get `HasDifferences` and `PluginsSignature`.
-  - When differences exist, it optionally calls `FileService.WouldSortingChangeDiffsAsync(Config)` to recommend sorting, and `DiffService.GetPluginsDiffAsync(Config)` to update change count.
-  - `MainViewModel.ShowDiffAsync()` uses `DiffService.GetPluginsDiffAsync(Config)` to build a `DiffDialogViewModel` and opens `DiffWindow` modally.
-  - While `DiffWindow` is open, if the plugins signature changes, `MainViewModel` calls `DiffDialogViewModel.RefreshDiffAsync(reason)`.
-- Diff operations (inside `DiffDialogViewModel`):
-  - `ReEnableModAsync` calls `FileService.ReEnableModAsync(Config, fileName)`, then `RefreshDiffAsync()`.
-  - `RemoveNewModAsync` calls `FileService.RemoveNewModAsync(Config, fileName)`, then `RefreshDiffAsync()`.
-  - `ReplaceRemovedModAsync` calls `FileService.ReplaceModWithNewAsync(Config, removedFileName, replacementFileName)`, then `RefreshDiffAsync()`.
-  - `DiscardChangesAsync` (command) delegates to `MainViewModel.DiscardChangesCommand`, which calls `FileService.DiscardChangesAsync(Config)` and re-checks plugins.
+- **Startup & Configuration**
+  - `App.OnStartup` creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows it.
+  - `MainViewModel` loads settings via `SettingsService.LoadSettingsAsync()`, ensures the default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`, checks `FileService.DoesReferenceFileExist()`, and enforces configuration validity by displaying `SettingsWindow` when needed.
+  - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
+- **Profile Initialization & Switching**
+  - `MainViewModel.SwitchProfileCommand` opens `SwitchProfileWindow` with `SwitchProfileViewModel`, which loads profiles via `ProfileService.LoadProfilesAsync()`.
+  - Selecting a profile calls `ProfileService.SwitchProfileAsync()`: the current `Plugins.txt` is persisted to the active profile’s `main.txt`, the target profile’s `main.txt` and `reference.txt` are ensured, the target `main.txt` replaces `Plugins.txt`, and `ActiveProfileId` is saved.
+  - After switching, `MainViewModel` refreshes `ActiveProfileLabel`, `RefExists`, timer state, and kicks off `CheckPluginsFileAsync()` so monitoring uses the new profile’s reference.
+- **Profile Management**
+  - `MainViewModel.ManageProfilesCommand` opens `ManageProfilesWindow` backed by `ManageProfilesViewModel`.
+  - The manage view requests CRUD actions: `ProfileService.CreateProfileAsync()`, `UpdateProfileAsync()`, `DeleteProfileAsync()`, and `CopyProfileAsync()` handle persistence; `ProfilePropertiesWindow` + `ProfilePropertiesViewModel` validates labels/descriptions before save.
+  - The profiles list refreshes after each operation so the UI and `MainViewModel` reflect edits.
+- **Settings Flow**
+  - `MainViewModel.OpenSettingsCommand` shows `SettingsWindow`; on success, `SettingsService.SaveSettingsAsync()` persists `AppConfigModel`, `RefExists` is recomputed, and monitoring restarts.
+  - Configuration edits retain `ActiveProfileId`, so profile-specific references stay aligned.
+- **Reference & load order controls**
+  - `CreateReferenceCommand` and `FixLoadOrderCommand` call `FileService.CreateReferenceFileAsync()` and `FileService.ApplyLoadOrderAsync()` respectively; both commands gate on configuration validity and `IsBusy`.
+  - `DiscardChangesCommand` resets `Plugins.txt` from the active profile reference via `FileService.DiscardChangesAsync()`.
+- **Monitoring & diffing**
+  - `DispatcherTimer` invokes `CheckPluginsFileAsync()`; the method calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile’s reference.
+  - On differences, `FileService.WouldSortingChangeDiffsAsync()` sets the sorting recommendation, `DiffService.GetPluginsDiffAsync()` feeds both the badge count and the `DiffDialogViewModel`, and switching profiles triggers `DiffDialogViewModel.RefreshDiffAsync()` when open.
+- **Diff dialog operations**
+  - In `DiffDialogViewModel`, commands trigger `FileService.ReEnableModAsync()`, `RemoveNewModAsync()`, `ReplaceModWithNewAsync()`, and `MainViewModel.DiscardChangesCommand` (which calls `FileService.DiscardChangesAsync()`), refreshing diffs afterward.
 
 ---
 
 ## 5. Current Constraints & Invariants
 
 - **Configuration validity**
-  - `AppConfigModel.IsValid()` must be true before any file operations; it requires:
-    - Non-empty `StarfieldAppDataPath` and `StarfieldGamePath`.
-    - Directories exist for both.
-    - `StarfieldGamePath/Data` exists.
-  - `MainViewModel` enforces configuration at startup; if still invalid after showing settings, the app shuts down.
-- **File locations**
-  - `Plugins.txt` and `Plugins.reference.txt` live under `StarfieldAppDataPath` (via `GetPluginsFilePath()` and `GetReferenceFilePath()`).
-- **File I/O**
-  - All service entry points that touch disk are asynchronous (`Task`-based).
-  - Reading uses UTF-8; writing uses UTF-8 without BOM for plugins-related writes.
-  - `FileService.CreateReferenceFileAsync` copies raw `Plugins.txt` to reference to preserve comments/blank lines.
+  - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
+  - The app shuts down when configuration remains invalid after the settings dialog.
+- **Profile storage**
+  - Profiles live under `StarfieldAppDataPath/Profiles/{profileId}` with `profile.json`, `main.txt`, and `reference.txt`; folders are created automatically.
+  - `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
+  - The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
+  - Profile labels must be unique (case-insensitive), 2–30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
+- **Profile switching guarantees**
+  - Switching always backs up the current `Plugins.txt` into the old profile’s `main.txt`, ensures the target `main.txt` and `reference.txt`, writes UTF-8 (no BOM), and updates `ActiveProfileId` before monitoring continues.
+- **File locations & I/O**
+  - `Plugins.txt` stays under `StarfieldAppDataPath`; references are profile-specific (`Profiles/{id}/reference.txt`).
+  - All disk operations in services are asynchronous; plugins-related writes use UTF-8 without BOM, and reference creation copies raw files to retain comments.
 - **Case restoration**
-  - `FileService` must build a case lookup from `StarfieldGamePath/Data` (for `*.esm` and `*.esp`, all subdirectories).
-  - Output lines use on-disk casing when available; otherwise they use the input filename.
-- **Diff semantics**
-  - `FileService.GetModDiffAsync` bases `ModDiffModel` on reference/current line numbers to determine `IsNew`, `IsRemoved`, and `IsMoved`.
-  - `DiffService.GetPluginsDiffAsync` converts these into `DiffLineModel` with change types `Added`, `Removed`, `Moved`, and `Replaced` (when an addition shares the same line number as a removal).
-- **Monitoring rules**
-  - The plugins monitor timer is active only when `Config.IsValid()` and `RefExists` are true.
-  - The monitor compares full file contents, ignoring trailing blank lines, and tracks a string `PluginsSignature` to detect changes.
-- **Navigation**
-  - All secondary windows (`SettingsWindow`, `DiffWindow`) are modal dialogs.
-  - ViewModels are created by `MainViewModel` and passed into the views via `DataContext`.
-  - Results flow back to `MainViewModel` through `ShowDialog()` results and/or ViewModel events.
-- **Threading / UI safety**
-  - `DispatcherTimer` runs on the UI thread.
-  - Service calls are awaited from command handlers; `IsBusy` prevents re-entrancy for critical operations and pauses some monitoring behavior.
+  - `FileService.ApplyLoadOrderAsync()` builds a case map from `StarfieldGamePath/Data` (`*.esm` / `*.esp`) so output lines reuse on-disk casing.
+- **Diff semantics & monitoring**
+  - `FileService.GetModDiffAsync()` bases `ModDiffModel` flags on original vs current line numbers; `DiffService` translates them to `DiffLineModel` change types (`Added`, `Removed`, `Moved`, `Replaced`).
+  - The monitor compares trimmed file contents, tracks a `PluginsSignature`, and only runs when `Config.IsValid()` and `RefExists` are true.
+- **Navigation & threading**
+  - Modal windows (`SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`) block until close; viewmodels flow back via dialog results/events.
+  - `DispatcherTimer` runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
 - **Error handling**
-  - Services throw exceptions when invariants are violated (`InvalidOperationException`, `FileNotFoundException`, `ArgumentException`, etc.).
-  - `MainViewModel` converts most errors into `StatusMessage` updates and `MessageBox` dialogs for the user.
+  - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `MessageBox` dialogs.

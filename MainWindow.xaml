@@ -53,16 +53,27 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
-            <TextBlock Grid.Column="1"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Right">
-                <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                <Hyperlink Command="{Binding SwitchProfileCommand}"
-                           Foreground="{DynamicResource PrimaryHueMidBrush}">
-                    <Run Text="{Binding ActiveProfileLabel, Mode=OneWay}" />
-                </Hyperlink>
-            </TextBlock>
+
+            <Border Margin="0"
+        Padding="4"
+        CornerRadius="3"
+        Background="{DynamicResource MaterialDesignCardBackground}">
+                <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+                    <TextBlock VerticalAlignment="Center"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}">
+                    <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" />
+                    </TextBlock>
+                    <Button VerticalAlignment="Center"
+                        Margin="4,0,0,0"
+                        Style="{StaticResource MaterialDesignCompactOutlinedSecondaryButton}"
+                        materialDesign:RippleAssist.IsDisabled="True"
+                        Command="{Binding SwitchProfileCommand}"
+                        Content="{Binding ActiveProfileLabel, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
         </Grid>
 
         <Border Margin="16"

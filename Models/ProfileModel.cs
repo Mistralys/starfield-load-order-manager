@@ -49,4 +49,12 @@ public sealed class ProfileModel
     {
         return new ProfileModel("default", "Default", "The default profile is always available.");
     }
+
+    /// <summary>
+    /// Returns the label of the profile.
+    /// </summary>
+    public override string ToString()
+    {
+        return Label;
+    }
 }

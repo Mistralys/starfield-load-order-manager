@@ -27,13 +27,11 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
-        [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
         [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private AppConfigModel _config = new();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
-        [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
         [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private bool _refExists;
 
@@ -42,7 +40,6 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
-        [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
         [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private bool _isBusy;
 
@@ -74,7 +71,7 @@ namespace LoadOrderKeeper.ViewModels
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
         public string ActiveProfilePrefixText { get; } = "Active Profile: ";
         [ObservableProperty]
-        private string _showChangesButtonText = "Manage changes (0)";
+        private string _showChangesButtonText = "Manage load order";
 
         [ObservableProperty]
         private bool _pluginsFileChangedExternally;
@@ -112,7 +109,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenAppDataFolderCommand = new RelayCommand(OpenAppDataFolder, CanAccessAppDataPath);
             OpenGameFolderCommand = new RelayCommand(OpenGameFolder, CanAccessGamePath);
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
-            ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync, CanShowDiff);
+            ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync);
 
             _ = LoadInitialStateAsync();
         }
@@ -503,12 +500,9 @@ namespace LoadOrderKeeper.ViewModels
 
         private void UpdateChangeCountDisplay(int changeCount)
         {
-            ShowChangesButtonText = $"Manage changes ({changeCount})";
-        }
- 
-        private bool CanShowDiff()
-        {
-            return PluginsFileChangedExternally && Config.IsValid() && !IsBusy;
+            ShowChangesButtonText = changeCount > 0 
+                ? $"Manage load order ({changeCount} changes)"
+                : "Manage load order";
         }
  
         private async Task ShowDiffAsync()
@@ -530,13 +524,7 @@ namespace LoadOrderKeeper.ViewModels
             try
             {
                 var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                if (diffLines.Count == 0)
-                {
-                    WpfMessageBox.Show("No differences detected.", "Show Changes", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-                    PluginsFileChangedExternally = false;
-                    return;
-                }
-
+                
                 var diffViewModel = new DiffDialogViewModel(diffLines, this);
                 _diffWindow = new DiffWindow
                 {

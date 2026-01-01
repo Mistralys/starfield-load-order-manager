@@ -91,17 +91,17 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0"
-                            Content="{Binding FixLoadOrderButtonText}"
+                            Content="{Binding ShowChangesButtonText}"
                             Margin="0,0,8,0"
-                            Command="{Binding FixLoadOrderCommand}"
+                            Command="{Binding ShowDiffCommand}"
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignRaisedButton}" />
                     <Button Grid.Column="1"
-                            Content="{Binding ShowChangesButtonText}"
+                            Content="{Binding PlayButtonText}"
                             Margin="8,0,0,0"
-                            Command="{Binding ShowDiffCommand}"
+                            Command="{Binding PlayGameCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignOutlinedButton}" />
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                 </Grid>
 
                 <ProgressBar Height="18"
@@ -120,11 +120,6 @@
                            Text="{Binding PluginsModifiedWarningText}"
                            Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
                            Visibility="{Binding PluginsFileChangedExternally, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                <Button Margin="0,16,0,0"
-                        Content="{Binding PlayButtonText}"
-                        Command="{Binding PlayGameCommand}"
-                        HorizontalAlignment="Stretch"
-                        Style="{StaticResource MaterialDesignRaisedButton}" />
              </StackPanel>
         </Border>
     </DockPanel>

@@ -75,7 +75,6 @@ namespace LoadOrderKeeper.Views
 
         private void CloseDialog()
         {
-            DialogResult = true;
             Close();
         }
 

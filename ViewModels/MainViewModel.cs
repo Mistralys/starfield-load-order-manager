@@ -20,6 +20,10 @@ namespace LoadOrderKeeper.ViewModels
         private DiffDialogViewModel? _activeDiffDialog;
         private string _lastObservedPluginsSignature = string.Empty;
 
+        // Track non-modal windows to prevent multiple instances
+        private ManageProfilesWindow? _manageProfilesWindow;
+        private DiffWindow? _diffWindow;
+
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
         [NotifyCanExecuteChangedFor(nameof(FixLoadOrderCommand))]
@@ -393,17 +397,34 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private async Task ManageProfilesAsync()
         {
+            // If window is already open, bring it to front
+            if (_manageProfilesWindow != null)
+            {
+                _manageProfilesWindow.Activate();
+                _manageProfilesWindow.Focus();
+                return;
+            }
+
             var manageVm = new ManageProfilesViewModel(Config);
-            var manageWindow = new ManageProfilesWindow(Config)
+            _manageProfilesWindow = new ManageProfilesWindow(Config)
             {
                 Owner = WpfApplication.Current?.MainWindow,
                 DataContext = manageVm
             };
 
-            manageWindow.ShowDialog();
+            // Handle window closed event to clear reference
+            _manageProfilesWindow.Closed += (s, e) => 
+            {
+                _manageProfilesWindow = null;
+            };
+
+            _manageProfilesWindow.Show();
             
-            // Refresh active profile label in case it was edited
-            await UpdateActiveProfileLabelAsync();
+            // Refresh active profile label in case it was edited (when window is closed)
+            _manageProfilesWindow.Closed += async (s, e) => 
+            {
+                await UpdateActiveProfileLabelAsync();
+            };
         }
 
         private async Task UpdateActiveProfileLabelAsync()
@@ -470,6 +491,15 @@ namespace LoadOrderKeeper.ViewModels
                 return;
             }
 
+            // If diff window is already open, bring it to front and refresh
+            if (_diffWindow != null && _activeDiffDialog != null)
+            {
+                _diffWindow.Activate();
+                _diffWindow.Focus();
+                await _activeDiffDialog.RefreshDiffAsync("Manual refresh requested");
+                return;
+            }
+
             try
             {
                 var diffLines = await DiffService.GetPluginsDiffAsync(Config);
@@ -481,21 +511,22 @@ namespace LoadOrderKeeper.ViewModels
                 }
 
                 var diffViewModel = new DiffDialogViewModel(diffLines, this);
-                var diffWindow = new DiffWindow
+                _diffWindow = new DiffWindow
                 {
                     Owner = WpfApplication.Current?.MainWindow,
                     DataContext = diffViewModel
                 };
 
                 _activeDiffDialog = diffViewModel;
-                try
+
+                // Handle window closed event to clear references
+                _diffWindow.Closed += (s, e) => 
                 {
-                    diffWindow.ShowDialog();
-                }
-                finally
-                {
+                    _diffWindow = null;
                     _activeDiffDialog = null;
-                }
+                };
+
+                _diffWindow.Show();
             }
             catch (Exception ex)
             {

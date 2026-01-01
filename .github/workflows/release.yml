@@ -1,5 +1,9 @@
 name: Release Build
 
+# To ensure that the integration is allowed to create releases
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -73,7 +77,10 @@ jobs:
             --self-contained true `
             -o installer/publish `
             -p:PublishSingleFile=true `
-            -p:PublishReadyToRun=true
+            -p:PublishReadyToRun=true `
+            -p:AssemblyVersion=${{ steps.version.outputs.version }} `
+            -p:FileVersion=${{ steps.version.outputs.version }} `
+            -p:InformationalVersion=${{ steps.version.outputs.tag }}
 
       - name: Build MSI installer
         run: |

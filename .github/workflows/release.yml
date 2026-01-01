@@ -19,6 +19,17 @@ jobs:
         with:
           fetch-depth: 0   # Required to detect previous tag
 
+      - name: Install .NET 9
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install WiX Toolset
+        run: choco upgrade wixtoolset -y
+
+      - name: Setup MSBuild 
+        uses: microsoft/setup-msbuild@v2
+
       - name: Extract version from tag
         id: version
         run: |
@@ -57,43 +68,6 @@ jobs:
           $previous = $tags | Where-Object { $_ -ne $current } | Select-Object -First 1
           if (-not $previous) { $previous = "N/A" }
           echo "previous=$previous" >> $env:GITHUB_OUTPUT
-
-      - name: Install .NET 9
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '9.0.x'
-
-      - name: Install WiX Toolset
-        run: choco upgrade wixtoolset -y
-
-      - name: Setup MSBuild 
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Publish WPF application
-        run: |
-          dotnet publish "Starfield Load Order Keeper.csproj" `
-            -c Release `
-            -r win-x64 `
-            --self-contained true `
-            -o installer/publish `
-            -p:PublishSingleFile=true `
-            -p:PublishReadyToRun=true `
-            -p:AssemblyVersion=${{ steps.version.outputs.version }} `
-            -p:FileVersion=${{ steps.version.outputs.version }} `
-            -p:InformationalVersion=${{ steps.version.outputs.tag }}
-
-      - name: Build MSI installer
-        run: |
-          cd installer
-          msbuild StarfieldLoadOrderKeeper.wixproj `
-            /p:ProductVersion=${{ steps.version.outputs.version }} `
-            /p:PublishDir=publish `
-            /p:Configuration=Release `
-            /p:Platform=x64
-
-      - name: Create ZIP package
-        run: |
-          Compress-Archive -Path installer/publish/* -DestinationPath StarfieldLoadOrderKeeper.zip
 
       - name: Extract changelog entry
         id: changelog
@@ -140,6 +114,32 @@ jobs:
             "[Changes since $prev](https://github.com/$repo/compare/$prev...$tag)" | Out-File -FilePath $notesPath -Encoding utf8 -Append
             "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
           }
+
+      - name: Publish WPF application
+        run: |
+          dotnet publish "Starfield Load Order Keeper.csproj" `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -o installer/publish `
+            -p:PublishSingleFile=true `
+            -p:PublishReadyToRun=true `
+            -p:AssemblyVersion=${{ steps.version.outputs.version }} `
+            -p:FileVersion=${{ steps.version.outputs.version }} `
+            -p:InformationalVersion=${{ steps.version.outputs.tag }}
+
+      - name: Build MSI installer
+        run: |
+          cd installer
+          msbuild StarfieldLoadOrderKeeper.wixproj `
+            /p:ProductVersion=${{ steps.version.outputs.version }} `
+            /p:PublishDir=publish `
+            /p:Configuration=Release `
+            /p:Platform=x64
+
+      - name: Create ZIP package
+        run: |
+          Compress-Archive -Path installer/publish/* -DestinationPath StarfieldLoadOrderKeeper.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

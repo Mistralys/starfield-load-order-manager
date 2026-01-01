@@ -25,8 +25,12 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}" />
-                    <Setter Property="BorderThickness" Value="2" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="{DynamicResource MaterialDesignShadow}" BlurRadius="8" ShadowDepth="2" Opacity="0.3"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>

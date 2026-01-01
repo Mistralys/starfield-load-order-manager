@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -478,6 +479,30 @@ namespace LoadOrderKeeper.ViewModels
                 ? "Play (SFSE)"
                 : "Play (Vanilla)";
         }
+
+        private async Task UpdateChangeCountDisplayAsync(bool hasDifferences)
+        {
+            if (!hasDifferences)
+            {
+                UpdateChangeCountDisplay(0);
+                return;
+            }
+
+            try
+            {
+                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                UpdateChangeCountDisplay(diffLines.Count);
+            }
+            catch
+            {
+                UpdateChangeCountDisplay(0);
+            }
+        }
+
+        private void UpdateChangeCountDisplay(int changeCount)
+        {
+            ShowChangesButtonText = $"Manage changes ({changeCount})";
+        }
  
         private bool CanShowDiff()
         {
@@ -637,6 +662,18 @@ namespace LoadOrderKeeper.ViewModels
                 : "Configuration is required. Please set paths in the Settings window.";
         }
 
+        private bool HasSfseExecutable()
+        {
+            var gamePath = Config?.StarfieldGamePath;
+            if (string.IsNullOrWhiteSpace(gamePath))
+            {
+                return false;
+            }
+ 
+            string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
+            return File.Exists(sfsePath);
+        }
+
         /// <summary>
         /// Gets the application version from assembly attributes.
         /// </summary>
@@ -648,12 +685,14 @@ namespace LoadOrderKeeper.ViewModels
                 var assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 
                 // Try to get the InformationalVersion first (this contains the original Git tag)
-                var informationalVersion = assembly
-                    .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+                var informationalVersionAttribute = assembly
+                    .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                    .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute;
                 
-                if (!string.IsNullOrWhiteSpace(informationalVersion))
+                if (informationalVersionAttribute?.InformationalVersion is not null && 
+                    !string.IsNullOrWhiteSpace(informationalVersionAttribute.InformationalVersion))
                 {
-                    return informationalVersion;
+                    return informationalVersionAttribute.InformationalVersion;
                 }
                 
                 // Fallback to AssemblyVersion

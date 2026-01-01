@@ -88,8 +88,11 @@ jobs:
             $next = $content.Length + 1
           }
 
-          # Extract the lines for this version
-          $entry = $content[($start - 1)..($next - 2)] -join "`n"
+          # Extract the lines for this version (skip the header line)
+          $entryLines = $content[$start..($next - 2)]
+          
+          # Remove empty lines and join
+          $entry = ($entryLines | Where-Object { $_.Trim() -ne "" }) -join "`n"
 
           # Use multiline output to avoid escaping issues entirely
           $delimiter = "EOF_CHANGELOG_$(Get-Random)"

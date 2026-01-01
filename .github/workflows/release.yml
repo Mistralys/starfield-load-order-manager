@@ -55,12 +55,12 @@ jobs:
           echo "previous=$previous" >> $env:GITHUB_OUTPUT
 
       - name: Install .NET 9
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '9.0.x'
 
       - name: Install WiX Toolset
-        run: choco install wixtoolset --version=3.11.2 -y
+        run: choco upgrade wixtoolset -y
 
       - name: Publish WPF application
         run: |

@@ -1,18 +1,53 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <!-- Standard MSBuild properties -->
   <PropertyGroup>
+    <!-- Default configuration and platform if not specified -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    
+    <!-- WiX-specific properties -->
     <OutputName>StarfieldLoadOrderKeeper</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
 
-    <!-- These will be overridden by GitHub Actions -->
+  <!-- Custom properties that will be overridden by GitHub Actions -->
+  <PropertyGroup>
     <ProductVersion>1.0.0.0</ProductVersion>
     <PublishDir>publish</PublishDir>
   </PropertyGroup>
 
+  <!-- Debug x64 configuration -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <!-- Debug x86 configuration -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <!-- Release x64 configuration -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <IntermediateOutputPath>obj\Release\</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <!-- Release x86 configuration -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <IntermediateOutputPath>obj\Release\</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <!-- WiX source files -->
   <ItemGroup>
     <Compile Include="Product.wxs" />
   </ItemGroup>
 
+  <!-- WiX preprocessor definitions -->
   <PropertyGroup>
     <DefineConstants>
       ProductVersion=$(ProductVersion);
@@ -20,5 +55,6 @@
     </DefineConstants>
   </PropertyGroup>
 
+  <!-- Import WiX targets -->
   <Import Project="$(WixTargetsPath)" />
 </Project>

@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using LoadOrderKeeper.Models;
@@ -16,6 +14,7 @@ public partial class ManageProfilesWindow : Window
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         InitializeComponent();
+        
         DataContextChanged += OnDataContextChanged;
         Loaded += OnLoaded;
     }

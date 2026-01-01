@@ -58,7 +58,7 @@ namespace LoadOrderKeeper.ViewModels
             private set => SetProperty(ref _playButtonText, value);
         }
 
-        public string WindowTitle { get; } = "Starfield Load Order Keeper";
+        public string WindowTitle => $"Starfield Load Order Keeper v{GetApplicationVersion()}";
         public string FileMenuHeader { get; } = "_File";
         public string OpenPluginsMenuText { get; } = "Open _Plugins.txt";
         public string OpenReferenceMenuText { get; } = "Open _Reference File";
@@ -637,41 +637,41 @@ namespace LoadOrderKeeper.ViewModels
                 : "Configuration is required. Please set paths in the Settings window.";
         }
 
-        private bool HasSfseExecutable()
+        /// <summary>
+        /// Gets the application version from assembly attributes.
+        /// </summary>
+        /// <returns>The version string, preferring InformationalVersion over AssemblyVersion.</returns>
+        private string GetApplicationVersion()
         {
-            var gamePath = Config?.StarfieldGamePath;
-            if (string.IsNullOrWhiteSpace(gamePath))
-            {
-                return false;
-            }
- 
-            string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
-            return File.Exists(sfsePath);
-        }
-
-        private async Task UpdateChangeCountDisplayAsync(bool hasDifferences)
-        {
-            if (!hasDifferences)
-            {
-                UpdateChangeCountDisplay(0);
-                return;
-            }
-
             try
             {
-                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                UpdateChangeCountDisplay(diffLines.Count);
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                
+                // Try to get the InformationalVersion first (this contains the original Git tag)
+                var informationalVersion = assembly
+                    .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+                
+                if (!string.IsNullOrWhiteSpace(informationalVersion))
+                {
+                    return informationalVersion;
+                }
+                
+                // Fallback to AssemblyVersion
+                var assemblyVersion = assembly.GetName().Version;
+                if (assemblyVersion != null)
+                {
+                    return assemblyVersion.ToString();
+                }
+                
+                // Last resort fallback
+                return "Unknown";
             }
             catch
             {
-                UpdateChangeCountDisplay(0);
+                // If anything goes wrong, return a safe fallback
+                return "Unknown";
             }
         }
-
-        private void UpdateChangeCountDisplay(int changeCount)
-        {
-            ShowChangesButtonText = $"Manage changes ({changeCount})";
-         }
  
         [RelayCommand(CanExecute = nameof(CanDiscardChanges))]
         private async Task DiscardChangesAsync()

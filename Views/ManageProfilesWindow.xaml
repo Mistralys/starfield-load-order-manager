@@ -32,44 +32,54 @@
         </Menu>
 
         <!-- Profile List -->
-        <ListView Grid.Row="1"
-                  x:Name="ProfileListView"
+        <DataGrid Grid.Row="1"
+                  x:Name="ProfileDataGrid"
                   ItemsSource="{Binding Profiles}"
                   SelectedItem="{Binding SelectedProfile}"
                   Margin="16,8,16,8"
-                  Background="{DynamicResource MaterialDesignPaper}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Label" 
-                                    Width="200"
-                                    DisplayMemberBinding="{Binding Label}" />
-                    <GridViewColumn Header="Description" 
-                                    Width="350"
-                                    DisplayMemberBinding="{Binding Description}" />
-                </GridView>
-            </ListView.View>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                  Background="{DynamicResource MaterialDesignPaper}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserReorderColumns="False"
+                  CanUserResizeRows="False"
+                  SelectionMode="Single"
+                  GridLinesVisibility="None"
+                  HeadersVisibility="Column"
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Label" 
+                                    Width="200" 
+                                    Binding="{Binding Label}" />
+                <DataGridTextColumn Header="Description" 
+                                    Width="350" 
+                                    Binding="{Binding Description}" />
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
                     <EventSetter Event="MouseDoubleClick" Handler="OnProfileDoubleClick" />
                     <Setter Property="ContextMenu">
                         <Setter.Value>
                             <ContextMenu>
-                                <MenuItem Header="{Binding DataContext.EditProfileMenuText, RelativeSource={RelativeSource AncestorType=Window}}"
-                                          Command="{Binding DataContext.EditProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                <ContextMenu.DataContext>
+                                    <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                </ContextMenu.DataContext>
+                                <MenuItem Header="{Binding EditProfileMenuText}"
+                                          Command="{Binding EditProfileCommand}"
                                           Icon="{materialDesign:PackIcon Kind=Edit}" />
-                                <MenuItem Header="{Binding DataContext.CopyProfileMenuText, RelativeSource={RelativeSource AncestorType=Window}}"
-                                          Command="{Binding DataContext.CopyProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                <MenuItem Header="{Binding CopyProfileMenuText}"
+                                          Command="{Binding CopyProfileCommand}"
                                           Icon="{materialDesign:PackIcon Kind=ContentCopy}" />
                                 <Separator />
-                                <MenuItem Header="{Binding DataContext.DeleteProfileMenuText, RelativeSource={RelativeSource AncestorType=Window}}"
-                                          Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                <MenuItem Header="{Binding DeleteProfileMenuText}"
+                                          Command="{Binding DeleteProfileCommand}"
                                           Icon="{materialDesign:PackIcon Kind=Delete}" />
                             </ContextMenu>
                         </Setter.Value>
                     </Setter>
                 </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
+            </DataGrid.RowStyle>
+        </DataGrid>
 
         <!-- Loading Indicator -->
         <ProgressBar Grid.Row="2"

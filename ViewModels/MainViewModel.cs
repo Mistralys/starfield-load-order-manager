@@ -670,7 +670,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private void UpdateChangeCountDisplay(int changeCount)
         {
-            SetProperty(ref _showChangesButtonText, $"Manage changes ({changeCount})", "ShowChangesButtonText");
+            ShowChangesButtonText = $"Manage changes ({changeCount})";
          }
  
         [RelayCommand(CanExecute = nameof(CanDiscardChanges))]

@@ -117,10 +117,16 @@ jobs:
           # Extract the lines for this version
           $entry = $content[($start - 1)..($next - 2)] -join "`n"
 
-          # Escape for GitHub Actions output
-          $entry = $entry -replace '%','%25'
-          $entry = $entry -replace "`r",""
-          $entry = $entry -replace "`n","%0A"
+          # Escape special characters for GitHub Actions output
+          $entry = $entry -replace '%','%25'    # Must be first - GitHub Actions escape character
+          $entry = $entry -replace '\r\n','%0A' # Windows line endings
+          $entry = $entry -replace '\n','%0A'   # Unix line endings  
+          $entry = $entry -replace '\r','%0D'   # Carriage return
+          $entry = $entry -replace '"','%22'    # Double quotes
+          $entry = $entry -replace "'","''"     # Single quotes (PowerShell escape)
+          $entry = $entry -replace '`','``'     # Backticks (PowerShell escape)
+          $entry = $entry -replace '\$','`$'    # Dollar signs (PowerShell escape)
+          
           echo "entry=$entry" >> $env:GITHUB_OUTPUT
 
       - name: Prepare release notes

@@ -81,7 +81,8 @@ jobs:
           msbuild StarfieldLoadOrderKeeper.wixproj `
             /p:ProductVersion=${{ steps.version.outputs.version }} `
             /p:PublishDir=publish `
-            /p:Configuration=Release
+            /p:Configuration=Release `
+            /p:Platform=x64
 
       - name: Create ZIP package
         run: |

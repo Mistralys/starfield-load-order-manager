@@ -1,0 +1,89 @@
+<Window x:Class="LoadOrderKeeper.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="About"
+        Height="354"
+        Width="557"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Style="{StaticResource MaterialDesignDefaultWindowStyle}"
+        Background="{DynamicResource MaterialDesignPaper}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Application Icon/Title -->
+        <StackPanel Grid.Row="0" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16">
+            <materialDesign:PackIcon Kind="Application" 
+                                   Width="48" 
+                                   Height="48" 
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <TextBlock Text="{Binding ApplicationName}" 
+                       FontSize="24" 
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       Margin="12,0,0,0"
+                       Foreground="{DynamicResource MaterialDesignBody}" />
+        </StackPanel>
+
+        <!-- Version -->
+        <TextBlock Grid.Row="1" 
+                   HorizontalAlignment="Center"
+                   FontSize="16"
+                   Margin="0,0,0,8"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}">
+            <Run Text="{Binding VersionLabelText, Mode=OneWay}" />
+            <Run Text="{Binding ApplicationVersion, Mode=OneWay}" FontWeight="Medium" />
+        </TextBlock>
+
+        <!-- Copyright -->
+        <TextBlock Grid.Row="2"
+                   Text="{Binding Copyright}"
+                   HorizontalAlignment="Center"
+                   FontSize="12"
+                   Margin="0,0,0,16"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
+
+        <!-- Description -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource MaterialDesignCardBackground}"
+                Padding="16"
+                CornerRadius="4"
+                Margin="0,0,0,16">
+            <TextBlock Text="{Binding Description}"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       FontSize="14"
+                       LineHeight="20"
+                       Foreground="{DynamicResource MaterialDesignBody}" />
+        </Border>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+            <Button Content="{Binding HomepageButtonText}"
+                    MinWidth="100"
+                    Margin="0,0,8,0"
+                    Command="{Binding OpenHomepageCommand}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}" />
+            <Button Content="{Binding CloseButtonText}"
+                    MinWidth="100"
+                    Margin="8,0,0,0"
+                    Command="{Binding CloseCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+        </StackPanel>
+    </Grid>
+</Window>

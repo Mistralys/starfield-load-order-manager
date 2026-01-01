@@ -44,6 +44,11 @@
             </MenuItem>
             <MenuItem Header="{Binding SettingsMenuHeader}"
                       Command="{Binding OpenSettingsCommand}" />
+            <MenuItem Header="{Binding HelpMenuHeader}">
+                <MenuItem Header="{Binding AboutMenuText}"
+                          Command="{Binding ShowAboutCommand}"
+                          Icon="{materialDesign:PackIcon Kind=Information}" />
+            </MenuItem>
         </Menu>
 
         <Grid DockPanel.Dock="Top"

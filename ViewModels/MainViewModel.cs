@@ -67,6 +67,8 @@ namespace LoadOrderKeeper.ViewModels
         public string OpenGameFolderMenuText { get; } = "Open _Game Folder";
         public string ExitMenuText { get; } = "E_xit";
         public string SettingsMenuHeader { get; } = "_Settings...";
+        public string HelpMenuHeader { get; } = "_Help";
+        public string AboutMenuText { get; } = "_About...";
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
@@ -793,6 +795,19 @@ namespace LoadOrderKeeper.ViewModels
                 StatusMessage = $"ERROR: Failed to create reference automatically: {ex.Message}";
                 return ReferenceInitializationResult.Failed;
             }
+        }
+
+        [RelayCommand]
+        private void ShowAbout()
+        {
+            var aboutVm = new AboutViewModel();
+            var aboutWindow = new AboutWindow
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = aboutVm
+            };
+
+            aboutWindow.ShowDialog();
         }
     }
 }

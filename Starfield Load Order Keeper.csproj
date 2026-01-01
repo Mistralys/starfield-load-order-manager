@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include=".github\dependabot.yml" />
     <None Include=".github\workflows\release.yml" />
     <None Include="installer\StarfieldLoadOrderKeeper.wixproj" />
     <None Include="Tests\LoadOrderKeeper.Tests\LoadOrderKeeper.Tests.csproj" />

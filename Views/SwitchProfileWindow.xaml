@@ -94,7 +94,7 @@
                                                          Width="32"
                                                          Height="32"
                                                          VerticalAlignment="Center"
-                                                         Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                                         Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                                          x:Name="ActiveIcon">
                                     <materialDesign:PackIcon.Visibility>
                                         <MultiBinding Converter="{StaticResource ActiveProfileVisibilityConverter}">

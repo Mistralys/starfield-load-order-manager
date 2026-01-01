@@ -55,28 +55,27 @@
                                     Width="350" 
                                     Binding="{Binding Description}" />
             </DataGrid.Columns>
+            <DataGrid.Resources>
+                <ContextMenu x:Key="RowContextMenu" DataContext="{Binding DataContext, Source={x:Reference ProfileDataGrid}}">
+                    <MenuItem Header="Edit"
+                              Command="{Binding EditProfileCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=Edit}" />
+                    <MenuItem Header="Copy"
+                              Command="{Binding CopyProfileCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=ContentCopy}" />
+                    <Separator />
+                    <MenuItem Header="Delete"
+                              Command="{Binding DeleteProfileCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=Delete}" />
+                </ContextMenu>
+            </DataGrid.Resources>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
                     <EventSetter Event="MouseDoubleClick" Handler="OnProfileDoubleClick" />
-                    <Setter Property="ContextMenu">
-                        <Setter.Value>
-                            <ContextMenu>
-                                <ContextMenu.DataContext>
-                                    <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=Window}" />
-                                </ContextMenu.DataContext>
-                                <MenuItem Header="{Binding EditProfileMenuText}"
-                                          Command="{Binding EditProfileCommand}"
-                                          Icon="{materialDesign:PackIcon Kind=Edit}" />
-                                <MenuItem Header="{Binding CopyProfileMenuText}"
-                                          Command="{Binding CopyProfileCommand}"
-                                          Icon="{materialDesign:PackIcon Kind=ContentCopy}" />
-                                <Separator />
-                                <MenuItem Header="{Binding DeleteProfileMenuText}"
-                                          Command="{Binding DeleteProfileCommand}"
-                                          Icon="{materialDesign:PackIcon Kind=Delete}" />
-                            </ContextMenu>
-                        </Setter.Value>
-                    </Setter>
+                    <Setter Property="ContextMenu" Value="{StaticResource RowContextMenu}" />
                 </Style>
             </DataGrid.RowStyle>
         </DataGrid>

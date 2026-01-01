@@ -69,24 +69,28 @@ public partial class ManageProfilesViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(CanEditProfile))]
-    private void EditProfile()
+    private void EditProfile(ProfileModel? profile = null)
     {
-        if (SelectedProfile != null && !SelectedProfile.IsDefault)
+        System.Diagnostics.Debug.WriteLine($"EditProfile called with profile: {profile?.Label ?? "null"}");
+        var targetProfile = profile ?? SelectedProfile;
+        if (targetProfile != null && !targetProfile.IsDefault)
         {
-            EditProfileRequested?.Invoke(this, SelectedProfile);
+            EditProfileRequested?.Invoke(this, targetProfile);
         }
     }
 
     [RelayCommand(CanExecute = nameof(CanDeleteProfile))]
-    private async Task DeleteProfileAsync()
+    private async Task DeleteProfileAsync(ProfileModel? profile = null)
     {
-        if (SelectedProfile == null || SelectedProfile.IsDefault)
+        System.Diagnostics.Debug.WriteLine($"DeleteProfile called with profile: {profile?.Label ?? "null"}");
+        var targetProfile = profile ?? SelectedProfile;
+        if (targetProfile == null || targetProfile.IsDefault)
         {
             return;
         }
 
         var result = System.Windows.MessageBox.Show(
-            $"Are you sure you want to delete the profile '{SelectedProfile.Label}'?\n\nThis action cannot be undone.",
+            $"Are you sure you want to delete the profile '{targetProfile.Label}'?\n\nThis action cannot be undone.",
             "Confirm Delete",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning);
@@ -98,7 +102,7 @@ public partial class ManageProfilesViewModel : ObservableObject
 
         try
         {
-            await ProfileService.DeleteProfileAsync(_config, SelectedProfile.Id);
+            await ProfileService.DeleteProfileAsync(_config, targetProfile.Id);
             await LoadProfilesAsync();
         }
         catch (Exception ex)
@@ -112,11 +116,13 @@ public partial class ManageProfilesViewModel : ObservableObject
     }
 
     [RelayCommand(CanExecute = nameof(CanCopyProfile))]
-    private void CopyProfile()
+    private void CopyProfile(ProfileModel? profile = null)
     {
-        if (SelectedProfile != null)
+        System.Diagnostics.Debug.WriteLine($"CopyProfile called with profile: {profile?.Label ?? "null"}");
+        var targetProfile = profile ?? SelectedProfile;
+        if (targetProfile != null)
         {
-            CopyProfileRequested?.Invoke(this, SelectedProfile);
+            CopyProfileRequested?.Invoke(this, targetProfile);
         }
     }
 
@@ -126,7 +132,27 @@ public partial class ManageProfilesViewModel : ObservableObject
         CloseRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    private bool CanEditProfile() => SelectedProfile != null && !SelectedProfile.IsDefault;
-    private bool CanDeleteProfile() => SelectedProfile != null && !SelectedProfile.IsDefault;
-    private bool CanCopyProfile() => SelectedProfile != null;
+    private bool CanEditProfile(ProfileModel? profile = null)
+    {
+        var targetProfile = profile ?? SelectedProfile;
+        var canEdit = targetProfile is { IsDefault: false };
+        System.Diagnostics.Debug.WriteLine($"CanEditProfile: profile={profile?.Label ?? "null"}, selected={SelectedProfile?.Label ?? "null"}, canEdit={canEdit}");
+        return canEdit;
+    }
+    
+    private bool CanDeleteProfile(ProfileModel? profile = null)
+    {
+        var targetProfile = profile ?? SelectedProfile;
+        var canDelete = targetProfile is { IsDefault: false };
+        System.Diagnostics.Debug.WriteLine($"CanDeleteProfile: profile={profile?.Label ?? "null"}, selected={SelectedProfile?.Label ?? "null"}, canDelete={canDelete}");
+        return canDelete;
+    }
+    
+    private bool CanCopyProfile(ProfileModel? profile = null)
+    {
+        var targetProfile = profile ?? SelectedProfile;
+        var canCopy = targetProfile != null;
+        System.Diagnostics.Debug.WriteLine($"CanCopyProfile: profile={profile?.Label ?? "null"}, selected={SelectedProfile?.Label ?? "null"}, canCopy={canCopy}");
+        return canCopy;
+    }
 }

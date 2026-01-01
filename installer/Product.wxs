@@ -11,7 +11,8 @@
     <Package
         InstallerVersion="500"
         Compressed="yes"
-        InstallScope="perMachine" />
+        InstallScope="perMachine"
+        Platform="x64" />
 
     <MajorUpgrade
         AllowDowngrades="no"
@@ -21,7 +22,7 @@
 
     <!-- Installation directory -->
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
+      <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="Starfield Load Order Keeper" />
       </Directory>
 
@@ -34,7 +35,7 @@
     <!-- Files -->
     <DirectoryRef Id="INSTALLFOLDER">
       <!-- Main executable (single-file deployment means only the .exe is needed) -->
-      <Component Id="MainExecutable" Guid="0b7e8c4e-3e4a-4e0b-9c3e-2a0f2f8b8c11">
+      <Component Id="MainExecutable" Guid="0b7e8c4e-3e4a-4e0b-9c3e-2a0f2f8b8c11" Win64="yes">
         <File
             Id="AppExe"
             Source="$(var.PublishDir)\StarfieldLoadOrderKeeper.exe"
@@ -44,7 +45,7 @@
 
     <!-- Start Menu Shortcut -->
     <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="StartMenuShortcut" Guid="f1a7b3c2-9d4e-4f8b-8a1c-3e2d7c4b1f33">
+      <Component Id="StartMenuShortcut" Guid="f1a7b3c2-9d4e-4f8b-8a1c-3e2d7c4b1f33" Win64="yes">
         <Shortcut
             Id="ApplicationStartMenuShortcut"
             Name="Starfield Load Order Keeper"

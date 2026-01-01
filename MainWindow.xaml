@@ -6,7 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="386"
+        Height="289"
         Width="520"
         MinWidth="480"
         MinHeight="280"
@@ -34,6 +34,11 @@
                 <MenuItem Header="{Binding ExitMenuText}"
                           Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
+            <MenuItem Header="{Binding EditMenuHeader}">
+                <MenuItem Header="{Binding SettingsMenuText}"
+                          Command="{Binding OpenSettingsCommand}"
+                          Icon="{materialDesign:PackIcon Kind=Settings}" />
+            </MenuItem>
             <MenuItem Header="{Binding ProfileMenuHeader}">
                 <MenuItem Header="{Binding SwitchProfileMenuText}"
                           Command="{Binding SwitchProfileCommand}"
@@ -42,8 +47,6 @@
                           Command="{Binding ManageProfilesCommand}"
                           Icon="{materialDesign:PackIcon Kind=FolderMultiple}" />
             </MenuItem>
-            <MenuItem Header="{Binding SettingsMenuHeader}"
-                      Command="{Binding OpenSettingsCommand}" />
             <MenuItem Header="{Binding HelpMenuHeader}">
                 <MenuItem Header="{Binding AboutMenuText}"
                           Command="{Binding ShowAboutCommand}"

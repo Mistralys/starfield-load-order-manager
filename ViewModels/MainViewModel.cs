@@ -63,7 +63,8 @@ namespace LoadOrderKeeper.ViewModels
         public string OpenAppDataFolderMenuText { get; } = "Open _AppData Folder";
         public string OpenGameFolderMenuText { get; } = "Open _Game Folder";
         public string ExitMenuText { get; } = "E_xit";
-        public string SettingsMenuHeader { get; } = "_Settings...";
+        public string EditMenuHeader { get; } = "_Edit";
+        public string SettingsMenuText { get; } = "_Settings...";
         public string HelpMenuHeader { get; } = "_Help";
         public string AboutMenuText { get; } = "_About...";
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";

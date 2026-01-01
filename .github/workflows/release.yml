@@ -91,22 +91,26 @@ jobs:
           # Extract the lines for this version
           $entry = $content[($start - 1)..($next - 2)] -join "`n"
 
-          # Use PowerShell's ConvertTo-Json for proper escaping
-          $escapedEntry = ($entry | ConvertTo-Json -Compress).Trim('"')
-          
-          echo "entry=$escapedEntry" >> $env:GITHUB_OUTPUT
+          # Use multiline output to avoid escaping issues entirely
+          $delimiter = "EOF_CHANGELOG_$(Get-Random)"
+          echo "entry<<$delimiter" >> $env:GITHUB_OUTPUT
+          echo $entry >> $env:GITHUB_OUTPUT
+          echo $delimiter >> $env:GITHUB_OUTPUT
 
       - name: Prepare release notes
         run: |
           $tag = "${{ steps.version.outputs.tag }}"
           $prev = "${{ steps.prev.outputs.previous }}"
           $repo = "${{ github.repository }}"
-          $changes = "${{ steps.changelog.outputs.entry }}"
           $notesPath = "RELEASE_NOTES.txt"
 
           "Included in this release:" | Out-File -FilePath $notesPath -Encoding utf8
           "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
-          $changes | Out-File -FilePath $notesPath -Encoding utf8 -Append
+          
+          # Use here-string to avoid variable parsing issues
+          @'
+          ${{ steps.changelog.outputs.entry }}
+          '@ | Out-File -FilePath $notesPath -Encoding utf8 -Append
 
           if ($prev -ne "N/A") {
             "" | Out-File -FilePath $notesPath -Encoding utf8 -Append

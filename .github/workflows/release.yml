@@ -62,6 +62,9 @@ jobs:
       - name: Install WiX Toolset
         run: choco upgrade wixtoolset -y
 
+      - name: Setup MSBuild 
+        uses: microsoft/setup-msbuild@v2
+
       - name: Publish WPF application
         run: |
           dotnet publish "Starfield Load Order Keeper.csproj" `

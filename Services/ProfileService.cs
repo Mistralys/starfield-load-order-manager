@@ -327,7 +327,7 @@ public static class ProfileService
         var pluginsPath = config.GetPluginsFilePath();
         var currentMainPath = GetProfileMainFilePath(config, currentProfileId);
         
-        await EnsureProfileFolderAsync(config, currentProfileId);
+        EnsureProfileFolder(config, currentProfileId);
         
         try
         {
@@ -393,7 +393,7 @@ public static class ProfileService
     /// </summary>
     public static async Task EnsureProfileMainFileAsync(AppConfigModel config, string profileId)
     {
-        await EnsureProfileFolderAsync(config, profileId);
+        EnsureProfileFolder(config, profileId);
         
         var mainPath = GetProfileMainFilePath(config, profileId);
         if (!File.Exists(mainPath))
@@ -416,7 +416,7 @@ public static class ProfileService
     /// </summary>
     public static async Task EnsureProfileReferenceFileAsync(AppConfigModel config, string profileId)
     {
-        await EnsureProfileFolderAsync(config, profileId);
+        EnsureProfileFolder(config, profileId);
         await EnsureProfileMainFileAsync(config, profileId);
         
         var referencePath = GetProfileReferenceFilePath(config, profileId);
@@ -474,7 +474,7 @@ public static class ProfileService
         return Path.Combine(GetProfileFolder(config, profileId), "reference.txt");
     }
 
-    private static async Task EnsureProfileFolderAsync(AppConfigModel config, string profileId)
+    private static void EnsureProfileFolder(AppConfigModel config, string profileId)
     {
         var profileFolder = GetProfileFolder(config, profileId);
         if (!Directory.Exists(profileFolder))

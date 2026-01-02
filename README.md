@@ -1,4 +1,4 @@
-﻿# **Starfield Load Order Keeper**
+﻿# **SLOK: Starfield Load Order Keeper**
 
 A lightweight Windows tool that keeps your Starfield `Plugins.txt` stable and prevents 
 accidental load‑order changes that can break saves.
@@ -11,7 +11,7 @@ Starfield depends on the exact order of mods listed in `Plugins.txt`.
 If that order changes after you start a save, items, quests, or entire characters can break.  
 Unfortunately, Starfield and many mod managers reorder this file automatically.
 
-This tool stops that from happening.
+SLOK helps you to stop that from happening.
 
 ---
 

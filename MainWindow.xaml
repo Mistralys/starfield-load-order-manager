@@ -7,8 +7,8 @@
         xmlns:local="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="511"
-        Width="520"
+        Height="342"
+        Width="576"
         MinWidth="480"
         MinHeight="280"
         Style="{StaticResource MaterialDesignDefaultWindowStyle}"
@@ -95,14 +95,14 @@
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="200" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0"
                             Content="{Binding ShowChangesButtonText}"
                             Margin="0,0,8,0"
                             Command="{Binding ShowDiffCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                            Style="{StaticResource MaterialDesignOutlinedButton}" />
                     <Button Grid.Column="1"
                             Content="{Binding PlayButtonText}"
                             Margin="8,0,0,0"
@@ -168,11 +168,6 @@
                                    Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource InverseCountToVisibilityConverter}}" />
                     </StackPanel>
                 </Border>
-
-                <TextBlock Margin="0,8,0,0"
-                           Text="{Binding PluginsModifiedWarningText}"
-                           Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
-                           Visibility="{Binding PluginsFileChangedExternally, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </StackPanel>
         </Border>
     </DockPanel>

@@ -7,11 +7,23 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Hyperlink.xaml" />
 
                 <materialDesign:BundledTheme BaseTheme="Dark"
-                                             PrimaryColor="Lime"
-                                             SecondaryColor="LightGreen" />
+                                 PrimaryColor="Lime"
+                                 SecondaryColor="LightGreen" />
+
+                <!-- Temporary fix for MaterialDesign colors not recognized under .NET9. 
+                Wait for updates and remove this fix once the `Tertiary` and `Error` colors
+                are available in the schema and can be used. -->
+                <ResourceDictionary>
+                    <Color x:Key="MaterialDesign.Color.Tertiary">#FFB000</Color>
+                    <Color x:Key="MaterialDesign.Color.Error">#FF5449</Color>
+                    <SolidColorBrush x:Key="MaterialDesign.Brush.Tertiary" Color="{StaticResource MaterialDesign.Color.Tertiary}" />
+                    <SolidColorBrush x:Key="MaterialDesign.Brush.Error" Color="{StaticResource MaterialDesign.Color.Error}" />
+
+                    <SolidColorBrush x:Key="MaterialDesign.Brush.TertiaryContainer" Color="#554400" />
+                    <SolidColorBrush x:Key="MaterialDesign.Brush.ErrorContainer" Color="#93000A" />
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
 
             <converters:ActiveProfileVisibilityConverter x:Key="ActiveProfileVisibilityConverter" />

@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="289"
+        Height="345"
         Width="520"
         MinWidth="480"
         MinHeight="280"
@@ -14,6 +15,9 @@
         Background="{DynamicResource MaterialDesignPaper}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+        <local:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <local:InverseCountToVisibilityConverter x:Key="InverseCountToVisibilityConverter" />
     </Window.Resources>
 
     <DockPanel>
@@ -115,9 +119,58 @@
                 <Border Background="{DynamicResource MaterialDesignPaper}"
                         Padding="8"
                         CornerRadius="4">
-                    <TextBlock TextWrapping="Wrap"
-                               Text="{Binding StatusMessage}"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                    <StackPanel>
+                        <TextBlock Text="{Binding RecentStatusMessagesText}"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,4"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource CountToVisibilityConverter}}" />
+                        
+                        <ItemsControl ItemsSource="{Binding StatusMessageHistory}"
+                                      Margin="0,0,0,8"
+                                      Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="4,2"
+                                            Margin="0,1"
+                                            CornerRadius="2">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Success">
+                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Success}" />
+                                                        <Setter Property="Opacity" Value="0.15" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Error">
+                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Error}" />
+                                                        <Setter Property="Opacity" Value="0.15" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Warning">
+                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Warning}" />
+                                                        <Setter Property="Opacity" Value="0.15" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Info">
+                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Info}" />
+                                                        <Setter Property="Opacity" Value="0.15" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding DisplayText}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource MaterialDesign.Brush.Foreground}" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Current status message for backwards compatibility -->
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="{Binding StatusMessage}"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource InverseCountToVisibilityConverter}}" />
+                    </StackPanel>
                 </Border>
                 <TextBlock Margin="0,8,0,0"
                            Text="{Binding PluginsModifiedWarningText}"

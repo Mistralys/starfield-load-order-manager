@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace LoadOrderKeeper.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private const int MaxStatusHistoryCount = 3;
+        
         private readonly DispatcherTimer _pluginsMonitorTimer;
         private bool _isCheckingPluginsFile;
         private DiffDialogViewModel? _activeDiffDialog;
@@ -37,6 +40,9 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         private string _statusMessage = "Loading settings...";
+
+        [ObservableProperty]
+        private ObservableCollection<StatusMessageModel> _statusMessageHistory = new();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -71,6 +77,11 @@ namespace LoadOrderKeeper.ViewModels
         public string TargetPrefixText { get; } = "Target: ";
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
         public string ActiveProfilePrefixText { get; } = "Active Profile: ";
+        public string ProfileMenuHeader { get; } = "_Profile";
+        public string SwitchProfileMenuText { get; } = "_Switch Profile...";
+        public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
+        public string RecentStatusMessagesText { get; } = "Recent Status Messages:";
+
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
 
@@ -85,10 +96,6 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         private string _activeProfileLabel = "Default";
-
-        public string ProfileMenuHeader { get; } = "_Profile";
-        public string SwitchProfileMenuText { get; } = "_Switch Profile...";
-        public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
 
         public IRelayCommand OpenPluginsFileCommand { get; }
         public IRelayCommand OpenReferenceFileCommand { get; }
@@ -112,6 +119,9 @@ namespace LoadOrderKeeper.ViewModels
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
             ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync);
 
+            // Initialize status history with the initial message
+            AddStatusMessage("Loading settings...", StatusMessageType.Info);
+
             _ = LoadInitialStateAsync();
         }
 
@@ -129,7 +139,7 @@ namespace LoadOrderKeeper.ViewModels
             var referenceResult = await EnsureReferenceFileExistsAsync();
             if (referenceResult == ReferenceInitializationResult.AlreadyExists)
             {
-                StatusMessage = GetReadyStatusMessage();
+                AddStatusMessage(GetReadyStatusMessage(), StatusMessageType.Info);
             }
 
             await UpdateActiveProfileLabelAsync();
@@ -162,16 +172,16 @@ namespace LoadOrderKeeper.ViewModels
         private async Task FixLoadOrderAsync()
         {
             IsBusy = true;
-            StatusMessage = "Applying load order fix...";
+            AddStatusMessage("Applying load order fix...", StatusMessageType.Info);
 
             try
             {
                 await FileService.ApplyLoadOrderAsync(Config);
-                StatusMessage = "Load order successfully applied and fixed!";
+                AddStatusMessage("Load order successfully applied and fixed!", StatusMessageType.Success);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"ERROR: {ex.Message}";
+                AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 WpfMessageBox.Show($"Failed to fix load order: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
             finally
@@ -188,17 +198,17 @@ namespace LoadOrderKeeper.ViewModels
         private async Task CreateReferenceAsync()
         {
             IsBusy = true;
-            StatusMessage = "Creating reference file...";
+            AddStatusMessage("Creating reference file...", StatusMessageType.Info);
 
             try
             {
                 await FileService.CreateReferenceFileAsync(Config);
                 RefExists = true;
-                StatusMessage = "Reference created successfully! You can now fix the load order.";
+                AddStatusMessage("Reference created successfully! You can now fix the load order.", StatusMessageType.Success);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"ERROR: {ex.Message}";
+                AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 WpfMessageBox.Show($"Failed to create reference: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
             finally
@@ -350,13 +360,13 @@ namespace LoadOrderKeeper.ViewModels
                 var referenceResult = await EnsureReferenceFileExistsAsync();
                 if (referenceResult == ReferenceInitializationResult.AlreadyExists)
                 {
-                    StatusMessage = Config.IsValid()
+                    AddStatusMessage(Config.IsValid()
                         ? "Configuration updated."
-                        : "Configuration is invalid.";
+                        : "Configuration is invalid.", Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
                 }
                 else if (referenceResult == ReferenceInitializationResult.InvalidConfiguration)
                 {
-                    StatusMessage = "Configuration is invalid.";
+                    AddStatusMessage("Configuration is invalid.", StatusMessageType.Warning);
                 }
                 ConfigurePluginsMonitor();
                 await CheckPluginsFileAsync();
@@ -391,7 +401,7 @@ namespace LoadOrderKeeper.ViewModels
                 await EnsureReferenceFileExistsAsync();
                 ConfigurePluginsMonitor();
                 await CheckPluginsFileAsync();
-                StatusMessage = $"Switched to profile '{ActiveProfileLabel}'.";
+                AddStatusMessage($"Switched to profile '{ActiveProfileLabel}'.", StatusMessageType.Success);
             }
         }
 
@@ -461,7 +471,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private void ShowError(string message)
         {
-            StatusMessage = $"ERROR: {message}";
+            AddStatusMessage($"ERROR: {message}", StatusMessageType.Error);
             WpfMessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
 
@@ -619,9 +629,9 @@ namespace LoadOrderKeeper.ViewModels
                  if (hasChanged != PluginsFileChangedExternally)
                  {
                      PluginsFileChangedExternally = hasChanged;
-                     StatusMessage = hasChanged
+                     AddStatusMessage(hasChanged
                         ? PluginsModifiedWarningText
-                        : GetReadyStatusMessage();
+                        : GetReadyStatusMessage(), hasChanged ? StatusMessageType.Warning : StatusMessageType.Info);
                     ShowDiffCommand?.NotifyCanExecuteChanged();
                  }
 
@@ -637,7 +647,7 @@ namespace LoadOrderKeeper.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"ERROR: Failed to monitor Plugins.txt: {ex.Message}";
+                AddStatusMessage($"ERROR: Failed to monitor Plugins.txt: {ex.Message}", StatusMessageType.Error);
                 UpdateChangeCountDisplay(0);
             }
             finally
@@ -669,16 +679,16 @@ namespace LoadOrderKeeper.ViewModels
         private async Task DiscardChangesAsync()
         {
             IsBusy = true;
-            StatusMessage = "Discarding load order changes...";
+            AddStatusMessage("Discarding load order changes...", StatusMessageType.Info);
 
             try
             {
                 await FileService.DiscardChangesAsync(Config);
-                StatusMessage = "Plugins.txt restored from reference.";
+                AddStatusMessage("Plugins.txt restored from reference.", StatusMessageType.Success);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"ERROR: {ex.Message}";
+                AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 WpfMessageBox.Show($"Failed to discard changes: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
             finally
@@ -729,21 +739,21 @@ namespace LoadOrderKeeper.ViewModels
             string pluginsPath = Config.GetPluginsFilePath();
             if (!File.Exists(pluginsPath))
             {
-                StatusMessage = $"Plugins.txt not found at {pluginsPath}. Unable to create reference automatically.";
+                AddStatusMessage($"Plugins.txt not found at {pluginsPath}. Unable to create reference automatically.", StatusMessageType.Warning);
                 return ReferenceInitializationResult.MissingPluginsFile;
             }
 
             try
             {
-                StatusMessage = "No reference file found. Creating one from current Plugins.txt...";
+                AddStatusMessage("No reference file found. Creating one from current Plugins.txt...", StatusMessageType.Info);
                 await FileService.CreateReferenceFileAsync(Config);
                 RefExists = true;
-                StatusMessage = "Reference file created automatically from current Plugins.txt.";
+                AddStatusMessage("Reference file created automatically from current Plugins.txt.", StatusMessageType.Success);
                 return ReferenceInitializationResult.Created;
             }
             catch (Exception ex)
             {
-                StatusMessage = $"ERROR: Failed to create reference automatically: {ex.Message}";
+                AddStatusMessage($"ERROR: Failed to create reference automatically: {ex.Message}", StatusMessageType.Error);
                 return ReferenceInitializationResult.Failed;
             }
         }
@@ -759,6 +769,23 @@ namespace LoadOrderKeeper.ViewModels
             };
 
             aboutWindow.ShowDialog();
+        }
+
+        private void AddStatusMessage(string message, StatusMessageType type = StatusMessageType.Info)
+        {
+            var statusEntry = new StatusMessageModel(message, DateTime.Now, type);
+            
+            // Add to beginning of collection (most recent first)
+            StatusMessageHistory.Insert(0, statusEntry);
+            
+            // Keep only the last MaxStatusHistoryCount messages
+            while (StatusMessageHistory.Count > MaxStatusHistoryCount)
+            {
+                StatusMessageHistory.RemoveAt(StatusMessageHistory.Count - 1);
+            }
+
+            // Update the current status message for backward compatibility
+            SetProperty(ref _statusMessage, message, nameof(StatusMessage));
         }
     }
 }

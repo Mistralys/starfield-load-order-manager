@@ -1,9 +1,6 @@
-using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -785,7 +782,7 @@ namespace LoadOrderKeeper.ViewModels
             }
 
             // Update the current status message for backward compatibility
-            SetProperty(ref _statusMessage, message, nameof(StatusMessage));
+            StatusMessage = message;
         }
     }
 }

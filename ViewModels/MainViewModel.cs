@@ -634,12 +634,16 @@ namespace LoadOrderKeeper.ViewModels
 
                 UpdateSortingRecommendationState(sortingRecommendation);
 
-                if (_activeDiffDialog is not null && signatureChanged)
+                if (_activeDiffDialog is not null)
                 {
-                    string reason = hasChanged
-                        ? "Detected new external modifications"
-                        : "Plugins.txt now matches the reference";
-                    await _activeDiffDialog.RefreshDiffAsync(reason);
+                    bool needsDiffRefresh = signatureChanged || (!hasChanged && _activeDiffDialog.HasDifferences);
+                    if (needsDiffRefresh)
+                    {
+                        string reason = hasChanged
+                            ? "Detected new external modifications"
+                            : "Plugins.txt now matches the reference";
+                        await _activeDiffDialog.RefreshDiffAsync(reason);
+                    }
                 }
             }
             catch (Exception ex)

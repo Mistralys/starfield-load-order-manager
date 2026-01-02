@@ -50,7 +50,7 @@ namespace LoadOrderKeeper.ViewModels
         private string _referenceButtonText = "Create Reference";
 
         [ObservableProperty]
-        private string _fixLoadOrderButtonText = "Fix Load Order";
+        private string _fixLoadOrderButtonText = "Sort mods";
 
         private string _playButtonText = "Play (Vanilla)";
         public string PlayButtonText

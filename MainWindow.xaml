@@ -1,4 +1,4 @@
-<Window x:Class="LoadOrderKeeper.MainWindow"
+﻿<Window x:Class="LoadOrderKeeper.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="345"
+        Height="511"
         Width="520"
         MinWidth="480"
         MinHeight="280"
@@ -125,7 +125,7 @@
                                    Margin="0,0,0,4"
                                    Foreground="{DynamicResource MaterialDesignBodyLight}"
                                    Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource CountToVisibilityConverter}}" />
-                        
+
                         <ItemsControl ItemsSource="{Binding StatusMessageHistory}"
                                       Margin="0,0,0,8"
                                       Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource CountToVisibilityConverter}}">
@@ -134,32 +134,28 @@
                                     <Border Padding="4,2"
                                             Margin="0,1"
                                             CornerRadius="2">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Type}" Value="Success">
-                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Success}" />
-                                                        <Setter Property="Opacity" Value="0.15" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Type}" Value="Error">
-                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Error}" />
-                                                        <Setter Property="Opacity" Value="0.15" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Type}" Value="Warning">
-                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Warning}" />
-                                                        <Setter Property="Opacity" Value="0.15" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Type}" Value="Info">
-                                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Info}" />
-                                                        <Setter Property="Opacity" Value="0.15" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
                                         <TextBlock Text="{Binding DisplayText}"
                                                    TextWrapping="Wrap"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource MaterialDesign.Brush.Foreground}" />
+                                                   FontSize="11">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Success">
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Error">
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Error}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Warning">
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Type}" Value="Info">
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -172,11 +168,12 @@
                                    Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource InverseCountToVisibilityConverter}}" />
                     </StackPanel>
                 </Border>
+
                 <TextBlock Margin="0,8,0,0"
                            Text="{Binding PluginsModifiedWarningText}"
                            Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
                            Visibility="{Binding PluginsFileChangedExternally, Converter={StaticResource BooleanToVisibilityConverter}}" />
-             </StackPanel>
+            </StackPanel>
         </Border>
     </DockPanel>
 </Window>

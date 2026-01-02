@@ -8,6 +8,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="{Binding Title}"
+        d:Title="Diff Window"
         Height="494"
         Width="682"
         MinWidth="480"
@@ -32,6 +33,7 @@
 
             <TextBlock Grid.Row="0"
                        Text="{Binding Description}"
+                       d:Text="Window abstract text"
                        Margin="0,0,0,12"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource MaterialDesignBody}" />
@@ -157,12 +159,14 @@
             </Border>
             <TextBlock Grid.Row="2"
                        Text="{Binding SortingRecommendationMessage}"
+                       d:Text="Sorting recommendation message"
                        Margin="0,8,0,0"
                        Foreground="{DynamicResource MaterialDesignBody}"
                        FontWeight="SemiBold"
                        Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}" />
             <TextBlock Grid.Row="3"
                        Text="{Binding DiffStatusMessage}"
+                       d:Text="Status message"
                        Margin="0,8,0,0"
                        Foreground="{DynamicResource MaterialDesignBodyLight}"
                        Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -186,21 +190,25 @@
                          HorizontalAlignment="Right"
                          Margin="0,16,0,0">
                 <Button Content="{Binding FixLoadOrderButtonText}"
+                        d:Content="Sort mods"
                         Margin="8,0,0,0"
                         Command="{Binding FixLoadOrderCommand}"
                         IsEnabled="{Binding HasDifferences}"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                 <Button Content="{Binding UpdateReferenceButtonText}"
+                        d:Content="Update reference file"
                         Margin="8,0,0,0"
                         Command="{Binding UpdateReferenceCommand}"
                         IsEnabled="{Binding HasDifferences}"
                         Style="{StaticResource MaterialDesignOutlinedButton}" />
                 <Button Content="{Binding DiscardChangesButtonText}"
+                        d:Content="Discard all changes"
                         Margin="8,0,0,0"
                         Command="{Binding DiscardChangesCommand}"
                         IsEnabled="{Binding HasDifferences}"
                         Style="{StaticResource MaterialDesignOutlinedButton}" />
                 <Button Content="{Binding CloseButtonText}"
+                        d:Content="Close"
                         Margin="8,0,0,0"
                         IsCancel="True"
                         Click="OnCloseClicked"

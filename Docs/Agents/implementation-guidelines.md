@@ -5,6 +5,7 @@
 - Coding: C#
 - Framework: WPF with .NET 9
 - Patterns: MVVM pattern (using CommunityToolkit.Mvvm)
+- UI Library: Material Design v5 in XAML Toolkit (MaterialDesignThemes)
 
 ## Text conventions
 
@@ -12,10 +13,17 @@
 
 ## UI Implementation Guidelines
 
-- Use Material Design principles for UI design.
+- Use Material Design **v5** principles for UI design.
+- Always verify brush and style names that were renamed in Material Design v5.
 - The application uses a dark mode theme by default.
 - Do not use flat button styles; use outlined buttons for secondary actions and raised buttons for primary actions.
 - Use consistent spacing and padding throughout the UI.
+
+## Color Guidelines
+
+- Use proper Material Design semantic brushes for status indicators, like `{DynamicResource MaterialDesign.Brush.Success}` for success messages.
+- Always use semantic brushes instead of hardcoded hex values to ensure proper theme support.
+- Avoid using deprecated Material Design brushes like, `MaterialDesignValidationSuccessBrush`, which have been renamed in v5.
 
 ## Additional Resources
 

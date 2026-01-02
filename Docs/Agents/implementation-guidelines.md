@@ -21,9 +21,14 @@
 
 ## Color Guidelines
 
-- Use proper Material Design semantic brushes for status indicators, like `{DynamicResource MaterialDesign.Brush.Success}` for success messages.
 - Always use semantic brushes instead of hardcoded hex values to ensure proper theme support.
-- Avoid using deprecated Material Design brushes like, `MaterialDesignValidationSuccessBrush`, which have been renamed in v5.
+- Avoid using deprecated Material Design brushes like `MaterialDesignValidationSuccessBrush`, which have been renamed in v5.
+- Use proper Material Design semantic brushes for status indicators:
+	- `{DynamicResource MaterialDesign.Brush.Error}` for error messages.
+	- `{DynamicResource MaterialDesign.Brush.Tertiary}` for success messages.
+	- `{DynamicResource MaterialDesign.Brush.Primary}` for informational messages.
+	- `{DynamicResource MaterialDesign.Brush.Secondary}` for warning messages.
+- For status messages, prefer colored foreground text over colored backgrounds for better readability and visual clarity.
 
 ## Additional Resources
 

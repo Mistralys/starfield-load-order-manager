@@ -141,13 +141,13 @@
                                                 <Style TargetType="TextBlock">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Type}" Value="Success">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="Error">
                                                             <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Error}" />
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="Warning">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding Type}" Value="Info">
                                                             <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />

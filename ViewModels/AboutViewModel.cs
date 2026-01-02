@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.ViewModels
 {
@@ -21,46 +22,8 @@ namespace LoadOrderKeeper.ViewModels
 
         public AboutViewModel()
         {
-            ApplicationVersion = GetApplicationVersion();
+            ApplicationVersion = VersionService.GetApplicationVersion();
             Copyright = $"© 2025-{DateTime.Now.Year} Mistralys";
-        }
-
-        /// <summary>
-        /// Gets the application version from assembly attributes.
-        /// </summary>
-        /// <returns>The version string, preferring InformationalVersion over AssemblyVersion.</returns>
-        private string GetApplicationVersion()
-        {
-            try
-            {
-                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                
-                // Try to get the InformationalVersion first (this contains the original Git tag)
-                var informationalVersionAttribute = assembly
-                    .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
-                    .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute;
-                
-                if (informationalVersionAttribute?.InformationalVersion is not null && 
-                    !string.IsNullOrWhiteSpace(informationalVersionAttribute.InformationalVersion))
-                {
-                    return informationalVersionAttribute.InformationalVersion;
-                }
-                
-                // Fallback to AssemblyVersion
-                var assemblyVersion = assembly.GetName().Version;
-                if (assemblyVersion != null)
-                {
-                    return assemblyVersion.ToString();
-                }
-                
-                // Last resort fallback
-                return "Unknown";
-            }
-            catch
-            {
-                // If anything goes wrong, return a safe fallback
-                return "Unknown";
-            }
         }
 
         [RelayCommand]

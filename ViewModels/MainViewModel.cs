@@ -56,7 +56,7 @@ namespace LoadOrderKeeper.ViewModels
             private set => SetProperty(ref _playButtonText, value);
         }
 
-        public string WindowTitle => $"Starfield Load Order Keeper v{GetApplicationVersion()}";
+        public string WindowTitle => $"Starfield Load Order Keeper v{VersionService.GetApplicationVersion()}";
         public string FileMenuHeader { get; } = "_File";
         public string OpenPluginsMenuText { get; } = "Open _Plugins.txt";
         public string OpenReferenceMenuText { get; } = "Open _Reference File";
@@ -665,44 +665,6 @@ namespace LoadOrderKeeper.ViewModels
             return File.Exists(sfsePath);
         }
 
-        /// <summary>
-        /// Gets the application version from assembly attributes.
-        /// </summary>
-        /// <returns>The version string, preferring InformationalVersion over AssemblyVersion.</returns>
-        private string GetApplicationVersion()
-        {
-            try
-            {
-                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                
-                // Try to get the InformationalVersion first (this contains the original Git tag)
-                var informationalVersionAttribute = assembly
-                    .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
-                    .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute;
-                
-                if (informationalVersionAttribute?.InformationalVersion is not null && 
-                    !string.IsNullOrWhiteSpace(informationalVersionAttribute.InformationalVersion))
-                {
-                    return informationalVersionAttribute.InformationalVersion;
-                }
-                
-                // Fallback to AssemblyVersion
-                var assemblyVersion = assembly.GetName().Version;
-                if (assemblyVersion != null)
-                {
-                    return assemblyVersion.ToString();
-                }
-                
-                // Last resort fallback
-                return "Unknown";
-            }
-            catch
-            {
-                // If anything goes wrong, return a safe fallback
-                return "Unknown";
-            }
-        }
- 
         [RelayCommand(CanExecute = nameof(CanDiscardChanges))]
         private async Task DiscardChangesAsync()
         {

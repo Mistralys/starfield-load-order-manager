@@ -42,6 +42,11 @@ internal sealed class TestConfigContext : IDisposable
 
     public async Task WriteReferenceAsync(params string[] lines)
     {
+        var referenceDir = Path.GetDirectoryName(ReferenceFilePath);
+        if (!string.IsNullOrEmpty(referenceDir) && !Directory.Exists(referenceDir))
+        {
+            Directory.CreateDirectory(referenceDir);
+        }
         await File.WriteAllLinesAsync(ReferenceFilePath, lines);
     }
 

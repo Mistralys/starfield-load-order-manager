@@ -142,7 +142,7 @@
                                     <Setter Property="Background" Value="#1A9C27B0" />
                                     <Setter Property="ContextMenu" Value="{x:Null}" />
                                 </DataTrigger>
-            </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
@@ -220,20 +220,17 @@
             <Border Grid.Row="2"
                     Margin="0,8,0,0"
                     Background="#FFFFA726"
-                    BorderBrush="#FFFF9800"
-                    BorderThickness="2"
                     CornerRadius="4"
                     Padding="12,8"
                     Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <DockPanel>
                     <Button DockPanel.Dock="Right"
-                            Content="Sort Now"
+                            Content="{Binding FixLoadOrderButtonText}"
+                            d:Content="Sort now"
                             Margin="8,0,0,0"
                             VerticalAlignment="Center"
                             Command="{Binding FixLoadOrderCommand}"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            Background="{DynamicResource PrimaryHueDarkBrush}"
-                            Foreground="White" />
+                            Style="{StaticResource MaterialDesignRaisedButton}"/>
                     <TextBlock Text="{Binding SortingRecommendationMessage}"
                                d:Text="Sorting recommendation message"
                                TextWrapping="Wrap"

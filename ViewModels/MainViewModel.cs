@@ -156,11 +156,13 @@ namespace LoadOrderKeeper.ViewModels
 
             if (!Config.IsValid())
             {
-                WpfMessageBox.Show(
+                ConfirmationDialog.Show(
+                    "Configuration Required",
                     "Configuration is required before using Starfield Load Order Keeper. The application will now exit.",
-                    "Configuration required",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
                 WpfApplication.Current?.Shutdown();
             }
         }
@@ -179,7 +181,13 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
-                WpfMessageBox.Show($"Failed to fix load order: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to fix load order: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
             finally
             {
@@ -206,7 +214,13 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
-                WpfMessageBox.Show($"Failed to create reference: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to create reference: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
             finally
             {
@@ -469,7 +483,13 @@ namespace LoadOrderKeeper.ViewModels
         private void ShowError(string message)
         {
             AddStatusMessage($"ERROR: {message}", StatusMessageType.Error);
-            WpfMessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            ConfirmationDialog.Show(
+                "Error",
+                message,
+                ConfirmationIcon.Error,
+                ConfirmationButton.OK,
+                ConfirmationResult.OK,
+                WpfApplication.Current?.MainWindow);
         }
 
         private void NotifyFileCommandsCanExecuteChanged()
@@ -498,7 +518,15 @@ namespace LoadOrderKeeper.ViewModels
             try
             {
                 var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                UpdateChangeCountDisplay(diffLines.Count);
+                int totalCount = diffLines.Count;
+                
+                // Include dependent changes in the total count
+                foreach (var line in diffLines)
+                {
+                    totalCount += line.DependentChanges.Count;
+                }
+                
+                UpdateChangeCountDisplay(totalCount);
             }
             catch
             {
@@ -615,10 +643,15 @@ namespace LoadOrderKeeper.ViewModels
                 bool signatureChanged = !string.Equals(_lastObservedPluginsSignature, comparison.PluginsSignature, StringComparison.Ordinal);
                 _lastObservedPluginsSignature = comparison.PluginsSignature;
                 bool sortingRecommendation = false;
+                bool hasInsertedMods = false;
 
                 if (hasChanged)
                 {
                     sortingRecommendation = await FileService.WouldSortingChangeDiffsAsync(Config);
+                    
+                    // Check if there are any inserted mods
+                    var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                    hasInsertedMods = diffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
                 }
 
                 await UpdateChangeCountDisplayAsync(hasChanged);
@@ -632,7 +665,7 @@ namespace LoadOrderKeeper.ViewModels
                     ShowDiffCommand?.NotifyCanExecuteChanged();
                  }
 
-                UpdateSortingRecommendationState(sortingRecommendation);
+                UpdateSortingRecommendationState(sortingRecommendation, hasInsertedMods);
 
                 if (_activeDiffDialog is not null)
                 {
@@ -690,7 +723,13 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
-                WpfMessageBox.Show($"Failed to discard changes: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to discard changes: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
             finally
             {
@@ -702,11 +741,18 @@ namespace LoadOrderKeeper.ViewModels
 
         private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
 
-        private void UpdateSortingRecommendationState(bool sortingRecommended)
+        private void UpdateSortingRecommendationState(bool sortingRecommended, bool hasInsertedMods = false)
         {
             if (sortingRecommended)
             {
-                SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
+                if (hasInsertedMods)
+                {
+                    SortingRecommendationMessage = "?? IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.";
+                }
+                else
+                {
+                    SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
+                }
                 SortingRecommendationActive = true;
             }
             else

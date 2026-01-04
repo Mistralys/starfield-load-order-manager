@@ -35,6 +35,18 @@
                 <Setter Property="Height" Value="24" />
             </Style>
 
+            <!-- Hyperlink style for Material Design v5 dark mode -->
+            <Style TargetType="Hyperlink">
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+                <Setter Property="TextDecorations" Value="None" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.PrimaryContainer}" />
+                        <Setter Property="TextDecorations" Value="Underline" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <Style x:Key="MaterialDesignDefaultWindowStyle"
                    TargetType="Window"
                    BasedOn="{StaticResource {x:Type Window}}">

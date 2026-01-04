@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.0 - Settings helper
+- Settings: Now auto-detecting the game path for Steam users.
+- Changes window: Now grouping dependent mod changes together for better clarity.
+- Changes window: Added a confirmation when updating the reference file.
+- Changes window: Added a confirmation to reset all changes.
+- General: Confirmation and message dialogs now inherit the dark theme.
+
 ## v1.2.0 - Minor Improvements
 - Removed version commit hash from the title bar and about window.
 - Now displaying up to the last three status messages in the main window.

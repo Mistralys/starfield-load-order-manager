@@ -1,0 +1,98 @@
+[size=4][b]SLOK: Starfield Load Order Keeper[/b][/size]
+
+A lightweight Windows tool that keeps your Starfield [font=Courier New]Plugins.txt[/font] stable and prevents 
+accidental load-order changes that can break saves.
+
+[size=3][b]Why It Exists[/b][/size]
+
+Starfield depends on the exact order of mods listed in [font=Courier New]Plugins.txt[/font].  
+If that order changes after you start a save, items, quests, or entire characters can break.  
+Unfortunately, Starfield, Mod managers and tools like LOOT can cause the file to be reordered.
+
+SLOK helps you to stop that from happening.
+
+[size=3][b]What It Does[/b][/size]
+
+[list]
+[*]Saves a reference copy of a known-good [font=Courier New]Plugins.txt[/font]
+[*]Detects when the file changes
+[*]Visualizes changes with editing capabilities
+[*]Restores the correct order with one click
+[*]Supports profiles for multiple load orders
+[*]Launches the game (uses SFSE if present)
+[/list]
+[size=3][b]How to use[/b][/size]
+
+[size=2][b]New Playthrough[/b][/size]
+
+[list=1]
+[*]Set up your load order in Starfield or your mod manager.
+[*]Run SLOK, and create a reference file.
+[*]Optional: Create a profile for the playthrough.
+[*]Run Starfield.
+[*]Keep an eye on SLOK for any changes to [font=Courier New]Plugins.txt[/font].
+[/list]
+[size=2][b]Loading a savegame[/b][/size]
+
+[list=1]
+[*]Run SLOK.
+[*]Run Starfield.
+[*]Before confirming the savegame to load, check SLOK for any changes.
+[*]Reorder mods if needed to match the reference.
+[*]Load your savegame safely.
+[/list]  
+[size=2][b]Adding new mods[/b][/size]
+
+[list=1]
+[*]Install mods using your mod manager.
+[*]Sort the load order as desired, run LOOT...
+[*]Run SLOK.
+[*]Sort mods.
+[*]New mods will be appended at the end.
+[*]Update the reference file to accept the added mods.
+[/list]
+[size=2][b]Deleting mods[/b][/size]
+
+To keep your save stable, do not delete any mods mid-playthrough. The reason is simple:
+If you delete a mod from line #5, for example, all mods below it will shift up one line,
+changing the load order of all those mods.
+
+Try to replace mods instead of deleting them, for example by replacing them with new mods. 
+
+If you must delete mods, follow these steps:
+
+[list=1]
+[*]Delete the target mods.
+[*]Run SLOK.
+[*]Sort mods.
+[*]Update the reference file to accept the deleted mods.
+[/list]
+NOTE: You will probably see a lot of changes in the load order even after sorting: Those 
+are all the mods that shifted due to the deletion.
+
+[size=2][b]Replacing mods[/b][/size]
+
+[list=1]
+[*]Delete the target mod, and add the replacement mod.
+[*]Run SLOK.
+[*]Sort mods.
+[*]Right-click the deleted mod.
+[*]Choose "Replace with...".
+[*]Choose the target mod.
+[*]Update the reference file to accept the replacements.
+[/list]
+ 
+
+[size=3][b]Installation[/b][/size]
+
+Download the ZIP in the files section, and extract anywhere you like. Run the EXE, no installation required.
+
+NOTE: If you prefer an installer, you can find one in the [url=https://github.com/Mistralys/starfield-load-order-manager/releases]GitHub Releases page[/url].
+
+[size=3][b]More on GitHub[/b][/size]
+
+The tool is open source and available on GitHub:
+
+[url=https://github.com/Mistralys/starfield-load-order-manager]starfield-load-order-manager[/url]
+
+Feel free to report issues there or contribute!

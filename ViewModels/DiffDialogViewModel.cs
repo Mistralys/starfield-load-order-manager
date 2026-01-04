@@ -13,6 +13,24 @@ using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.ViewModels
 {
+    public class ConfirmationRequestedEventArgs : EventArgs
+    {
+        public string Title { get; }
+        public string Message { get; }
+        public ConfirmationIcon Icon { get; }
+        public ConfirmationButton Buttons { get; }
+        public ConfirmationResult Result { get; set; }
+
+        public ConfirmationRequestedEventArgs(string title, string message, ConfirmationIcon icon = ConfirmationIcon.Warning, ConfirmationButton buttons = ConfirmationButton.YesNo)
+        {
+            Title = title;
+            Message = message;
+            Icon = icon;
+            Buttons = buttons;
+            Result = ConfirmationResult.None;
+        }
+    }
+
     public partial class DiffDialogViewModel : ObservableObject, IDisposable
     {
         private readonly MainViewModel _mainViewModel;
@@ -25,11 +43,12 @@ namespace LoadOrderKeeper.ViewModels
             _mainViewModel = mainViewModel;
             DiffLines = new ObservableCollection<DiffLineModel>(diffLines);
             DiffLines.CollectionChanged += OnDiffCollectionChanged;
-            UpdateReferenceCommand = _mainViewModel.CreateReferenceCommand;
+            UpdateReferenceCommand = new AsyncRelayCommand(UpdateReferenceWithConfirmationAsync, CanUpdateReference);
             FixLoadOrderCommand = _mainViewModel.FixLoadOrderCommand;
             ReEnableModCommand = new AsyncRelayCommand<DiffLineModel>(ReEnableModAsync);
             RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
             ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(ReplaceRemovedModAsync);
+            ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
@@ -42,13 +61,30 @@ namespace LoadOrderKeeper.ViewModels
 
         public string Description => "Review differences between Plugins.txt and the reference file.";
 
-        public string UpdateReferenceButtonText => _mainViewModel.ReferenceButtonText;
+        public string UpdateReferenceButtonText
+        {
+            get
+            {
+                // Add ellipsis if confirmation dialog will be shown
+                bool needsConfirmation = DiffLines.Any(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Inserted);
+                string baseText = _mainViewModel.ReferenceButtonText;
+                return needsConfirmation ? $"{baseText}..." : baseText;
+            }
+        }
 
         public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
 
-        public string DiscardChangesButtonText { get; } = "Discard all changes";
+        public string DiscardChangesButtonText { get; } = "Discard all changes...";
 
         public string CloseButtonText { get; } = "Close";
+
+        public string NoDifferencesMessage { get; } = "No differences detected.";
+
+        public string ReEnableModMenuText { get; } = "Re-enable mod";
+
+        public string ReplaceWithMenuText { get; } = "Replace with...";
+
+        public string RemoveModMenuText { get; } = "Remove mod";
 
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
@@ -57,6 +93,8 @@ namespace LoadOrderKeeper.ViewModels
         public IReadOnlyList<DiffLineModel> AddedMods => DiffLines.Where(line => line.ChangeType == DiffChangeType.Added).ToList();
 
         public bool HasAddedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Added);
+
+        public bool HasInsertedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
 
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
 
@@ -68,8 +106,11 @@ namespace LoadOrderKeeper.ViewModels
 
         public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
 
+        public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
+
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
+        public event EventHandler<ConfirmationRequestedEventArgs>? ConfirmationRequested;
 
         private bool _hasDifferences;
         public bool HasDifferences
@@ -140,6 +181,8 @@ namespace LoadOrderKeeper.ViewModels
             OnPropertyChanged(nameof(ShowSortingRecommendation));
             OnPropertyChanged(nameof(AddedMods));
             OnPropertyChanged(nameof(HasAddedMods));
+            OnPropertyChanged(nameof(HasInsertedMods));
+            OnPropertyChanged(nameof(UpdateReferenceButtonText));
         }
 
         private int ComputeScrollTargetIndex()
@@ -191,6 +234,16 @@ namespace LoadOrderKeeper.ViewModels
         private void RequestScroll()
         {
             ScrollRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void ToggleDependentChanges(DiffLineModel? line)
+        {
+            if (line is null || !line.HasDependentChanges)
+            {
+                return;
+            }
+
+            line.IsDependentChangesExpanded = !line.IsDependentChangesExpanded;
         }
 
         public async Task<bool> RefreshDiffAsync(string? reason = null)
@@ -246,6 +299,44 @@ namespace LoadOrderKeeper.ViewModels
             if (discardCommand is null || !discardCommand.CanExecute(null))
             {
                 DiffStatusMessage = "Cannot discard changes right now.";
+                return;
+            }
+
+            // Build confirmation message
+            int totalChanges = DiffLines.Count(line => line.ChangeType != DiffChangeType.Unchanged);
+            var messageBuilder = new StringBuilder();
+            messageBuilder.AppendLine("You are about to discard all changes and restore Plugins.txt from the reference file.");
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine($"This will discard {totalChanges} change(s):");
+            
+            var removedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed);
+            var addedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Added);
+            var insertedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Inserted);
+            var movedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Moved);
+            var replacedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Replaced);
+            
+            if (removedCount > 0) messageBuilder.AppendLine($"  • {removedCount} removed mod(s) will be restored");
+            if (addedCount > 0) messageBuilder.AppendLine($"  • {addedCount} added mod(s) will be removed");
+            if (insertedCount > 0) messageBuilder.AppendLine($"  • {insertedCount} inserted mod(s) will be removed");
+            if (movedCount > 0) messageBuilder.AppendLine($"  • {movedCount} moved mod(s) will be restored to original positions");
+            if (replacedCount > 0) messageBuilder.AppendLine($"  • {replacedCount} replaced mod(s) will be restored");
+            
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine("This action cannot be undone.");
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine("Do you want to continue?");
+
+            // Request confirmation from the view
+            var eventArgs = new ConfirmationRequestedEventArgs(
+                "Confirm Discard Changes", 
+                messageBuilder.ToString(),
+                ConfirmationIcon.Warning,
+                ConfirmationButton.YesNo);
+            ConfirmationRequested?.Invoke(this, eventArgs);
+
+            if (eventArgs.Result != ConfirmationResult.Yes)
+            {
+                DiffStatusMessage = "Discard changes cancelled.";
                 return;
             }
 
@@ -331,6 +422,71 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 DiffStatusMessage = $"Failed to replace {removed.FileName}: {ex.Message}";
+            }
+        }
+
+        private bool CanUpdateReference()
+        {
+            return _mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false;
+        }
+
+        private async Task UpdateReferenceWithConfirmationAsync()
+        {
+            // Check if we have removed or inserted mods that require confirmation
+            var removedMods = DiffLines.Where(line => line.ChangeType == DiffChangeType.Removed).ToList();
+            var insertedMods = DiffLines.Where(line => line.ChangeType == DiffChangeType.Inserted).ToList();
+
+            bool hasRemovedMods = removedMods.Any();
+            bool hasInsertedMods = insertedMods.Any();
+
+            if (hasRemovedMods || hasInsertedMods)
+            {
+                // Calculate total affected mods (removed + inserted + their dependent changes)
+                int totalAffectedMods = removedMods.Count + insertedMods.Count;
+                totalAffectedMods += removedMods.Sum(mod => mod.DependentChanges.Count);
+                totalAffectedMods += insertedMods.Sum(mod => mod.DependentChanges.Count);
+
+                // Build confirmation message
+                var messageBuilder = new StringBuilder();
+                messageBuilder.AppendLine("You are about to update the reference file with the following changes:");
+                messageBuilder.AppendLine();
+
+                if (hasRemovedMods)
+                {
+                    messageBuilder.AppendLine($"• {removedMods.Count} mod(s) have been removed.");
+                }
+
+                if (hasInsertedMods)
+                {
+                    messageBuilder.AppendLine($"• {insertedMods.Count} mod(s) have been inserted.");
+                }
+
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine($"This affects a total of {totalAffectedMods} mod(s).");
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine("These changes will become the new reference state.");
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine("Do you want to continue?");
+
+                // Request confirmation from the view
+                var eventArgs = new ConfirmationRequestedEventArgs(
+                    "Confirm Reference Update",
+                    messageBuilder.ToString(),
+                    ConfirmationIcon.Warning,
+                    ConfirmationButton.YesNo);
+                ConfirmationRequested?.Invoke(this, eventArgs);
+
+                if (eventArgs.Result != ConfirmationResult.Yes)
+                {
+                    DiffStatusMessage = "Reference update cancelled.";
+                    return;
+                }
+            }
+
+            // Proceed with the update
+            if (_mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false)
+            {
+                await _mainViewModel.CreateReferenceCommand.ExecuteAsync(null);
             }
         }
 

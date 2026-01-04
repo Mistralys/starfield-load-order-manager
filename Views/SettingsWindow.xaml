@@ -2,15 +2,31 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
         Title="Load Order Keeper Settings"
-        Height="382"
+        Height="435"
         Width="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Style="{StaticResource MaterialDesignDefaultWindowStyle}"
         Background="{DynamicResource MaterialDesignPaper}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="InverseBooleanToVisibilityStyle" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -45,21 +61,49 @@
                 Margin="0,0,0,8"
                 Command="{Binding BrowseAppDataCommand}"
                 Style="{StaticResource MaterialDesignRaisedButton}" />
+        
+        <StackPanel Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,8">
+            <TextBlock Text="Detected: "
+                       FontSize="11"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    Padding="0"
+                    Height="Auto"
+                    MinHeight="0"
+                    VerticalAlignment="Center"
+                    Command="{Binding UseDetectedAppDataPathCommand}"
+                    Visibility="{Binding HasDetectedAppDataPath, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding DetectedAppDataPath, Mode=OneWay}"
+                           d:Text="C:\Users\Example\AppData\Local\Starfield"
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                           TextDecorations="None" />
+            </Button>
+            <TextBlock Text="(None found)"
+                       FontSize="11"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                       DataContext="{Binding HasDetectedAppDataPath}"
+                       Style="{StaticResource InverseBooleanToVisibilityStyle}" />
+        </StackPanel>
 
-        <TextBlock Grid.Row="2"
+        <TextBlock Grid.Row="3"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    Margin="0,8,0,4"
                    Text="Starfield Game Path:"
                    Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <TextBox Grid.Row="3"
+        <TextBox Grid.Row="4"
                  Grid.Column="0"
                  Margin="0,0,8,8"
                  Text="{Binding StarfieldGamePath, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
                  materialDesign:HintAssist.Hint="Starfield Game Path"
                  Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <Button Grid.Row="3"
+        <Button Grid.Row="4"
                 Grid.Column="1"
                 Content="Browse..."
                 Width="90"
@@ -67,13 +111,41 @@
                 Command="{Binding BrowseGamePathCommand}"
                 Style="{StaticResource MaterialDesignRaisedButton}" />
 
-        <TextBlock Grid.Row="4"
+        <StackPanel Grid.Row="5"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,8">
+            <TextBlock Text="Detected: "
+                       FontSize="11"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    Padding="0"
+                    Height="Auto"
+                    MinHeight="0"
+                    VerticalAlignment="Center"
+                    Command="{Binding UseDetectedGamePathCommand}"
+                    Visibility="{Binding HasDetectedGamePath, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding DetectedGamePath, Mode=OneWay}"
+                           d:Text="C:\Program Files (x86)\Steam\steamapps\common\Starfield"
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                           TextDecorations="None" />
+            </Button>
+            <TextBlock Text="(None found)"
+                       FontSize="11"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                       DataContext="{Binding HasDetectedGamePath}"
+                       Style="{StaticResource InverseBooleanToVisibilityStyle}" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="6"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    Margin="0,8,0,4"
                    Text="Check for modifications every (seconds):"
                    Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <TextBox Grid.Row="5"
+        <TextBox Grid.Row="7"
                  Grid.Column="0"
                  Grid.ColumnSpan="2"
                  Margin="0,0,8,8"
@@ -82,7 +154,7 @@
                  materialDesign:HintAssist.Hint="Interval in seconds"
                  Foreground="{DynamicResource MaterialDesignBodyLight}" />
 
-        <StackPanel Grid.Row="6"
+        <StackPanel Grid.Row="8"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Orientation="Horizontal"

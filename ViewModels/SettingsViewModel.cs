@@ -17,12 +17,20 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private int _pluginCheckIntervalSeconds = 5;
 
+        public string DetectedAppDataPath { get; }
+        public string DetectedGamePath { get; }
+        public bool HasDetectedAppDataPath => !string.IsNullOrWhiteSpace(DetectedAppDataPath);
+        public bool HasDetectedGamePath => !string.IsNullOrWhiteSpace(DetectedGamePath);
+
         public event EventHandler? BrowseAppDataRequested;
         public event EventHandler? BrowseGamePathRequested;
         public event EventHandler? SaveRequested;
 
         public SettingsViewModel(AppConfigModel initialConfig)
         {
+            DetectedAppDataPath = SettingsService.TryGetDefaultAppDataPath();
+            DetectedGamePath = SettingsService.TryGetDefaultSteamPath();
+
             if (!string.IsNullOrWhiteSpace(initialConfig.StarfieldAppDataPath))
             {
                 StarfieldAppDataPath = initialConfig.StarfieldAppDataPath;
@@ -55,6 +63,24 @@ namespace LoadOrderKeeper.ViewModels
         private void SaveSettings()
         {
             SaveRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        [RelayCommand]
+        private void UseDetectedAppDataPath()
+        {
+            if (HasDetectedAppDataPath)
+            {
+                StarfieldAppDataPath = DetectedAppDataPath;
+            }
+        }
+
+        [RelayCommand]
+        private void UseDetectedGamePath()
+        {
+            if (HasDetectedGamePath)
+            {
+                StarfieldGamePath = DetectedGamePath;
+            }
         }
 
         public void UpdateAppDataPath(string selectedPath)

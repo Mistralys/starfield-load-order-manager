@@ -13,26 +13,32 @@
 - **Libraries / Frameworks**
   - `CommunityToolkit.Mvvm`
     - `ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`, `RelayCommand`, `AsyncRelayCommand`, `IRelayCommand`, `IAsyncRelayCommand`
-  - `MaterialDesignThemes` / `MaterialDesignColors` for dialogs, icons, and card layouts
+  - `MaterialDesignThemes` / `MaterialDesignColors` for dialogs, icons, and card layouts (v5)
   - Standard .NET `System.*` APIs for I/O, processes, collections, and JSON serialization
 
 - **Architectural Patterns**
   - **MVVM**
-    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`
-    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`
+    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`
+    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`
   - **Static Services**
     - `SettingsService`: configuration persistence and default path discovery
     - `FileService`: plugins/reference file operations plus diff helpers
     - `DiffService`: diff line construction for the UI
     - `ProfileService`: profile discovery, CRUD, switching, and file scaffolding
+    - `VersionService`: centralized application version retrieval
   - **Modal Navigation**
     - `MainWindow` as shell
-    - Secondary windows opened modally: `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`
+    - Secondary windows opened modally: `SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`
+  - **Non-Modal Windows**
+    - `DiffWindow`, `ManageProfilesWindow` allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates
   - **File Monitoring**
     - `MainViewModel` uses `DispatcherTimer` to monitor `Plugins.txt` vs the active profile reference
   - **Profile Management**
     - Profiles stored per active configuration under `Profiles/{profileId}` with `main.txt`, `reference.txt`, and `profile.json`
     - Commands and dialogs coordinate through `ProfileService` to switch and manage profiles
+  - **Confirmation Dialogs**
+    - Custom Material Design styled `ConfirmationDialog` replaces all `MessageBox.Show` calls
+    - Supports multiple icon types (Information, Question, Warning, Error) and button configurations (OK, OKCancel, YesNo, YesNoCancel)
 
 ---
 
@@ -52,13 +58,17 @@
 │  ├─ ModDiffModel.cs
 │  ├─ ModEntryModel.cs
 │  ├─ PluginsComparisonResult.cs
-│  └─ ProfileModel.cs
+│  ├─ ProfileModel.cs
+│  └─ StatusMessageModel.cs
 ├─ Services/
 │  ├─ DiffService.cs
 │  ├─ FileService.cs
 │  ├─ ProfileService.cs
-│  └─ SettingsService.cs
+│  ├─ SettingsService.cs
+│  └─ VersionService.cs
 ├─ ViewModels/
+│  ├─ AboutViewModel.cs
+│  ├─ ConfirmationDialogViewModel.cs
 │  ├─ DiffDialogViewModel.cs
 │  ├─ MainViewModel.cs
 │  ├─ ManageProfilesViewModel.cs
@@ -66,6 +76,10 @@
 │  ├─ SettingsViewModel.cs
 │  └─ SwitchProfileViewModel.cs
 ├─ Views/
+│  ├─ AboutWindow.xaml
+│  ├─ AboutWindow.xaml.cs
+│  ├─ ConfirmationDialog.xaml
+│  ├─ ConfirmationDialog.xaml.cs
 │  ├─ DiffWindow.xaml
 │  ├─ DiffWindow.xaml.cs
 │  ├─ ManageProfilesWindow.xaml
@@ -75,10 +89,12 @@
 │  ├─ SettingsWindow.xaml
 │  ├─ SettingsWindow.xaml.cs
 │  ├─ SwitchProfileWindow.xaml
-│  ├─ SwitchProfileWindow.xaml.cs
-│  ├─ MainWindow.xaml
-│  └─ MainWindow.xaml.cs
+│  └─ SwitchProfileWindow.xaml.cs
 ├─ Converters/
+│  ├─ ActiveProfileVisibilityConverter.cs
+│  ├─ CountToVisibilityConverter.cs
+│  ├─ InverseBooleanToVisibilityConverter.cs
+│  ├─ InverseCountToVisibilityConverter.cs
 │  └─ ReplacementCommandParameterConverter.cs
 ├─ Docs/
 │  ├─ project-manifest.md (this file)
@@ -135,7 +151,8 @@ public enum DiffChangeType
     Added,
     Removed,
     Moved,
-    Replaced
+    Replaced,
+    Inserted
 }
 ```
 
@@ -158,6 +175,10 @@ public sealed class DiffLineModel
     public int? ReferenceNumber { get; }
     public int? CurrentNumber { get; }
     public string? ReplacementFileName { get; }
+    public List<DiffLineModel> DependentChanges { get; }
+    public bool HasDependentChanges { get; }
+    public string DependentChangesSummary { get; }
+    public bool IsDependentChangesExpanded { get; set; }
     public string Prefix { get; }
 }
 ```
@@ -217,6 +238,29 @@ public sealed class ProfileModel
     public ProfileModel(string id, string label, string description = "");
 
     public static ProfileModel CreateDefault();
+}
+```
+
+#### `LoadOrderKeeper.Models.StatusMessageModel`
+
+```csharp
+public sealed class StatusMessageModel
+{
+    public StatusMessageModel(string message, DateTime timestamp, StatusMessageType type = StatusMessageType.Info);
+
+    public string Message { get; }
+    public DateTime Timestamp { get; }
+    public StatusMessageType Type { get; }
+    public string FormattedTimestamp { get; }
+    public string DisplayText { get; }
+}
+
+public enum StatusMessageType
+{
+    Info,
+    Success,
+    Warning,
+    Error
 }
 ```
 
@@ -288,6 +332,15 @@ public static class DiffService
 }
 ```
 
+#### `LoadOrderKeeper.Services.VersionService`
+
+```csharp
+public static class VersionService
+{
+    public static string GetApplicationVersion();
+}
+```
+
 ### 3.3 ViewModels
 
 > Commands emitted by `[RelayCommand]` follow the `{MethodName}Command` naming pattern and expose `IRelayCommand` / `IAsyncRelayCommand` properties automatically.
@@ -302,6 +355,10 @@ public partial class SettingsViewModel : ObservableObject
     public string StarfieldAppDataPath { get; set; }
     public string StarfieldGamePath { get; set; }
     public int PluginCheckIntervalSeconds { get; set; }
+    public string DetectedAppDataPath { get; }
+    public string DetectedGamePath { get; }
+    public bool HasDetectedAppDataPath { get; }
+    public bool HasDetectedGamePath { get; }
 
     public event EventHandler? BrowseAppDataRequested;
     public event EventHandler? BrowseGamePathRequested;
@@ -323,10 +380,11 @@ public partial class MainViewModel : ObservableObject
     public AppConfigModel Config { get; set; }
     public bool RefExists { get; set; }
     public string StatusMessage { get; set; }
+    public ObservableCollection<StatusMessageModel> StatusMessageHistory { get; set; }
     public bool IsBusy { get; set; }
     public string ReferenceButtonText { get; set; }
     public string FixLoadOrderButtonText { get; set; }
-    public string PlayButtonText { get; }
+    public string PlayGameButtonText { get; }
     public string WindowTitle { get; }
     public string FileMenuHeader { get; }
     public string OpenPluginsMenuText { get; }
@@ -334,14 +392,19 @@ public partial class MainViewModel : ObservableObject
     public string OpenAppDataFolderMenuText { get; }
     public string OpenGameFolderMenuText { get; }
     public string ExitMenuText { get; }
-    public string SettingsMenuHeader { get; }
-    public string ProfileMenuHeader { get; }
-    public string SwitchProfileMenuText { get; }
-    public string ManageProfilesMenuText { get; }
+    public string EditMenuHeader { get; }
+    public string SettingsMenuText { get; }
+    public string HelpMenuHeader { get; }
+    public string AboutMenuText { get; }
     public string CurrentTargetLabel { get; }
     public string TargetPrefixText { get; }
     public string PluginsModifiedWarningText { get; }
-    public string ShowChangesButtonText { get; }
+    public string ActiveProfilePrefixText { get; }
+    public string ProfileMenuHeader { get; }
+    public string SwitchProfileMenuText { get; }
+    public string ManageProfilesMenuText { get; }
+    public string RecentStatusMessagesText { get; }
+    public string ShowChangesButtonText { get; set; }
     public bool PluginsFileChangedExternally { get; set; }
     public string SortingRecommendationMessage { get; set; }
     public bool SortingRecommendationActive { get; set; }
@@ -359,6 +422,7 @@ public partial class MainViewModel : ObservableObject
     public IAsyncRelayCommand SwitchProfileCommand { get; }
     public IAsyncRelayCommand ManageProfilesCommand { get; }
     public IAsyncRelayCommand OpenSettingsCommand { get; }
+    public IRelayCommand ShowAboutCommand { get; }
     public IRelayCommand ExitApplicationCommand { get; }
 }
 ```
@@ -366,6 +430,17 @@ public partial class MainViewModel : ObservableObject
 #### `LoadOrderKeeper.ViewModels.DiffDialogViewModel`
 
 ```csharp
+public class ConfirmationRequestedEventArgs : EventArgs
+{
+    public string Title { get; }
+    public string Message { get; }
+    public ConfirmationIcon Icon { get; }
+    public ConfirmationButton Buttons { get; }
+    public ConfirmationResult Result { get; set; }
+
+    public ConfirmationRequestedEventArgs(string title, string message, ConfirmationIcon icon = ConfirmationIcon.Warning, ConfirmationButton buttons = ConfirmationButton.YesNo);
+}
+
 public partial class DiffDialogViewModel : ObservableObject, IDisposable
 {
     public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel);
@@ -377,16 +452,30 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public string FixLoadOrderButtonText { get; }
     public string DiscardChangesButtonText { get; }
     public string CloseButtonText { get; }
+    public string NoDifferencesMessage { get; }
+    public string ReEnableModMenuText { get; }
+    public string ReplaceWithMenuText { get; }
+    public string RemoveModMenuText { get; }
     public bool ShowSortingRecommendation { get; }
     public string SortingRecommendationMessage { get; }
     public IReadOnlyList<DiffLineModel> AddedMods { get; }
     public bool HasAddedMods { get; }
-    public event EventHandler? CloseRequested;
-    public event EventHandler? ScrollRequested;
+    public bool HasInsertedMods { get; }
     public bool HasDifferences { get; }
     public int ScrollTargetIndex { get; }
     public string DiffStatusMessage { get; }
     public bool HasStatusMessage { get; }
+
+    public IAsyncRelayCommand UpdateReferenceCommand { get; }
+    public IAsyncRelayCommand FixLoadOrderCommand { get; }
+    public IAsyncRelayCommand<DiffLineModel> ReEnableModCommand { get; }
+    public IAsyncRelayCommand<DiffLineModel> RemoveNewModCommand { get; }
+    public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
+    public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
+
+    public event EventHandler? CloseRequested;
+    public event EventHandler? ScrollRequested;
+    public event EventHandler<ConfirmationRequestedEventArgs>? ConfirmationRequested;
 
     public Task<bool> RefreshDiffAsync(string? reason = null);
     public void Dispose();
@@ -467,6 +556,82 @@ public partial class ProfilePropertiesViewModel : ObservableObject
 }
 ```
 
+#### `LoadOrderKeeper.ViewModels.ConfirmationDialogViewModel`
+
+```csharp
+public enum ConfirmationIcon
+{
+    None,
+    Information,
+    Question,
+    Warning,
+    Error
+}
+
+public enum ConfirmationButton
+{
+    OK,
+    OKCancel,
+    YesNo,
+    YesNoCancel
+}
+
+public enum ConfirmationResult
+{
+    None,
+    OK,
+    Cancel,
+    Yes,
+    No
+}
+
+public partial class ConfirmationDialogViewModel : ObservableObject
+{
+    public ConfirmationDialogViewModel();
+    public ConfirmationDialogViewModel(string title, string message, ConfirmationIcon icon = ConfirmationIcon.None, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult = ConfirmationResult.OK);
+
+    public string Title { get; set; }
+    public string Message { get; set; }
+    public ConfirmationIcon Icon { get; set; }
+    public ConfirmationButton Buttons { get; set; }
+    public ConfirmationResult DefaultResult { get; set; }
+    public ConfirmationResult Result { get; }
+    public string IconKind { get; }
+    public string IconColor { get; }
+    public bool ShowIcon { get; }
+    public bool ShowOKButton { get; }
+    public bool ShowCancelButton { get; }
+    public bool ShowYesButton { get; }
+    public bool ShowNoButton { get; }
+    public string OKButtonText { get; }
+    public string CancelButtonText { get; }
+    public string YesButtonText { get; }
+    public string NoButtonText { get; }
+
+    public event EventHandler? DialogResultChanged;
+}
+```
+
+#### `LoadOrderKeeper.ViewModels.AboutViewModel`
+
+```csharp
+public partial class AboutViewModel : ObservableObject
+{
+    public AboutViewModel();
+
+    public string ApplicationName { get; }
+    public string ApplicationVersion { get; }
+    public string Copyright { get; }
+    public string Description { get; }
+    public string HomepageUrl { get; }
+    public string HomepageButtonText { get; }
+    public string CloseButtonText { get; }
+    public string VersionLabelText { get; }
+
+    public event EventHandler? CloseRequested;
+}
+```
+
 ### 3.4 Views / Application
 
 #### `LoadOrderKeeper.App`
@@ -532,6 +697,28 @@ public partial class ProfilePropertiesWindow : Window
 }
 ```
 
+#### `LoadOrderKeeper.Views.ConfirmationDialog`
+
+```csharp
+public partial class ConfirmationDialog : Window
+{
+    public ConfirmationDialog();
+    public ConfirmationDialog(string title, string message, ConfirmationIcon icon = ConfirmationIcon.None, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult = ConfirmationResult.OK);
+
+    public new ConfirmationResult ShowDialog();
+    public static ConfirmationResult Show(string title, string message, ConfirmationIcon icon = ConfirmationIcon.Information, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult = ConfirmationResult.OK, Window? owner = null);
+}
+```
+
+#### `LoadOrderKeeper.Views.AboutWindow`
+
+```csharp
+public partial class AboutWindow : Window
+{
+    public AboutWindow();
+}
+```
+
 #### `LoadOrderKeeper.Converters.ReplacementCommandParameterConverter`
 
 ```csharp
@@ -539,6 +726,46 @@ public sealed class ReplacementCommandParameterConverter : IMultiValueConverter
 {
     public object? Convert(object[] values, Type targetType, object? parameter, CultureInfo culture);
     public object[] ConvertBack(object value, Type[] targetTypes, object? parameter, CultureInfo culture);
+}
+```
+
+#### `LoadOrderKeeper.Converters.ActiveProfileVisibilityConverter`
+
+```csharp
+public sealed class ActiveProfileVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+}
+```
+
+#### `LoadOrderKeeper.Converters.CountToVisibilityConverter`
+
+```csharp
+public sealed class CountToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+}
+```
+
+#### `LoadOrderKeeper.Converters.InverseCountToVisibilityConverter`
+
+```csharp
+public sealed class InverseCountToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+}
+```
+
+#### `LoadOrderKeeper.Converters.InverseBooleanToVisibilityConverter`
+
+```csharp
+public sealed class InverseBooleanToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
 }
 ```
 
@@ -550,25 +777,48 @@ public sealed class ReplacementCommandParameterConverter : IMultiValueConverter
   - `App.OnStartup` creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows it.
   - `MainViewModel` loads settings via `SettingsService.LoadSettingsAsync()`, ensures the default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`, checks `FileService.DoesReferenceFileExist()`, and enforces configuration validity by displaying `SettingsWindow` when needed.
   - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
+  
 - **Profile Initialization & Switching**
   - `MainViewModel.SwitchProfileCommand` opens `SwitchProfileWindow` with `SwitchProfileViewModel`, which loads profiles via `ProfileService.LoadProfilesAsync()`.
-  - Selecting a profile calls `ProfileService.SwitchProfileAsync()`: the current `Plugins.txt` is persisted to the active profile’s `main.txt`, the target profile’s `main.txt` and `reference.txt` are ensured, the target `main.txt` replaces `Plugins.txt`, and `ActiveProfileId` is saved.
-  - After switching, `MainViewModel` refreshes `ActiveProfileLabel`, `RefExists`, timer state, and kicks off `CheckPluginsFileAsync()` so monitoring uses the new profile’s reference.
+  - Selecting a profile calls `ProfileService.SwitchProfileAsync()`: the current `Plugins.txt` is persisted to the active profile's `main.txt`, the target profile's `main.txt` and `reference.txt` are ensured, the target `main.txt` replaces `Plugins.txt`, and `ActiveProfileId` is saved.
+  - After switching, `MainViewModel` refreshes `ActiveProfileLabel`, `RefExists`, timer state, and kicks off `CheckPluginsFileAsync()` so monitoring uses the new profile's reference.
+  
 - **Profile Management**
   - `MainViewModel.ManageProfilesCommand` opens `ManageProfilesWindow` backed by `ManageProfilesViewModel`.
   - The manage view requests CRUD actions: `ProfileService.CreateProfileAsync()`, `UpdateProfileAsync()`, `DeleteProfileAsync()`, and `CopyProfileAsync()` handle persistence; `ProfilePropertiesWindow` + `ProfilePropertiesViewModel` validates labels/descriptions before save.
   - The profiles list refreshes after each operation so the UI and `MainViewModel` reflect edits.
+  
 - **Settings Flow**
   - `MainViewModel.OpenSettingsCommand` shows `SettingsWindow`; on success, `SettingsService.SaveSettingsAsync()` persists `AppConfigModel`, `RefExists` is recomputed, and monitoring restarts.
   - Configuration edits retain `ActiveProfileId`, so profile-specific references stay aligned.
+  
 - **Reference & load order controls**
   - `CreateReferenceCommand` and `FixLoadOrderCommand` call `FileService.CreateReferenceFileAsync()` and `FileService.ApplyLoadOrderAsync()` respectively; both commands gate on configuration validity and `IsBusy`.
   - `DiscardChangesCommand` resets `Plugins.txt` from the active profile reference via `FileService.DiscardChangesAsync()`.
+  
 - **Monitoring & diffing**
-  - `DispatcherTimer` invokes `CheckPluginsFileAsync()`; the method calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile’s reference.
+  - `DispatcherTimer` invokes `CheckPluginsFileAsync()`; the method calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile's reference.
   - On differences, `FileService.WouldSortingChangeDiffsAsync()` sets the sorting recommendation, `DiffService.GetPluginsDiffAsync()` feeds both the badge count and the `DiffDialogViewModel`, and switching profiles triggers `DiffDialogViewModel.RefreshDiffAsync()` when open.
+  
 - **Diff dialog operations**
   - In `DiffDialogViewModel`, commands trigger `FileService.ReEnableModAsync()`, `RemoveNewModAsync()`, `ReplaceModWithNewAsync()`, and `MainViewModel.DiscardChangesCommand` (which calls `FileService.DiscardChangesAsync()`), refreshing diffs afterward.
+  - Update reference and discard changes actions request confirmation via `ConfirmationRequested` event, which is handled by `DiffWindow` to show `ConfirmationDialog`.
+  
+- **Confirmation Dialogs**
+  - All `MessageBox.Show` calls replaced with `ConfirmationDialog.Show()` static method.
+  - `ConfirmationDialog` provides Material Design v5 styled dialogs with icon support (Information, Question, Warning, Error) and multiple button configurations.
+  - `DiffDialogViewModel` raises `ConfirmationRequested` event for critical actions (update reference, discard changes); `DiffWindow` handles the event and shows the dialog.
+  - Error messages in `MainViewModel` and profile management windows use `ConfirmationDialog.Show()` for consistent UX.
+  
+- **About & Version Info**
+  - `MainViewModel.ShowAboutCommand` opens `AboutWindow` with `AboutViewModel`.
+  - `VersionService.GetApplicationVersion()` retrieves clean semantic version from assembly attributes, stripping commit hashes.
+  - `AboutViewModel.OpenHomepageCommand` launches the project homepage URL in the default browser.
+  
+- **Status History**
+  - `MainViewModel` maintains `StatusMessageHistory` (ObservableCollection) with last 3 status messages.
+  - Each status message has a timestamp and type (Info, Success, Warning, Error).
+  - Displayed in main window UI for quick reference of recent operations.
 
 ---
 
@@ -577,24 +827,41 @@ public sealed class ReplacementCommandParameterConverter : IMultiValueConverter
 - **Configuration validity**
   - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
   - The app shuts down when configuration remains invalid after the settings dialog.
+  
 - **Profile storage**
   - Profiles live under `StarfieldAppDataPath/Profiles/{profileId}` with `profile.json`, `main.txt`, and `reference.txt`; folders are created automatically.
   - `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
   - The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
   - Profile labels must be unique (case-insensitive), 2–30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
+  
 - **Profile switching guarantees**
-  - Switching always backs up the current `Plugins.txt` into the old profile’s `main.txt`, ensures the target `main.txt` and `reference.txt`, writes UTF-8 (no BOM), and updates `ActiveProfileId` before monitoring continues.
+  - Switching always backs up the current `Plugins.txt` into the old profile's `main.txt`, ensures the target `main.txt` and `reference.txt`, writes UTF-8 (no BOM), and updates `ActiveProfileId` before monitoring continues.
+  
 - **File locations & I/O**
   - `Plugins.txt` stays under `StarfieldAppDataPath`; references are profile-specific (`Profiles/{id}/reference.txt`).
   - All disk operations in services are asynchronous; plugins-related writes use UTF-8 without BOM, and reference creation copies raw files to retain comments.
+  
 - **Case restoration**
   - `FileService.ApplyLoadOrderAsync()` builds a case map from `StarfieldGamePath/Data` (`*.esm` / `*.esp`) so output lines reuse on-disk casing.
+  
 - **Diff semantics & monitoring**
-  - `FileService.GetModDiffAsync()` bases `ModDiffModel` flags on original vs current line numbers; `DiffService` translates them to `DiffLineModel` change types (`Added`, `Removed`, `Moved`, `Replaced`).
+  - `FileService.GetModDiffAsync()` bases `ModDiffModel` flags on original vs current line numbers; `DiffService` translates them to `DiffLineModel` change types (`Added`, `Removed`, `Moved`, `Replaced`, `Inserted`).
   - The monitor compares trimmed file contents, tracks a `PluginsSignature`, and only runs when `Config.IsValid()` and `RefExists` are true.
+  - Dependent changes are tracked and displayed: when a mod is removed/added, all mods that shift position as a result are shown as dependent changes.
+  
 - **Navigation & threading**
-  - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`) block until close; viewmodels flow back via dialog results/events.
+  - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`) block until close; viewmodels flow back via dialog results/events.
   - Non-modal windows (`DiffWindow`, `ManageProfilesWindow`) allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle.
   - `DispatcherTimer` runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
+  
 - **Error handling**
-  - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `MessageBox` dialogs.
+  - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `ConfirmationDialog` for errors.
+  - All user-facing dialogs use `ConfirmationDialog` with appropriate icon types (Error, Warning, Information) for consistent Material Design v5 styling.
+  
+- **UI/UX Conventions**
+  - All text displayed in UI uses bindings (no hardcoded strings in XAML).
+  - Material Design v5 semantic brushes used throughout for theme consistency.
+  - Dark mode theme by default.
+  - Confirmation dialogs shown for destructive actions (discard changes, update reference with removed/inserted mods).
+  - Button labels include ellipsis ("...") when they open dialogs or require further interaction.
+  - Design-time attributes (`d:` prefix with `mc:Ignorable="d"`) used for XAML designer support.

@@ -57,7 +57,8 @@
                                 <Setter.Value>
                                     <ContextMenu Style="{StaticResource MaterialDesignContextMenu}"
                                                  DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Re-enable mod"
+                                        <MenuItem Header="{Binding ReEnableModMenuText}"
+                                                  d:Header="Re-enable mod"
                                                   Command="{Binding ReEnableModCommand}"
                                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                             <MenuItem.Style>
@@ -72,7 +73,8 @@
                                                 </Style>
                                             </MenuItem.Style>
                                         </MenuItem>
-                                        <MenuItem Header="Replace with...">
+                                        <MenuItem Header="{Binding ReplaceWithMenuText}"
+                                                  d:Header="Replace with...">
                                             <MenuItem.Style>
                                                 <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
                                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -106,7 +108,8 @@
                                                 </Style>
                                             </MenuItem.ItemContainerStyle>
                                         </MenuItem>
-                                        <MenuItem Header="Remove mod"
+                                        <MenuItem Header="{Binding RemoveModMenuText}"
+                                                  d:Header="Remove mod"
                                                   Command="{Binding RemoveNewModCommand}"
                                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                             <MenuItem.Style>
@@ -131,6 +134,9 @@
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
                                     <Setter Property="Background" Value="#1AF44336" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
+                                    <Setter Property="Background" Value="#1AFFEB3B" />
+                                </DataTrigger>
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
                                     <Setter Property="Background" Value="#1A2196F3" />
                                     <Setter Property="ContextMenu" Value="{x:Null}" />
@@ -144,26 +150,100 @@
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:DiffLineModel}">
-                            <StackPanel Orientation="Horizontal" Margin="4,2">
-                                <TextBlock Text="{Binding Prefix}"
-                                           FontWeight="Bold"
-                                           Width="16"
-                                           HorizontalAlignment="Left" />
-                                <TextBlock Text="{Binding Text}"
-                                           TextWrapping="Wrap"
-                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="4,2">
+                                    <!-- Warning icon for inserted mods -->
+                                    <materialDesign:PackIcon Kind="AlertCircle" 
+                                                            Width="16" 
+                                                            Height="16"
+                                                            Foreground="Orange"
+                                                            VerticalAlignment="Center"
+                                                            Margin="0,0,4,0"
+                                                            ToolTip="This mod was inserted into the middle of the load order. Consider sorting the list first.">
+                                        <materialDesign:PackIcon.Style>
+                                            <Style TargetType="materialDesign:PackIcon">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:PackIcon.Style>
+                                    </materialDesign:PackIcon>
+                                    
+                                    <TextBlock Text="{Binding Prefix}"
+                                               FontWeight="Bold"
+                                               Width="16"
+                                               HorizontalAlignment="Left" />
+                                    <TextBlock Text="{Binding Text}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{DynamicResource MaterialDesignBody}" />
+                                </StackPanel>
+
+                                <StackPanel Visibility="{Binding HasDependentChanges, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Button Content="{Binding DependentChangesSummary}"
+                                            Margin="20,2,4,2"
+                                            Padding="4,2"
+                                            HorizontalAlignment="Left"
+                                            Style="{StaticResource MaterialDesignFlatButton}"
+                                            Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                            FontSize="11"
+                                            Command="{Binding Tag.ToggleDependentChangesCommand, RelativeSource={RelativeSource AncestorType=ListViewItem}}"
+                                            CommandParameter="{Binding}" />
+
+                                    <ScrollViewer MaxHeight="200"
+                                                  Margin="36,0,4,2"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  Visibility="{Binding IsDependentChangesExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <ItemsControl ItemsSource="{Binding DependentChanges}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                                        <TextBlock Text="{Binding Prefix}"
+                                                                   FontWeight="Bold"
+                                                                   Width="16"
+                                                                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                                        <TextBlock Text="{Binding Text}"
+                                                                   TextWrapping="Wrap"
+                                                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                                   FontSize="11" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </Border>
-            <TextBlock Grid.Row="2"
-                       Text="{Binding SortingRecommendationMessage}"
-                       d:Text="Sorting recommendation message"
-                       Margin="0,8,0,0"
-                       Foreground="{DynamicResource MaterialDesignBody}"
-                       FontWeight="SemiBold"
-                       Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <Border Grid.Row="2"
+                    Margin="0,8,0,0"
+                    Background="#FFFFA726"
+                    BorderBrush="#FFFF9800"
+                    BorderThickness="2"
+                    CornerRadius="4"
+                    Padding="12,8"
+                    Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right"
+                            Content="{Binding FixLoadOrderButtonText}"
+                            d:Content="Sort now"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Command="{Binding FixLoadOrderCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"/>
+                    <TextBlock Text="{Binding SortingRecommendationMessage}"
+                               d:Text="Sorting recommendation message"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource MaterialDesignPaper}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
             <TextBlock Grid.Row="3"
                        Text="{Binding DiffStatusMessage}"
                        d:Text="Status message"
@@ -171,7 +251,8 @@
                        Foreground="{DynamicResource MaterialDesignBodyLight}"
                        Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
             <TextBlock Grid.Row="4"
-                        Text="No differences detected."
+                        Text="{Binding NoDifferencesMessage}"
+                        d:Text="No differences detected."
                         Margin="0,8,0,0"
                         Foreground="{DynamicResource MaterialDesignBodyLight}">
                 <TextBlock.Style>

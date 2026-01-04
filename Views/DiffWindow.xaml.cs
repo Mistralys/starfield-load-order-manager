@@ -21,12 +21,14 @@ namespace LoadOrderKeeper.Views
             {
                 oldVm.CloseRequested -= OnCloseRequested;
                 oldVm.ScrollRequested -= OnScrollRequested;
+                oldVm.ConfirmationRequested -= OnConfirmationRequested;
             }
 
             if (e.NewValue is DiffDialogViewModel newVm)
             {
                 newVm.CloseRequested += OnCloseRequested;
                 newVm.ScrollRequested += OnScrollRequested;
+                newVm.ConfirmationRequested += OnConfirmationRequested;
             }
         }
 
@@ -76,6 +78,19 @@ namespace LoadOrderKeeper.Views
         private void CloseDialog()
         {
             Close();
+        }
+
+        private void OnConfirmationRequested(object? sender, ConfirmationRequestedEventArgs e)
+        {
+            var result = ConfirmationDialog.Show(
+                e.Title,
+                e.Message,
+                e.Icon,
+                e.Buttons,
+                ConfirmationResult.No,
+                this);
+
+            e.Result = result;
         }
 
         protected override void OnClosed(EventArgs e)

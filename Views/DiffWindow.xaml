@@ -159,7 +159,7 @@
                                 </StackPanel>
 
                                 <StackPanel Visibility="{Binding HasDependentChanges, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <Button Content="{Binding DependentChanges.Count, StringFormat='+ {0} mod positions affected by this change'}"
+                                    <Button Content="{Binding DependentChangesSummary}"
                                             Margin="20,2,4,2"
                                             Padding="4,2"
                                             HorizontalAlignment="Left"

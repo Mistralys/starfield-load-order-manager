@@ -42,6 +42,8 @@ namespace LoadOrderKeeper.Models
 
         public bool HasDependentChanges => DependentChanges.Count > 0;
 
+        public string DependentChangesSummary => $"+ {DependentChanges.Count} mod positions affected by this change";
+
         [ObservableProperty]
         private bool _isDependentChangesExpanded;
 

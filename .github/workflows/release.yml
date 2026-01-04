@@ -144,9 +144,19 @@ jobs:
             /p:Configuration=Release `
             /p:Platform=x64
 
+      - name: Rename MSI installer with version
+        run: |
+          $version = "${{ steps.version.outputs.tag }}"
+          $sourcePath = "installer/bin/Release/StarfieldLoadOrderKeeper.msi"
+          $targetPath = "installer/bin/Release/StarfieldLoadOrderKeeper-$version.msi"
+          Move-Item -Path $sourcePath -Destination $targetPath -Force
+          echo "MSI renamed to: StarfieldLoadOrderKeeper-$version.msi"
+
       - name: Create ZIP package
         run: |
-          Compress-Archive -Path installer/publish/* -DestinationPath StarfieldLoadOrderKeeper.zip
+          $version = "${{ steps.version.outputs.tag }}"
+          Compress-Archive -Path installer/publish/* -DestinationPath "StarfieldLoadOrderKeeper-$version.zip"
+          echo "ZIP created: StarfieldLoadOrderKeeper-$version.zip"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -157,6 +167,5 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
-            installer/bin/Release/StarfieldLoadOrderKeeper.msi
-            StarfieldLoadOrderKeeper.zip
-            SHA256SUMS.txt
+            installer/bin/Release/StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}.msi
+            StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}.zip

@@ -169,24 +169,28 @@
                                             Command="{Binding Tag.ToggleDependentChangesCommand, RelativeSource={RelativeSource AncestorType=ListViewItem}}"
                                             CommandParameter="{Binding}" />
 
-                                    <ItemsControl ItemsSource="{Binding DependentChanges}"
+                                    <ScrollViewer MaxHeight="200"
                                                   Margin="36,0,4,2"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
                                                   Visibility="{Binding IsDependentChangesExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="0,1">
-                                                    <TextBlock Text="{Binding Prefix}"
-                                                               FontWeight="Bold"
-                                                               Width="16"
-                                                               Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                                                    <TextBlock Text="{Binding Text}"
-                                                               TextWrapping="Wrap"
-                                                               Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                                               FontSize="11" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                        <ItemsControl ItemsSource="{Binding DependentChanges}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                                        <TextBlock Text="{Binding Prefix}"
+                                                                   FontWeight="Bold"
+                                                                   Width="16"
+                                                                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                                        <TextBlock Text="{Binding Text}"
+                                                                   TextWrapping="Wrap"
+                                                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                                   FontSize="11" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>

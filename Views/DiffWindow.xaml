@@ -131,6 +131,9 @@
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
                                     <Setter Property="Background" Value="#1AF44336" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
+                                    <Setter Property="Background" Value="#1AFFEB3B" />
+                                </DataTrigger>
                                 <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
                                     <Setter Property="Background" Value="#1A2196F3" />
                                     <Setter Property="ContextMenu" Value="{x:Null}" />
@@ -139,19 +142,52 @@
                                     <Setter Property="Background" Value="#1A9C27B0" />
                                     <Setter Property="ContextMenu" Value="{x:Null}" />
                                 </DataTrigger>
-                            </Style.Triggers>
+            </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:DiffLineModel}">
-                            <StackPanel Orientation="Horizontal" Margin="4,2">
-                                <TextBlock Text="{Binding Prefix}"
-                                           FontWeight="Bold"
-                                           Width="16"
-                                           HorizontalAlignment="Left" />
-                                <TextBlock Text="{Binding Text}"
-                                           TextWrapping="Wrap"
-                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="4,2">
+                                    <TextBlock Text="{Binding Prefix}"
+                                               FontWeight="Bold"
+                                               Width="16"
+                                               HorizontalAlignment="Left" />
+                                    <TextBlock Text="{Binding Text}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{DynamicResource MaterialDesignBody}" />
+                                </StackPanel>
+
+                                <StackPanel Visibility="{Binding HasDependentChanges, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Button Content="{Binding DependentChanges.Count, StringFormat='+ {0} mod positions affected by this change'}"
+                                            Margin="20,2,4,2"
+                                            Padding="4,2"
+                                            HorizontalAlignment="Left"
+                                            Style="{StaticResource MaterialDesignFlatButton}"
+                                            Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                            FontSize="11"
+                                            Command="{Binding Tag.ToggleDependentChangesCommand, RelativeSource={RelativeSource AncestorType=ListViewItem}}"
+                                            CommandParameter="{Binding}" />
+
+                                    <ItemsControl ItemsSource="{Binding DependentChanges}"
+                                                  Margin="36,0,4,2"
+                                                  Visibility="{Binding IsDependentChangesExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="0,1">
+                                                    <TextBlock Text="{Binding Prefix}"
+                                                               FontWeight="Bold"
+                                                               Width="16"
+                                                               Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                                    <TextBlock Text="{Binding Text}"
+                                                               TextWrapping="Wrap"
+                                                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                               FontSize="11" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

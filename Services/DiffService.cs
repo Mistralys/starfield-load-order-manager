@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
 
@@ -9,7 +10,7 @@ namespace LoadOrderKeeper.Services
     public static class DiffService
     {
         public static async Task<IReadOnlyList<DiffLineModel>> GetPluginsDiffAsync(AppConfigModel config)
-        {
+{
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
@@ -37,6 +38,9 @@ namespace LoadOrderKeeper.Services
             var result = new List<DiffLineModel>();
             var replacements = DetectReplacements(diffs, out var matchedAdditions);
 
+            var referenceDiffs = diffs.Where(d => d.ReferenceNumber.HasValue).ToList();
+            int maxReferenceNumber = referenceDiffs.Any() ? referenceDiffs.Max(d => d.ReferenceNumber!.Value) : 0;
+
             foreach (var diff in diffs)
             {
                 string displayName = diff.FileName;
@@ -59,8 +63,10 @@ namespace LoadOrderKeeper.Services
                         continue;
                     }
 
-                    string text = $"#{diff.CurrentNumber}: {displayName} added to load order";
-                    result.Add(new DiffLineModel(displayName, text, DiffChangeType.Added, diff.ReferenceNumber, diff.CurrentNumber));
+                    bool isInserted = diff.CurrentNumber.HasValue && diff.CurrentNumber.Value <= maxReferenceNumber;
+                    DiffChangeType changeType = isInserted ? DiffChangeType.Inserted : DiffChangeType.Added;
+                    string text = $"#{diff.CurrentNumber}: {displayName} {(isInserted ? "inserted into" : "added to")} load order";
+                    result.Add(new DiffLineModel(displayName, text, changeType, diff.ReferenceNumber, diff.CurrentNumber));
                 }
                 else if (diff.IsMoved)
                 {
@@ -69,7 +75,58 @@ namespace LoadOrderKeeper.Services
                 }
             }
 
+            DetectAndAssignDependentChanges(result);
+
             return result;
+        }
+
+        private static void DetectAndAssignDependentChanges(List<DiffLineModel> allLines)
+        {
+            foreach (var line in allLines)
+            {
+                if (line.ChangeType != DiffChangeType.Removed && line.ChangeType != DiffChangeType.Inserted)
+                {
+                    continue;
+                }
+
+                var primaryPosition = line.ChangeType == DiffChangeType.Removed 
+                    ? line.ReferenceNumber 
+                    : line.CurrentNumber;
+
+                if (!primaryPosition.HasValue)
+                {
+                    continue;
+                }
+
+                var dependents = new List<DiffLineModel>();
+
+                foreach (var potentialDependent in allLines)
+                {
+                    if (potentialDependent.ChangeType != DiffChangeType.Moved)
+                    {
+                        continue;
+                    }
+
+                    if (!potentialDependent.ReferenceNumber.HasValue || !potentialDependent.CurrentNumber.HasValue)
+                    {
+                        continue;
+                    }
+
+                    bool isAffected = line.ChangeType == DiffChangeType.Removed
+                        ? potentialDependent.ReferenceNumber.Value > primaryPosition.Value
+                        : potentialDependent.ReferenceNumber.Value >= primaryPosition.Value;
+
+                    if (isAffected)
+                    {
+                        dependents.Add(potentialDependent);
+                    }
+                }
+
+                foreach (var dependent in dependents.OrderBy(d => d.CurrentNumber))
+                {
+                    line.DependentChanges.Add(dependent);
+                }
+            }
         }
 
         private static Dictionary<ModDiffModel, ModDiffModel> DetectReplacements(IReadOnlyList<ModDiffModel> diffs, out HashSet<ModDiffModel> matchedAdditions)

@@ -30,6 +30,7 @@ namespace LoadOrderKeeper.ViewModels
             ReEnableModCommand = new AsyncRelayCommand<DiffLineModel>(ReEnableModAsync);
             RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
             ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(ReplaceRemovedModAsync);
+            ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
@@ -67,6 +68,8 @@ namespace LoadOrderKeeper.ViewModels
         public IAsyncRelayCommand<DiffLineModel> RemoveNewModCommand { get; }
 
         public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
+
+        public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
@@ -191,6 +194,16 @@ namespace LoadOrderKeeper.ViewModels
         private void RequestScroll()
         {
             ScrollRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void ToggleDependentChanges(DiffLineModel? line)
+        {
+            if (line is null || !line.HasDependentChanges)
+            {
+                return;
+            }
+
+            line.IsDependentChangesExpanded = !line.IsDependentChangesExpanded;
         }
 
         public async Task<bool> RefreshDiffAsync(string? reason = null)

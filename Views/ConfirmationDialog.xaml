@@ -67,14 +67,14 @@
             <!-- Message Content -->
             <ScrollViewer Grid.Row="1"
                          MaxHeight="400"
-                         VerticalScrollBarVisibility="Auto"
-                         Padding="24,24,24,16">
+                         VerticalScrollBarVisibility="Auto">
                 <TextBlock Text="{Binding Message}"
                            d:Text="Message text"
                           Style="{StaticResource MaterialDesignBody1TextBlock}"
                           Foreground="{DynamicResource MaterialDesignBody}"
                           TextWrapping="Wrap"
-                          LineHeight="24" />
+                          LineHeight="24"
+                          Margin="18" />
             </ScrollViewer>
 
             <!-- Buttons -->

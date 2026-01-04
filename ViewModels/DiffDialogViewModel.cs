@@ -59,6 +59,8 @@ namespace LoadOrderKeeper.ViewModels
 
         public bool HasAddedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Added);
 
+        public bool HasInsertedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
+
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
 
         public IAsyncRelayCommand FixLoadOrderCommand { get; }
@@ -143,6 +145,7 @@ namespace LoadOrderKeeper.ViewModels
             OnPropertyChanged(nameof(ShowSortingRecommendation));
             OnPropertyChanged(nameof(AddedMods));
             OnPropertyChanged(nameof(HasAddedMods));
+            OnPropertyChanged(nameof(HasInsertedMods));
         }
 
         private int ComputeScrollTargetIndex()

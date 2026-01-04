@@ -623,10 +623,15 @@ namespace LoadOrderKeeper.ViewModels
                 bool signatureChanged = !string.Equals(_lastObservedPluginsSignature, comparison.PluginsSignature, StringComparison.Ordinal);
                 _lastObservedPluginsSignature = comparison.PluginsSignature;
                 bool sortingRecommendation = false;
+                bool hasInsertedMods = false;
 
                 if (hasChanged)
                 {
                     sortingRecommendation = await FileService.WouldSortingChangeDiffsAsync(Config);
+                    
+                    // Check if there are any inserted mods
+                    var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                    hasInsertedMods = diffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
                 }
 
                 await UpdateChangeCountDisplayAsync(hasChanged);
@@ -640,7 +645,7 @@ namespace LoadOrderKeeper.ViewModels
                     ShowDiffCommand?.NotifyCanExecuteChanged();
                  }
 
-                UpdateSortingRecommendationState(sortingRecommendation);
+                UpdateSortingRecommendationState(sortingRecommendation, hasInsertedMods);
 
                 if (_activeDiffDialog is not null)
                 {
@@ -710,11 +715,18 @@ namespace LoadOrderKeeper.ViewModels
 
         private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
 
-        private void UpdateSortingRecommendationState(bool sortingRecommended)
+        private void UpdateSortingRecommendationState(bool sortingRecommended, bool hasInsertedMods = false)
         {
             if (sortingRecommended)
             {
-                SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
+                if (hasInsertedMods)
+                {
+                    SortingRecommendationMessage = "?? IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.";
+                }
+                else
+                {
+                    SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
+                }
                 SortingRecommendationActive = true;
             }
             else

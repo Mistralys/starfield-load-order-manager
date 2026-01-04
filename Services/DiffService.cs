@@ -34,8 +34,13 @@ namespace LoadOrderKeeper.Services
             var result = new List<DiffLineModel>();
             var replacements = DetectReplacements(diffs, out var matchedAdditions);
 
+            // Calculate maxReferenceNumber as the highest CURRENT position of any reference mod
+            // This tells us "after which current position are mods truly 'added' vs 'inserted'"
             var referenceDiffs = diffs.Where(d => d.ReferenceNumber.HasValue).ToList();
-            int maxReferenceNumber = referenceDiffs.Any() ? referenceDiffs.Max(d => d.ReferenceNumber!.Value) : 0;
+            var existingReferenceMods = referenceDiffs.Where(d => d.CurrentNumber.HasValue).ToList();
+            int maxReferenceNumber = existingReferenceMods.Any() 
+                ? existingReferenceMods.Max(d => d.CurrentNumber!.Value) 
+                : 0;
 
             foreach (var diff in diffs)
             {

@@ -256,4 +256,101 @@ public class DiffServiceTests
         // Total count should be 2 (inserted + removed)
         Assert.Equal(2, diff.Count);
     }
+
+    [Fact]
+    public async Task GetPluginsDiffAsync_DetectsAddedModsAfterRemovals()
+    {
+        // Scenario: Remove mods from the end, then add MORE new mods at the very end
+        // Reference: a(1), b(2), c(3), d(4), e(5)
+        // Current: a(1), b(2), c(3), new1(4), new2(5), new3(6)
+        //
+        // Changes:
+        // - d removed from position 4
+        // - e removed from position 5  
+        // - new1 replaces d at position 4
+        // - new2 replaces e at position 5
+        // - new3 added at position 6
+        //
+        // Only new3 should be "Added" since it's after all reference mods
+        using var context = new TestConfigContext();
+        
+        await context.WriteReferenceAsync(
+            "*a.esm",    // 1
+            "*b.esm",    // 2
+            "*c.esm",    // 3
+            "*d.esm",    // 4 - will be removed
+            "*e.esm"     // 5 - will be removed
+        );
+        
+        await context.WritePluginsAsync(
+            "*a.esm",     // 1
+            "*b.esm",     // 2
+            "*c.esm",     // 3
+            "*new1.esm",  // 4 - replaces d
+            "*new2.esm",  // 5 - replaces e
+            "*new3.esm"   // 6 - should be "Added", not "Inserted"
+        );
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        // Verify new3 is classified as Added
+        var new3 = diff.FirstOrDefault(item => item.FileName == "new3.esm");
+        Assert.NotNull(new3);
+        Assert.Equal(DiffChangeType.Added, new3.ChangeType);
+        Assert.Equal(6, new3.CurrentNumber);
+
+        // Verify replacements
+        var replaced1 = diff.FirstOrDefault(item => item.FileName == "d.esm");
+        Assert.NotNull(replaced1);
+        Assert.Equal(DiffChangeType.Replaced, replaced1.ChangeType);
+
+        var replaced2 = diff.FirstOrDefault(item => item.FileName == "e.esm");
+        Assert.NotNull(replaced2);
+        Assert.Equal(DiffChangeType.Replaced, replaced2.ChangeType);
+    }
+
+    [Fact]
+    public async Task GetPluginsDiffAsync_DetectsAddedModWhenRemovalAtEnd()
+    {
+        // User's exact scenario:
+        // - Remove "Easy Digipick" from position 20 (middle of list)
+        // - Add "newmod" at the end (position 98)
+        // - All other 97 mods stay at their positions
+        //
+        // Expected: newmod should be classified as "Added", not "Inserted"
+        // because it's after all EXISTING reference mods
+        using var context = new TestConfigContext();
+        
+        await context.WriteReferenceAsync(
+            "*a.esm",         // 1
+            "*b.esm",         // 2
+            "*c.esm",         // 3
+            "*toremove.esm",  // 4 - will be removed
+            "*d.esm",         // 5
+            "*e.esm"          // 6
+        );
+        
+        await context.WritePluginsAsync(
+            "*a.esm",       // 1
+            "*b.esm",       // 2
+            "*c.esm",       // 3
+            "*d.esm",       // 4 - moved up due to removal
+            "*e.esm",       // 5 - moved up due to removal
+            "*newmod.esm"   // 6 - should be "Added", not "Inserted"
+        );
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        // Verify newmod is classified as Added
+        var newMod = diff.FirstOrDefault(item => item.FileName == "newmod.esm");
+        Assert.NotNull(newMod);
+        Assert.Equal(DiffChangeType.Added, newMod.ChangeType);
+        Assert.Equal(6, newMod.CurrentNumber);
+
+        // Verify toremove was removed
+        var removed = diff.FirstOrDefault(item => item.FileName == "toremove.esm");
+        Assert.NotNull(removed);
+        Assert.Equal(DiffChangeType.Removed, removed.ChangeType);
+        Assert.Equal(4, removed.ReferenceNumber);
+    }
 }

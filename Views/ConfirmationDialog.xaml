@@ -56,7 +56,9 @@
 
                     <!-- Title -->
                     <TextBlock Text="{Binding Title}"
+                               d:Text="Dialog title"
                                Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Foreground="{DynamicResource MaterialDesignBody}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap" />
                 </DockPanel>
@@ -68,7 +70,9 @@
                          VerticalScrollBarVisibility="Auto"
                          Padding="24,24,24,16">
                 <TextBlock Text="{Binding Message}"
+                           d:Text="Message text"
                           Style="{StaticResource MaterialDesignBody1TextBlock}"
+                          Foreground="{DynamicResource MaterialDesignBody}"
                           TextWrapping="Wrap"
                           LineHeight="24" />
             </ScrollViewer>
@@ -83,7 +87,8 @@
                     <!-- Yes Button -->
                     <Button Content="{Binding YesButtonText}"
                             Command="{Binding YesCommand}"
-                            Style="{StaticResource MaterialDesignFlatButton}"
+                            d:Content="Yes"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="0,0,8,0"
                             MinWidth="80"
                             Visibility="{Binding ShowYesButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -91,7 +96,8 @@
                     <!-- No Button -->
                     <Button Content="{Binding NoButtonText}"
                             Command="{Binding NoCommand}"
-                            Style="{StaticResource MaterialDesignFlatButton}"
+                            d:Content="No"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="0,0,8,0"
                             MinWidth="80"
                             Visibility="{Binding ShowNoButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -99,6 +105,7 @@
                     <!-- OK Button -->
                     <Button Content="{Binding OKButtonText}"
                             Command="{Binding OKCommand}"
+                            d:Content="OK"
                             Style="{StaticResource MaterialDesignRaisedButton}"
                             Margin="0,0,8,0"
                             MinWidth="80"
@@ -107,7 +114,8 @@
                     <!-- Cancel Button -->
                     <Button Content="{Binding CancelButtonText}"
                             Command="{Binding CancelCommand}"
-                            Style="{StaticResource MaterialDesignFlatButton}"
+                            d:Content="Cancel"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             MinWidth="80"
                             IsCancel="True"
                             Visibility="{Binding ShowCancelButton, Converter={StaticResource BooleanToVisibilityConverter}}" />

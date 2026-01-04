@@ -25,6 +25,18 @@ namespace LoadOrderKeeper.ViewModels
         }
     }
 
+    public class DiscardChangesConfirmationEventArgs : EventArgs
+    {
+        public string Message { get; }
+        public bool Confirmed { get; set; }
+
+        public DiscardChangesConfirmationEventArgs(string message)
+        {
+            Message = message;
+            Confirmed = false;
+        }
+    }
+
     public partial class DiffDialogViewModel : ObservableObject, IDisposable
     {
         private readonly MainViewModel _mainViewModel;
@@ -55,11 +67,20 @@ namespace LoadOrderKeeper.ViewModels
 
         public string Description => "Review differences between Plugins.txt and the reference file.";
 
-        public string UpdateReferenceButtonText => _mainViewModel.ReferenceButtonText;
+        public string UpdateReferenceButtonText
+        {
+            get
+            {
+                // Add ellipsis if confirmation dialog will be shown
+                bool needsConfirmation = DiffLines.Any(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Inserted);
+                string baseText = _mainViewModel.ReferenceButtonText;
+                return needsConfirmation ? $"{baseText}..." : baseText;
+            }
+        }
 
         public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
 
-        public string DiscardChangesButtonText { get; } = "Discard all changes";
+        public string DiscardChangesButtonText { get; } = "Discard all changes...";
 
         public string CloseButtonText { get; } = "Close";
 
@@ -96,6 +117,7 @@ namespace LoadOrderKeeper.ViewModels
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
         public event EventHandler<UpdateReferenceConfirmationEventArgs>? UpdateReferenceConfirmationRequested;
+        public event EventHandler<DiscardChangesConfirmationEventArgs>? DiscardChangesConfirmationRequested;
 
         private bool _hasDifferences;
         public bool HasDifferences
@@ -167,6 +189,7 @@ namespace LoadOrderKeeper.ViewModels
             OnPropertyChanged(nameof(AddedMods));
             OnPropertyChanged(nameof(HasAddedMods));
             OnPropertyChanged(nameof(HasInsertedMods));
+            OnPropertyChanged(nameof(UpdateReferenceButtonText));
         }
 
         private int ComputeScrollTargetIndex()
@@ -283,6 +306,40 @@ namespace LoadOrderKeeper.ViewModels
             if (discardCommand is null || !discardCommand.CanExecute(null))
             {
                 DiffStatusMessage = "Cannot discard changes right now.";
+                return;
+            }
+
+            // Build confirmation message
+            int totalChanges = DiffLines.Count(line => line.ChangeType != DiffChangeType.Unchanged);
+            var messageBuilder = new StringBuilder();
+            messageBuilder.AppendLine("You are about to discard all changes and restore Plugins.txt from the reference file.");
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine($"This will discard {totalChanges} change(s):");
+            
+            var removedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed);
+            var addedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Added);
+            var insertedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Inserted);
+            var movedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Moved);
+            var replacedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Replaced);
+            
+            if (removedCount > 0) messageBuilder.AppendLine($"  • {removedCount} removed mod(s) will be restored");
+            if (addedCount > 0) messageBuilder.AppendLine($"  • {addedCount} added mod(s) will be removed");
+            if (insertedCount > 0) messageBuilder.AppendLine($"  • {insertedCount} inserted mod(s) will be removed");
+            if (movedCount > 0) messageBuilder.AppendLine($"  • {movedCount} moved mod(s) will be restored to original positions");
+            if (replacedCount > 0) messageBuilder.AppendLine($"  • {replacedCount} replaced mod(s) will be restored");
+            
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine("This action cannot be undone.");
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine("Do you want to continue?");
+
+            // Request confirmation from the view
+            var eventArgs = new DiscardChangesConfirmationEventArgs(messageBuilder.ToString());
+            DiscardChangesConfirmationRequested?.Invoke(this, eventArgs);
+
+            if (!eventArgs.Confirmed)
+            {
+                DiffStatusMessage = "Discard changes cancelled.";
                 return;
             }
 

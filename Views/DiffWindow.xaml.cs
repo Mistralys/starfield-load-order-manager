@@ -22,6 +22,7 @@ namespace LoadOrderKeeper.Views
                 oldVm.CloseRequested -= OnCloseRequested;
                 oldVm.ScrollRequested -= OnScrollRequested;
                 oldVm.UpdateReferenceConfirmationRequested -= OnUpdateReferenceConfirmationRequested;
+                oldVm.DiscardChangesConfirmationRequested -= OnDiscardChangesConfirmationRequested;
             }
 
             if (e.NewValue is DiffDialogViewModel newVm)
@@ -29,6 +30,7 @@ namespace LoadOrderKeeper.Views
                 newVm.CloseRequested += OnCloseRequested;
                 newVm.ScrollRequested += OnScrollRequested;
                 newVm.UpdateReferenceConfirmationRequested += OnUpdateReferenceConfirmationRequested;
+                newVm.DiscardChangesConfirmationRequested += OnDiscardChangesConfirmationRequested;
             }
         }
 
@@ -85,6 +87,18 @@ namespace LoadOrderKeeper.Views
             var result = System.Windows.MessageBox.Show(
                 e.Message,
                 "Confirm Reference Update",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+
+            e.Confirmed = result == MessageBoxResult.Yes;
+        }
+
+        private void OnDiscardChangesConfirmationRequested(object? sender, DiscardChangesConfirmationEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                e.Message,
+                "Confirm Discard Changes",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning,
                 MessageBoxResult.No);

@@ -6,7 +6,7 @@ namespace LoadOrderKeeper.Services
     public static class DiffService
     {
         public static async Task<IReadOnlyList<DiffLineModel>> GetPluginsDiffAsync(AppConfigModel config)
-{
+        {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
@@ -78,6 +78,8 @@ namespace LoadOrderKeeper.Services
 
         private static void DetectAndAssignDependentChanges(List<DiffLineModel> allLines)
         {
+            var dependentLines = new HashSet<DiffLineModel>();
+
             foreach (var line in allLines)
             {
                 if (line.ChangeType != DiffChangeType.Removed && line.ChangeType != DiffChangeType.Inserted)
@@ -93,8 +95,6 @@ namespace LoadOrderKeeper.Services
                 {
                     continue;
                 }
-
-                var dependents = new List<DiffLineModel>();
 
                 foreach (var potentialDependent in allLines)
                 {
@@ -114,15 +114,14 @@ namespace LoadOrderKeeper.Services
 
                     if (isAffected)
                     {
-                        dependents.Add(potentialDependent);
+                        line.DependentChanges.Add(potentialDependent);
+                        dependentLines.Add(potentialDependent);
                     }
                 }
-
-                foreach (var dependent in dependents.OrderBy(d => d.CurrentNumber))
-                {
-                    line.DependentChanges.Add(dependent);
-                }
             }
+
+            // Remove dependent changes from the main list
+            allLines.RemoveAll(line => dependentLines.Contains(line));
         }
 
         private static Dictionary<ModDiffModel, ModDiffModel> DetectReplacements(IReadOnlyList<ModDiffModel> diffs, out HashSet<ModDiffModel> matchedAdditions)

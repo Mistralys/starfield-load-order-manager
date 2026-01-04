@@ -135,7 +135,8 @@ public enum DiffChangeType
     Added,
     Removed,
     Moved,
-    Replaced
+    Replaced,
+    Inserted
 }
 ```
 
@@ -158,6 +159,10 @@ public sealed class DiffLineModel
     public int? ReferenceNumber { get; }
     public int? CurrentNumber { get; }
     public string? ReplacementFileName { get; }
+    public List<DiffLineModel> DependentChanges { get; }
+    public bool HasDependentChanges { get; }
+    public string DependentChangesSummary { get; }
+    public bool IsDependentChangesExpanded { get; set; }
     public string Prefix { get; }
 }
 ```

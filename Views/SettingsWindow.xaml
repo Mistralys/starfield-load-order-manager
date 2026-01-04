@@ -2,6 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
         Title="Load Order Keeper Settings"
         Height="435"
         Width="640"
@@ -75,8 +78,9 @@
                     Command="{Binding UseDetectedAppDataPathCommand}"
                     Visibility="{Binding HasDetectedAppDataPath, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock Text="{Binding DetectedAppDataPath, Mode=OneWay}"
+                           d:Text="C:\Users\Example\AppData\Local\Starfield"
                            FontSize="11"
-                           Foreground="{DynamicResource PrimaryHueMidBrush}"
+                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                            TextDecorations="None" />
             </Button>
             <TextBlock Text="(None found)"
@@ -123,8 +127,9 @@
                     Command="{Binding UseDetectedGamePathCommand}"
                     Visibility="{Binding HasDetectedGamePath, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock Text="{Binding DetectedGamePath, Mode=OneWay}"
+                           d:Text="C:\Program Files (x86)\Steam\steamapps\common\Starfield"
                            FontSize="11"
-                           Foreground="{DynamicResource PrimaryHueMidBrush}"
+                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                            TextDecorations="None" />
             </Button>
             <TextBlock Text="(None found)"

@@ -21,16 +21,14 @@ namespace LoadOrderKeeper.Views
             {
                 oldVm.CloseRequested -= OnCloseRequested;
                 oldVm.ScrollRequested -= OnScrollRequested;
-                oldVm.UpdateReferenceConfirmationRequested -= OnUpdateReferenceConfirmationRequested;
-                oldVm.DiscardChangesConfirmationRequested -= OnDiscardChangesConfirmationRequested;
+                oldVm.ConfirmationRequested -= OnConfirmationRequested;
             }
 
             if (e.NewValue is DiffDialogViewModel newVm)
             {
                 newVm.CloseRequested += OnCloseRequested;
                 newVm.ScrollRequested += OnScrollRequested;
-                newVm.UpdateReferenceConfirmationRequested += OnUpdateReferenceConfirmationRequested;
-                newVm.DiscardChangesConfirmationRequested += OnDiscardChangesConfirmationRequested;
+                newVm.ConfirmationRequested += OnConfirmationRequested;
             }
         }
 
@@ -82,28 +80,17 @@ namespace LoadOrderKeeper.Views
             Close();
         }
 
-        private void OnUpdateReferenceConfirmationRequested(object? sender, UpdateReferenceConfirmationEventArgs e)
+        private void OnConfirmationRequested(object? sender, ConfirmationRequestedEventArgs e)
         {
-            var result = System.Windows.MessageBox.Show(
+            var result = ConfirmationDialog.Show(
+                e.Title,
                 e.Message,
-                "Confirm Reference Update",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning,
-                MessageBoxResult.No);
+                e.Icon,
+                e.Buttons,
+                ConfirmationResult.No,
+                this);
 
-            e.Confirmed = result == MessageBoxResult.Yes;
-        }
-
-        private void OnDiscardChangesConfirmationRequested(object? sender, DiscardChangesConfirmationEventArgs e)
-        {
-            var result = System.Windows.MessageBox.Show(
-                e.Message,
-                "Confirm Discard Changes",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning,
-                MessageBoxResult.No);
-
-            e.Confirmed = result == MessageBoxResult.Yes;
+            e.Result = result;
         }
 
         protected override void OnClosed(EventArgs e)

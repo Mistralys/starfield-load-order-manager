@@ -156,11 +156,13 @@ namespace LoadOrderKeeper.ViewModels
 
             if (!Config.IsValid())
             {
-                WpfMessageBox.Show(
+                ConfirmationDialog.Show(
+                    "Configuration Required",
                     "Configuration is required before using Starfield Load Order Keeper. The application will now exit.",
-                    "Configuration required",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
                 WpfApplication.Current?.Shutdown();
             }
         }
@@ -179,7 +181,13 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
-                WpfMessageBox.Show($"Failed to fix load order: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to fix load order: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
             finally
             {
@@ -206,7 +214,13 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
-                WpfMessageBox.Show($"Failed to create reference: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to create reference: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
             finally
             {
@@ -469,7 +483,13 @@ namespace LoadOrderKeeper.ViewModels
         private void ShowError(string message)
         {
             AddStatusMessage($"ERROR: {message}", StatusMessageType.Error);
-            WpfMessageBox.Show(message, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            ConfirmationDialog.Show(
+                "Error",
+                message,
+                ConfirmationIcon.Error,
+                ConfirmationButton.OK,
+                ConfirmationResult.OK,
+                WpfApplication.Current?.MainWindow);
         }
 
         private void NotifyFileCommandsCanExecuteChanged()
@@ -703,7 +723,13 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
-                WpfMessageBox.Show($"Failed to discard changes: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to discard changes: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
             finally
             {

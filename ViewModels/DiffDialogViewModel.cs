@@ -13,27 +13,21 @@ using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.ViewModels
 {
-    public class UpdateReferenceConfirmationEventArgs : EventArgs
+    public class ConfirmationRequestedEventArgs : EventArgs
     {
+        public string Title { get; }
         public string Message { get; }
-        public bool Confirmed { get; set; }
+        public ConfirmationIcon Icon { get; }
+        public ConfirmationButton Buttons { get; }
+        public ConfirmationResult Result { get; set; }
 
-        public UpdateReferenceConfirmationEventArgs(string message)
+        public ConfirmationRequestedEventArgs(string title, string message, ConfirmationIcon icon = ConfirmationIcon.Warning, ConfirmationButton buttons = ConfirmationButton.YesNo)
         {
+            Title = title;
             Message = message;
-            Confirmed = false;
-        }
-    }
-
-    public class DiscardChangesConfirmationEventArgs : EventArgs
-    {
-        public string Message { get; }
-        public bool Confirmed { get; set; }
-
-        public DiscardChangesConfirmationEventArgs(string message)
-        {
-            Message = message;
-            Confirmed = false;
+            Icon = icon;
+            Buttons = buttons;
+            Result = ConfirmationResult.None;
         }
     }
 
@@ -116,8 +110,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
-        public event EventHandler<UpdateReferenceConfirmationEventArgs>? UpdateReferenceConfirmationRequested;
-        public event EventHandler<DiscardChangesConfirmationEventArgs>? DiscardChangesConfirmationRequested;
+        public event EventHandler<ConfirmationRequestedEventArgs>? ConfirmationRequested;
 
         private bool _hasDifferences;
         public bool HasDifferences
@@ -334,10 +327,14 @@ namespace LoadOrderKeeper.ViewModels
             messageBuilder.AppendLine("Do you want to continue?");
 
             // Request confirmation from the view
-            var eventArgs = new DiscardChangesConfirmationEventArgs(messageBuilder.ToString());
-            DiscardChangesConfirmationRequested?.Invoke(this, eventArgs);
+            var eventArgs = new ConfirmationRequestedEventArgs(
+                "Confirm Discard Changes", 
+                messageBuilder.ToString(),
+                ConfirmationIcon.Warning,
+                ConfirmationButton.YesNo);
+            ConfirmationRequested?.Invoke(this, eventArgs);
 
-            if (!eventArgs.Confirmed)
+            if (eventArgs.Result != ConfirmationResult.Yes)
             {
                 DiffStatusMessage = "Discard changes cancelled.";
                 return;
@@ -472,10 +469,14 @@ namespace LoadOrderKeeper.ViewModels
                 messageBuilder.AppendLine("Do you want to continue?");
 
                 // Request confirmation from the view
-                var eventArgs = new UpdateReferenceConfirmationEventArgs(messageBuilder.ToString());
-                UpdateReferenceConfirmationRequested?.Invoke(this, eventArgs);
+                var eventArgs = new ConfirmationRequestedEventArgs(
+                    "Confirm Reference Update",
+                    messageBuilder.ToString(),
+                    ConfirmationIcon.Warning,
+                    ConfirmationButton.YesNo);
+                ConfirmationRequested?.Invoke(this, eventArgs);
 
-                if (!eventArgs.Confirmed)
+                if (eventArgs.Result != ConfirmationResult.Yes)
                 {
                     DiffStatusMessage = "Reference update cancelled.";
                     return;

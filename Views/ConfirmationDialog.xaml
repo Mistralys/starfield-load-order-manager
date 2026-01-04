@@ -1,0 +1,118 @@
+<Window x:Class="LoadOrderKeeper.Views.ConfirmationDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewmodels="clr-namespace:LoadOrderKeeper.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:ConfirmationDialogViewModel}"
+        Title="{Binding Title}"
+        d:Title="Confirmation"
+        Height="Auto"
+        Width="480"
+        MinWidth="400"
+        MaxWidth="600"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="Transparent"
+        AllowsTransparency="True"
+        ShowInTaskbar="False">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
+    <Border Background="{DynamicResource MaterialDesignPaper}"
+            CornerRadius="8"
+            Margin="8"
+            Effect="{StaticResource MaterialDesignElevationShadow4}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource MaterialDesignDivider}"
+                    Padding="24,16">
+                <DockPanel>
+                    <!-- Icon -->
+                    <materialDesign:PackIcon Kind="{Binding IconKind}"
+                                            Width="32"
+                                            Height="32"
+                                            Margin="0,0,16,0"
+                                            VerticalAlignment="Center"
+                                            DockPanel.Dock="Left"
+                                            Visibility="{Binding ShowIcon, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <materialDesign:PackIcon.Foreground>
+                            <SolidColorBrush Color="{Binding IconColor}" />
+                        </materialDesign:PackIcon.Foreground>
+                    </materialDesign:PackIcon>
+
+                    <!-- Title -->
+                    <TextBlock Text="{Binding Title}"
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+
+            <!-- Message Content -->
+            <ScrollViewer Grid.Row="1"
+                         MaxHeight="400"
+                         VerticalScrollBarVisibility="Auto"
+                         Padding="24,24,24,16">
+                <TextBlock Text="{Binding Message}"
+                          Style="{StaticResource MaterialDesignBody1TextBlock}"
+                          TextWrapping="Wrap"
+                          LineHeight="24" />
+            </ScrollViewer>
+
+            <!-- Buttons -->
+            <Border Grid.Row="2"
+                    Background="{DynamicResource MaterialDesignDivider}"
+                    Padding="16,12">
+                <StackPanel Orientation="Horizontal"
+                           HorizontalAlignment="Right">
+                    
+                    <!-- Yes Button -->
+                    <Button Content="{Binding YesButtonText}"
+                            Command="{Binding YesCommand}"
+                            Style="{StaticResource MaterialDesignFlatButton}"
+                            Margin="0,0,8,0"
+                            MinWidth="80"
+                            Visibility="{Binding ShowYesButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <!-- No Button -->
+                    <Button Content="{Binding NoButtonText}"
+                            Command="{Binding NoCommand}"
+                            Style="{StaticResource MaterialDesignFlatButton}"
+                            Margin="0,0,8,0"
+                            MinWidth="80"
+                            Visibility="{Binding ShowNoButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <!-- OK Button -->
+                    <Button Content="{Binding OKButtonText}"
+                            Command="{Binding OKCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Margin="0,0,8,0"
+                            MinWidth="80"
+                            Visibility="{Binding ShowOKButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <!-- Cancel Button -->
+                    <Button Content="{Binding CancelButtonText}"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource MaterialDesignFlatButton}"
+                            MinWidth="80"
+                            IsCancel="True"
+                            Visibility="{Binding ShowCancelButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

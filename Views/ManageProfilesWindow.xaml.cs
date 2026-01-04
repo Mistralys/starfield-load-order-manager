@@ -76,11 +76,13 @@ public partial class ManageProfilesWindow : Window
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
-                    $"Failed to create profile: {ex.Message}",
+                ConfirmationDialog.Show(
                     "Error",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
+                    $"Failed to create profile: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    this);
             }
         }
     }
@@ -110,11 +112,13 @@ public partial class ManageProfilesWindow : Window
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
-                    $"Failed to update profile: {ex.Message}",
+                ConfirmationDialog.Show(
                     "Error",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
+                    $"Failed to update profile: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    this);
             }
         }
     }
@@ -138,11 +142,13 @@ public partial class ManageProfilesWindow : Window
         // Validate the new label
         if (profiles.Any(p => string.Equals(p.Label, newLabel.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
-            System.Windows.MessageBox.Show(
-                "A profile with this label already exists.",
+            ConfirmationDialog.Show(
                 "Validation Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Warning);
+                "A profile with this label already exists.",
+                ConfirmationIcon.Warning,
+                ConfirmationButton.OK,
+                ConfirmationResult.OK,
+                this);
             return;
         }
 
@@ -153,11 +159,13 @@ public partial class ManageProfilesWindow : Window
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show(
-                $"Failed to copy profile: {ex.Message}",
+            ConfirmationDialog.Show(
                 "Error",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Error);
+                $"Failed to copy profile: {ex.Message}",
+                ConfirmationIcon.Error,
+                ConfirmationButton.OK,
+                ConfirmationResult.OK,
+                this);
         }
     }
 

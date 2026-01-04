@@ -498,7 +498,15 @@ namespace LoadOrderKeeper.ViewModels
             try
             {
                 var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                UpdateChangeCountDisplay(diffLines.Count);
+                int totalCount = diffLines.Count;
+                
+                // Include dependent changes in the total count
+                foreach (var line in diffLines)
+                {
+                    totalCount += line.DependentChanges.Count;
+                }
+                
+                UpdateChangeCountDisplay(totalCount);
             }
             catch
             {

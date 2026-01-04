@@ -80,47 +80,105 @@ namespace LoadOrderKeeper.Services
         {
             var dependentLines = new HashSet<DiffLineModel>();
 
-            foreach (var line in allLines)
+            // Get all moved mods sorted by reference position
+            var movedByReferencePos = allLines
+                .Where(line => line.ChangeType == DiffChangeType.Moved && 
+                              line.ReferenceNumber.HasValue && 
+                              line.CurrentNumber.HasValue)
+                .OrderBy(line => line.ReferenceNumber!.Value)
+                .ToList();
+
+            // Process removed mods (they use reference positions)
+            var removedMods = allLines
+                .Where(line => line.ChangeType == DiffChangeType.Removed && line.ReferenceNumber.HasValue)
+                .OrderBy(line => line.ReferenceNumber!.Value)
+                .ToList();
+
+            foreach (var removed in removedMods)
             {
-                if (line.ChangeType != DiffChangeType.Removed && line.ChangeType != DiffChangeType.Inserted)
-                {
-                    continue;
-                }
+                int startPos = removed.ReferenceNumber!.Value + 1;
 
-                var primaryPosition = line.ChangeType == DiffChangeType.Removed 
-                    ? line.ReferenceNumber 
-                    : line.CurrentNumber;
+                // Find next removed mod that would stop this one's range
+                var nextRemoved = removedMods
+                    .Where(r => r != removed && r.ReferenceNumber!.Value >= startPos)
+                    .OrderBy(r => r.ReferenceNumber!.Value)
+                    .FirstOrDefault();
 
-                if (!primaryPosition.HasValue)
-                {
-                    continue;
-                }
+                int? stopBefore = nextRemoved?.ReferenceNumber;
 
-                foreach (var potentialDependent in allLines)
+                // Collect moved mods in this range
+                foreach (var moved in movedByReferencePos)
                 {
-                    if (potentialDependent.ChangeType != DiffChangeType.Moved)
-                    {
+                    if (dependentLines.Contains(moved))
                         continue;
-                    }
 
-                    if (!potentialDependent.ReferenceNumber.HasValue || !potentialDependent.CurrentNumber.HasValue)
-                    {
+                    int refPos = moved.ReferenceNumber!.Value;
+                    if (refPos < startPos)
                         continue;
-                    }
+                    if (stopBefore.HasValue && refPos >= stopBefore.Value)
+                        break;
 
-                    bool isAffected = line.ChangeType == DiffChangeType.Removed
-                        ? potentialDependent.ReferenceNumber.Value > primaryPosition.Value
-                        : potentialDependent.ReferenceNumber.Value >= primaryPosition.Value;
-
-                    if (isAffected)
-                    {
-                        line.DependentChanges.Add(potentialDependent);
-                        dependentLines.Add(potentialDependent);
-                    }
+                    removed.DependentChanges.Add(moved);
+                    dependentLines.Add(moved);
                 }
             }
 
-            // Remove dependent changes from the main list
+            // Process inserted mods (they affect mods from their insertion point onward)
+            var insertedMods = allLines
+                .Where(line => line.ChangeType == DiffChangeType.Inserted && line.CurrentNumber.HasValue)
+                .OrderBy(line => line.CurrentNumber!.Value)
+                .ToList();
+
+            foreach (var inserted in insertedMods)
+            {
+                // Find the reference position where this insertion occurs
+                // This is the first moved mod at or after the insertion's current position
+                var firstAffected = movedByReferencePos
+                    .Where(m => !dependentLines.Contains(m) && m.CurrentNumber >= inserted.CurrentNumber)
+                    .OrderBy(m => m.CurrentNumber)
+                    .FirstOrDefault();
+
+                if (firstAffected == null)
+                    continue;
+
+                int startRefPos = firstAffected.ReferenceNumber!.Value;
+
+                // Find next inserted or removed mod that would stop this range
+                var nextInserted = insertedMods
+                    .Where(i => i != inserted && i.CurrentNumber > inserted.CurrentNumber)
+                    .OrderBy(i => i.CurrentNumber)
+                    .FirstOrDefault();
+
+                var nextRemoved = removedMods
+                    .Where(r => r.ReferenceNumber >= startRefPos)
+                    .OrderBy(r => r.ReferenceNumber)
+                    .FirstOrDefault();
+
+                // Use whichever comes first in reference coordinates
+                int? stopBefore = null;
+                if (nextRemoved != null)
+                {
+                    stopBefore = nextRemoved.ReferenceNumber!.Value;
+                }
+
+                // Collect moved mods starting from the affected position
+                foreach (var moved in movedByReferencePos)
+                {
+                    if (dependentLines.Contains(moved))
+                        continue;
+
+                    int refPos = moved.ReferenceNumber!.Value;
+                    if (refPos < startRefPos)
+                        continue;
+                    if (stopBefore.HasValue && refPos >= stopBefore.Value)
+                        break;
+
+                    inserted.DependentChanges.Add(moved);
+                    dependentLines.Add(moved);
+                }
+            }
+
+            // Remove all dependent changes from the main list
             allLines.RemoveAll(line => dependentLines.Contains(line));
         }
 

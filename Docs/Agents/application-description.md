@@ -8,9 +8,11 @@
   - [Load Order Management](#load-order-management)
   - [Profile System](#profile-system)
   - [Change Detection](#change-detection)
+  - [Dependent Change Tracking](#dependent-change-tracking)
   - [Game Integration](#game-integration)
 - [Configuration](#configuration)
 - [File Handling](#file-handling)
+- [User Interface](#user-interface)
 
 ---
 
@@ -41,6 +43,8 @@ The application provides automated load order protection and management through:
 3. **One-Click Fix**: Restores the correct load order while preserving new mods
 4. **Profile Support**: Manages multiple load orders for different characters or playthroughs
 5. **Visual Diff**: Shows exactly what changed with options to accept or revert changes
+6. **Dependent Change Tracking**: Intelligently groups cascading position changes for clarity
+7. **Smart Confirmations**: Warns when destructive changes are about to be made
 
 ---
 
@@ -50,9 +54,10 @@ The application is built as a **WPF .NET 9** desktop application using:
 
 - **Framework**: .NET 9
 - **UI Framework**: WPF (Windows Presentation Foundation)
-- **Design**: Material Design theme with dark mode
+- **Design**: Material Design v5 theme with dark mode
 - **Architecture**: MVVM pattern using CommunityToolkit.Mvvm
 - **Testing**: xUnit for unit tests
+- **Dialogs**: Custom Material Design confirmation dialogs
 
 ---
 
@@ -67,6 +72,7 @@ The application is built as a **WPF .NET 9** desktop application using:
 3. **New Mod Handling**: Any new mod files are automatically appended at the end
 4. **Periodic Monitoring**: Continuous background checking for external changes to the load order
 5. **One-Click Restoration**: Quick fix button to restore the correct order instantly
+6. **Status History**: Recent operations tracked and displayed for easy reference
 
 #### File Name Case Handling
 
@@ -77,6 +83,7 @@ To guarantee stable `Plugins.txt` contents, the application:
 - Cross-references mod names with all `.esp` and `.esm` files in the game's `Data` folder
 - Always uses the original file name case from disk
 - Maintains consistency even if mod managers lowercase names
+- Searches recursively through nested folders in the `Data` directory
 
 #### Handling Disabled Mods
 
@@ -129,8 +136,8 @@ AppData/Starfield/Profiles/
 
 #### Profile Properties
 
-- **ID**: Auto-generated from label (lowercase, dash-separated, ASCII-only)
-- **Label**: User-facing name (2-30 characters, unique, case-insensitive)
+- **ID**: Auto-generated from label (lowercase, dash-separated, ASCII-only with numeric suffixes for uniqueness)
+- **Label**: User-facing name (2-30 characters, unique, case-insensitive, cannot be "Default")
 - **Description**: Optional description (max 500 characters)
 
 #### Profile Switching
@@ -158,7 +165,7 @@ When switching profiles:
 - Clickable to open profile switcher
 
 **Profile Menu**:
-- Positioned between "File" and "Settings"
+- Positioned between "File" and "Edit"
 - Quick access to switch and manage profiles
 
 **Switch Profile Window**:
@@ -168,6 +175,7 @@ When switching profiles:
 - One-click switching
 
 **Manage Profiles Window**:
+- Non-modal window allowing interaction with main application
 - ListView showing all custom profiles
 - Add, edit, delete, and copy operations
 - Context menu for quick actions
@@ -175,9 +183,9 @@ When switching profiles:
 
 **Profile Properties Window**:
 - Create or edit profile metadata
-- Real-time validation
-- Material Design error display
+- Real-time validation with Material Design error display
 - Shared between create and edit modes
+- Prevents duplicate labels
 
 ---
 
@@ -186,37 +194,111 @@ When switching profiles:
 #### Automatic Change Detection
 
 The application periodically checks the `Plugins.txt` file on disk for changes:
-- **Configurable Interval**: Default every 5 seconds
+- **Configurable Interval**: Default every 5 seconds, customizable in settings
 - **Signature Tracking**: Detects changes without re-reading the entire file
 - **Profile-Aware**: Automatically uses the active profile's reference file
+- **Smart Updates**: Only refreshes diff window when actual changes detected
 
 #### Types of Changes Detected
 
 1. **Moved Mods**: Position in load order has changed
-2. **Added Mods**: New mods not present in reference file
-3. **Removed Mods**: Mods in reference but missing from current file
+2. **Added Mods**: New mods not present in reference file, appended at the end
+3. **Inserted Mods**: New mods added in the middle of the load order
+4. **Removed Mods**: Mods in reference but missing from current file
+5. **Replaced Mods**: New mod replacing a removed mod's position
+6. **Unchanged Mods**: Mods at correct positions
 
 Each mod is assigned a numerical position based on its line number (starting at 1). The application 
 compares both mod names and positions to determine the type of change.
 
-#### Managing Changes: The DIFF Window
+#### Change Count Display
 
-A dedicated window shows and manages detected changes:
+- Main window shows total number of changes (including dependent changes)
+- Badge updates automatically as changes are detected or resolved
+- Button text dynamically displays change count: "Manage load order (X changes)"
+
+---
+
+### Dependent Change Tracking
+
+When a mod is removed or inserted in the middle of the load order, all mods below it shift positions.
+The application intelligently groups these cascading changes to avoid clutter.
+
+#### How It Works
+
+**Detection**:
+- Removed and inserted mods are identified as "parent" changes
+- All subsequent "Moved" mods are tracked as dependent changes
+- Grouping stops when a non-moved mod is encountered
+
+**Display**:
+- Collapsed by default with summary: "+ X mod positions affected by this change"
+- Click summary to expand/collapse dependent changes
+- Visual hierarchy shows relationship between parent and dependent changes
+- Dependent changes are indented and visually distinct
+
+**Benefits**:
+- Reduces visual noise in diff window
+- Quickly identifies root cause of position changes
+- Easy to understand cascading effects
+- Improves decision-making when reviewing changes
+
+**Example**:
+```
+- ModA (Removed from line 5)
+  + 10 mod positions affected by this change
+    [Click to expand/collapse]
+```
+
+When expanded:
+```
+- ModA (Removed from line 5)
+  ~ ModB (5→4)
+  ~ ModC (6→5)
+  ~ ModD (7→6)
+  ...
+```
+
+---
+
+### Managing Changes: The DIFF Window
+
+A dedicated non-modal window shows and manages detected changes:
 
 **Features**:
-- Visual diff showing all changes with color coding
-- Line-by-line comparison with reference numbers
-- Sorting recommendation when order changes detected
-- Action buttons:
-  - **Update Reference**: Accept current state as new reference
-  - **Fix Load Order**: Restore correct order from reference
-  - **Discard Changes**: Revert `Plugins.txt` to reference state
+- Visual diff showing all changes with color coding and prefixes
+- Line-by-line comparison with reference and current position numbers
+- Sorting recommendation banner when order changes detected
+- Real-time diff updates as changes are resolved
+- Collapsible dependent change groups
+- Scrolls to first change automatically
+
+**Action Buttons**:
+- **Update Reference**: Accept current state as new reference
+  - Shows ellipsis ("...") to indicate confirmation dialog
+  - Warns when removed or inserted mods detected
+  - Shows total affected mods including dependent changes
+- **Fix Load Order**: Restore correct order from reference
+- **Discard Changes**: Revert `Plugins.txt` to reference state
+  - Shows ellipsis ("...") to indicate confirmation dialog
+  - Displays detailed breakdown of changes to be discarded
+  - Warns that action cannot be undone
 
 **Change Resolution**:
-- Re-enable removed mods
-- Remove new mods
-- Replace old mods with new equivalents
-- Real-time diff updates as changes are resolved
+- **Re-enable removed mods**: Right-click context menu on removed mod
+- **Remove new mods**: Right-click context menu on added mod
+- **Replace old with new**: Right-click on removed mod to replace with added mod
+- **Expand/collapse dependent changes**: Click on dependency summary line
+
+**Status Messages**:
+- Timestamped updates shown at bottom of window
+- Success, warning, and error messages color-coded
+- Indicates when no new changes detected
+
+**Sorting Recommendations**:
+- Special banner appears when inserted mods detected
+- Warns to sort first before other changes
+- Explains that inserted mods should be at the end
 
 ---
 
@@ -228,14 +310,23 @@ Launches the game directly from the application:
 - **SFSE Detection**: Automatically uses Starfield Script Extender if installed
 - **Fallback**: Uses vanilla executable if SFSE not found
 - **Smart Detection**: Checks for `sfse_loader.exe` presence
+- **Dynamic Label**: Shows "Play (SFSE)" or "Play (Vanilla)" based on detection
 
 #### Utility Functions
 
-Quick access to important files and folders:
-- Open `Plugins.txt`
-- Open reference file
-- Open AppData folder
-- Open game installation folder
+Quick access to important files and folders via File menu:
+- **Open Plugins.txt**: Opens current plugins file in default text editor
+- **Open Reference File**: Opens active profile's reference file
+- **Open AppData Folder**: Opens Starfield's AppData directory
+- **Open Game Folder**: Opens game installation directory
+
+#### About Dialog
+
+- Shows application name and version (clean semantic versioning)
+- Copyright information with dynamic year
+- Application description
+- Link to project homepage on GitHub
+- Material Design styled with dark theme
 
 ---
 
@@ -260,14 +351,17 @@ The application validates configuration on startup:
 - Directories exist on disk
 - Game `Data` folder exists
 
-**Status Messages**: Shown when settings are invalid or folders are missing
+**Configuration Enforcement**: App prompts for settings and shuts down if invalid after settings dialog.
+
+**Status Messages**: Multiple status history entries shown when settings are invalid or folders are missing.
 
 **Auto-Discovery**: Common installation paths are checked and pre-filled when found:
-- Steam: `C:\Program Files (x86)\Steam\steamapps\common\Starfield`
-- AppData: `%LOCALAPPDATA%\Starfield`
+- **Steam**: `C:\Program Files (x86)\Steam\steamapps\common\Starfield`
+- **AppData**: `%LOCALAPPDATA%\Starfield`
+- Detected paths shown as clickable links in settings window
 
-> **NOTE**: Installations vary between gaming platforms (Steam, GOG, etc.), so auto-discovery 
-> may not always work. Users can manually browse to the correct folders.
+> **NOTE**: Installations vary between gaming platforms (Steam, GOG, Microsoft Store, etc.), so auto-discovery 
+> may not always work. Users can manually browse to the correct folders using the "Browse..." buttons.
 
 ---
 
@@ -282,26 +376,30 @@ See the file [example-plugins.txt](./example-plugins.txt) for an example of a `P
 The `Plugins.txt` file must be encoded in **UTF-8 without BOM** (Byte Order Mark):
 - Application reads and writes in this format
 - BOM causes Starfield to ignore the first line of the file
+- All file writes use UTF-8 without BOM explicitly
 
 ### Whitespace Handling
 
 **Reading**:
-- Leading and trailing whitespace on each line is ignored
+- Leading and trailing whitespace on each line is trimmed
 - Empty lines at the end of file are ignored
+- Comment lines (starting with `#`) are ignored
 
 **Writing**:
 - No leading or trailing whitespace is added
 - UTF-8 without BOM encoding
+- Only enabled mods are written (no disabled lines or comments)
 
 ### Reference Files
 
 **Legacy System** (pre-profiles):
-- Single `Plugins.reference.txt` in AppData folder
+- Single `Plugins.reference.txt` in AppData folder (no longer used)
 
 **Profile System** (current):
 - Each profile has its own `reference.txt` in `Profiles/{profile-id}/`
 - Automatically created from `main.txt` when missing
 - Used for change detection and sort order
+- Copied raw (preserving comments) when created
 
 ### Profile Storage
 
@@ -314,3 +412,100 @@ The `Plugins.txt` file must be encoded in **UTF-8 without BOM** (Byte Order Mark
 ```
 
 **Note**: Profile ID is not stored in JSON - it's derived from the folder name to prevent sync issues.
+
+**Profile ID Generation**:
+- Transliterated from label (accented chars → ASCII equivalents)
+- Lowercase, dash-separated
+- Numeric suffix added if duplicate (`my-profile`, `my-profile-1`, `my-profile-2`)
+- Falls back to `profile` if label contains only non-ASCII chars
+
+---
+
+## User Interface
+
+### Design Principles
+
+The application follows **Material Design v5** guidelines with:
+- **Dark mode theme** by default (Lime primary, LightGreen secondary)
+- **Semantic color brushes** for theme consistency
+- **Elevated surfaces** with shadows for depth
+- **Rounded corners** (8px) for modern aesthetic
+- **Responsive layouts** with proper spacing and padding
+
+### Dialogs & Confirmations
+
+**Custom Material Design Dialogs**:
+- Replaced all system `MessageBox` calls with custom styled dialogs
+- Support for multiple icon types (Information, Question, Warning, Error)
+- Color-coded icons (Blue, Purple, Orange, Red)
+- Multiple button configurations (OK, OKCancel, YesNo, YesNoCancel)
+- Transparent backgrounds with rounded corners and elevation shadows
+- Scrollable message area for long text
+
+**Confirmation Patterns**:
+- Destructive actions show warning icon and detailed impact
+- Default to "No" for safety
+- Ellipsis in button labels indicates dialog will appear
+- Clear action descriptions with bullet-point summaries
+
+### Button Conventions
+
+- **Raised buttons**: Primary actions (Save, Create, Update)
+- **Outlined buttons**: Secondary actions (Cancel, Browse, Close)
+- **Flat buttons**: Tertiary/inline actions (detected paths)
+- **Ellipsis suffix**: Indicates dialog or additional interaction
+
+### Status Indicators
+
+**Main Window**:
+- Current status message with icon/color coding
+- Last 3 status messages in history list
+- Timestamps for all status entries
+- Color coding: Info (Primary), Success (Tertiary), Warning (Secondary), Error (Error)
+
+**Change Badge**:
+- Shows total changes including dependent changes
+- Updates in real-time
+- Button text: "Manage load order" or "Manage load order (X changes)"
+
+**Sorting Recommendation**:
+- Prominent banner when inserted mods detected
+- Warning icon and colored text
+- Explains need to sort first
+
+### Window Types
+
+**Modal Windows** (block parent until closed):
+- Settings Window
+- Switch Profile Window  
+- Profile Properties Window
+- Confirmation Dialog
+- About Window
+
+**Non-Modal Windows** (allow parent interaction):
+- Diff Window (tracks changes, prevents duplicates)
+- Manage Profiles Window (tracks instance, prevents duplicates)
+
+### Accessibility Features
+
+- Keyboard navigation support (`IsCancel`, `IsDefault` properties)
+- Clear visual hierarchy with color and typography
+- Hover effects on interactive elements
+- Descriptive button labels and tooltips
+- Design-time attributes for XAML designer support
+
+---
+
+## Version History
+
+The application maintains semantic versioning:
+- Version displayed in window title and About dialog
+- Retrieved from assembly attributes via `VersionService`
+- Commit hashes stripped for clean display (e.g., "1.3.0" not "1.3.0+abc123")
+- Copyright year updates automatically
+
+**Recent Major Features**:
+- v1.3.0: Settings helper, dependent change grouping, confirmations, dark theme dialogs
+- v1.2.0: Status message history
+- v1.1.0: About dialog, always-open diff window
+- v1.0.0: Initial release with profile switching

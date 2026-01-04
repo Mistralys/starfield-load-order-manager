@@ -28,3 +28,11 @@ This document is intended to be the 'Source of Truth' for future AI agent sessio
 4. **Key Data Flows:** Briefly describe how the UI interacts with the Services (e.g., 'MainViewModel calls FileService.ApplyLoadOrderAsync').
 5. **Current Constraints:** List established rules like 'All file I/O must be async' or 'Case restoration requires checking the /Data folder'.
 ```
+
+## Review a feature plan
+
+```Markdown
+I have provided a project specification. I want you to act as a Senior Lead Developer. 
+Read my specification and, instead of starting the work, ask me **three clarifying questions** 
+about edge cases or technical constraints I might have missed.
+```

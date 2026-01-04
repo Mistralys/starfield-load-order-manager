@@ -21,12 +21,14 @@ namespace LoadOrderKeeper.Views
             {
                 oldVm.CloseRequested -= OnCloseRequested;
                 oldVm.ScrollRequested -= OnScrollRequested;
+                oldVm.UpdateReferenceConfirmationRequested -= OnUpdateReferenceConfirmationRequested;
             }
 
             if (e.NewValue is DiffDialogViewModel newVm)
             {
                 newVm.CloseRequested += OnCloseRequested;
                 newVm.ScrollRequested += OnScrollRequested;
+                newVm.UpdateReferenceConfirmationRequested += OnUpdateReferenceConfirmationRequested;
             }
         }
 
@@ -76,6 +78,18 @@ namespace LoadOrderKeeper.Views
         private void CloseDialog()
         {
             Close();
+        }
+
+        private void OnUpdateReferenceConfirmationRequested(object? sender, UpdateReferenceConfirmationEventArgs e)
+        {
+            var result = System.Windows.MessageBox.Show(
+                e.Message,
+                "Confirm Reference Update",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+
+            e.Confirmed = result == MessageBoxResult.Yes;
         }
 
         protected override void OnClosed(EventArgs e)

@@ -13,6 +13,18 @@ using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.ViewModels
 {
+    public class UpdateReferenceConfirmationEventArgs : EventArgs
+    {
+        public string Message { get; }
+        public bool Confirmed { get; set; }
+
+        public UpdateReferenceConfirmationEventArgs(string message)
+        {
+            Message = message;
+            Confirmed = false;
+        }
+    }
+
     public partial class DiffDialogViewModel : ObservableObject, IDisposable
     {
         private readonly MainViewModel _mainViewModel;
@@ -25,7 +37,7 @@ namespace LoadOrderKeeper.ViewModels
             _mainViewModel = mainViewModel;
             DiffLines = new ObservableCollection<DiffLineModel>(diffLines);
             DiffLines.CollectionChanged += OnDiffCollectionChanged;
-            UpdateReferenceCommand = _mainViewModel.CreateReferenceCommand;
+            UpdateReferenceCommand = new AsyncRelayCommand(UpdateReferenceWithConfirmationAsync, CanUpdateReference);
             FixLoadOrderCommand = _mainViewModel.FixLoadOrderCommand;
             ReEnableModCommand = new AsyncRelayCommand<DiffLineModel>(ReEnableModAsync);
             RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
@@ -51,6 +63,14 @@ namespace LoadOrderKeeper.ViewModels
 
         public string CloseButtonText { get; } = "Close";
 
+        public string NoDifferencesMessage { get; } = "No differences detected.";
+
+        public string ReEnableModMenuText { get; } = "Re-enable mod";
+
+        public string ReplaceWithMenuText { get; } = "Replace with...";
+
+        public string RemoveModMenuText { get; } = "Remove mod";
+
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
@@ -75,6 +95,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
+        public event EventHandler<UpdateReferenceConfirmationEventArgs>? UpdateReferenceConfirmationRequested;
 
         private bool _hasDifferences;
         public bool HasDifferences
@@ -347,6 +368,67 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 DiffStatusMessage = $"Failed to replace {removed.FileName}: {ex.Message}";
+            }
+        }
+
+        private bool CanUpdateReference()
+        {
+            return _mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false;
+        }
+
+        private async Task UpdateReferenceWithConfirmationAsync()
+        {
+            // Check if we have removed or inserted mods that require confirmation
+            var removedMods = DiffLines.Where(line => line.ChangeType == DiffChangeType.Removed).ToList();
+            var insertedMods = DiffLines.Where(line => line.ChangeType == DiffChangeType.Inserted).ToList();
+
+            bool hasRemovedMods = removedMods.Any();
+            bool hasInsertedMods = insertedMods.Any();
+
+            if (hasRemovedMods || hasInsertedMods)
+            {
+                // Calculate total affected mods (removed + inserted + their dependent changes)
+                int totalAffectedMods = removedMods.Count + insertedMods.Count;
+                totalAffectedMods += removedMods.Sum(mod => mod.DependentChanges.Count);
+                totalAffectedMods += insertedMods.Sum(mod => mod.DependentChanges.Count);
+
+                // Build confirmation message
+                var messageBuilder = new StringBuilder();
+                messageBuilder.AppendLine("You are about to update the reference file with the following changes:");
+                messageBuilder.AppendLine();
+
+                if (hasRemovedMods)
+                {
+                    messageBuilder.AppendLine($"• {removedMods.Count} mod(s) have been removed.");
+                }
+
+                if (hasInsertedMods)
+                {
+                    messageBuilder.AppendLine($"• {insertedMods.Count} mod(s) have been inserted.");
+                }
+
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine($"This affects a total of {totalAffectedMods} mod(s).");
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine("These changes will become the new reference state.");
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine("Do you want to continue?");
+
+                // Request confirmation from the view
+                var eventArgs = new UpdateReferenceConfirmationEventArgs(messageBuilder.ToString());
+                UpdateReferenceConfirmationRequested?.Invoke(this, eventArgs);
+
+                if (!eventArgs.Confirmed)
+                {
+                    DiffStatusMessage = "Reference update cancelled.";
+                    return;
+                }
+            }
+
+            // Proceed with the update
+            if (_mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false)
+            {
+                await _mainViewModel.CreateReferenceCommand.ExecuteAsync(null);
             }
         }
 

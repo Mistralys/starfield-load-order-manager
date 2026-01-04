@@ -57,7 +57,8 @@
                                 <Setter.Value>
                                     <ContextMenu Style="{StaticResource MaterialDesignContextMenu}"
                                                  DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Re-enable mod"
+                                        <MenuItem Header="{Binding ReEnableModMenuText}"
+                                                  d:Header="Re-enable mod"
                                                   Command="{Binding ReEnableModCommand}"
                                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                             <MenuItem.Style>
@@ -72,7 +73,8 @@
                                                 </Style>
                                             </MenuItem.Style>
                                         </MenuItem>
-                                        <MenuItem Header="Replace with...">
+                                        <MenuItem Header="{Binding ReplaceWithMenuText}"
+                                                  d:Header="Replace with...">
                                             <MenuItem.Style>
                                                 <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
                                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -106,7 +108,8 @@
                                                 </Style>
                                             </MenuItem.ItemContainerStyle>
                                         </MenuItem>
-                                        <MenuItem Header="Remove mod"
+                                        <MenuItem Header="{Binding RemoveModMenuText}"
+                                                  d:Header="Remove mod"
                                                   Command="{Binding RemoveNewModCommand}"
                                                   CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                                             <MenuItem.Style>
@@ -220,6 +223,8 @@
             <Border Grid.Row="2"
                     Margin="0,8,0,0"
                     Background="#FFFFA726"
+                    BorderBrush="#FFFF9800"
+                    BorderThickness="2"
                     CornerRadius="4"
                     Padding="12,8"
                     Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -246,7 +251,8 @@
                        Foreground="{DynamicResource MaterialDesignBodyLight}"
                        Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
             <TextBlock Grid.Row="4"
-                        Text="No differences detected."
+                        Text="{Binding NoDifferencesMessage}"
+                        d:Text="No differences detected."
                         Margin="0,8,0,0"
                         Foreground="{DynamicResource MaterialDesignBodyLight}">
                 <TextBlock.Style>

@@ -28,6 +28,14 @@ SLOK helps you to stop that from happening.
 
 ---
 
+## **Find it on Nexusmods**
+
+The tool has a dedicated page on Nexusmods, which includes Screenshots, discussions and more:
+
+https://www.nexusmods.com/starfield/mods/15786
+
+---
+
 ## **Profiles**
 
 Profiles let you keep separate load orders for different playthroughs.

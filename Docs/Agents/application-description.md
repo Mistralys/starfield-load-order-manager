@@ -355,13 +355,46 @@ The application validates configuration on startup:
 
 **Status Messages**: Multiple status history entries shown when settings are invalid or folders are missing.
 
-**Auto-Discovery**: Common installation paths are checked and pre-filled when found:
-- **Steam**: `C:\Program Files (x86)\Steam\steamapps\common\Starfield`
+### Auto-Discovery
+
+Common installation paths are checked and pre-filled when found:
+- **Steam**: Auto-detected using Steam library folders
 - **AppData**: `%LOCALAPPDATA%\Starfield`
 - Detected paths shown as clickable links in settings window
 
 > **NOTE**: Installations vary between gaming platforms (Steam, GOG, Microsoft Store, etc.), so auto-discovery 
 > may not always work. Users can manually browse to the correct folders using the "Browse..." buttons.
+
+#### Steam Library Detection
+
+The application includes intelligent Steam library detection to locate Starfield installations:
+
+**How It Works**:
+1. Detects the main Steam installation path from Windows registry
+2. Reads Steam's `libraryfolders.vdf` configuration file
+3. Searches all configured Steam library folders for Starfield (AppID: `1716740`)
+4. Returns the first valid installation found
+
+**Benefits**:
+- Automatically finds Starfield even when installed in non-default Steam libraries
+- No manual configuration needed for most Steam users
+- Handles multiple Steam library folders seamlessly
+- Validates installation by checking for the `Data` folder
+
+**Fallback Behavior**:
+- If library detection fails, checks default Steam installation location
+- Falls back to default Program Files location if needed
+- Silent failure ensures no disruption to user experience
+
+**Technical Details**:
+- Uses Valve Data Format (VDF) parser (Gameloop.Vdf library)
+- Parses numeric library keys (0, 1, 2, ...) from `libraryfolders.vdf`
+- Checks each library's `apps` property for Starfield's AppID
+- Constructs path: `{library-path}/steamapps/common/Starfield`
+- Normalizes paths (converts forward slashes to backslashes)
+- Validates installation completeness before returning path
+
+This feature significantly improves the first-run experience for Steam users who have Starfield installed in custom library locations.
 
 ---
 

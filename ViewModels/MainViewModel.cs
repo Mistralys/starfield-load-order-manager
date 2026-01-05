@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.Resources;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.Views;
 using WpfApplication = System.Windows.Application;
@@ -586,13 +588,8 @@ namespace LoadOrderKeeper.ViewModels
         {
             // Show confirmation dialog
             var result = ConfirmationDialog.Show(
-                "Rollback Confirmation",
-                $"Are you sure you want to rollback to version {version.VersionNumber}?\n\n" +
-                $"Date: {version.FormattedTimestamp}\n" +
-                $"Changes: {version.TotalModsChanged}\n" +
-                $"Summary: {version.GetChangeSummary()}\n\n" +
-                $"The current Plugins.txt will be replaced with the list from version {version.VersionNumber}." +
-                "You will then have the opportunity to review the changes before accepting them.",
+                Strings_History.Title_RollbackConfirmation,
+                CompileConfirmationMessage(version).ToString(),
                 ConfirmationIcon.Question,
                 ConfirmationButton.YesNo,
                 ConfirmationResult.No,
@@ -607,7 +604,11 @@ namespace LoadOrderKeeper.ViewModels
             {
                 // Perform rollback
                 await ReferenceHistoryService.RollbackToVersionAsync(Config, version.VersionNumber);
-                AddStatusMessage($"Rolled back to version {version.VersionNumber}. Accept the changes to confirm.", StatusMessageType.Success);
+                AddStatusMessage(
+                    string.Format(Strings_History.MSG_RolledBackToVersionX, version.VersionNumber) + " " +
+                    Strings_History.MSG_ApplyToConfirm, 
+                    StatusMessageType.Success
+                );
 
                 // Close history window
                 parentWindow.Close();
@@ -625,6 +626,23 @@ namespace LoadOrderKeeper.ViewModels
                     ConfirmationResult.OK,
                     parentWindow);
             }
+        }
+
+        private static StringBuilder CompileConfirmationMessage(ReferenceVersionMetadataModel version)
+        {
+            var message = new StringBuilder();
+            message
+                .AppendLine(string.Format(Strings_History.MSG_SureToSwitchToVersionX, version.VersionNumber))
+                .AppendLine()
+                .Append(Strings_Common.Label_Date_).Append(' ').AppendLine(version.FormattedTimestamp)
+                .Append(Strings_Common.Label_Changes_).Append(' ').AppendLine(version.TotalModsChanged.ToString())
+                .Append(Strings_Common.Label_Summary_).Append(' ').AppendLine(version.GetChangeSummary())
+                .AppendLine()
+                .Append(string.Format(Strings_History.MSG_WillReplaceWithVersionX, version.VersionNumber))
+                .Append(' ')
+                .Append(Strings_History.MSG_OpportunityToReview);
+
+            return message;
         }
 
         private async Task RefreshReferenceHistoryWindowAsync()
@@ -689,20 +707,10 @@ namespace LoadOrderKeeper.ViewModels
         private void UpdatePlayButtonText()
         {
             PlayButtonText = HasSfseExecutable()
-                ? "Play (SFSE)"
-                : "Play (Vanilla)";
+                ? string.Format(Strings_Main.BTN_PlayX, Strings_Main.Label_SFSE)
+                : string.Format(Strings_Main.BTN_PlayX, Strings_Main.Label_Vanilla);
         }
  
-        private async Task<bool> RefreshDiffAsync(string reason)
-        {
-            if (_activeDiffDialog != null)
-            {
-                await _activeDiffDialog.RefreshDiffAsync(reason);
-                return true;
-            }
-            return false;
-        }
-
         private async Task UpdateChangeCountDisplayAsync(bool hasDifferences)
         {
             if (!hasDifferences)

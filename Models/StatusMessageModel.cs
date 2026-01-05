@@ -1,4 +1,5 @@
 using System;
+using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.Models
 {
@@ -15,7 +16,7 @@ namespace LoadOrderKeeper.Models
         public DateTime Timestamp { get; }
         public StatusMessageType Type { get; }
         
-        public string FormattedTimestamp => Timestamp.ToString("HH:mm:ss");
+        public string FormattedTimestamp => DateTimeFormattingService.FormatTimestamp(Timestamp);
         
         public string DisplayText => $"[{FormattedTimestamp}] {Message}";
     }

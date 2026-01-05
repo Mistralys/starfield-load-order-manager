@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.Models
 {
@@ -83,8 +84,8 @@ namespace LoadOrderKeeper.Models
         }
 
         /// <summary>
-        /// Formatted timestamp for display.
+        /// User-friendly formatted timestamp for display.
         /// </summary>
-        public string FormattedTimestamp => Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
+        public string FormattedTimestamp => DateTimeFormattingService.FormatFriendly(Timestamp);
     }
 }

@@ -90,7 +90,7 @@ namespace LoadOrderKeeper.ViewModels
         public string SwitchProfileMenuText { get; } = "_Switch Profile...";
         public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
         public string RecentStatusMessagesText { get; } = "Recent Status Messages:";
-        public string ReferenceHistoryMenuText { get; } = "Reference _History...";
+        public string ReferenceHistoryMenuText { get; } = "History of changes...";
 
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
@@ -334,7 +334,7 @@ namespace LoadOrderKeeper.ViewModels
  
         partial void OnRefExistsChanged(bool value)
         {
-            ReferenceButtonText = value ? "Update reference file" : "Create Reference";
+            ReferenceButtonText = value ? "Accept changes" : "Create Reference";
             ConfigurePluginsMonitor();
         }
  

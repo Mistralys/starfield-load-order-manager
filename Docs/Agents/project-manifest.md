@@ -19,8 +19,8 @@
 
 - **Architectural Patterns**
   - **MVVM**
-    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`
-    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`
+    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`, `ReferenceHistoryViewModel`, `CommentInputViewModel`
+    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `ReferenceHistoryWindow`, `CommentInputDialog`
   - **Static Services**
     - `SettingsService`: configuration persistence and default path discovery (includes Steam library detection)
     - `FileService`: plugins/reference file operations plus diff helpers
@@ -28,16 +28,25 @@
     - `ProfileService`: profile discovery, CRUD, switching, and file scaffolding
     - `VersionService`: centralized application version retrieval
     - `UpdateCheckService`: GitHub API integration for version checking with caching
+    - `ReferenceHistoryService`: version history management, archiving, rollback, and pending changes tracking
+    - `DateTimeFormattingService`: user-friendly date/time formatting utilities
   - **Modal Navigation**
     - `MainWindow` as shell
-    - Secondary windows opened modally: `SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`
+    - Secondary windows opened modally: `SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `CommentInputDialog`
   - **Non-Modal Windows**
-    - `DiffWindow`, `ManageProfilesWindow` allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates
+    - `DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow` allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle
   - **File Monitoring**
     - `MainViewModel` uses `DispatcherTimer` to monitor `Plugins.txt` vs the active profile reference
   - **Profile Management**
-    - Profiles stored per active configuration under `Profiles/{profileId}` with `main.txt`, `reference.txt`, and `profile.json`
+    - Profiles stored per active configuration under `Profiles/{profileId}` with `main.txt`, `reference.txt`, `profile.json`, `pending-changes.json`, and `History/` folder
     - Commands and dialogs coordinate through `ProfileService` to switch and manage profiles
+  - **Reference History**
+    - Each profile maintains independent version history in `Profiles/{profileId}/History/`
+    - Automatic versioning with pending changes system tracks modifications between updates
+    - Maximum 16 versions per profile with automatic pruning of oldest versions
+    - Rollback support replaces `Plugins.txt` with archived reference for review in diff window
+    - User comments and change tracking (added/removed mods) stored in JSON metadata
+    - On-demand migration creates initial version for existing installations transparently
   - **Confirmation Dialogs**
     - Custom Material Design styled `ConfirmationDialog` replaces all `MessageBox.Show` calls
     - Supports multiple icon types (Information, Question, Warning, Error) and button configurations (OK, OKCancel, YesNo, YesNoCancel)
@@ -69,30 +78,38 @@
 │  ├─ DiffLineModel.cs
 │  ├─ ModDiffModel.cs
 │  ├─ ModEntryModel.cs
+│  ├─ PendingChangesModel.cs
 │  ├─ PluginsComparisonResult.cs
 │  ├─ ProfileModel.cs
+│  ├─ ReferenceVersionMetadataModel.cs
 │  ├─ StatusMessageModel.cs
 │  └─ UpdateCheckResult.cs
 ├─ Services/
+│  ├─ DateTimeFormattingService.cs
 │  ├─ DiffService.cs
 │  ├─ FileService.cs
 │  ├─ ProfileService.cs
+│  ├─ ReferenceHistoryService.cs
 │  ├─ SettingsService.cs
 │  ├─ UpdateCheckService.cs
 │  └─ VersionService.cs
 ├─ ViewModels/
 │  ├─ AboutViewModel.cs
+│  ├─ CommentInputViewModel.cs
 │  ├─ ConfirmationDialogViewModel.cs
 │  ├─ DiffDialogViewModel.cs
 │  ├─ MainViewModel.cs
 │  ├─ ManageProfilesViewModel.cs
 │  ├─ ProfilePropertiesViewModel.cs
+│  ├─ ReferenceHistoryViewModel.cs
 │  ├─ SettingsViewModel.cs
 │  ├─ SwitchProfileViewModel.cs
 │  └─ UpdateOptionsViewModel.cs
 ├─ Views/
 │  ├─ AboutWindow.xaml
 │  ├─ AboutWindow.xaml.cs
+│  ├─ CommentInputDialog.xaml
+│  ├─ CommentInputDialog.xaml.cs
 │  ├─ ConfirmationDialog.xaml
 │  ├─ ConfirmationDialog.xaml.cs
 │  ├─ DiffWindow.xaml
@@ -101,6 +118,8 @@
 │  ├─ ManageProfilesWindow.xaml.cs
 │  ├─ ProfilePropertiesWindow.xaml
 │  ├─ ProfilePropertiesWindow.xaml.cs
+│  ├─ ReferenceHistoryWindow.xaml
+│  ├─ ReferenceHistoryWindow.xaml.cs
 │  ├─ SettingsWindow.xaml
 │  ├─ SettingsWindow.xaml.cs
 │  ├─ SwitchProfileWindow.xaml
@@ -109,10 +128,16 @@
 │  └─ UpdateOptionsDialog.xaml.cs
 ├─ Converters/
 │  ├─ ActiveProfileVisibilityConverter.cs
+│  ├─ ChangeSummaryConverter.cs
 │  ├─ CountToVisibilityConverter.cs
 │  ├─ InverseBooleanToVisibilityConverter.cs
 │  ├─ InverseCountToVisibilityConverter.cs
 │  └─ ReplacementCommandParameterConverter.cs
+├─ Styles/
+│  ├─ ButtonStyles.xaml
+│  ├─ DataGridStyles.xaml
+│  ├─ TextStyles.xaml
+│  └─ WindowStyles.xaml
 ├─ Docs/
 │  ├─ project-manifest.md (this file)
 │  ├─ Agents/
@@ -128,7 +153,8 @@
 │  │     ├─ 03-numbered-mod-order.md
 │  │     ├─ 04-enabled-disabled-status-awareness.md
 │  │     ├─ 05-problem-resolution-controls.md
-│  │     └─ 06-profiles-feature.md
+│  │     ├─ 06-profiles-feature.md
+│  │     └─ 07-group-dependent-mod-changes.md
 ├─ Tests/
 │  └─ LoadOrderKeeper.Tests/
 │     ├─ LoadOrderKeeper.Tests.csproj
@@ -260,6 +286,23 @@ public sealed class ProfileModel
 }
 ```
 
+#### `LoadOrderKeeper.Models.ReferenceVersionMetadataModel`
+
+```csharp
+public sealed class ReferenceVersionMetadataModel
+{
+    public int VersionNumber { get; set; }
+    public DateTime Timestamp { get; set; }
+    public string? Comment { get; set; }
+    public List<string> RemovedMods { get; set; }
+    public List<string> AddedMods { get; set; }
+    public int TotalModsChanged { get; }
+    public string FormattedTimestamp { get; }
+
+    public string GetChangeSummary();
+}
+```
+
 #### `LoadOrderKeeper.Models.StatusMessageModel`
 
 ```csharp
@@ -291,6 +334,21 @@ public sealed record UpdateCheckResult(
     string CurrentVersion,
     string? LatestVersion,
     string? DownloadUrl);
+```
+
+#### `LoadOrderKeeper.Models.PendingChangesModel`
+
+```csharp
+public sealed class PendingChangesModel
+{
+    public List<string> AddedMods { get; set; }
+    public List<string> RemovedMods { get; set; }
+    public bool IsEmpty { get; }
+    public int TotalChanges { get; }
+
+    public static PendingChangesModel CreateEmpty();
+    public static PendingChangesModel Create(IReadOnlyList<string> addedMods, IReadOnlyList<string> removedMods);
+}
 ```
 
 ### 3.2 Services
@@ -392,6 +450,43 @@ public static class UpdateCheckService
     private static CacheInfo GetCacheInfo();
     private static void SaveToCache(UpdateCheckResult result);
     private static string GetCacheFilePath();
+}
+```
+
+#### `LoadOrderKeeper.Services.ReferenceHistoryService`
+
+```csharp
+public static class ReferenceHistoryService
+{
+    public static Task<IReadOnlyList<ReferenceVersionMetadataModel>> LoadVersionHistoryAsync(AppConfigModel config);
+    public static Task<int> ArchiveCurrentReferenceAsync(
+        AppConfigModel config,
+        string? comment,
+        IReadOnlyList<string> addedMods,
+        IReadOnlyList<string> removedMods);
+    public static Task RollbackToVersionAsync(AppConfigModel config, int versionNumber);
+    public static Task DeleteVersionAsync(AppConfigModel config, int versionNumber);
+    public static Task ClearAllHistoryAsync(AppConfigModel config);
+    public static Task UpdateVersionCommentAsync(AppConfigModel config, int versionNumber, string? newComment);
+    public static string GetPendingChangesFilePath(AppConfigModel config);
+    public static Task<PendingChangesModel> LoadPendingChangesAsync(AppConfigModel config);
+    public static Task SavePendingChangesAsync(AppConfigModel config, PendingChangesModel pendingChanges);
+    public static Task ClearPendingChangesAsync(AppConfigModel config);
+    public static string GetHistoryFolder(AppConfigModel config);
+    
+    // Private implementation details
+    private static Task PruneOldVersionsAsync(AppConfigModel config);
+}
+```
+
+#### `LoadOrderKeeper.Services.DateTimeFormattingService`
+
+```csharp
+public static class DateTimeFormattingService
+{
+    public static string FormatFriendly(DateTime dateTime);
+    public static string FormatTimestamp(DateTime dateTime);
+    public static string FormatIso(DateTime dateTime);
 }
 ```
 
@@ -717,6 +812,59 @@ public partial class UpdateOptionsViewModel : ObservableObject
 }
 ```
 
+#### `LoadOrderKeeper.ViewModels.ReferenceHistoryViewModel`
+
+```csharp
+public partial class ReferenceHistoryViewModel : ObservableObject
+{
+    public ReferenceHistoryViewModel(AppConfigModel config);
+
+    public ObservableCollection<ReferenceVersionMetadataModel> Versions { get; set; }
+    public ReferenceVersionMetadataModel? SelectedVersion { get; set; }
+    public bool IsLoading { get; set; }
+    public bool HasVersions { get; }
+    public string WindowTitle { get; }
+    public string RollbackButtonText { get; }
+    public string ClearHistoryButtonText { get; }
+    public string CloseButtonText { get; }
+    public string NoVersionsMessage { get; }
+    public string VersionColumnHeader { get; }
+    public string DateColumnHeader { get; }
+    public string ChangesColumnHeader { get; }
+    public string SummaryColumnHeader { get; }
+    public string FileMenuText { get; }
+    public string ExitMenuText { get; }
+    public string EditMenuText { get; }
+    public string ClearHistoryMenuText { get; }
+
+    public event EventHandler? CloseRequested;
+    public event EventHandler<ReferenceVersionMetadataModel>? RollbackRequested;
+
+    public Task LoadVersionsAsync();
+    public Task RefreshVersionsAsync();
+}
+```
+
+#### `LoadOrderKeeper.ViewModels.CommentInputViewModel`
+
+```csharp
+public partial class CommentInputViewModel : ObservableObject
+{
+    public CommentInputViewModel();
+    public CommentInputViewModel(string? existingComment);
+
+    public string? Comment { get; set; }
+    public string WindowTitle { get; }
+    public string PromptText { get; }
+    public string CommentPlaceholder { get; }
+    public string OkButtonText { get; }
+    public string CancelButtonText { get; }
+
+    public event EventHandler? OkRequested;
+    public event EventHandler? CancelRequested;
+}
+```
+
 ### 3.4 Views / Application
 
 #### `LoadOrderKeeper.App`
@@ -791,7 +939,7 @@ public partial class ConfirmationDialog : Window
     public ConfirmationDialog(string title, string message, ConfirmationIcon icon = ConfirmationIcon.None, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult = ConfirmationResult.OK);
 
     public new ConfirmationResult ShowDialog();
-    public static ConfirmationResult Show(string title, string message, ConfirmationIcon icon = ConfirmationIcon.Information, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult = ConfirmationResult.OK, Window? owner = null);
+    public static ConfirmationResult Show(string title, string message, ConfirmationIcon icon = ConfirmationIcon.Information, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult =ConfirmationResult.OK, Window? owner = null);
 }
 ```
 
@@ -810,6 +958,27 @@ public partial class AboutWindow : Window
 public partial class UpdateOptionsDialog : Window
 {
     public UpdateOptionsDialog();
+}
+```
+
+#### `LoadOrderKeeper.Views.ReferenceHistoryWindow`
+
+```csharp
+public partial class ReferenceHistoryWindow : Window
+{
+    public ReferenceHistoryWindow();
+}
+```
+
+#### `LoadOrderKeeper.Views.CommentInputDialog`
+
+```csharp
+public partial class CommentInputDialog : Window
+{
+    public CommentInputDialog();
+    public CommentInputDialog(string? existingComment);
+
+    public string? Comment { get; }
 }
 ```
 
@@ -857,6 +1026,16 @@ public sealed class InverseCountToVisibilityConverter : IValueConverter
 
 ```csharp
 public sealed class InverseBooleanToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+}
+```
+
+#### `LoadOrderKeeper.Converters.ChangeSummaryConverter`
+
+```csharp
+public sealed class ChangeSummaryConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
@@ -936,6 +1115,29 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
   - Version comparison uses semantic versioning, ignores pre-release versions, and only notifies for newer stable releases.
   - GitHub API endpoint: `https://api.github.com/repos/Mistralys/starfield-load-order-manager/releases/latest` with 10-second timeout.
 
+- **Reference History & Versioning**
+  - `MainViewModel.ShowReferenceHistoryCommand` opens `ReferenceHistoryWindow` backed by `ReferenceHistoryViewModel`, tracking the instance to prevent duplicates.
+  - `ReferenceHistoryViewModel.LoadVersionsAsync()` calls `ReferenceHistoryService.LoadVersionHistoryAsync()` to read all version metadata from the active profile's `History/` folder.
+  - When user clicks "Update reference" in `DiffDialogViewModel`:
+    1. Shows `CommentInputDialog` for optional comment (cancelling aborts the update)
+    2. Loads pending changes via `ReferenceHistoryService.LoadPendingChangesAsync()`
+    3. Calculates current changes via `FileService.CalculateReferenceChangesAsync()`
+    4. Archives current reference with **previous** pending changes via `ReferenceHistoryService.ArchiveCurrentReferenceAsync()`
+    5. Stores **current** changes as new pending via `ReferenceHistoryService.SavePendingChangesAsync()`
+    6. Updates reference file via `FileService.CreateReferenceFileAsync()`
+    7. Refreshes history window if open via `MainViewModel.RefreshReferenceHistoryWindowAsync()`
+  - On-demand migration: When history is empty and no pending changes exist, `ArchiveCurrentReferenceAsync()` automatically creates "Initial version" with no changes, then stores current diff as pending.
+  - `ReferenceHistoryViewModel.RollbackRequested` event triggers `MainViewModel.HandleRollbackRequestAsync()`:
+    1. Shows confirmation dialog with version details
+    2. Calls `ReferenceHistoryService.RollbackToVersionAsync()` to restore archived reference as current reference
+    3. Closes history window
+    4. Triggers `CheckPluginsFileAsync()` to show changes in diff window for review
+  - Context menu actions call `ReferenceHistoryService.UpdateVersionCommentAsync()`, `DeleteVersionAsync()`, and `ClearAllHistoryAsync()` with confirmation dialogs.
+  - History window auto-refreshes when new versions created while window is open (non-modal behavior).
+  - Each profile maintains independent history with maximum 16 versions; `ReferenceHistoryService.PruneOldVersionsAsync()` removes oldest versions after each archive.
+  - All version files and metadata stored as UTF-8 without BOM in `Profiles/{profileId}/History/` folder.
+  - `DateTimeFormattingService.FormatFriendly()` provides user-friendly timestamps ("Today 14:56", "Yesterday 16:41", "Jan 15 14:56", "Dec 25, 2023 14:56").
+
 ---
 
 ## 5. Current Constraints & Invariants
@@ -966,14 +1168,32 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
   - Dependent changes are tracked and displayed: when a mod is removed/added, all mods that shift position as a result are shown as dependent changes.
   
 - **Navigation & threading**
-  - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`) block until close; viewmodels flow back via dialog results/events.
-  - Non-modal windows (`DiffWindow`, `ManageProfilesWindow`) allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle.
+  - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `CommentInputDialog`) block until close; viewmodels flow back via dialog results/events.
+  - Non-modal windows (`DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow`) allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle.
   - `DispatcherTimer` runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
   
 - **Error handling**
   - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `ConfirmationDialog` for errors.
   - All user-facing dialogs use `ConfirmationDialog` with appropriate icon types (Error, Warning, Information) for consistent Material Design v5 styling.
   - Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parse errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+
+- **Reference History System**
+  - Each profile stores version history independently in `Profiles/{profileId}/History/` with `reference_vX.txt` and `reference_vX.json` files.
+  - Version numbers are sequential integers starting at 1, determined by `existingVersions.Max(v => v.VersionNumber) + 1`.
+  - Maximum 16 versions per profile enforced by `PruneOldVersionsAsync()`; oldest versions (lowest numbers) are deleted first when limit exceeded.
+  - Pending changes stored per-profile in `Profiles/{profileId}/pending-changes.json` with `AddedMods` and `RemovedMods` lists.
+  - Pending changes system ensures each archived version describes what changed **when creating that version**, not what comes after it.
+  - First version (when history empty and no pending changes) automatically labeled "Initial version" with empty change lists.
+  - All history files written as UTF-8 without BOM using `System.Text.Json` with indented formatting.
+  - Archive failures log warning but allow reference update to proceed (non-blocking).
+  - Load failures return empty history or empty pending changes (graceful degradation).
+  - Corrupted JSON files silently ignored; missing folders automatically created.
+  - Rollback replaces current reference but does **not** modify `Plugins.txt` directly—user reviews in diff window first.
+  - Version metadata includes: `VersionNumber`, `Timestamp` (ISO 8601), `Comment` (nullable string), `AddedMods`, `RemovedMods`.
+  - Comments limited to 500 characters; empty/null comments allowed (defaults to "Initial version" for first version only).
+  - History window tracks single instance in `MainViewModel._referenceHistoryWindow`; existing window brought to front when command invoked again.
+  - History window auto-refreshes via `ReferenceHistoryViewModel.RefreshVersionsAsync()` when `MainViewModel` creates new version.
+  - Date/time formatting uses `DateTimeFormattingService` for consistency: friendly display (no seconds) in history, timestamps (with seconds) in status messages.
 
 - **Steam Library Detection**
   - `SettingsService` includes intelligent Steam library folder detection for auto-discovering Starfield installations.

@@ -33,6 +33,6 @@ This document is intended to be the 'Source of Truth' for future AI agent sessio
 
 ```Markdown
 I have provided a project specification. I want you to act as a Senior Lead Developer. 
-Read my specification and, instead of starting the work, ask me **three clarifying questions** 
+Read my specification and, instead of starting the work, ask me **up to three clarifying questions** 
 about edge cases or technical constraints I might have missed.
 ```

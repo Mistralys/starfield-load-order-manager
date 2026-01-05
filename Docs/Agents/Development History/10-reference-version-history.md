@@ -28,6 +28,28 @@ Metadata is stored along with the archived version:
 	- List of added mod names
 	- Total number of mods changed
 
+### Pending Changes Tracking
+
+To ensure accurate change tracking, a pending changes system is used between reference updates:
+
+1. When the user accepts changes and updates the reference file:
+   - The **previous** pending changes are archived with the new version
+   - The **current** changes are stored as the new pending changes
+2. This ensures each version accurately describes what changed **when creating that version**
+
+For the first version (initial version), no changes are listed since there's no previous state 
+to compare against.
+
+### Automatic Migration
+
+For existing installations without history, an initial version is automatically created when:
+- The history is empty
+- No pending changes exist
+- The user updates the reference file
+
+This happens transparently without user intervention, labeled as "Initial version" with no 
+changes listed.
+
 ### Rollback Functionality
 
 To leverage all the existing functionality including the DIFF window, rolling back to a previous 

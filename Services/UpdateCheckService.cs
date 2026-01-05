@@ -29,15 +29,21 @@ public static class UpdateCheckService
     {
         try
         {
+            var currentVersion = VersionService.GetApplicationVersion();
             var cacheInfo = GetCacheInfo();
             
-            // Check cache validity (24 hours)
-            if (!bypassCache && cacheInfo.IsValid && cacheInfo.CachedResult != null)
+            // Invalidate cache if current version has changed since cache was created
+            var isCacheValid = !bypassCache && 
+                               cacheInfo.IsValid && 
+                               cacheInfo.CachedResult != null &&
+                               cacheInfo.CachedResult.CurrentVersion == currentVersion;
+            
+            // Check cache validity (24 hours) and version match
+            if (isCacheValid)
             {
-                return cacheInfo.CachedResult;
+                return cacheInfo.CachedResult!;
             }
 
-            var currentVersion = VersionService.GetApplicationVersion();
             var latestRelease = await FetchLatestReleaseAsync();
 
             if (latestRelease == null)

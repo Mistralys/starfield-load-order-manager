@@ -36,7 +36,7 @@ namespace LoadOrderKeeper.ViewModels
         public string WindowTitle { get; } = "Reference File Version History";
         public string RollbackButtonText { get; } = "Rollback to selected version...";
         public string DeleteVersionButtonText { get; } = "Delete version";
-        public string ClearHistoryButtonText { get; } = "Clear all history...";
+        public string ClearHistoryButtonText { get; } = "Clear the history...";
         public string CloseButtonText { get; } = "Close";
         public string NoVersionsMessage { get; } = "No version history available.";
         public string VersionColumnHeader { get; } = "Version";
@@ -46,7 +46,7 @@ namespace LoadOrderKeeper.ViewModels
         public string FileMenuText { get; } = "_File";
         public string ExitMenuText { get; } = "E_xit";
         public string EditMenuText { get; } = "_Edit";
-        public string ClearHistoryMenuText { get; } = "Clear all _history...";
+        public string ClearHistoryMenuText { get; } = "Clear the _history...";
 
         public event EventHandler? CloseRequested;
         public event EventHandler<ReferenceVersionMetadataModel>? RollbackRequested;

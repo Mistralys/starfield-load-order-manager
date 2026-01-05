@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
 using Microsoft.Win32;
+using Gameloop.Vdf;
+using Gameloop.Vdf.Linq;
 
 namespace LoadOrderKeeper.Services
 {
@@ -13,6 +15,8 @@ namespace LoadOrderKeeper.Services
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                          "LoadOrderKeeper",
                          "config.json");
+
+        private const string StarfieldAppId = "1716740";
 
         public static async Task<AppConfigModel> LoadSettingsAsync()
         {
@@ -51,10 +55,18 @@ namespace LoadOrderKeeper.Services
             var steamPath = TryGetSteamInstallPath();
             if (!string.IsNullOrWhiteSpace(steamPath))
             {
-                var starfieldPath = Path.Combine(steamPath, "steamapps", "common", "Starfield");
-                if (Directory.Exists(Path.Combine(starfieldPath, "Data")))
+                // First, try to find Starfield in Steam library folders
+                var starfieldPath = TryFindStarfieldInSteamLibraries(steamPath);
+                if (!string.IsNullOrWhiteSpace(starfieldPath))
                 {
                     return starfieldPath;
+                }
+
+                // Fallback: Check the default location in the main Steam installation
+                var defaultStarfieldPath = Path.Combine(steamPath, "steamapps", "common", "Starfield");
+                if (Directory.Exists(Path.Combine(defaultStarfieldPath, "Data")))
+                {
+                    return defaultStarfieldPath;
                 }
             }
 
@@ -147,6 +159,89 @@ namespace LoadOrderKeeper.Services
             }
 
             return path.Replace('/', '\\');
+        }
+
+        /// <summary>
+        /// Attempts to find Starfield installation by parsing Steam's libraryfolders.vdf file.
+        /// Returns the installation path if found, otherwise null.
+        /// </summary>
+        private static string? TryFindStarfieldInSteamLibraries(string steamInstallPath)
+        {
+            try
+            {
+                var libraryFoldersPath = Path.Combine(steamInstallPath, "steamapps", "libraryfolders.vdf");
+
+                if (!File.Exists(libraryFoldersPath))
+                {
+                    return null;
+                }
+
+                // Parse the VDF file
+                dynamic vdfData = VdfConvert.Deserialize(File.ReadAllText(libraryFoldersPath));
+
+                // The VDF structure has a "libraryfolders" key at the root
+                var libraryFolders = vdfData.Value as VObject;
+                if (libraryFolders == null)
+                {
+                    return null;
+                }
+
+                // Iterate through each library folder (they have numeric keys: "0", "1", "2", ...)
+                foreach (var libraryEntry in libraryFolders)
+                {
+                    var libraryFolder = libraryEntry.Value as VObject;
+                    if (libraryFolder == null)
+                    {
+                        continue;
+                    }
+
+                    // Get the path property
+                    var pathToken = libraryFolder["path"];
+                    if (pathToken == null)
+                    {
+                        continue;
+                    }
+
+                    var libraryPath = pathToken.ToString();
+                    if (string.IsNullOrWhiteSpace(libraryPath))
+                    {
+                        continue;
+                    }
+
+                    // Check if this library has the apps property
+                    var appsToken = libraryFolder["apps"];
+                    if (appsToken == null)
+                    {
+                        continue;
+                    }
+
+                    var apps = appsToken as VObject;
+                    if (apps == null)
+                    {
+                        continue;
+                    }
+
+                    // Check if Starfield's AppID is present in the apps list
+                    if (apps[StarfieldAppId] != null)
+                    {
+                        // Found Starfield in this library folder
+                        var starfieldPath = Path.Combine(libraryPath, "steamapps", "common", "Starfield");
+
+                        // Verify that the Data folder exists
+                        if (Directory.Exists(Path.Combine(starfieldPath, "Data")))
+                        {
+                            return NormalizePath(starfieldPath);
+                        }
+                    }
+                }
+
+                return null;
+            }
+            catch
+            {
+                // Parsing failed, fail silently
+                return null;
+            }
         }
     }
 }

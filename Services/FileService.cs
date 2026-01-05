@@ -534,5 +534,46 @@ namespace LoadOrderKeeper.Services
             await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
             return true;
         }
+
+        /// <summary>
+        /// Calculates the changes between current Plugins.txt and the reference file.
+        /// Returns lists of added and removed mod names for version metadata.
+        /// </summary>
+        public static async Task<(List<string> AddedMods, List<string> RemovedMods)> CalculateReferenceChangesAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                throw new InvalidOperationException("Configuration paths are invalid.");
+            }
+
+            string targetPath = config.GetPluginsFilePath();
+            string referencePath = config.GetReferenceFilePath();
+
+            if (!File.Exists(referencePath))
+            {
+                throw new FileNotFoundException("Reference file not found.", referencePath);
+            }
+
+            if (!File.Exists(targetPath))
+            {
+                throw new FileNotFoundException("Plugins file not found.", targetPath);
+            }
+
+            var referenceMods = await ReadFileAsync(referencePath, true);
+            var currentMods = await ReadFileAsync(targetPath);
+
+            var referenceModNames = new HashSet<string>(
+                referenceMods.Select(m => m.FileName),
+                StringComparer.OrdinalIgnoreCase);
+
+            var currentModNames = new HashSet<string>(
+                currentMods.Select(m => m.FileName),
+                StringComparer.OrdinalIgnoreCase);
+
+            var addedMods = currentModNames.Except(referenceModNames, StringComparer.OrdinalIgnoreCase).ToList();
+            var removedMods = referenceModNames.Except(currentModNames, StringComparer.OrdinalIgnoreCase).ToList();
+
+            return (addedMods, removedMods);
+        }
     }
 }

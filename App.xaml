@@ -6,6 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- Material Design Themes -->
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
 
                 <materialDesign:BundledTheme BaseTheme="Dark"
@@ -24,37 +25,16 @@
                     <SolidColorBrush x:Key="MaterialDesign.Brush.TertiaryContainer" Color="#554400" />
                     <SolidColorBrush x:Key="MaterialDesign.Brush.ErrorContainer" Color="#93000A" />
                 </ResourceDictionary>
+
+                <!-- Custom Styles -->
+                <ResourceDictionary Source="Styles/DataGridStyles.xaml" />
+                <ResourceDictionary Source="Styles/ButtonStyles.xaml" />
+                <ResourceDictionary Source="Styles/TextStyles.xaml" />
+                <ResourceDictionary Source="Styles/WindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- Converters -->
             <converters:ActiveProfileVisibilityConverter x:Key="ActiveProfileVisibilityConverter" />
-
-            <Style x:Key="MaterialDesignCompactOutlinedSecondaryButton"
-                   TargetType="Button"
-                   BasedOn="{StaticResource MaterialDesignOutlinedSecondaryButton}">
-                <Setter Property="Padding" Value="4,1" />
-                <Setter Property="Height" Value="24" />
-            </Style>
-
-            <!-- Hyperlink style for Material Design v5 dark mode -->
-            <Style TargetType="Hyperlink">
-                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
-                <Setter Property="TextDecorations" Value="None" />
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.PrimaryContainer}" />
-                        <Setter Property="TextDecorations" Value="Underline" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-
-            <Style x:Key="MaterialDesignDefaultWindowStyle"
-                   TargetType="Window"
-                   BasedOn="{StaticResource {x:Type Window}}">
-                <Setter Property="FontFamily" Value="Segoe UI" />
-                <Setter Property="FontSize" Value="13" />
-                <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
-                <Setter Property="TextOptions.TextRenderingMode" Value="Auto" />
-            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

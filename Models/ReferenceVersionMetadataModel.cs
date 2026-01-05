@@ -25,12 +25,16 @@ namespace LoadOrderKeeper.Models
         public string? Comment { get; set; }
 
         /// <summary>
-        /// List of mod file names that were removed in this version.
+        /// List of mod file names that were removed when creating this version.
+        /// These mods were in the previous reference but are not in this version.
+        /// Rolling back to this version will remove these mods from Plugins.txt.
         /// </summary>
         public List<string> RemovedMods { get; set; } = new();
 
         /// <summary>
-        /// List of mod file names that were added in this version.
+        /// List of mod file names that were added when creating this version.
+        /// These mods were not in the previous reference but are in this version.
+        /// Rolling back to this version will add these mods back to Plugins.txt.
         /// </summary>
         public List<string> AddedMods { get; set; } = new();
 
@@ -40,7 +44,7 @@ namespace LoadOrderKeeper.Models
         public int TotalModsChanged => RemovedMods.Count + AddedMods.Count;
 
         /// <summary>
-        /// Gets a human-readable change summary for display (excluding comment).
+        /// Gets a human-readable change summary describing what changed when creating this version.
         /// </summary>
         public string GetChangeSummary()
         {
@@ -49,20 +53,7 @@ namespace LoadOrderKeeper.Models
             // Threshold for using numbers instead of listing names
             const int nameThreshold = 3;
 
-            // Handle removed mods
-            if (RemovedMods.Count > 0)
-            {
-                if (RemovedMods.Count <= nameThreshold)
-                {
-                    parts.Add($"Removed {string.Join(" and ", RemovedMods)}");
-                }
-                else
-                {
-                    parts.Add($"Removed {RemovedMods.Count} mods");
-                }
-            }
-
-            // Handle added mods
+            // Describe what was added in this version
             if (AddedMods.Count > 0)
             {
                 if (AddedMods.Count <= nameThreshold)
@@ -72,6 +63,19 @@ namespace LoadOrderKeeper.Models
                 else
                 {
                     parts.Add($"Added {AddedMods.Count} mods");
+                }
+            }
+
+            // Describe what was removed in this version
+            if (RemovedMods.Count > 0)
+            {
+                if (RemovedMods.Count <= nameThreshold)
+                {
+                    parts.Add($"Removed {string.Join(" and ", RemovedMods)}");
+                }
+                else
+                {
+                    parts.Add($"Removed {RemovedMods.Count} mods");
                 }
             }
 

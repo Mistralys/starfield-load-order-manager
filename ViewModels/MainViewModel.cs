@@ -244,13 +244,29 @@ namespace LoadOrderKeeper.ViewModels
 
                     string? comment = commentDialog.Comment;
 
-                    // Calculate changes between current Plugins.txt and reference
-                    var (addedMods, removedMods) = await FileService.CalculateReferenceChangesAsync(Config);
+                    // Load pending changes from previous update (what changed LAST time)
+                    var pendingChanges = await ReferenceHistoryService.LoadPendingChangesAsync(Config);
 
-                    // Archive current reference before updating
+                    // Calculate current changes (what changed THIS time)
+                    var (currentAddedMods, currentRemovedMods) = await FileService.CalculateReferenceChangesAsync(Config);
+
+                    // Archive current reference with PREVIOUS changes
+                    // This makes the history entry describe what that version accomplished
                     try
                     {
-                        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(Config, comment, addedMods, removedMods);
+                        string effectiveComment = comment;
+                        
+                        // If this is the first version (no pending changes), mark it appropriately
+                        if (pendingChanges.IsEmpty && string.IsNullOrWhiteSpace(comment))
+                        {
+                            effectiveComment = "Initial version";
+                        }
+
+                        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
+                            Config, 
+                            effectiveComment, 
+                            pendingChanges.AddedMods, 
+                            pendingChanges.RemovedMods);
                         
                         // Refresh history window if open
                         await RefreshReferenceHistoryWindowAsync();
@@ -260,10 +276,26 @@ namespace LoadOrderKeeper.ViewModels
                         AddStatusMessage($"Warning: Failed to archive version: {ex.Message}", StatusMessageType.Warning);
                         // Continue with update even if archiving fails
                     }
+
+                    // Store CURRENT changes as pending for the NEXT update
+                    var newPendingChanges = PendingChangesModel.Create(currentAddedMods, currentRemovedMods);
+                    try
+                    {
+                        await ReferenceHistoryService.SavePendingChangesAsync(Config, newPendingChanges);
+                    }
+                    catch (Exception ex)
+                    {
+                        AddStatusMessage($"Warning: Failed to save pending changes: {ex.Message}", StatusMessageType.Warning);
+                        // Continue even if saving pending changes fails
+                    }
                 }
                 else
                 {
                     AddStatusMessage("Creating reference file...", StatusMessageType.Info);
+                    
+                    // First reference creation - no changes to track yet
+                    // Clear any stale pending changes
+                    await ReferenceHistoryService.ClearPendingChangesAsync(Config);
                 }
 
                 // Update/create the reference file

@@ -19,6 +19,101 @@ namespace LoadOrderKeeper.Services
         private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
 
         /// <summary>
+        /// Gets the path to the pending changes file for the active profile.
+        /// </summary>
+        public static string GetPendingChangesFilePath(AppConfigModel config)
+        {
+            var profileId = config.ActiveProfileId ?? "default";
+            return Path.Combine(ProfileService.GetProfileFolder(config, profileId), "pending-changes.json");
+        }
+
+        /// <summary>
+        /// Loads pending changes from the active profile's pending changes file.
+        /// Returns an empty model if the file doesn't exist or can't be read.
+        /// </summary>
+        public static async Task<PendingChangesModel> LoadPendingChangesAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                return PendingChangesModel.CreateEmpty();
+            }
+
+            var pendingChangesPath = GetPendingChangesFilePath(config);
+            if (!File.Exists(pendingChangesPath))
+            {
+                return PendingChangesModel.CreateEmpty();
+            }
+
+            try
+            {
+                var json = await File.ReadAllTextAsync(pendingChangesPath, Encoding.UTF8);
+                var pendingChanges = JsonSerializer.Deserialize<PendingChangesModel>(json);
+                return pendingChanges ?? PendingChangesModel.CreateEmpty();
+            }
+            catch
+            {
+                // If file is corrupted or can't be read, return empty
+                return PendingChangesModel.CreateEmpty();
+            }
+        }
+
+        /// <summary>
+        /// Saves pending changes to the active profile's pending changes file.
+        /// </summary>
+        public static async Task SavePendingChangesAsync(AppConfigModel config, PendingChangesModel pendingChanges)
+        {
+            if (!config.IsValid())
+            {
+                throw new InvalidOperationException("Configuration is not valid.");
+            }
+
+            var pendingChangesPath = GetPendingChangesFilePath(config);
+            var pendingChangesDir = Path.GetDirectoryName(pendingChangesPath);
+
+            // Ensure profile folder exists
+            if (!string.IsNullOrEmpty(pendingChangesDir) && !Directory.Exists(pendingChangesDir))
+            {
+                Directory.CreateDirectory(pendingChangesDir);
+            }
+
+            try
+            {
+                var json = JsonSerializer.Serialize(pendingChanges, JsonOptions);
+                await File.WriteAllTextAsync(pendingChangesPath, json, Utf8NoBom);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"Failed to save pending changes: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Clears pending changes for the active profile by deleting the pending changes file.
+        /// </summary>
+        public static async Task ClearPendingChangesAsync(AppConfigModel config)
+        {
+            if (!config.IsValid())
+            {
+                return;
+            }
+
+            var pendingChangesPath = GetPendingChangesFilePath(config);
+            if (File.Exists(pendingChangesPath))
+            {
+                try
+                {
+                    File.Delete(pendingChangesPath);
+                }
+                catch
+                {
+                    // Silently ignore deletion failures
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Gets the history folder path for the active profile.
         /// </summary>
         public static string GetHistoryFolder(AppConfigModel config)
@@ -32,8 +127,8 @@ namespace LoadOrderKeeper.Services
         /// </summary>
         /// <param name="config">Application configuration</param>
         /// <param name="comment">Optional user comment describing the changes</param>
-        /// <param name="addedMods">List of mod names that were added</param>
-        /// <param name="removedMods">List of mod names that were removed</param>
+        /// <param name="addedMods">List of mod names that were added in this version</param>
+        /// <param name="removedMods">List of mod names that were removed in this version</param>
         /// <returns>The created version number</returns>
         public static async Task<int> ArchiveCurrentReferenceAsync(
             AppConfigModel config,
@@ -59,11 +154,52 @@ namespace LoadOrderKeeper.Services
                 Directory.CreateDirectory(historyFolder);
             }
 
-            // Determine next version number
+            // Check for on-demand migration: create initial version if history is empty and no pending changes exist
             var existingVersions = await LoadVersionHistoryAsync(config);
+            var pendingChanges = await LoadPendingChangesAsync(config);
+
+            if (existingVersions.Count == 0 && pendingChanges.IsEmpty)
+            {
+                // This is the first version - archive current reference as "Initial version"
+                // This handles both fresh installs and migrations transparently
+                var initialMetadata = new ReferenceVersionMetadataModel
+                {
+                    VersionNumber = 1,
+                    Timestamp = DateTime.Now,
+                    Comment = string.IsNullOrWhiteSpace(comment) ? "Initial version" : comment,
+                    AddedMods = new List<string>(),
+                    RemovedMods = new List<string>()
+                };
+
+                // Archive the initial version
+                var initialVersionFileName = "reference_v1.txt";
+                var initialMetadataFileName = "reference_v1.json";
+                var initialVersionFilePath = Path.Combine(historyFolder, initialVersionFileName);
+                var initialMetadataFilePath = Path.Combine(historyFolder, initialMetadataFileName);
+
+                try
+                {
+                    // Copy reference file
+                    var referenceContent = await File.ReadAllTextAsync(referencePath, Encoding.UTF8);
+                    await File.WriteAllTextAsync(initialVersionFilePath, referenceContent, Utf8NoBom);
+
+                    // Write metadata
+                    var initialMetadataJson = JsonSerializer.Serialize(initialMetadata, JsonOptions);
+                    await File.WriteAllTextAsync(initialMetadataFilePath, initialMetadataJson, Utf8NoBom);
+                }
+                catch (Exception ex)
+                {
+                    throw new IOException($"Failed to create initial version: {ex.Message}", ex);
+                }
+
+                // Return early - this was the initial version creation
+                return 1;
+            }
+
+            // Determine next version number (normal flow for subsequent versions)
             var nextVersion = existingVersions.Count == 0 ? 1 : existingVersions.Max(v => v.VersionNumber) + 1;
 
-            // Create metadata
+            // Create metadata for this version
             var metadata = new ReferenceVersionMetadataModel
             {
                 VersionNumber = nextVersion,

@@ -48,35 +48,62 @@
                     <Setter Property="FontWeight" Value="SemiBold" />
                     <Setter Property="FontSize" Value="14" />
                     <Setter Property="Padding" Value="8,8,8,8" />
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    <Setter Property="ContentTemplate">
-                        <Setter.Value>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" 
-                                           TextWrapping="Wrap" 
-                                           TextAlignment="Center" />
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
                 </Style>
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{Binding DataContext.VersionColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    d:Header="Version"
-                                    Width="80" 
-                                    Binding="{Binding VersionNumber}" />
-                <DataGridTextColumn Header="{Binding DataContext.DateColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                    d:Header="Date"
-                                    Width="160" 
-                                    Binding="{Binding FormattedTimestamp}" />
-                <DataGridTextColumn Header="{Binding DataContext.ChangesColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                    d:Header="Changes"
-                                    Width="100" 
-                                    Binding="{Binding TotalModsChanged}" />
-                <DataGridTextColumn Header="{Binding DataContext.SummaryColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                    d:Header="Summary"
-                                    Width="*" 
-                                    Binding="{Binding ., Converter={StaticResource ChangeSummaryConverter}}" />
+                <DataGridTextColumn Width="80">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.VersionColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Version"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="VersionNumber" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="160">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.DateColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Date &amp; Time"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="FormattedTimestamp" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="100">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.ChangesColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Changes"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="TotalModsChanged" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="*">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.SummaryColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Summary"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="." Converter="{StaticResource ChangeSummaryConverter}" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
             </DataGrid.Columns>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">

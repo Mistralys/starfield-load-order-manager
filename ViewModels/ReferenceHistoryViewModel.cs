@@ -57,6 +57,11 @@ namespace LoadOrderKeeper.ViewModels
             _ = LoadVersionsAsync();
         }
 
+        public async Task RefreshVersionsAsync()
+        {
+            await LoadVersionsAsync();
+        }
+
         public async Task LoadVersionsAsync()
         {
             IsLoading = true;

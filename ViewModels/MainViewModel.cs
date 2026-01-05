@@ -24,6 +24,7 @@ namespace LoadOrderKeeper.ViewModels
         // Track non-modal windows to prevent multiple instances
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
+        private ReferenceHistoryWindow? _referenceHistoryWindow;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -250,6 +251,9 @@ namespace LoadOrderKeeper.ViewModels
                     try
                     {
                         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(Config, comment, addedMods, removedMods);
+                        
+                        // Refresh history window if open
+                        await RefreshReferenceHistoryWindowAsync();
                     }
                     catch (Exception ex)
                     {
@@ -516,8 +520,16 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private void ShowReferenceHistory()
         {
+            // If window is already open, bring it to front
+            if (_referenceHistoryWindow != null)
+            {
+                _referenceHistoryWindow.Activate();
+                _referenceHistoryWindow.Focus();
+                return;
+            }
+
             var historyVm = new ReferenceHistoryViewModel(Config);
-            var historyWindow = new ReferenceHistoryWindow
+            _referenceHistoryWindow = new ReferenceHistoryWindow
             {
                 Owner = WpfApplication.Current?.MainWindow,
                 DataContext = historyVm
@@ -526,10 +538,16 @@ namespace LoadOrderKeeper.ViewModels
             // Handle rollback request
             historyVm.RollbackRequested += async (s, version) =>
             {
-                await HandleRollbackRequestAsync(version, historyWindow);
+                await HandleRollbackRequestAsync(version, _referenceHistoryWindow);
             };
 
-            historyWindow.ShowDialog();
+            // Handle window closed event to clear reference
+            _referenceHistoryWindow.Closed += (s, e) => 
+            {
+                _referenceHistoryWindow = null;
+            };
+
+            _referenceHistoryWindow.Show();
         }
 
         private async Task HandleRollbackRequestAsync(ReferenceVersionMetadataModel version, System.Windows.Window parentWindow)
@@ -573,6 +591,14 @@ namespace LoadOrderKeeper.ViewModels
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,
                     parentWindow);
+            }
+        }
+
+        private async Task RefreshReferenceHistoryWindowAsync()
+        {
+            if (_referenceHistoryWindow?.DataContext is ReferenceHistoryViewModel historyVm)
+            {
+                await historyVm.RefreshVersionsAsync();
             }
         }
 

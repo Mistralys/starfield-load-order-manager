@@ -39,16 +39,11 @@ namespace LoadOrderKeeper.Models
         public int TotalModsChanged => RemovedMods.Count + AddedMods.Count;
 
         /// <summary>
-        /// Gets a human-readable change summary for display.
+        /// Gets a human-readable change summary for display (excluding comment).
         /// </summary>
         public string GetChangeSummary()
         {
             var parts = new List<string>();
-
-            if (!string.IsNullOrWhiteSpace(Comment))
-            {
-                parts.Add(Comment);
-            }
 
             // Threshold for using numbers instead of listing names
             const int nameThreshold = 3;
@@ -82,19 +77,6 @@ namespace LoadOrderKeeper.Models
             if (parts.Count == 0)
             {
                 return "No changes";
-            }
-
-            // Join with appropriate separators
-            if (parts.Count == 1)
-            {
-                return parts[0];
-            }
-
-            // If comment exists, use " - " separator, otherwise use ", "
-            if (!string.IsNullOrWhiteSpace(Comment))
-            {
-                var changesPart = string.Join(", ", parts.GetRange(1, parts.Count - 1));
-                return $"{parts[0]} - {changesPart}";
             }
 
             return string.Join(", ", parts);

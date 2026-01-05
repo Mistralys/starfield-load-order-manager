@@ -78,19 +78,47 @@
                         <Binding Path="TotalModsChanged" />
                     </DataGridTextColumn.Binding>
                 </DataGridTextColumn>
-                <DataGridTextColumn Width="*">
-                    <DataGridTextColumn.HeaderTemplate>
+                <DataGridTemplateColumn Width="*">
+                    <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DataContext.SummaryColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
                                        d:Text="Summary"
                                        TextWrapping="Wrap" 
                                        TextAlignment="Left" />
                         </DataTemplate>
-                    </DataGridTextColumn.HeaderTemplate>
-                    <DataGridTextColumn.Binding>
-                        <Binding Path="." Converter="{StaticResource ChangeSummaryConverter}" />
-                    </DataGridTextColumn.Binding>
-                </DataGridTextColumn>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                <!-- User comment in italic if present -->
+                                <TextBlock Text="{Binding Comment}" 
+                                           FontStyle="Italic"
+                                           TextWrapping="Wrap"
+                                           Padding="8,4,8,0"
+                                           d:Text="This is my comment">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Comment}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Comment}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <!-- Change summary -->
+                                <TextBlock Text="{Binding ., Converter={StaticResource ChangeSummaryConverter}}"
+                                           TextWrapping="Wrap"
+                                           Padding="8,4"
+                                           d:Text="Removed 2 mods, Added 3 mods" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource EnhancedMaterialDesignDataGridRow}">

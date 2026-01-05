@@ -43,4 +43,28 @@
         </Style.Triggers>
     </Style>
 
+    <!-- DataGrid Cell Style with text wrapping -->
+    <Style x:Key="WrappingDataGridCell"
+           TargetType="DataGridCell"
+           BasedOn="{StaticResource MaterialDesignDataGridCell}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- DataGrid TextBlock style for wrapping text -->
+    <Style x:Key="WrappingTextBlock" TargetType="TextBlock">
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Padding" Value="8,4" />
+    </Style>
+
 </ResourceDictionary>

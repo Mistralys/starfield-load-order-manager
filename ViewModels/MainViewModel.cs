@@ -233,7 +233,15 @@ namespace LoadOrderKeeper.ViewModels
                     };
 
                     bool? commentResult = commentDialog.ShowDialog();
-                    string? comment = commentResult == true ? commentDialog.Comment : null;
+                    
+                    // If user cancelled, abort the operation
+                    if (commentResult != true)
+                    {
+                        AddStatusMessage("Reference update cancelled.", StatusMessageType.Info);
+                        return;
+                    }
+
+                    string? comment = commentDialog.Comment;
 
                     // Calculate changes between current Plugins.txt and reference
                     var (addedMods, removedMods) = await FileService.CalculateReferenceChangesAsync(Config);

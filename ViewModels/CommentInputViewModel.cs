@@ -9,14 +9,29 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _comment = string.Empty;
 
-        public string WindowTitle { get; } = "Update Reference File";
-        public string PromptText { get; } = "You can add an optional comment to describe the changes:";
+        [ObservableProperty]
+        private string _windowTitle = "Update Reference File";
+
+        [ObservableProperty]
+        private string _promptText = "You can add an optional comment to describe the changes:";
+
         public string CommentPlaceholder { get; } = "Enter comment (optional)...";
         public string OkButtonText { get; } = "OK";
         public string CancelButtonText { get; } = "Cancel";
 
         public event EventHandler? OkRequested;
         public event EventHandler? CancelRequested;
+
+        public CommentInputViewModel()
+        {
+        }
+
+        public CommentInputViewModel(string existingComment)
+        {
+            Comment = existingComment ?? string.Empty;
+            WindowTitle = "Edit Comment";
+            PromptText = "Edit the comment for this version:";
+        }
 
         [RelayCommand]
         private void Ok()

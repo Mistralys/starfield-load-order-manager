@@ -185,6 +185,42 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
+        [RelayCommand]
+        private async Task EditCommentAsync(ReferenceVersionMetadataModel? version)
+        {
+            if (version == null)
+            {
+                return;
+            }
+
+            var commentVm = new CommentInputViewModel(version.Comment ?? string.Empty);
+            var commentDialog = new CommentInputDialog
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = commentVm
+            };
+
+            bool? result = commentDialog.ShowDialog();
+            if (result == true)
+            {
+                try
+                {
+                    await ReferenceHistoryService.UpdateVersionCommentAsync(_config, version.VersionNumber, commentVm.Comment);
+                    await LoadVersionsAsync();
+                }
+                catch (Exception ex)
+                {
+                    ConfirmationDialog.Show(
+                        "Error",
+                        $"Failed to update comment: {ex.Message}",
+                        ConfirmationIcon.Error,
+                        ConfirmationButton.OK,
+                        ConfirmationResult.OK,
+                        WpfApplication.Current?.MainWindow);
+                }
+            }
+        }
+
         private bool CanDeleteVersion() => SelectedVersion != null && !IsLoading;
 
         [RelayCommand(CanExecute = nameof(CanClearHistory))]

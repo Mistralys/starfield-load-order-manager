@@ -126,6 +126,10 @@
                               Command="{Binding RollbackVersionCommand}"
                               CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                               Icon="{materialDesign:PackIcon Kind=Restore}" />
+                    <MenuItem Header="Edit comment"
+                              Command="{Binding EditCommentCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=CommentEdit}" />
                     <Separator />
                     <MenuItem Header="Delete version"
                               Command="{Binding DeleteSpecificVersionCommand}"

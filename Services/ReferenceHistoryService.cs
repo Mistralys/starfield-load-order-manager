@@ -280,5 +280,47 @@ namespace LoadOrderKeeper.Services
                 throw new IOException($"Failed to rollback to version {versionNumber}: {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Updates the comment for a specific version.
+        /// </summary>
+        public static async Task UpdateVersionCommentAsync(AppConfigModel config, int versionNumber, string? newComment)
+        {
+            if (!config.IsValid())
+            {
+                throw new InvalidOperationException("Configuration is not valid.");
+            }
+
+            var historyFolder = GetHistoryFolder(config);
+            var metadataFilePath = Path.Combine(historyFolder, $"reference_v{versionNumber}.json");
+
+            if (!File.Exists(metadataFilePath))
+            {
+                throw new FileNotFoundException($"Metadata for version {versionNumber} not found.", metadataFilePath);
+            }
+
+            try
+            {
+                // Load existing metadata
+                var json = await File.ReadAllTextAsync(metadataFilePath, Encoding.UTF8);
+                var metadata = JsonSerializer.Deserialize<ReferenceVersionMetadataModel>(json);
+
+                if (metadata == null)
+                {
+                    throw new InvalidOperationException($"Failed to deserialize metadata for version {versionNumber}.");
+                }
+
+                // Update comment
+                metadata.Comment = string.IsNullOrWhiteSpace(newComment) ? null : newComment;
+
+                // Save updated metadata
+                var updatedJson = JsonSerializer.Serialize(metadata, JsonOptions);
+                await File.WriteAllTextAsync(metadataFilePath, updatedJson, Utf8NoBom);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"Failed to update comment for version {versionNumber}: {ex.Message}", ex);
+            }
+        }
     }
 }

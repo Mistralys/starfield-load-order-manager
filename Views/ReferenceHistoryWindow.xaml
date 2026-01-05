@@ -22,13 +22,28 @@
     
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0"
+              Background="{DynamicResource MaterialDesignPaper}"
+              Foreground="{DynamicResource MaterialDesignBody}">
+            <MenuItem Header="{Binding FileMenuText}">
+                <MenuItem Header="{Binding ExitMenuText}"
+                          Command="{Binding CloseCommand}" />
+            </MenuItem>
+            <MenuItem Header="{Binding EditMenuText}">
+                <MenuItem Header="{Binding ClearHistoryMenuText}"
+                          Command="{Binding ClearHistoryCommand}" />
+            </MenuItem>
+        </Menu>
+
         <!-- Version List -->
-        <DataGrid Grid.Row="0"
+        <DataGrid Grid.Row="1"
                   x:Name="VersionDataGrid"
                   Style="{StaticResource EnhancedMaterialDesignDataGrid}"
                   ItemsSource="{Binding Versions}"
@@ -146,7 +161,7 @@
         </DataGrid>
 
         <!-- No Versions Message -->
-        <TextBlock Grid.Row="0"
+        <TextBlock Grid.Row="1"
                    Text="{Binding NoVersionsMessage}"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
@@ -155,13 +170,13 @@
                    Visibility="{Binding HasVersions, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
 
         <!-- Loading Indicator -->
-        <ProgressBar Grid.Row="1"
+        <ProgressBar Grid.Row="2"
                      IsIndeterminate="True"
                      Height="4"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
         <!-- Bottom Buttons -->
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Margin="16">

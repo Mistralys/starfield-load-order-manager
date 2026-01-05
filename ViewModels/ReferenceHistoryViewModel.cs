@@ -43,6 +43,10 @@ namespace LoadOrderKeeper.ViewModels
         public string DateColumnHeader { get; } = "Date & Time";
         public string ChangesColumnHeader { get; } = "Changes";
         public string SummaryColumnHeader { get; } = "Summary";
+        public string FileMenuText { get; } = "_File";
+        public string ExitMenuText { get; } = "E_xit";
+        public string EditMenuText { get; } = "_Edit";
+        public string ClearHistoryMenuText { get; } = "Clear all _history...";
 
         public event EventHandler? CloseRequested;
         public event EventHandler<ReferenceVersionMetadataModel>? RollbackRequested;

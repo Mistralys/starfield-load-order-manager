@@ -17,6 +17,7 @@
     <RepositoryUrl>git@github.com:Mistralys/starfield-load-order-manager.git</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <ApplicationIcon>Docs\Design\Favicon\icon.ico</ApplicationIcon>
+    <Version>1.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

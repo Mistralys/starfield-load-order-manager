@@ -34,25 +34,20 @@
         <!-- Profile List -->
         <DataGrid Grid.Row="1"
                   x:Name="ProfileDataGrid"
+                  Style="{StaticResource EnhancedMaterialDesignDataGrid}"
                   ItemsSource="{Binding Profiles}"
                   SelectedItem="{Binding SelectedProfile}"
                   Margin="16,8,16,8"
-                  Background="{DynamicResource MaterialDesignPaper}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  CanUserReorderColumns="False"
-                  CanUserResizeRows="False"
-                  SelectionMode="Single"
-                  GridLinesVisibility="None"
-                  HeadersVisibility="Column"
-                  IsReadOnly="True">
+                  Background="{DynamicResource MaterialDesignPaper}">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource EnhancedMaterialDesignDataGridColumnHeader}" />
+            </DataGrid.ColumnHeaderStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Label" 
                                     Width="200" 
                                     Binding="{Binding Label}" />
                 <DataGridTextColumn Header="Description" 
-                                    Width="350" 
+                                    Width="*" 
                                     Binding="{Binding Description}" />
             </DataGrid.Columns>
             <DataGrid.Resources>
@@ -73,7 +68,7 @@
                 </ContextMenu>
             </DataGrid.Resources>
             <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource EnhancedMaterialDesignDataGridRow}">
                     <EventSetter Event="MouseDoubleClick" Handler="OnProfileDoubleClick" />
                     <Setter Property="ContextMenu" Value="{StaticResource RowContextMenu}" />
                 </Style>

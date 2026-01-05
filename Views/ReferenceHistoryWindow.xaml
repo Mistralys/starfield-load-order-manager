@@ -30,26 +30,13 @@
         <!-- Version List -->
         <DataGrid Grid.Row="0"
                   x:Name="VersionDataGrid"
+                  Style="{StaticResource EnhancedMaterialDesignDataGrid}"
                   ItemsSource="{Binding Versions}"
                   SelectedItem="{Binding SelectedVersion}"
                   Margin="16"
-                  Background="{DynamicResource MaterialDesignPaper}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  CanUserReorderColumns="False"
-                  CanUserResizeRows="False"
-                  SelectionMode="Single"
-                  GridLinesVisibility="None"
-                  HeadersVisibility="Column"
-                  IsReadOnly="True">
+                  Background="{DynamicResource MaterialDesignPaper}">
             <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
-                    <Setter Property="FontWeight" Value="SemiBold" />
-                    <Setter Property="FontSize" Value="14" />
-                    <Setter Property="Padding" Value="8,8,8,8" />
-                    <Setter Property="HorizontalContentAlignment" Value="Left" />
-                </Style>
+                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource EnhancedMaterialDesignDataGridColumnHeader}" />
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Width="80">
@@ -106,7 +93,7 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
             <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource EnhancedMaterialDesignDataGridRow}">
                     <EventSetter Event="MouseDoubleClick" Handler="OnVersionDoubleClick" />
                 </Style>
             </DataGrid.RowStyle>

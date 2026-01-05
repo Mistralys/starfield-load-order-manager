@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.0 - Version History
+- Versioning: Changes to reference files are now tracked with version history.
+- General: Improved data grid styling.
+- General: Renamed some menu items and buttons for clarity.
+- Settings: Now searching in Steam library folders for custom game installations.
+- Core: Moved central style presets into separate files.
+- Core: Added application icon.
+
 ## v1.3.0 - Settings helper
 - Settings: Now auto-detecting the game path for Steam users.
 - Changes window: Now grouping dependent mod changes together for better clarity.

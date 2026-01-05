@@ -50,6 +50,10 @@
                 <MenuItem Header="{Binding ManageProfilesMenuText}"
                           Command="{Binding ManageProfilesCommand}"
                           Icon="{materialDesign:PackIcon Kind=FolderMultiple}" />
+                <Separator />
+                <MenuItem Header="{Binding ReferenceHistoryMenuText}"
+                          Command="{Binding ShowReferenceHistoryCommand}"
+                          Icon="{materialDesign:PackIcon Kind=History}" />
             </MenuItem>
             <MenuItem Header="{Binding HelpMenuHeader}" d:Header="Help">
                 <MenuItem Header="{Binding CheckForUpdatesMenuText}"

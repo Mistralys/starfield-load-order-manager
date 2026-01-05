@@ -24,6 +24,7 @@ namespace LoadOrderKeeper.ViewModels
         // Track non-modal windows to prevent multiple instances
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
+        private ReferenceHistoryWindow? _referenceHistoryWindow;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -89,6 +90,7 @@ namespace LoadOrderKeeper.ViewModels
         public string SwitchProfileMenuText { get; } = "_Switch Profile...";
         public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
         public string RecentStatusMessagesText { get; } = "Recent Status Messages:";
+        public string ReferenceHistoryMenuText { get; } = "History of changes...";
 
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
@@ -217,20 +219,104 @@ namespace LoadOrderKeeper.ViewModels
         private async Task CreateReferenceAsync()
         {
             IsBusy = true;
-            AddStatusMessage("Creating reference file...", StatusMessageType.Info);
 
             try
             {
+                // If updating an existing reference, archive it first with version history
+                if (RefExists)
+                {
+                    AddStatusMessage("Updating reference file...", StatusMessageType.Info);
+
+                    // Prompt for optional comment
+                    var commentDialog = new CommentInputDialog
+                    {
+                        Owner = WpfApplication.Current?.MainWindow
+                    };
+
+                    bool? commentResult = commentDialog.ShowDialog();
+                    
+                    // If user cancelled, abort the operation
+                    if (commentResult != true)
+                    {
+                        AddStatusMessage("Reference update cancelled.", StatusMessageType.Info);
+                        return;
+                    }
+
+                    string? comment = commentDialog.Comment;
+
+                    // Load pending changes from previous update (what changed LAST time)
+                    var pendingChanges = await ReferenceHistoryService.LoadPendingChangesAsync(Config);
+
+                    // Calculate current changes (what changed THIS time)
+                    var (currentAddedMods, currentRemovedMods) = await FileService.CalculateReferenceChangesAsync(Config);
+
+                    // Archive current reference with PREVIOUS changes
+                    // This makes the history entry describe what that version accomplished
+                    try
+                    {
+                        string effectiveComment = comment;
+                        
+                        // If this is the first version (no pending changes), mark it appropriately
+                        if (pendingChanges.IsEmpty && string.IsNullOrWhiteSpace(comment))
+                        {
+                            effectiveComment = "Initial version";
+                        }
+
+                        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
+                            Config, 
+                            effectiveComment, 
+                            pendingChanges.AddedMods, 
+                            pendingChanges.RemovedMods);
+                        
+                        // Refresh history window if open
+                        await RefreshReferenceHistoryWindowAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        AddStatusMessage($"Warning: Failed to archive version: {ex.Message}", StatusMessageType.Warning);
+                        // Continue with update even if archiving fails
+                    }
+
+                    // Store CURRENT changes as pending for the NEXT update
+                    var newPendingChanges = PendingChangesModel.Create(currentAddedMods, currentRemovedMods);
+                    try
+                    {
+                        await ReferenceHistoryService.SavePendingChangesAsync(Config, newPendingChanges);
+                    }
+                    catch (Exception ex)
+                    {
+                        AddStatusMessage($"Warning: Failed to save pending changes: {ex.Message}", StatusMessageType.Warning);
+                        // Continue even if saving pending changes fails
+                    }
+                }
+                else
+                {
+                    AddStatusMessage("Creating reference file...", StatusMessageType.Info);
+                    
+                    // First reference creation - no changes to track yet
+                    // Clear any stale pending changes
+                    await ReferenceHistoryService.ClearPendingChangesAsync(Config);
+                }
+
+                // Update/create the reference file
                 await FileService.CreateReferenceFileAsync(Config);
                 RefExists = true;
-                AddStatusMessage("Reference created successfully! You can now fix the load order.", StatusMessageType.Success);
+
+                if (RefExists)
+                {
+                    AddStatusMessage("Reference file updated successfully!", StatusMessageType.Success);
+                }
+                else
+                {
+                    AddStatusMessage("Reference created successfully! You can now fix the load order.", StatusMessageType.Success);
+                }
             }
             catch (Exception ex)
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 ConfirmationDialog.Show(
                     "Error",
-                    $"Failed to create reference: {ex.Message}",
+                    $"Failed to {(RefExists ? "update" : "create")} reference: {ex.Message}",
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,
@@ -248,7 +334,7 @@ namespace LoadOrderKeeper.ViewModels
  
         partial void OnRefExistsChanged(bool value)
         {
-            ReferenceButtonText = value ? "Update reference file" : "Create Reference";
+            ReferenceButtonText = value ? "Accept changes" : "Create Reference";
             ConfigurePluginsMonitor();
         }
  
@@ -463,6 +549,91 @@ namespace LoadOrderKeeper.ViewModels
             };
         }
 
+        [RelayCommand]
+        private void ShowReferenceHistory()
+        {
+            // If window is already open, bring it to front
+            if (_referenceHistoryWindow != null)
+            {
+                _referenceHistoryWindow.Activate();
+                _referenceHistoryWindow.Focus();
+                return;
+            }
+
+            var historyVm = new ReferenceHistoryViewModel(Config);
+            _referenceHistoryWindow = new ReferenceHistoryWindow
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = historyVm
+            };
+
+            // Handle rollback request
+            historyVm.RollbackRequested += async (s, version) =>
+            {
+                await HandleRollbackRequestAsync(version, _referenceHistoryWindow);
+            };
+
+            // Handle window closed event to clear reference
+            _referenceHistoryWindow.Closed += (s, e) => 
+            {
+                _referenceHistoryWindow = null;
+            };
+
+            _referenceHistoryWindow.Show();
+        }
+
+        private async Task HandleRollbackRequestAsync(ReferenceVersionMetadataModel version, System.Windows.Window parentWindow)
+        {
+            // Show confirmation dialog
+            var result = ConfirmationDialog.Show(
+                "Rollback Confirmation",
+                $"Are you sure you want to rollback to version {version.VersionNumber}?\n\n" +
+                $"Date: {version.FormattedTimestamp}\n" +
+                $"Changes: {version.TotalModsChanged}\n" +
+                $"Summary: {version.GetChangeSummary()}\n\n" +
+                $"The current Plugins.txt will be replaced with version {version.VersionNumber} so you can review the changes in the DIFF window before accepting them.",
+                ConfirmationIcon.Question,
+                ConfirmationButton.YesNo,
+                ConfirmationResult.No,
+                parentWindow);
+
+            if (result != ConfirmationResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                // Perform rollback
+                await ReferenceHistoryService.RollbackToVersionAsync(Config, version.VersionNumber);
+                AddStatusMessage($"Rolled back to version {version.VersionNumber}. Review changes in DIFF window.", StatusMessageType.Success);
+
+                // Close history window
+                parentWindow.Close();
+
+                // Trigger change detection to show in DIFF window
+                await CheckPluginsFileAsync();
+            }
+            catch (Exception ex)
+            {
+                ConfirmationDialog.Show(
+                    "Rollback Failed",
+                    $"Failed to rollback to version {version.VersionNumber}: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    parentWindow);
+            }
+        }
+
+        private async Task RefreshReferenceHistoryWindowAsync()
+        {
+            if (_referenceHistoryWindow?.DataContext is ReferenceHistoryViewModel historyVm)
+            {
+                await historyVm.RefreshVersionsAsync();
+            }
+        }
+
         private async Task UpdateActiveProfileLabelAsync()
         {
             try
@@ -475,7 +646,7 @@ namespace LoadOrderKeeper.ViewModels
                 ActiveProfileLabel = "Default";
             }
         }
- 
+
         private void LaunchShellTarget(string target, string failureMessage)
         {
             try
@@ -519,6 +690,16 @@ namespace LoadOrderKeeper.ViewModels
             PlayButtonText = HasSfseExecutable()
                 ? "Play (SFSE)"
                 : "Play (Vanilla)";
+        }
+ 
+        private async Task<bool> RefreshDiffAsync(string reason)
+        {
+            if (_activeDiffDialog != null)
+            {
+                await _activeDiffDialog.RefreshDiffAsync(reason);
+                return true;
+            }
+            return false;
         }
 
         private async Task UpdateChangeCountDisplayAsync(bool hasDifferences)

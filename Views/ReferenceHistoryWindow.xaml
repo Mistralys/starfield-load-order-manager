@@ -1,0 +1,202 @@
+<Window x:Class="LoadOrderKeeper.Views.ReferenceHistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        d:Title="Reference History"
+        Height="600"
+        Width="800"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource MaterialDesignDefaultWindowStyle}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        d:DesignHeight="600" d:DesignWidth="800">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+        <converters:ChangeSummaryConverter x:Key="ChangeSummaryConverter" />
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0"
+              Background="{DynamicResource MaterialDesignPaper}"
+              Foreground="{DynamicResource MaterialDesignBody}">
+            <MenuItem Header="{Binding FileMenuText}">
+                <MenuItem Header="{Binding ExitMenuText}"
+                          Command="{Binding CloseCommand}" />
+            </MenuItem>
+            <MenuItem Header="{Binding EditMenuText}">
+                <MenuItem Header="{Binding ClearHistoryMenuText}"
+                          Command="{Binding ClearHistoryCommand}" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Version List -->
+        <DataGrid Grid.Row="1"
+                  x:Name="VersionDataGrid"
+                  Style="{StaticResource EnhancedMaterialDesignDataGrid}"
+                  ItemsSource="{Binding Versions}"
+                  SelectedItem="{Binding SelectedVersion}"
+                  Margin="16"
+                  Background="{DynamicResource MaterialDesignPaper}">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource EnhancedMaterialDesignDataGridColumnHeader}" />
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="80">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.VersionColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Version"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="VersionNumber" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="160">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.DateColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Date &amp; Time"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="FormattedTimestamp" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="100">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.ChangesColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Changes"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="TotalModsChanged" />
+                    </DataGridTextColumn.Binding>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Width="*">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.SummaryColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Summary"
+                                       TextWrapping="Wrap" 
+                                       TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                <!-- User comment in italic if present -->
+                                <TextBlock Text="{Binding Comment}" 
+                                           FontStyle="Italic"
+                                           TextWrapping="Wrap"
+                                           Padding="8,4,8,0"
+                                           d:Text="This is my comment">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Comment}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Comment}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <!-- Change summary -->
+                                <TextBlock Text="{Binding ., Converter={StaticResource ChangeSummaryConverter}}"
+                                           TextWrapping="Wrap"
+                                           Padding="8,4"
+                                           d:Text="Removed 2 mods, Added 3 mods" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+            <DataGrid.Resources>
+                <ContextMenu x:Key="RowContextMenu" DataContext="{Binding DataContext, Source={x:Reference VersionDataGrid}}">
+                    <MenuItem Header="Rollback to this version..."
+                              Command="{Binding RollbackVersionCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=Restore}" />
+                    <MenuItem Header="Edit comment"
+                              Command="{Binding EditCommentCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=CommentEdit}" />
+                    <Separator />
+                    <MenuItem Header="Delete version"
+                              Command="{Binding DeleteSpecificVersionCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=Delete}" />
+                </ContextMenu>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource EnhancedMaterialDesignDataGridRow}">
+                    <EventSetter Event="MouseDoubleClick" Handler="OnVersionDoubleClick" />
+                    <Setter Property="ContextMenu" Value="{StaticResource RowContextMenu}" />
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+
+        <!-- No Versions Message -->
+        <TextBlock Grid.Row="1"
+                   Text="{Binding NoVersionsMessage}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="16"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                   Visibility="{Binding HasVersions, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
+
+        <!-- Loading Indicator -->
+        <ProgressBar Grid.Row="2"
+                     IsIndeterminate="True"
+                     Height="4"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <!-- Bottom Buttons -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="16">
+            <Button Content="{Binding RollbackButtonText}"
+                    d:Content="Rollback..."
+                    MinWidth="120"
+                    Margin="0,0,8,0"
+                    Command="{Binding RollbackCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button Content="{Binding ClearHistoryButtonText}"
+                    d:Content="Clear all history..."
+                    MinWidth="120"
+                    Margin="0,0,8,0"
+                    Command="{Binding ClearHistoryCommand}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}" />
+            <Button Content="{Binding CloseButtonText}"
+                    d:Content="Close"
+                    MinWidth="80"
+                    Command="{Binding CloseCommand}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -277,7 +277,7 @@
                         IsEnabled="{Binding HasDifferences}"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                 <Button Content="{Binding UpdateReferenceButtonText}"
-                        d:Content="Update reference file"
+                        d:Content="Accept changes"
                         Margin="8,0,0,0"
                         Command="{Binding UpdateReferenceCommand}"
                         IsEnabled="{Binding HasDifferences}"

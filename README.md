@@ -1,7 +1,8 @@
 ﻿# **SLOK: Starfield Load Order Keeper**
 
-A lightweight Windows tool that keeps your Starfield `Plugins.txt` stable and prevents 
-accidental load‑order changes that can break saves.
+SLOK is a lightweight Windows tool that keeps your Starfield 
+`Plugins.txt` stable and prevents accidental load‑order changes 
+that can break saves.
 
 ---
 
@@ -21,9 +22,9 @@ SLOK helps you to stop that from happening.
 - Detects when the file changes
 - Restores the correct order with one click
 - Appends new mods safely at the end
-- Normalizes file name casing based on the actual files in the game’s `Data` folder
 - Supports multiple profiles (different load orders for different characters)
-- Shows a simple diff of what changed
+- Shows an intelligent diff of what changed
+- Maintains a version history with rollback support
 - Can launch the game (uses SFSE if present)
 
 ---
@@ -40,29 +41,15 @@ https://www.nexusmods.com/starfield/mods/15786
 
 Profiles let you keep separate load orders for different playthroughs.
 
-Each profile stores:
-
-- A current load order
-- A reference load order
-- Optional metadata (label, description)
-
 Switching profiles automatically swaps the correct `Plugins.txt` content into place 
 and saves your current state.
 
-### **Profile Storage Structure**
-
-```
-AppData/Starfield/Profiles/
-  ├── default/
-  │   ├── main.txt
-  │   └── reference.txt
-  ├── my-profile/
-  │   ├── profile.json
-  │   ├── main.txt
-  │   └── reference.txt
-```
-
 ---
+
+## **Version History**
+
+SLOK keeps a history of all the changes you made, so you can roll back to
+a previous version anytime (up to 16 versions).
 
 ---
 
@@ -76,8 +63,6 @@ AppData/Starfield/Profiles/
    - Restore your reference order  
    - Or revert everything to the reference file  
 
-Disabled mods (lines without `*`) are ignored, just like Starfield does.
-
 ---
 
 ## **Setup**
@@ -86,7 +71,7 @@ On first launch, the app asks for:
 - Starfield AppData folder (where `Plugins.txt` lives)
 - Starfield installation folder (where the `Data` folder is)
 
-It auto-detects common locations but you can browse manually.
+It auto-detects common locations, but you can browse manually.
 
 ---
 

@@ -96,6 +96,17 @@ namespace LoadOrderKeeper.ViewModels
             RollbackRequested?.Invoke(this, SelectedVersion);
         }
 
+        [RelayCommand(CanExecute = nameof(CanRollback))]
+        private void RollbackVersion(ReferenceVersionMetadataModel? version)
+        {
+            if (version == null)
+            {
+                return;
+            }
+
+            RollbackRequested?.Invoke(this, version);
+        }
+
         private bool CanRollback() => SelectedVersion != null && !IsLoading;
 
         [RelayCommand(CanExecute = nameof(CanDeleteVersion))]
@@ -122,6 +133,44 @@ namespace LoadOrderKeeper.ViewModels
             try
             {
                 await ReferenceHistoryService.DeleteVersionAsync(_config, SelectedVersion.VersionNumber);
+                await LoadVersionsAsync();
+            }
+            catch (Exception ex)
+            {
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to delete version: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
+            }
+        }
+
+        [RelayCommand]
+        private async Task DeleteSpecificVersionAsync(ReferenceVersionMetadataModel? version)
+        {
+            if (version == null)
+            {
+                return;
+            }
+
+            var result = ConfirmationDialog.Show(
+                "Delete Version",
+                $"Are you sure you want to delete version {version.VersionNumber}?\n\nThis action cannot be undone.",
+                ConfirmationIcon.Warning,
+                ConfirmationButton.YesNo,
+                ConfirmationResult.No,
+                WpfApplication.Current?.MainWindow);
+
+            if (result != ConfirmationResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                await ReferenceHistoryService.DeleteVersionAsync(_config, version.VersionNumber);
                 await LoadVersionsAsync();
             }
             catch (Exception ex)

@@ -120,9 +120,23 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
+            <DataGrid.Resources>
+                <ContextMenu x:Key="RowContextMenu" DataContext="{Binding DataContext, Source={x:Reference VersionDataGrid}}">
+                    <MenuItem Header="Rollback to this version..."
+                              Command="{Binding RollbackVersionCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=Restore}" />
+                    <Separator />
+                    <MenuItem Header="Delete version"
+                              Command="{Binding DeleteSpecificVersionCommand}"
+                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              Icon="{materialDesign:PackIcon Kind=Delete}" />
+                </ContextMenu>
+            </DataGrid.Resources>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource EnhancedMaterialDesignDataGridRow}">
                     <EventSetter Event="MouseDoubleClick" Handler="OnVersionDoubleClick" />
+                    <Setter Property="ContextMenu" Value="{StaticResource RowContextMenu}" />
                 </Style>
             </DataGrid.RowStyle>
         </DataGrid>
@@ -153,12 +167,6 @@
                     Margin="0,0,8,0"
                     Command="{Binding RollbackCommand}"
                     Style="{StaticResource MaterialDesignRaisedButton}" />
-            <Button Content="{Binding DeleteVersionButtonText}"
-                    d:Content="Delete version"
-                    MinWidth="120"
-                    Margin="0,0,8,0"
-                    Command="{Binding DeleteVersionCommand}"
-                    Style="{StaticResource MaterialDesignOutlinedButton}" />
             <Button Content="{Binding ClearHistoryButtonText}"
                     d:Content="Clear all history..."
                     MinWidth="120"

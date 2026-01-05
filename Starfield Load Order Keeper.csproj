@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
     <PackageReference Include="MaterialDesignColors" Version="5.3.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
   </ItemGroup>

@@ -14,6 +14,7 @@
   - `CommunityToolkit.Mvvm`
     - `ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`, `RelayCommand`, `AsyncRelayCommand`, `IRelayCommand`, `IAsyncRelayCommand`
   - `MaterialDesignThemes` / `MaterialDesignColors` for dialogs, icons, and card layouts (v5)
+  - `Gameloop.Vdf` for parsing Steam library configuration files (Valve Data Format)
   - Standard .NET `System.*` APIs for I/O, processes, collections, and JSON serialization
 
 - **Architectural Patterns**
@@ -21,7 +22,7 @@
     - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`
     - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`
   - **Static Services**
-    - `SettingsService`: configuration persistence and default path discovery
+    - `SettingsService`: configuration persistence and default path discovery (includes Steam library detection)
     - `FileService`: plugins/reference file operations plus diff helpers
     - `DiffService`: diff line construction for the UI
     - `ProfileService`: profile discovery, CRUD, switching, and file scaffolding
@@ -39,6 +40,11 @@
   - **Confirmation Dialogs**
     - Custom Material Design styled `ConfirmationDialog` replaces all `MessageBox.Show` calls
     - Supports multiple icon types (Information, Question, Warning, Error) and button configurations (OK, OKCancel, YesNo, YesNoCancel)
+  - **Steam Library Detection**
+    - `SettingsService` parses Steam's `libraryfolders.vdf` to locate Starfield across all Steam library folders
+    - Detects Steam installation via Windows registry, searches all configured libraries for Starfield (AppID: 1716740)
+    - Validates installations by checking for `Data` folder presence
+    - Silent failure with multi-level fallbacks ensures robust path detection
 
 ---
 
@@ -117,6 +123,8 @@
 │     ├─ LoadOrderKeeper.Tests.csproj
 │     ├─ DiffServiceTests.cs
 │     ├─ FileServiceTests.cs
+│     ├─ ProfileServiceTests.cs
+│     ├─ SettingsServiceTests.cs
 │     └─ TestConfigContext.cs
 ```
 
@@ -275,6 +283,12 @@ public static class SettingsService
     public static Task SaveSettingsAsync(AppConfigModel config);
     public static string TryGetDefaultSteamPath();
     public static string TryGetDefaultAppDataPath();
+    
+    // Private methods for Steam detection
+    private static string? TryGetSteamInstallPath();
+    private static string? TryFindStarfieldInSteamLibraries(string steamInstallPath);
+    private static string? TryGetRegistryValue(RegistryKey rootKey, string subKeyPath, string valueName);
+    private static string NormalizePath(string path);
 }
 ```
 
@@ -791,6 +805,15 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
 - **Settings Flow**
   - `MainViewModel.OpenSettingsCommand` shows `SettingsWindow`; on success, `SettingsService.SaveSettingsAsync()` persists `AppConfigModel`, `RefExists` is recomputed, and monitoring restarts.
   - Configuration edits retain `ActiveProfileId`, so profile-specific references stay aligned.
+  - `SettingsService.TryGetDefaultSteamPath()` intelligently detects Starfield installation by:
+    1. Calling `TryGetSteamInstallPath()` to find main Steam installation via Windows registry (CurrentUser, LocalMachine paths)
+    2. If found, calling `TryFindStarfieldInSteamLibraries()` to parse `libraryfolders.vdf` using Gameloop.Vdf
+    3. Iterating through numeric library keys (0, 1, 2, ...) to check each library's `apps` collection for Starfield AppID (1716740)
+    4. Validating installation by checking for `Data` folder existence
+    5. Falling back to default Steam installation location if VDF parsing fails
+    6. Final fallback to Program Files location if all detection methods fail
+  - Path normalization converts forward slashes to backslashes for Windows consistency
+  - All Steam detection failures are silent to avoid disrupting user experience
   
 - **Reference & load order controls**
   - `CreateReferenceCommand` and `FixLoadOrderCommand` call `FileService.CreateReferenceFileAsync()` and `FileService.ApplyLoadOrderAsync()` respectively; both commands gate on configuration validity and `IsBusy`.
@@ -857,6 +880,35 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
 - **Error handling**
   - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `ConfirmationDialog` for errors.
   - All user-facing dialogs use `ConfirmationDialog` with appropriate icon types (Error, Warning, Information) for consistent Material Design v5 styling.
+  - Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parse errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+
+- **Steam Library Detection**
+  - `SettingsService` includes intelligent Steam library folder detection for auto-discovering Starfield installations.
+  - **Implementation Details**:
+    - Uses `Gameloop.Vdf` library (v0.6.2) to parse Valve Data Format files
+    - Reads `steamapps/libraryfolders.vdf` from main Steam installation
+    - Starfield AppID constant: `1716740`
+    - VDF structure: `libraryfolders` → numeric keys (0, 1, 2) → `path` + `apps` properties
+    - Each library's `apps` object contains AppIDs as keys; presence indicates game installation in that library
+    - Constructs path: `{library-path}/steamapps/common/Starfield`
+    - Validates by checking `Data` subfolder existence
+  - **Registry Keys Checked** (in order):
+    1. `HKEY_CURRENT_USER\Software\Valve\Steam\SteamPath`
+    2. `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\InstallPath` (64-bit systems)
+    3. `HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam\InstallPath` (32-bit systems)
+  - **Fallback Sequence**:
+    1. Parse VDF and search all libraries (preferred method)
+    2. Check default Steam installation: `{steam-path}/steamapps/common/Starfield`
+    3. Check Program Files: `%ProgramFiles(x86)%/Steam/steamapps/common/Starfield`
+  - **Test Coverage**: 8 unit tests in `SettingsServiceTests` covering:
+    - Basic detection with example VDF structure
+    - First-match selection when multiple libraries contain Starfield
+    - Null return when Starfield not found in any library
+    - Null return when VDF file missing
+    - Null return when Data folder missing (invalid installation)
+    - Silent failure on corrupted VDF content
+    - Path normalization (forward slashes → backslashes)
+    - Handling libraries without `apps` property
   
 - **UI/UX Conventions**
   - All text displayed in UI uses bindings (no hardcoded strings in XAML).

@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.4.1 - Bug Fixes
+- Core: Fixed the version check recognizing older versions as newer ones.
+
 ## v1.4.0 - Version History
 - Versioning: Changes to reference files are now tracked with version history.
 - General: Improved data grid styling.

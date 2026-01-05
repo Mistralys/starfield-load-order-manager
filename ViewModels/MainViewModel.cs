@@ -59,6 +59,15 @@ namespace LoadOrderKeeper.ViewModels
             private set => SetProperty(ref _playButtonText, value);
         }
 
+        [ObservableProperty]
+        private bool _updateAvailable;
+
+        [ObservableProperty]
+        private string _updateMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool _updateInfoBarVisible;
+
         public string WindowTitle => $"Starfield Load Order Keeper v{VersionService.GetApplicationVersion()}";
         public string FileMenuHeader { get; } = "_File";
         public string OpenPluginsMenuText { get; } = "Open _Plugins.txt";
@@ -69,7 +78,9 @@ namespace LoadOrderKeeper.ViewModels
         public string EditMenuHeader { get; } = "_Edit";
         public string SettingsMenuText { get; } = "_Settings...";
         public string HelpMenuHeader { get; } = "_Help";
+        public string CheckForUpdatesMenuText { get; } = "Check for _Updates...";
         public string AboutMenuText { get; } = "_About...";
+        public string DownloadOptionsButtonText { get; } = "Download options...";
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
         public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
@@ -143,6 +154,9 @@ namespace LoadOrderKeeper.ViewModels
 
             ConfigurePluginsMonitor();
             await CheckPluginsFileAsync();
+
+            // Check for updates in the background
+            _ = CheckForUpdatesBackgroundAsync();
         }
 
         private async Task EnsureValidConfigurationAsync()
@@ -833,6 +847,98 @@ namespace LoadOrderKeeper.ViewModels
 
             // Update the current status message for backward compatibility
             StatusMessage = message;
+        }
+
+        [RelayCommand]
+        private async Task CheckForUpdatesAsync()
+        {
+            try
+            {
+                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: true);
+
+                if (result.UpdateAvailable)
+                {
+                    UpdateAvailable = true;
+                    UpdateMessage = $"Version {result.LatestVersion} is available!";
+                    UpdateInfoBarVisible = true;
+                }
+                else
+                {
+                    ConfirmationDialog.Show(
+                        "No Updates Available",
+                        $"You are using the latest version ({result.CurrentVersion}).",
+                        ConfirmationIcon.Information,
+                        ConfirmationButton.OK,
+                        ConfirmationResult.OK,
+                        WpfApplication.Current?.MainWindow);
+                }
+            }
+            catch
+            {
+                ShowUpdateCheckErrorDialog();
+            }
+        }
+
+        private async Task CheckForUpdatesBackgroundAsync()
+        {
+            try
+            {
+                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: false);
+
+                if (result.UpdateAvailable)
+                {
+                    UpdateAvailable = true;
+                    UpdateMessage = $"Version {result.LatestVersion} is available!";
+                    UpdateInfoBarVisible = true;
+                }
+            }
+            catch
+            {
+                // Silent failure for background check
+            }
+        }
+
+        [RelayCommand]
+        private void DismissUpdateNotification()
+        {
+            UpdateInfoBarVisible = false;
+        }
+
+        [RelayCommand]
+        private void OpenDownloadPage()
+        {
+            var nexusUrl = UpdateCheckService.GetNexusModsUrl();
+            var githubUrl = UpdateCheckService.GetGitHubReleasesUrl();
+
+            var message = $"Download the latest version from:\n\n" +
+                         $"Nexusmods:\n{nexusUrl}\n\n" +
+                         $"GitHub:\n{githubUrl}";
+
+            ConfirmationDialog.Show(
+                "Download Update",
+                message,
+                ConfirmationIcon.Information,
+                ConfirmationButton.OK,
+                ConfirmationResult.OK,
+                WpfApplication.Current?.MainWindow);
+        }
+
+        private void ShowUpdateCheckErrorDialog()
+        {
+            var nexusUrl = UpdateCheckService.GetNexusModsUrl();
+            var githubUrl = UpdateCheckService.GetGitHubReleasesUrl();
+
+            var message = $"Unable to check for updates. Please check your internet connection or visit the download pages manually:\n\n" +
+                         $"Nexusmods:\n{nexusUrl}\n\n" +
+                         $"GitHub:\n{githubUrl}";
+
+            ConfirmationDialog.Show(
+                "Update Check Failed",
+                message,
+                ConfirmationIcon.Warning,
+                ConfirmationButton.OK,
+                ConfirmationResult.OK,
+                WpfApplication.Current?.MainWindow);
         }
     }
 }

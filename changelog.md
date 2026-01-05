@@ -4,6 +4,7 @@
 - Versioning: Changes to reference files are now tracked with version history.
 - General: Improved data grid styling.
 - Core: Moved style presets into separate files.
+- Core: Added application icon.
 
 ## v1.3.0 - Settings helper
 - Settings: Now auto-detecting the game path for Steam users.

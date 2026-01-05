@@ -591,7 +591,8 @@ namespace LoadOrderKeeper.ViewModels
                 $"Date: {version.FormattedTimestamp}\n" +
                 $"Changes: {version.TotalModsChanged}\n" +
                 $"Summary: {version.GetChangeSummary()}\n\n" +
-                $"The current Plugins.txt will be replaced with version {version.VersionNumber} so you can review the changes in the DIFF window before accepting them.",
+                $"The current Plugins.txt will be replaced with the list from version {version.VersionNumber}." +
+                "You will then have the opportunity to review the changes before accepting them.",
                 ConfirmationIcon.Question,
                 ConfirmationButton.YesNo,
                 ConfirmationResult.No,
@@ -606,7 +607,7 @@ namespace LoadOrderKeeper.ViewModels
             {
                 // Perform rollback
                 await ReferenceHistoryService.RollbackToVersionAsync(Config, version.VersionNumber);
-                AddStatusMessage($"Rolled back to version {version.VersionNumber}. Review changes in DIFF window.", StatusMessageType.Success);
+                AddStatusMessage($"Rolled back to version {version.VersionNumber}. Accept the changes to confirm.", StatusMessageType.Success);
 
                 // Close history window
                 parentWindow.Close();

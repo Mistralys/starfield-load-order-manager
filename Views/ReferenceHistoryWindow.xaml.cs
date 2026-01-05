@@ -9,11 +9,25 @@ namespace LoadOrderKeeper.Views
         public ReferenceHistoryWindow()
         {
             InitializeComponent();
+            DataContextChanged += OnDataContextChanged;
+        }
 
-            if (DataContext is ReferenceHistoryViewModel viewModel)
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.OldValue is ReferenceHistoryViewModel oldViewModel)
             {
-                viewModel.CloseRequested += (s, e) => Close();
+                oldViewModel.CloseRequested -= OnCloseRequested;
             }
+
+            if (e.NewValue is ReferenceHistoryViewModel newViewModel)
+            {
+                newViewModel.CloseRequested += OnCloseRequested;
+            }
+        }
+
+        private void OnCloseRequested(object? sender, EventArgs e)
+        {
+            Close();
         }
 
         private void OnVersionDoubleClick(object sender, MouseButtonEventArgs e)
@@ -22,6 +36,15 @@ namespace LoadOrderKeeper.Views
             {
                 viewModel.RollbackCommand.Execute(null);
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (DataContext is ReferenceHistoryViewModel viewModel)
+            {
+                viewModel.CloseRequested -= OnCloseRequested;
+            }
+            base.OnClosed(e);
         }
     }
 }

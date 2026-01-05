@@ -907,38 +907,38 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private void OpenDownloadPage()
         {
-            var nexusUrl = UpdateCheckService.GetNexusModsUrl();
-            var githubUrl = UpdateCheckService.GetGitHubReleasesUrl();
+            if (string.IsNullOrEmpty(UpdateMessage))
+            {
+                // Fallback if no update info available
+                ShowUpdateCheckErrorDialog();
+                return;
+            }
 
-            var message = $"Download the latest version from:\n\n" +
-                         $"Nexusmods:\n{nexusUrl}\n\n" +
-                         $"GitHub:\n{githubUrl}";
+            var currentVersion = VersionService.GetApplicationVersion();
+            var latestVersion = UpdateMessage.Replace("Version ", "").Replace(" is available!", "").Trim();
 
-            ConfirmationDialog.Show(
-                "Download Update",
-                message,
-                ConfirmationIcon.Information,
-                ConfirmationButton.OK,
-                ConfirmationResult.OK,
-                WpfApplication.Current?.MainWindow);
+            var updateVm = new UpdateOptionsViewModel(currentVersion, latestVersion);
+            var updateDialog = new UpdateOptionsDialog
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = updateVm
+            };
+
+            updateDialog.ShowDialog();
         }
 
         private void ShowUpdateCheckErrorDialog()
         {
-            var nexusUrl = UpdateCheckService.GetNexusModsUrl();
-            var githubUrl = UpdateCheckService.GetGitHubReleasesUrl();
+            var currentVersion = VersionService.GetApplicationVersion();
 
-            var message = $"Unable to check for updates. Please check your internet connection or visit the download pages manually:\n\n" +
-                         $"Nexusmods:\n{nexusUrl}\n\n" +
-                         $"GitHub:\n{githubUrl}";
+            var updateVm = new UpdateOptionsViewModel(currentVersion, "Unknown");
+            var updateDialog = new UpdateOptionsDialog
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = updateVm
+            };
 
-            ConfirmationDialog.Show(
-                "Update Check Failed",
-                message,
-                ConfirmationIcon.Warning,
-                ConfirmationButton.OK,
-                ConfirmationResult.OK,
-                WpfApplication.Current?.MainWindow);
+            updateDialog.ShowDialog();
         }
     }
 }

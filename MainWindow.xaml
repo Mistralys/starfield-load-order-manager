@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="342"
+        Height="384"
         Width="576"
         MinWidth="480"
         MinHeight="280"
@@ -24,7 +24,7 @@
         <Menu DockPanel.Dock="Top"
               Background="{DynamicResource MaterialDesignPaper}"
               Foreground="{DynamicResource MaterialDesignBody}">
-            <MenuItem Header="{Binding FileMenuHeader}">
+            <MenuItem Header="{Binding FileMenuHeader}" d:Header="File">
                 <MenuItem Header="{Binding OpenPluginsMenuText}"
                           Command="{Binding OpenPluginsFileCommand}" />
                 <MenuItem Header="{Binding OpenReferenceMenuText}"
@@ -38,12 +38,12 @@
                 <MenuItem Header="{Binding ExitMenuText}"
                           Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
-            <MenuItem Header="{Binding EditMenuHeader}">
+            <MenuItem Header="{Binding EditMenuHeader}" d:Header="Edit">
                 <MenuItem Header="{Binding SettingsMenuText}"
                           Command="{Binding OpenSettingsCommand}"
                           Icon="{materialDesign:PackIcon Kind=Settings}" />
             </MenuItem>
-            <MenuItem Header="{Binding ProfileMenuHeader}">
+            <MenuItem Header="{Binding ProfileMenuHeader}" d:Header="Profile">
                 <MenuItem Header="{Binding SwitchProfileMenuText}"
                           Command="{Binding SwitchProfileCommand}"
                           Icon="{materialDesign:PackIcon Kind=SwapHorizontal}" />
@@ -51,12 +51,66 @@
                           Command="{Binding ManageProfilesCommand}"
                           Icon="{materialDesign:PackIcon Kind=FolderMultiple}" />
             </MenuItem>
-            <MenuItem Header="{Binding HelpMenuHeader}">
+            <MenuItem Header="{Binding HelpMenuHeader}" d:Header="Help">
+                <MenuItem Header="{Binding CheckForUpdatesMenuText}"
+                          Command="{Binding CheckForUpdatesCommand}"
+                          Icon="{materialDesign:PackIcon Kind=Update}" />
+                <Separator />
                 <MenuItem Header="{Binding AboutMenuText}"
                           Command="{Binding ShowAboutCommand}"
                           Icon="{materialDesign:PackIcon Kind=Information}" />
             </MenuItem>
         </Menu>
+
+        <!-- Update notification info bar -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource MaterialDesign.Brush.Primary}"
+                Padding="12,8"
+                Margin="0,0,0,16"
+                Visibility="{Binding UpdateInfoBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <materialDesign:PackIcon Grid.Column="0"
+                                        Kind="Information"
+                                        Width="20"
+                                        Height="20"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,8,0"
+                                        Foreground="{DynamicResource MaterialDesignPaper}" />
+
+                <TextBlock Grid.Column="1"
+                          Text="{Binding UpdateMessage}"
+                          d:Text="A new version of Load Order Keeper is available!"
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource MaterialDesignPaper}"
+                          TextWrapping="Wrap" />
+
+                <Button Grid.Column="2"
+                       Content="{Binding DownloadOptionsButtonText}"
+                       d:Content="Download options..."
+                       Command="{Binding OpenDownloadPageCommand}"
+                       Style="{StaticResource MaterialDesignOutlinedButton}"
+                       Margin="8,0"
+                       Foreground="{DynamicResource MaterialDesignPaper}"
+                       BorderBrush="{DynamicResource MaterialDesignPaper}" />
+
+                <Button Grid.Column="3"
+                       Content="✕"
+                       Command="{Binding DismissUpdateNotificationCommand}"
+                       Style="{StaticResource MaterialDesignFlatButton}"
+                       Width="30"
+                       Height="30"
+                       Padding="0"
+                       Foreground="{DynamicResource MaterialDesignPaper}"
+                       ToolTip="Dismiss" />
+            </Grid>
+        </Border>
 
         <Grid DockPanel.Dock="Top"
               Margin="16,0,16,0">
@@ -99,12 +153,14 @@
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0"
                             Content="{Binding ShowChangesButtonText}"
+                            d:Content="Manage Changes (42)"
                             Margin="0,0,8,0"
                             Command="{Binding ShowDiffCommand}"
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignOutlinedButton}" />
                     <Button Grid.Column="1"
                             Content="{Binding PlayButtonText}"
+                            d:Content="Play"
                             Margin="8,0,0,0"
                             Command="{Binding PlayGameCommand}"
                             HorizontalAlignment="Stretch"
@@ -121,6 +177,7 @@
                         CornerRadius="4">
                     <StackPanel>
                         <TextBlock Text="{Binding RecentStatusMessagesText}"
+                                   d:Text="Recent Status Messages:"
                                    FontWeight="Bold"
                                    Margin="0,0,0,4"
                                    Foreground="{DynamicResource MaterialDesignBodyLight}"
@@ -164,6 +221,7 @@
                         <!-- Current status message for backwards compatibility -->
                         <TextBlock TextWrapping="Wrap"
                                    Text="{Binding StatusMessage}"
+                                   d:Text="All systems operational."
                                    Foreground="{DynamicResource MaterialDesignBodyLight}"
                                    Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource InverseCountToVisibilityConverter}}" />
                     </StackPanel>

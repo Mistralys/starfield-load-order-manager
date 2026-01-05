@@ -19,17 +19,18 @@
 
 - **Architectural Patterns**
   - **MVVM**
-    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`
-    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`
+    - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`
+    - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`
   - **Static Services**
     - `SettingsService`: configuration persistence and default path discovery (includes Steam library detection)
     - `FileService`: plugins/reference file operations plus diff helpers
     - `DiffService`: diff line construction for the UI
     - `ProfileService`: profile discovery, CRUD, switching, and file scaffolding
     - `VersionService`: centralized application version retrieval
+    - `UpdateCheckService`: GitHub API integration for version checking with caching
   - **Modal Navigation**
     - `MainWindow` as shell
-    - Secondary windows opened modally: `SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`
+    - Secondary windows opened modally: `SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`
   - **Non-Modal Windows**
     - `DiffWindow`, `ManageProfilesWindow` allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates
   - **File Monitoring**
@@ -40,6 +41,11 @@
   - **Confirmation Dialogs**
     - Custom Material Design styled `ConfirmationDialog` replaces all `MessageBox.Show` calls
     - Supports multiple icon types (Information, Question, Warning, Error) and button configurations (OK, OKCancel, YesNo, YesNoCancel)
+  - **Update Notifications**
+    - Non-intrusive info bar in `MainWindow` shows when updates available
+    - Automatic background check on startup with 24-hour caching
+    - Manual check via Help menu bypasses cache
+    - `UpdateOptionsDialog` provides clickable download buttons for Nexusmods and GitHub
   - **Steam Library Detection**
     - `SettingsService` parses Steam's `libraryfolders.vdf` to locate Starfield across all Steam library folders
     - Detects Steam installation via Windows registry, searches all configured libraries for Starfield (AppID: 1716740)
@@ -65,12 +71,14 @@
 │  ├─ ModEntryModel.cs
 │  ├─ PluginsComparisonResult.cs
 │  ├─ ProfileModel.cs
-│  └─ StatusMessageModel.cs
+│  ├─ StatusMessageModel.cs
+│  └─ UpdateCheckResult.cs
 ├─ Services/
 │  ├─ DiffService.cs
 │  ├─ FileService.cs
 │  ├─ ProfileService.cs
 │  ├─ SettingsService.cs
+│  ├─ UpdateCheckService.cs
 │  └─ VersionService.cs
 ├─ ViewModels/
 │  ├─ AboutViewModel.cs
@@ -80,7 +88,8 @@
 │  ├─ ManageProfilesViewModel.cs
 │  ├─ ProfilePropertiesViewModel.cs
 │  ├─ SettingsViewModel.cs
-│  └─ SwitchProfileViewModel.cs
+│  ├─ SwitchProfileViewModel.cs
+│  └─ UpdateOptionsViewModel.cs
 ├─ Views/
 │  ├─ AboutWindow.xaml
 │  ├─ AboutWindow.xaml.cs
@@ -95,7 +104,9 @@
 │  ├─ SettingsWindow.xaml
 │  ├─ SettingsWindow.xaml.cs
 │  ├─ SwitchProfileWindow.xaml
-│  └─ SwitchProfileWindow.xaml.cs
+│  ├─ SwitchProfileWindow.xaml.cs
+│  ├─ UpdateOptionsDialog.xaml
+│  └─ UpdateOptionsDialog.xaml.cs
 ├─ Converters/
 │  ├─ ActiveProfileVisibilityConverter.cs
 │  ├─ CountToVisibilityConverter.cs
@@ -272,6 +283,16 @@ public enum StatusMessageType
 }
 ```
 
+#### `LoadOrderKeeper.Models.UpdateCheckResult`
+
+```csharp
+public sealed record UpdateCheckResult(
+    bool UpdateAvailable,
+    string CurrentVersion,
+    string? LatestVersion,
+    string? DownloadUrl);
+```
+
 ### 3.2 Services
 
 #### `LoadOrderKeeper.Services.SettingsService`
@@ -355,6 +376,25 @@ public static class VersionService
 }
 ```
 
+#### `LoadOrderKeeper.Services.UpdateCheckService`
+
+```csharp
+public static class UpdateCheckService
+{
+    public static Task<UpdateCheckResult> CheckForUpdatesAsync(bool bypassCache = false);
+    public static string GetNexusModsUrl();
+    public static string GetGitHubReleasesUrl();
+    
+    // Private implementation details
+    private static Task<GitHubRelease?> FetchLatestReleaseAsync();
+    private static SemanticVersion? ParseVersion(string versionString);
+    private static bool IsNewerVersion(SemanticVersion latest, SemanticVersion current);
+    private static CacheInfo GetCacheInfo();
+    private static void SaveToCache(UpdateCheckResult result);
+    private static string GetCacheFilePath();
+}
+```
+
 ### 3.3 ViewModels
 
 > Commands emitted by `[RelayCommand]` follow the `{MethodName}Command` naming pattern and expose `IRelayCommand` / `IAsyncRelayCommand` properties automatically.
@@ -409,7 +449,9 @@ public partial class MainViewModel : ObservableObject
     public string EditMenuHeader { get; }
     public string SettingsMenuText { get; }
     public string HelpMenuHeader { get; }
+    public string CheckForUpdatesMenuText { get; }
     public string AboutMenuText { get; }
+    public string DownloadOptionsButtonText { get; }
     public string CurrentTargetLabel { get; }
     public string TargetPrefixText { get; }
     public string PluginsModifiedWarningText { get; }
@@ -423,6 +465,9 @@ public partial class MainViewModel : ObservableObject
     public string SortingRecommendationMessage { get; set; }
     public bool SortingRecommendationActive { get; set; }
     public string ActiveProfileLabel { get; set; }
+    public bool UpdateAvailable { get; set; }
+    public string UpdateMessage { get; set; }
+    public bool UpdateInfoBarVisible { get; set; }
 
     public IRelayCommand OpenPluginsFileCommand { get; }
     public IRelayCommand OpenReferenceFileCommand { get; }
@@ -436,6 +481,9 @@ public partial class MainViewModel : ObservableObject
     public IAsyncRelayCommand SwitchProfileCommand { get; }
     public IAsyncRelayCommand ManageProfilesCommand { get; }
     public IAsyncRelayCommand OpenSettingsCommand { get; }
+    public IAsyncRelayCommand CheckForUpdatesCommand { get; }
+    public IRelayCommand DismissUpdateNotificationCommand { get; }
+    public IRelayCommand OpenDownloadPageCommand { get; }
     public IRelayCommand ShowAboutCommand { get; }
     public IRelayCommand ExitApplicationCommand { get; }
 }
@@ -646,6 +694,29 @@ public partial class AboutViewModel : ObservableObject
 }
 ```
 
+#### `LoadOrderKeeper.ViewModels.UpdateOptionsViewModel`
+
+```csharp
+public partial class UpdateOptionsViewModel : ObservableObject
+{
+    public UpdateOptionsViewModel(string currentVersion, string? latestVersion);
+
+    public string WindowTitle { get; }
+    public string MessageText { get; }
+    public string NexusmodsButtonText { get; }
+    public string GitHubButtonText { get; }
+    public string CancelButtonText { get; }
+    public string NexusmodsUrl { get; }
+    public string GitHubUrl { get; }
+
+    public event EventHandler? CloseRequested;
+
+    public IRelayCommand OpenNexusmodsCommand { get; }
+    public IRelayCommand OpenGitHubCommand { get; }
+    public IRelayCommand CancelCommand { get; }
+}
+```
+
 ### 3.4 Views / Application
 
 #### `LoadOrderKeeper.App`
@@ -733,6 +804,15 @@ public partial class AboutWindow : Window
 }
 ```
 
+#### `LoadOrderKeeper.Views.UpdateOptionsDialog`
+
+```csharp
+public partial class UpdateOptionsDialog : Window
+{
+    public UpdateOptionsDialog();
+}
+```
+
 #### `LoadOrderKeeper.Converters.ReplacementCommandParameterConverter`
 
 ```csharp
@@ -809,7 +889,7 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
     1. Calling `TryGetSteamInstallPath()` to find main Steam installation via Windows registry (CurrentUser, LocalMachine paths)
     2. If found, calling `TryFindStarfieldInSteamLibraries()` to parse `libraryfolders.vdf` using Gameloop.Vdf
     3. Iterating through numeric library keys (0, 1, 2, ...) to check each library's `apps` collection for Starfield AppID (1716740)
-    4. Validating installation by checking for `Data` folder existence
+    4. Validating installation by checking for `Data` subfolder existence
     5. Falling back to default Steam installation location if VDF parsing fails
     6. Final fallback to Program Files location if all detection methods fail
   - Path normalization converts forward slashes to backslashes for Windows consistency
@@ -843,6 +923,19 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
   - Each status message has a timestamp and type (Info, Success, Warning, Error).
   - Displayed in main window UI for quick reference of recent operations.
 
+- **Version Check & Updates**
+  - `MainViewModel.LoadInitialStateAsync()` calls `CheckForUpdatesBackgroundAsync()` on startup to check for new versions.
+  - Background check calls `UpdateCheckService.CheckForUpdatesAsync(bypassCache: false)` with 24-hour cache.
+  - If update available, `UpdateAvailable`, `UpdateMessage`, and `UpdateInfoBarVisible` properties are set, triggering info bar display.
+  - `MainViewModel.CheckForUpdatesCommand` (from Help menu) calls `UpdateCheckService.CheckForUpdatesAsync(bypassCache: true)` for immediate check.
+  - Manual check shows `ConfirmationDialog` if no update available, or sets info bar properties if update found.
+  - `MainViewModel.OpenDownloadPageCommand` shows `UpdateOptionsDialog` with download buttons for Nexusmods and GitHub.
+  - `UpdateOptionsViewModel` opens URLs in default browser via `Process.Start()` and closes dialog automatically.
+  - Network failures in background check are silent; manual check shows `UpdateOptionsDialog` with error message.
+  - `UpdateCheckService` caches results in `%LOCALAPPDATA%\StarfieldLoadOrderKeeper\update-check-cache.json` with 24-hour expiration.
+  - Version comparison uses semantic versioning, ignores pre-release versions, and only notifies for newer stable releases.
+  - GitHub API endpoint: `https://api.github.com/repos/Mistralys/starfield-load-order-manager/releases/latest` with 10-second timeout.
+
 ---
 
 ## 5. Current Constraints & Invariants
@@ -873,7 +966,7 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
   - Dependent changes are tracked and displayed: when a mod is removed/added, all mods that shift position as a result are shown as dependent changes.
   
 - **Navigation & threading**
-  - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`) block until close; viewmodels flow back via dialog results/events.
+  - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`) block until close; viewmodels flow back via dialog results/events.
   - Non-modal windows (`DiffWindow`, `ManageProfilesWindow`) allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle.
   - `DispatcherTimer` runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
   
@@ -917,3 +1010,22 @@ public sealed class InverseBooleanToVisibilityConverter : IValueConverter
   - Confirmation dialogs shown for destructive actions (discard changes, update reference with removed/inserted mods).
   - Button labels include ellipsis ("...") when they open dialogs or require further interaction.
   - Design-time attributes (`d:` prefix with `mc:Ignorable="d"`) used for XAML designer support.
+
+- **Version Check System**
+  - `UpdateCheckService` is a static service with no instance state.
+  - Constants for GitHub owner (`Mistralys`), repo (`starfield-load-order-manager`), Nexusmods URL, and GitHub releases URL.
+  - Uses unauthenticated GitHub API requests (60 requests/hour limit, suitable for small user base).
+  - Cache file location: `%LOCALAPPDATA%\StarfieldLoadOrderKeeper\update-check-cache.json`.
+  - Cache expiration: 24 hours from last check timestamp.
+  - Version parsing: semantic versioning (Major.Minor.Patch) with optional pre-release suffix after `-`.
+  - Pre-release versions (containing `-beta`, `-rc`, etc.) are filtered out and ignored.
+  - Version comparison: only major/minor/patch components compared; equal or older versions don't trigger notification.
+  - Update info bar: dismissible per session, non-intrusive, appears at top of `MainWindow` below menu bar.
+  - Update options dialog: modal, shows current and latest version, two download buttons with Material Design icons.
+  - Download URLs open in default browser via `Process.Start()` with `UseShellExecute = true`.
+  - Network timeout: 10 seconds for GitHub API requests.
+  - Background check failures are completely silent (no user notification).
+  - Manual check failures show `UpdateOptionsDialog` with error message and download links.
+  - `HttpClient` instance is static and reused, includes `User-Agent: StarfieldLoadOrderKeeper` header.
+  - JSON serialization uses `System.Text.Json` with indented formatting for cache files.
+  - Cache saves are fire-and-forget; failures don't propagate to caller.

@@ -16,9 +16,41 @@ namespace LoadOrderKeeper.Models
                 return false;
             }
 
-            return Directory.Exists(StarfieldAppDataPath) &&
-                   Directory.Exists(StarfieldGamePath) &&
-                   Directory.Exists(Path.Combine(StarfieldGamePath, "Data"));
+            if (!Directory.Exists(StarfieldAppDataPath) ||
+                !Directory.Exists(StarfieldGamePath) ||
+                !Directory.Exists(Path.Combine(StarfieldGamePath, "Data")))
+            {
+                return false;
+            }
+
+            // Check for Plugins.txt existence - required for application to function
+            var pluginsPath = GetPluginsFilePath();
+            if (!File.Exists(pluginsPath))
+            {
+                return false;
+            }
+
+            // Check if Profiles folder can be created or accessed
+            var profilesFolder = Path.Combine(StarfieldAppDataPath, "Profiles");
+            try
+            {
+                if (!Directory.Exists(profilesFolder))
+                {
+                    Directory.CreateDirectory(profilesFolder);
+                }
+                
+                // Test writability with a temporary file
+                var testFile = Path.Combine(profilesFolder, $".test_{System.Guid.NewGuid():N}");
+                File.WriteAllText(testFile, "test");
+                File.Delete(testFile);
+                
+                return true;
+            }
+            catch
+            {
+                // Profiles folder cannot be created or is not writable
+                return false;
+            }
         }
 
         public string GetPluginsFilePath() => Path.Combine(StarfieldAppDataPath, "Plugins.txt");

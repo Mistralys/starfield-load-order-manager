@@ -161,6 +161,42 @@ namespace LoadOrderKeeper.ViewModels
                 errors.Add("The game Data folder was not found");
             }
 
+            // Check Plugins.txt if AppData path is valid
+            if (errors.Count == 0 && appDataPathValid)
+            {
+                var pluginsPath = Path.Combine(StarfieldAppDataPath, "Plugins.txt");
+                if (!File.Exists(pluginsPath))
+                {
+                    errors.Add("Plugins.txt not found in the app data folder");
+                }
+            }
+
+            // Check Profiles folder if paths are valid and Plugins.txt exists
+            if (errors.Count == 0 && appDataPathValid)
+            {
+                var profilesFolder = Path.Combine(StarfieldAppDataPath, "Profiles");
+                try
+                {
+                    if (!Directory.Exists(profilesFolder))
+                    {
+                        Directory.CreateDirectory(profilesFolder);
+                    }
+                    
+                    // Test writability
+                    var testFile = Path.Combine(profilesFolder, $".test_{Guid.NewGuid():N}");
+                    File.WriteAllText(testFile, "test");
+                    File.Delete(testFile);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    errors.Add("Access denied when creating the Profiles folder");
+                }
+                catch
+                {
+                    errors.Add("The Profiles folder cannot be created or accessed");
+                }
+            }
+
             // Update banner based on validation results
             StatusBannerVisible = true;
             

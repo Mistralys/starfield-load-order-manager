@@ -146,6 +146,37 @@ namespace LoadOrderKeeper.ViewModels
         {
             Config = await SettingsService.LoadSettingsAsync();
             
+            // Validate configuration early, including Profiles folder
+            if (Config.IsValid())
+            {
+                // Ensure Profiles folder exists and is writable
+                try
+                {
+                    ProfileService.EnsureProfilesFolderExists(Config);
+                }
+                catch (IOException ex)
+                {
+                    var result = ConfirmationDialog.Show(
+                        "Profiles Folder Error",
+                        $"{ex.Message}\n\n{Constants.UserMessages.ProfilesFolderRequired}",
+                        ConfirmationIcon.Error,
+                        ConfirmationButton.OKCancel,
+                        ConfirmationResult.OK,
+                        WpfApplication.Current?.MainWindow);
+                    
+                    if (result == ConfirmationResult.OK)
+                    {
+                        await ShowSettingsDialogInternalAsync();
+                    }
+                    
+                    if (!Config.IsValid())
+                    {
+                        WpfApplication.Current?.Shutdown();
+                        return;
+                    }
+                }
+            }
+            
             // Ensure default profile exists
             await ProfileService.EnsureDefaultProfileFilesAsync(Config);
             

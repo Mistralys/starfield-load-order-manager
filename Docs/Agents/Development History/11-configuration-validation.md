@@ -101,6 +101,7 @@ The validation logic is run when:
 - The window is opened
 - Whenever the user changes values (on input blur, not keystrokes)
 - When the user clicks the "Save" button
+- When the user clicks an auto-detected path link to fill the input
 
 ### Error Status Caching
 

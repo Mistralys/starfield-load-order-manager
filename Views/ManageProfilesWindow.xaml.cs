@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using LoadOrderKeeper.Constants;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.ViewModels;
@@ -76,9 +77,17 @@ public partial class ManageProfilesWindow : Window
             }
             catch (Exception ex)
             {
+                var errorMessage = $"Failed to create profile: {ex.Message}";
+                
+                // Add guidance if config is invalid
+                if (!_config.IsValid())
+                {
+                    errorMessage += UserMessages.ConfigInvalidGuidance;
+                }
+
                 ConfirmationDialog.Show(
                     "Error",
-                    $"Failed to create profile: {ex.Message}",
+                    errorMessage,
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,
@@ -112,9 +121,17 @@ public partial class ManageProfilesWindow : Window
             }
             catch (Exception ex)
             {
+                var errorMessage = $"Failed to update profile: {ex.Message}";
+                
+                // Add guidance if config is invalid
+                if (!_config.IsValid())
+                {
+                    errorMessage += UserMessages.ConfigInvalidGuidance;
+                }
+
                 ConfirmationDialog.Show(
                     "Error",
-                    $"Failed to update profile: {ex.Message}",
+                    errorMessage,
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,
@@ -159,9 +176,17 @@ public partial class ManageProfilesWindow : Window
         }
         catch (Exception ex)
         {
+            var errorMessage = $"Failed to copy profile: {ex.Message}";
+            
+            // Add guidance if config is invalid
+            if (!_config.IsValid())
+            {
+                errorMessage += UserMessages.ConfigInvalidGuidance;
+            }
+
             ConfirmationDialog.Show(
                 "Error",
-                $"Failed to copy profile: {ex.Message}",
+                errorMessage,
                 ConfirmationIcon.Error,
                 ConfirmationButton.OK,
                 ConfirmationResult.OK,

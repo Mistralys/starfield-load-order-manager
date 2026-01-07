@@ -20,8 +20,7 @@ internal sealed class TestConfigContext : IDisposable
         Config = new AppConfigModel
         {
             StarfieldAppDataPath = StarfieldAppDataPath,
-            StarfieldGamePath = StarfieldGamePath,
-            PluginCheckIntervalSeconds = 1
+            StarfieldGamePath = StarfieldGamePath
         };
     }
 

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
@@ -15,7 +17,13 @@ namespace LoadOrderKeeper.ViewModels
         private string _starfieldGamePath = SettingsService.TryGetDefaultSteamPath();
 
         [ObservableProperty]
-        private int _pluginCheckIntervalSeconds = 5;
+        private bool _statusBannerVisible = true;
+
+        [ObservableProperty]
+        private string _statusBannerMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool _statusBannerIsError = true;
 
         public string DetectedAppDataPath { get; }
         public string DetectedGamePath { get; }
@@ -41,10 +49,8 @@ namespace LoadOrderKeeper.ViewModels
                 StarfieldGamePath = initialConfig.StarfieldGamePath;
             }
 
-            if (initialConfig.PluginCheckIntervalSeconds > 0)
-            {
-                PluginCheckIntervalSeconds = initialConfig.PluginCheckIntervalSeconds;
-            }
+            // Initial validation
+            ValidateConfiguration();
         }
 
         [RelayCommand]
@@ -71,6 +77,7 @@ namespace LoadOrderKeeper.ViewModels
             if (HasDetectedAppDataPath)
             {
                 StarfieldAppDataPath = DetectedAppDataPath;
+                ValidateConfiguration(); // Update status banner immediately
             }
         }
 
@@ -80,6 +87,7 @@ namespace LoadOrderKeeper.ViewModels
             if (HasDetectedGamePath)
             {
                 StarfieldGamePath = DetectedGamePath;
+                ValidateConfiguration(); // Update status banner immediately
             }
         }
 
@@ -104,9 +112,80 @@ namespace LoadOrderKeeper.ViewModels
             return new AppConfigModel
             {
                 StarfieldAppDataPath = StarfieldAppDataPath,
-                StarfieldGamePath = StarfieldGamePath,
-                PluginCheckIntervalSeconds = PluginCheckIntervalSeconds
+                StarfieldGamePath = StarfieldGamePath
             };
+        }
+
+        /// <summary>
+        /// Validates the current configuration and updates the status banner.
+        /// Called on window load, path changes (blur), and save button click.
+        /// </summary>
+        public void ValidateConfiguration()
+        {
+            var errors = new List<string>();
+
+            // Check AppData path
+            bool appDataPathValid = !string.IsNullOrWhiteSpace(StarfieldAppDataPath) && 
+                                   Directory.Exists(StarfieldAppDataPath);
+            if (!appDataPathValid)
+            {
+                if (string.IsNullOrWhiteSpace(StarfieldAppDataPath))
+                {
+                    errors.Add("The app data path is not configured");
+                }
+                else
+                {
+                    errors.Add("The app data path is invalid");
+                }
+            }
+
+            // Check Game path
+            bool gamePathValid = !string.IsNullOrWhiteSpace(StarfieldGamePath) && 
+                                Directory.Exists(StarfieldGamePath);
+            bool dataFolderValid = gamePathValid && 
+                                  Directory.Exists(Path.Combine(StarfieldGamePath, "Data"));
+            
+            if (!gamePathValid)
+            {
+                if (string.IsNullOrWhiteSpace(StarfieldGamePath))
+                {
+                    errors.Add("The game path is not configured");
+                }
+                else
+                {
+                    errors.Add("The game path is invalid");
+                }
+            }
+            else if (!dataFolderValid)
+            {
+                errors.Add("The game Data folder was not found");
+            }
+
+            // Update banner based on validation results
+            StatusBannerVisible = true;
+            
+            if (errors.Count > 0)
+            {
+                StatusBannerIsError = true;
+                
+                if (errors.Count == 1)
+                {
+                    StatusBannerMessage = errors[0] + ".";
+                }
+                else if (errors.Count == 2 && errors.Contains("The app data path is invalid") && errors.Contains("The game path is invalid"))
+                {
+                    StatusBannerMessage = "Both the game path and app data path are invalid.";
+                }
+                else
+                {
+                    StatusBannerMessage = string.Join(". ", errors) + ".";
+                }
+            }
+            else
+            {
+                StatusBannerIsError = false;
+                StatusBannerMessage = "The configured paths are valid.";
+            }
         }
     }
 }

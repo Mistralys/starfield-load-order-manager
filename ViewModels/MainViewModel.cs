@@ -15,6 +15,7 @@ namespace LoadOrderKeeper.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private const int MaxStatusHistoryCount = 3;
+        private const int PluginCheckIntervalSeconds = 3;
         
         private readonly DispatcherTimer _pluginsMonitorTimer;
         private bool _isCheckingPluginsFile;
@@ -25,6 +26,9 @@ namespace LoadOrderKeeper.ViewModels
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
         private ReferenceHistoryWindow? _referenceHistoryWindow;
+
+        // Cached configuration validation state
+        private bool _configIsInvalid;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -68,6 +72,9 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         private bool _updateInfoBarVisible;
+
+        [ObservableProperty]
+        private bool _configErrorBannerVisible;
 
         public string WindowTitle => $"Starfield Load Order Keeper v{VersionService.GetApplicationVersion()}";
         public string FileMenuHeader { get; } = "_File";
@@ -118,7 +125,7 @@ namespace LoadOrderKeeper.ViewModels
         {
             _pluginsMonitorTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(_config.PluginCheckIntervalSeconds > 0 ? _config.PluginCheckIntervalSeconds : 5)
+                Interval = TimeSpan.FromSeconds(PluginCheckIntervalSeconds)
             };
             _pluginsMonitorTimer.Tick += OnPluginsMonitorTick;
 
@@ -345,6 +352,9 @@ namespace LoadOrderKeeper.ViewModels
             PlayGameCommand?.NotifyCanExecuteChanged();
             ShowDiffCommand?.NotifyCanExecuteChanged();
             UpdatePlayButtonText();
+            
+            // Update configuration validation state immediately
+            UpdateConfigValidationState();
         }
 
         partial void OnIsBusyChanged(bool value)
@@ -805,10 +815,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private TimeSpan GetMonitorInterval()
         {
-            int intervalSeconds = Config.PluginCheckIntervalSeconds > 0
-                ? Config.PluginCheckIntervalSeconds
-                : 5;
-            return TimeSpan.FromSeconds(intervalSeconds);
+            return TimeSpan.FromSeconds(PluginCheckIntervalSeconds);
         }
 
         private async void OnPluginsMonitorTick(object? sender, EventArgs e)
@@ -822,6 +829,9 @@ namespace LoadOrderKeeper.ViewModels
             {
                 return;
             }
+
+            // Update configuration validation state on every tick
+            UpdateConfigValidationState();
 
             if (!Config.IsValid() || !RefExists)
             {
@@ -1121,6 +1131,35 @@ namespace LoadOrderKeeper.ViewModels
             };
 
             updateDialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// Updates the cached configuration validation state and error banner visibility.
+        /// Called on timer tick, config change, and after settings dialog closes.
+        /// </summary>
+        private void UpdateConfigValidationState()
+        {
+            bool wasInvalid = _configIsInvalid;
+            _configIsInvalid = !Config.IsValid();
+            
+            ConfigErrorBannerVisible = _configIsInvalid;
+            
+            // If config became valid, notify commands to re-check CanExecute
+            if (wasInvalid && !_configIsInvalid)
+            {
+                NotifyFileCommandsCanExecuteChanged();
+                PlayGameCommand?.NotifyCanExecuteChanged();
+                ShowDiffCommand?.NotifyCanExecuteChanged();
+                CreateReferenceCommand?.NotifyCanExecuteChanged();
+                FixLoadOrderCommand?.NotifyCanExecuteChanged();
+                DiscardChangesCommand?.NotifyCanExecuteChanged();
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenSettingsFromErrorBannerAsync()
+        {
+            await ShowSettingsDialogInternalAsync();
         }
     }
 }

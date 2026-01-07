@@ -66,6 +66,43 @@
             </MenuItem>
         </Menu>
 
+        <!-- Configuration error banner (shown above update banner when config invalid) -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource MaterialDesign.Brush.Error}"
+                Padding="12,8"
+                Margin="0,0,0,0"
+                Visibility="{Binding ConfigErrorBannerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <materialDesign:PackIcon Grid.Column="0"
+                                        Kind="Alert"
+                                        Width="20"
+                                        Height="20"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,8,0"
+                                        Foreground="{DynamicResource MaterialDesignPaper}" />
+
+                <TextBlock Grid.Column="1"
+                          Text="Path configuration error, please review the configured paths."
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource MaterialDesignPaper}"
+                          TextWrapping="Wrap" />
+
+                <Button Grid.Column="2"
+                       Content="Open settings"
+                       Command="{Binding OpenSettingsFromErrorBannerCommand}"
+                       Style="{StaticResource MaterialDesignOutlinedButton}"
+                       Margin="8,0,0,0"
+                       Foreground="{DynamicResource MaterialDesignPaper}"
+                       BorderBrush="{DynamicResource MaterialDesignPaper}" />
+            </Grid>
+        </Border>
+
         <!-- Update notification info bar -->
         <Border DockPanel.Dock="Top"
                 Background="{DynamicResource MaterialDesign.Brush.Primary}"

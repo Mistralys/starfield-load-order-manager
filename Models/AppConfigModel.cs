@@ -6,7 +6,6 @@ namespace LoadOrderKeeper.Models
     {
         public string StarfieldAppDataPath { get; set; } = string.Empty;
         public string StarfieldGamePath { get; set; } = string.Empty;
-        public int PluginCheckIntervalSeconds { get; set; } = 5;
         public string? ActiveProfileId { get; set; } = "default";
 
         public bool IsValid()

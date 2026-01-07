@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 
 namespace LoadOrderKeeper
 {
@@ -7,6 +8,16 @@ namespace LoadOrderKeeper
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // Allow MainViewModel to clean up
+            if (DataContext is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+            base.OnClosing(e);
         }
     }
 }

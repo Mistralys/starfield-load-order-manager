@@ -12,13 +12,15 @@ using WpfMessageBox = System.Windows.MessageBox;
 
 namespace LoadOrderKeeper.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject, IDisposable
     {
         private const int MaxStatusHistoryCount = 3;
         private const int PluginCheckIntervalSeconds = 3;
         
         private readonly DispatcherTimer _pluginsMonitorTimer;
+        private readonly CancellationTokenSource _shutdownCts = new();
         private bool _isCheckingPluginsFile;
+        private bool _disposed;
         private DiffDialogViewModel? _activeDiffDialog;
         private string _lastObservedPluginsSignature = string.Empty;
 
@@ -1106,7 +1108,7 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: false);
+                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: false, _shutdownCts.Token);
 
                 if (result.UpdateAvailable)
                 {
@@ -1191,6 +1193,34 @@ namespace LoadOrderKeeper.ViewModels
         private async Task OpenSettingsFromErrorBannerAsync()
         {
             await ShowSettingsDialogInternalAsync();
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            _pluginsMonitorTimer?.Stop();
+            
+            try
+            {
+                _shutdownCts?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Already disposed, ignore
+            }
+            
+            _shutdownCts?.Dispose();
+            
+            // Close non-modal windows if open
+            _diffWindow?.Close();
+            _manageProfilesWindow?.Close();
+            _referenceHistoryWindow?.Close();
         }
     }
 }

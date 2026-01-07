@@ -36,7 +36,8 @@
   - **Non-Modal Windows**
     - `DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow` allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle
   - **File Monitoring**
-    - `MainViewModel` uses `DispatcherTimer` to monitor `Plugins.txt` vs the active profile reference
+    - `MainViewModel` uses `DispatcherTimer` with fixed 3-second interval (optimized through testing)
+    - Monitoring paused when configuration invalid to prevent unnecessary I/O operations
   - **Profile Management**
     - Profiles stored per active configuration under `Profiles/{profileId}` with `main.txt`, `reference.txt`, `profile.json`, `pending-changes.json`, and `History/` folder
     - Commands and dialogs coordinate through `ProfileService` to switch and manage profiles
@@ -55,6 +56,13 @@
     - Automatic background check on startup with 24-hour caching
     - Manual check via Help menu bypasses cache
     - `UpdateOptionsDialog` provides clickable download buttons for Nexusmods and GitHub
+  - **Configuration Validation**
+    - `MainViewModel` maintains cached validation state to prevent excessive I/O on invalid paths
+    - Error banner in `MainWindow` displays when paths are invalid with "Open settings" button
+    - Status banner in `SettingsWindow` shows real-time validation feedback (error/success states)
+    - Validation triggers: timer tick, config changes, settings save, auto-detected path clicks
+    - Secondary windows append guidance message to errors when config invalid
+    - Centralized error messages in `Constants/UserMessages.cs` for maintainability
   - **Steam Library Detection**
     - `SettingsService` parses Steam's `libraryfolders.vdf` to locate Starfield across all Steam library folders
     - Detects Steam installation via Windows registry, searches all configured libraries for Starfield (AppID: 1716740)
@@ -73,6 +81,8 @@
 ├─ AssemblyInfo.cs
 ├─ MainWindow.xaml
 ├─ MainWindow.xaml.cs
+├─ Constants/
+│  └─ UserMessages.cs
 ├─ Models/
 │  ├─ AppConfigModel.cs
 │  ├─ DiffLineModel.cs
@@ -171,6 +181,28 @@
 
 ### 3.1 Models
 
+#### `LoadOrderKeeper.Constants.UserMessages`
+
+```csharp
+public static class UserMessages
+{
+    public const string ConfigInvalidGuidance = 
+        "\n\nThe likely cause is that the current configuration is invalid. Please refer to the error message in the main window to fix this.";
+    
+    public const string ProfilesFolderRequired = 
+        "The application requires a 'Profiles' folder in your configured app data path to store profile data. " +
+        "This folder could not be created or accessed. Please check folder permissions or select a different app data path in settings.";
+    
+    public const string ProfilesFolderAccessDenied = 
+        "Access denied when creating the Profiles folder. You may need administrator rights or to choose a different location.";
+    
+    public const string PluginsTxtRequired = 
+        "The Plugins.txt file was not found in the configured app data path. " +
+        "This file is required for the application to function. " +
+        "Please ensure you have run Starfield at least once to generate this file, or select the correct app data folder in settings.";
+}
+```
+
 #### `LoadOrderKeeper.Models.AppConfigModel`
 
 ```csharp
@@ -178,7 +210,6 @@ public class AppConfigModel
 {
     public string StarfieldAppDataPath { get; set; }
     public string StarfieldGamePath { get; set; }
-    public int PluginCheckIntervalSeconds { get; set; }
     public string? ActiveProfileId { get; set; }
 
     public bool IsValid();
@@ -409,6 +440,7 @@ public static class ProfileService
     public static Task EnsureProfileMainFileAsync(AppConfigModel config, string profileId);
     public static Task EnsureProfileReferenceFileAsync(AppConfigModel config, string profileId);
     public static Task EnsureDefaultProfileFilesAsync(AppConfigModel config);
+    public static void EnsureProfilesFolderExists(AppConfigModel config);
     public static string GetProfilesFolder(AppConfigModel config);
     public static string GetProfileFolder(AppConfigModel config, string profileId);
     public static string GetProfileMainFilePath(AppConfigModel config, string profileId);
@@ -503,7 +535,9 @@ public partial class SettingsViewModel : ObservableObject
 
     public string StarfieldAppDataPath { get; set; }
     public string StarfieldGamePath { get; set; }
-    public int PluginCheckIntervalSeconds { get; set; }
+    public bool StatusBannerVisible { get; set; }
+    public string StatusBannerMessage { get; set; }
+    public bool StatusBannerIsError { get; set; }
     public string DetectedAppDataPath { get; }
     public string DetectedGamePath { get; }
     public bool HasDetectedAppDataPath { get; }
@@ -515,6 +549,7 @@ public partial class SettingsViewModel : ObservableObject
 
     public void UpdateAppDataPath(string selectedPath);
     public void UpdateGamePath(string selectedPath);
+    public void ValidateConfiguration();
     public AppConfigModel GetConfig();
 }
 ```
@@ -563,6 +598,7 @@ public partial class MainViewModel : ObservableObject
     public bool UpdateAvailable { get; set; }
     public string UpdateMessage { get; set; }
     public bool UpdateInfoBarVisible { get; set; }
+    public bool ConfigErrorBannerVisible { get; set; }
 
     public IRelayCommand OpenPluginsFileCommand { get; }
     public IRelayCommand OpenReferenceFileCommand { get; }
@@ -576,6 +612,7 @@ public partial class MainViewModel : ObservableObject
     public IAsyncRelayCommand SwitchProfileCommand { get; }
     public IAsyncRelayCommand ManageProfilesCommand { get; }
     public IAsyncRelayCommand OpenSettingsCommand { get; }
+    public IAsyncRelayCommand OpenSettingsFromErrorBannerCommand { get; }
     public IAsyncRelayCommand CheckForUpdatesCommand { get; }
     public IRelayCommand DismissUpdateNotificationCommand { get; }
     public IRelayCommand OpenDownloadPageCommand { get; }
@@ -1048,7 +1085,8 @@ public sealed class ChangeSummaryConverter : IValueConverter
 
 - **Startup & Configuration**
   - `App.OnStartup` creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows it.
-  - `MainViewModel` loads settings via `SettingsService.LoadSettingsAsync()`, ensures the default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`, checks `FileService.DoesReferenceFileExist()`, and enforces configuration validity by displaying `SettingsWindow` when needed.
+  - `MainViewModel` loads settings via `SettingsService.LoadSettingsAsync()`, validates Profiles folder via `ProfileService.EnsureProfilesFolderExists()`, ensures the default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`, checks `FileService.DoesReferenceFileExist()`, and enforces configuration validity by displaying `SettingsWindow` when needed.
+  - If Profiles folder cannot be created or accessed, error dialog shown with option to open settings or shutdown.
   - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
   
 - **Profile Initialization & Switching**
@@ -1068,7 +1106,7 @@ public sealed class ChangeSummaryConverter : IValueConverter
     1. Calling `TryGetSteamInstallPath()` to find main Steam installation via Windows registry (CurrentUser, LocalMachine paths)
     2. If found, calling `TryFindStarfieldInSteamLibraries()` to parse `libraryfolders.vdf` using Gameloop.Vdf
     3. Iterating through numeric library keys (0, 1, 2, ...) to check each library's `apps` collection for Starfield AppID (1716740)
-    4. Validating installation by checking for `Data` subfolder existence
+    4. Validating installation by checking for `Data` subfolder presence
     5. Falling back to default Steam installation location if VDF parsing fails
     6. Final fallback to Program Files location if all detection methods fail
   - Path normalization converts forward slashes to backslashes for Windows consistency
@@ -1079,7 +1117,9 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - `DiscardChangesCommand` resets `Plugins.txt` from the active profile reference via `FileService.DiscardChangesAsync()`.
   
 - **Monitoring & diffing**
-  - `DispatcherTimer` invokes `CheckPluginsFileAsync()`; the method calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile's reference.
+  - `DispatcherTimer` invokes `CheckPluginsFileAsync()` every 3 seconds (fixed interval optimized through testing); the method calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile's reference.
+  - Timer pauses when configuration becomes invalid to prevent unnecessary I/O operations; resumes when configuration valid again.
+  - Validation state cached in `MainViewModel._configIsInvalid` to minimize repeated checks.
   - On differences, `FileService.WouldSortingChangeDiffsAsync()` sets the sorting recommendation, `DiffService.GetPluginsDiffAsync()` feeds both the badge count and the `DiffDialogViewModel`, and switching profiles triggers `DiffDialogViewModel.RefreshDiffAsync()` when open.
   
 - **Diff dialog operations**
@@ -1144,10 +1184,15 @@ public sealed class ChangeSummaryConverter : IValueConverter
 
 - **Configuration validity**
   - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
+  - `AppConfigModel.IsValid()` also requires `Plugins.txt` to exist in `StarfieldAppDataPath` (cannot be auto-generated, user must run Starfield at least once).
+  - `AppConfigModel.IsValid()` validates Profiles folder creation and writability with test file.
   - The app shuts down when configuration remains invalid after the settings dialog.
   
 - **Profile storage**
   - Profiles live under `StarfieldAppDataPath/Profiles/{profileId}` with `profile.json`, `main.txt`, and `reference.txt`; folders are created automatically.
+  - Profiles folder existence and writability validated via `ProfileService.EnsureProfilesFolderExists()` which tests write access with temporary file.
+  - Profiles folder validation integrated into `AppConfigModel.IsValid()` and settings window validation.
+  - Profile operations fail with actionable error messages if Profiles folder cannot be created or accessed.
   - `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
   - The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
   - Profile labels must be unique (case-insensitive), 2–30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
@@ -1157,6 +1202,7 @@ public sealed class ChangeSummaryConverter : IValueConverter
   
 - **File locations & I/O**
   - `Plugins.txt` stays under `StarfieldAppDataPath`; references are profile-specific (`Profiles/{id}/reference.txt`).
+  - `Plugins.txt` must exist for configuration to be valid (cannot be auto-generated, created by Starfield on first run).
   - All disk operations in services are asynchronous; plugins-related writes use UTF-8 without BOM, and reference creation copies raw files to retain comments.
   
 - **Case restoration**
@@ -1165,6 +1211,8 @@ public sealed class ChangeSummaryConverter : IValueConverter
 - **Diff semantics & monitoring**
   - `FileService.GetModDiffAsync()` bases `ModDiffModel` flags on original vs current line numbers; `DiffService` translates them to `DiffLineModel` change types (`Added`, `Removed`, `Moved`, `Replaced`, `Inserted`).
   - The monitor compares trimmed file contents, tracks a `PluginsSignature`, and only runs when `Config.IsValid()` and `RefExists` are true.
+  - Fixed 3-second check interval (constant `PluginCheckIntervalSeconds` in `MainViewModel`).
+  - Cached validation state (`_configIsInvalid`) prevents excessive I/O operations on invalid paths.
   - Dependent changes are tracked and displayed: when a mod is removed/added, all mods that shift position as a result are shown as dependent changes.
   
 - **Navigation & threading**
@@ -1175,7 +1223,24 @@ public sealed class ChangeSummaryConverter : IValueConverter
 - **Error handling**
   - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `ConfirmationDialog` for errors.
   - All user-facing dialogs use `ConfirmationDialog` with appropriate icon types (Error, Warning, Information) for consistent Material Design v5 styling.
+  - `IOException` includes specific messages for common issues: access denied, disk full, network paths.
+  - Profiles folder creation failures caught at startup with actionable error dialogs offering settings access.
+  - Profile operations (create, copy) validate Profiles folder exists via `ProfileService.EnsureProfilesFolderExists()` before proceeding.
+  - All profile folder errors include actionable guidance (check permissions, change location).
+  - Secondary windows (ManageProfilesWindow, etc.) append `UserMessages.ConfigInvalidGuidance` or `UserMessages.ProfilesFolderRequired` based on error type.
   - Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parse errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+
+- **Configuration Validation**
+  - `MainViewModel` caches validation state in `_configIsInvalid` field, updated on timer ticks, config changes, and settings dialog close.
+  - `AppConfigModel.IsValid()` validates paths AND Plugins.txt existence AND Profiles folder creation/writability with test file.
+  - Error banner (`ConfigErrorBannerVisible`) shown in main window when paths invalid; includes "Open settings" button.
+  - Status banner in settings window provides real-time feedback with error/success states:
+    - Error state: Shows specific path issues (app data invalid, game path invalid, both invalid, Data folder missing, Plugins.txt missing, Profiles folder access issues)
+    - Success state: Confirms "The configured paths are valid" with checkmark icon
+  - Validation runs on: window open, input blur, save button click, auto-detected path click.
+  - Validation order: paths configured → paths exist → Data folder exists → Plugins.txt exists → Profiles folder writable.
+  - All operations gated by validation check to prevent I/O failures with invalid paths.
+  - Centralized error messages in `Constants/UserMessages.cs` for easy modification and future localization.
 
 - **Reference History System**
   - Each profile stores version history independently in `Profiles/{profileId}/History/` with `reference_vX.txt` and `reference_vX.json` files.

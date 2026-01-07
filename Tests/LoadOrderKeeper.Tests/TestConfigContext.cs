@@ -20,9 +20,11 @@ internal sealed class TestConfigContext : IDisposable
         Config = new AppConfigModel
         {
             StarfieldAppDataPath = StarfieldAppDataPath,
-            StarfieldGamePath = StarfieldGamePath,
-            PluginCheckIntervalSeconds = 1
+            StarfieldGamePath = StarfieldGamePath
         };
+
+        // Create an empty Plugins.txt file to satisfy validation requirements
+        File.WriteAllText(PluginsFilePath, string.Empty);
     }
 
     public AppConfigModel Config { get; }

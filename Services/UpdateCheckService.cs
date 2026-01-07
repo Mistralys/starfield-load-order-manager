@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
+using System.Threading;
 
 namespace LoadOrderKeeper.Services;
 
@@ -25,7 +26,7 @@ public static class UpdateCheckService
         HttpClient.DefaultRequestHeaders.Add("User-Agent", "StarfieldLoadOrderKeeper");
     }
 
-    public static async Task<UpdateCheckResult> CheckForUpdatesAsync(bool bypassCache = false)
+    public static async Task<UpdateCheckResult> CheckForUpdatesAsync(bool bypassCache = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -44,7 +45,7 @@ public static class UpdateCheckService
                 return cacheInfo.CachedResult!;
             }
 
-            var latestRelease = await FetchLatestReleaseAsync();
+            var latestRelease = await FetchLatestReleaseAsync(cancellationToken);
 
             if (latestRelease == null)
             {
@@ -80,6 +81,11 @@ public static class UpdateCheckService
             SaveToCache(updateResult);
             return updateResult;
         }
+        catch (OperationCanceledException)
+        {
+            // Silent cancellation
+            return new UpdateCheckResult(false, VersionService.GetApplicationVersion(), null, null);
+        }
         catch
         {
             // Silent failure for automatic checks
@@ -90,17 +96,17 @@ public static class UpdateCheckService
     public static string GetNexusModsUrl() => NexusModsUrl;
     public static string GetGitHubReleasesUrl() => GitHubReleasesUrl;
 
-    private static async Task<GitHubRelease?> FetchLatestReleaseAsync()
+    private static async Task<GitHubRelease?> FetchLatestReleaseAsync(CancellationToken cancellationToken = default)
     {
         var url = $"https://api.github.com/repos/{GitHubOwner}/{GitHubRepo}/releases/latest";
         
-        var response = await HttpClient.GetAsync(url);
+        var response = await HttpClient.GetAsync(url, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             return null;
         }
 
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
         var release = JsonSerializer.Deserialize<GitHubRelease>(json);
         
         return release;

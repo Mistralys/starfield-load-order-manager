@@ -12,12 +12,15 @@ using WpfMessageBox = System.Windows.MessageBox;
 
 namespace LoadOrderKeeper.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject, IDisposable
     {
         private const int MaxStatusHistoryCount = 3;
+        private const int PluginCheckIntervalSeconds = 3;
         
         private readonly DispatcherTimer _pluginsMonitorTimer;
+        private readonly CancellationTokenSource _shutdownCts = new();
         private bool _isCheckingPluginsFile;
+        private bool _disposed;
         private DiffDialogViewModel? _activeDiffDialog;
         private string _lastObservedPluginsSignature = string.Empty;
 
@@ -25,6 +28,9 @@ namespace LoadOrderKeeper.ViewModels
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
         private ReferenceHistoryWindow? _referenceHistoryWindow;
+
+        // Cached configuration validation state
+        private bool _configIsInvalid;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -68,6 +74,9 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         private bool _updateInfoBarVisible;
+
+        [ObservableProperty]
+        private bool _configErrorBannerVisible;
 
         public string WindowTitle => $"Starfield Load Order Keeper v{VersionService.GetApplicationVersion()}";
         public string FileMenuHeader { get; } = "_File";
@@ -118,7 +127,7 @@ namespace LoadOrderKeeper.ViewModels
         {
             _pluginsMonitorTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(_config.PluginCheckIntervalSeconds > 0 ? _config.PluginCheckIntervalSeconds : 5)
+                Interval = TimeSpan.FromSeconds(PluginCheckIntervalSeconds)
             };
             _pluginsMonitorTimer.Tick += OnPluginsMonitorTick;
 
@@ -138,6 +147,37 @@ namespace LoadOrderKeeper.ViewModels
         private async Task LoadInitialStateAsync()
         {
             Config = await SettingsService.LoadSettingsAsync();
+            
+            // Validate configuration early, including Profiles folder
+            if (Config.IsValid())
+            {
+                // Ensure Profiles folder exists and is writable
+                try
+                {
+                    ProfileService.EnsureProfilesFolderExists(Config);
+                }
+                catch (IOException ex)
+                {
+                    var result = ConfirmationDialog.Show(
+                        "Profiles Folder Error",
+                        $"{ex.Message}\n\n{Constants.UserMessages.ProfilesFolderRequired}",
+                        ConfirmationIcon.Error,
+                        ConfirmationButton.OKCancel,
+                        ConfirmationResult.OK,
+                        WpfApplication.Current?.MainWindow);
+                    
+                    if (result == ConfirmationResult.OK)
+                    {
+                        await ShowSettingsDialogInternalAsync();
+                    }
+                    
+                    if (!Config.IsValid())
+                    {
+                        WpfApplication.Current?.Shutdown();
+                        return;
+                    }
+                }
+            }
             
             // Ensure default profile exists
             await ProfileService.EnsureDefaultProfileFilesAsync(Config);
@@ -345,6 +385,9 @@ namespace LoadOrderKeeper.ViewModels
             PlayGameCommand?.NotifyCanExecuteChanged();
             ShowDiffCommand?.NotifyCanExecuteChanged();
             UpdatePlayButtonText();
+            
+            // Update configuration validation state immediately
+            UpdateConfigValidationState();
         }
 
         partial void OnIsBusyChanged(bool value)
@@ -805,10 +848,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private TimeSpan GetMonitorInterval()
         {
-            int intervalSeconds = Config.PluginCheckIntervalSeconds > 0
-                ? Config.PluginCheckIntervalSeconds
-                : 5;
-            return TimeSpan.FromSeconds(intervalSeconds);
+            return TimeSpan.FromSeconds(PluginCheckIntervalSeconds);
         }
 
         private async void OnPluginsMonitorTick(object? sender, EventArgs e)
@@ -822,6 +862,9 @@ namespace LoadOrderKeeper.ViewModels
             {
                 return;
             }
+
+            // Update configuration validation state on every tick
+            UpdateConfigValidationState();
 
             if (!Config.IsValid() || !RefExists)
             {
@@ -1065,7 +1108,7 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: false);
+                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: false, _shutdownCts.Token);
 
                 if (result.UpdateAvailable)
                 {
@@ -1121,6 +1164,63 @@ namespace LoadOrderKeeper.ViewModels
             };
 
             updateDialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// Updates the cached configuration validation state and error banner visibility.
+        /// Called on timer tick, config change, and after settings dialog closes.
+        /// </summary>
+        private void UpdateConfigValidationState()
+        {
+            bool wasInvalid = _configIsInvalid;
+            _configIsInvalid = !Config.IsValid();
+            
+            ConfigErrorBannerVisible = _configIsInvalid;
+            
+            // If config became valid, notify commands to re-check CanExecute
+            if (wasInvalid && !_configIsInvalid)
+            {
+                NotifyFileCommandsCanExecuteChanged();
+                PlayGameCommand?.NotifyCanExecuteChanged();
+                ShowDiffCommand?.NotifyCanExecuteChanged();
+                CreateReferenceCommand?.NotifyCanExecuteChanged();
+                FixLoadOrderCommand?.NotifyCanExecuteChanged();
+                DiscardChangesCommand?.NotifyCanExecuteChanged();
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenSettingsFromErrorBannerAsync()
+        {
+            await ShowSettingsDialogInternalAsync();
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            _pluginsMonitorTimer?.Stop();
+            
+            try
+            {
+                _shutdownCts?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Already disposed, ignore
+            }
+            
+            _shutdownCts?.Dispose();
+            
+            // Close non-modal windows if open
+            _diffWindow?.Close();
+            _manageProfilesWindow?.Close();
+            _referenceHistoryWindow?.Close();
         }
     }
 }

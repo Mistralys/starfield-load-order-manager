@@ -200,12 +200,36 @@
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignOutlinedButton}" />
                     <Button Grid.Column="1"
-                            Content="{Binding PlayButtonText}"
-                            d:Content="Play"
                             Margin="8,0,0,0"
                             Command="{Binding PlayGameCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                            ToolTip="{Binding SteamWarningTooltip}"
+                            d:ToolTip="Steam is not running. SFSE requires Steam to be open to function correctly.">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                                <Style.Triggers>
+                                    <!-- Show warning style when Steam is not running -->
+                                    <DataTrigger Binding="{Binding ShowSteamWarning}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <!-- Warning icon (only visible when Steam not running) -->
+                            <materialDesign:PackIcon Kind="Alert"
+                                                    Width="18"
+                                                    Height="18"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,6,0"
+                                                    Visibility="{Binding ShowSteamWarning, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <!-- Button text -->
+                            <TextBlock Text="{Binding PlayButtonText}"
+                                      d:Text="Play (SFSE)"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </Grid>
 
                 <ProgressBar Height="18"

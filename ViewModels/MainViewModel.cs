@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
@@ -115,6 +115,20 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         private string _activeProfileLabel = "Default";
+
+        [ObservableProperty]
+        private bool _isSteamInstalled;
+
+        [ObservableProperty]
+        private bool _isSteamRunning;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SteamWarningTooltip))]
+        private bool _showSteamWarning;
+
+        public string SteamWarningTooltip => ShowSteamWarning 
+            ? "Steam is not running. SFSE requires Steam to be open to function correctly."
+            : string.Empty;
 
         public IRelayCommand OpenPluginsFileCommand { get; }
         public IRelayCommand OpenReferenceFileCommand { get; }
@@ -866,6 +880,9 @@ namespace LoadOrderKeeper.ViewModels
             // Update configuration validation state on every tick
             UpdateConfigValidationState();
 
+            // Update Steam detection state (only if Steam-installed)
+            UpdateSteamDetectionState();
+
             if (!Config.IsValid() || !RefExists)
             {
                 PluginsFileChangedExternally = false;
@@ -929,26 +946,43 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
-        private string GetReadyStatusMessage()
+        /// <summary>
+        /// Updates Steam detection state if the game is installed via Steam.
+        /// This method is called on every file monitoring tick (every 3 seconds).
+        /// </summary>
+        private void UpdateSteamDetectionState()
         {
-            return Config.IsValid()
-                ? "Ready. Configuration is valid."
-                : "Configuration is required. Please set paths in the Settings window.";
-        }
-
-        private bool HasSfseExecutable()
-        {
-            var gamePath = Config?.StarfieldGamePath;
-            if (string.IsNullOrWhiteSpace(gamePath))
+            try
             {
-                return false;
-            }
- 
-            string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
-            return File.Exists(sfsePath);
-        }
+                // Only check Steam status if Starfield was installed via Steam
+                bool steamInstalled = SettingsService.IsStarfieldInstalledViaSteam();
+                IsSteamInstalled = steamInstalled;
 
-        [RelayCommand(CanExecute = nameof(CanDiscardChanges))]
+                if (steamInstalled)
+                {
+                    bool steamRunning = SettingsService.IsSteamRunning();
+                    IsSteamRunning = steamRunning;
+
+                    // Show warning only if SFSE is installed AND Steam is NOT running
+                    ShowSteamWarning = HasSfseExecutable() && !steamRunning;
+                }
+                else
+                {
+                    // Not installed via Steam, no warning needed
+                    IsSteamRunning = false;
+                    ShowSteamWarning = false;
+                }
+            }
+            catch
+            {
+                // Detection failed, fail silently
+                IsSteamInstalled = false;
+                IsSteamRunning = false;
+                ShowSteamWarning = false;
+            }
+        }
+ 
+        [RelayCommand]
         private async Task DiscardChangesAsync()
         {
             IsBusy = true;
@@ -1072,6 +1106,25 @@ namespace LoadOrderKeeper.ViewModels
 
             // Update the current status message for backward compatibility
             StatusMessage = message;
+        }
+
+        private string GetReadyStatusMessage()
+        {
+            return Config.IsValid()
+                ? "Ready. Configuration is valid."
+                : "Configuration is required. Please set paths in the Settings window.";
+        }
+
+        private bool HasSfseExecutable()
+        {
+            var gamePath = Config?.StarfieldGamePath;
+            if (string.IsNullOrWhiteSpace(gamePath))
+            {
+                return false;
+            }
+ 
+            string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
+            return File.Exists(sfsePath);
         }
 
         [RelayCommand]

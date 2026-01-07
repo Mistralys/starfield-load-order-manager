@@ -3,6 +3,7 @@
 ## v1.5.0 - Improved Error Handling
 - Settings: A banner now shows instantly if the selected folders are valid.
 - Settings: Removed the update delay setting.
+- Profiles: Improved error messages when issues with the `Pofiles` folder occur.
 - General: An error banner now informs of configuration issues.
 - General: Improved error messages when there are configuration or file access issues.
 - General: The `Plugins.txt` file is now expected to exist.

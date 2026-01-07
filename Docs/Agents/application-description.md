@@ -611,6 +611,18 @@ The application automatically checks for updates and notifies users when new ver
 
 The application provides comprehensive validation of configuration paths to prevent errors and guide users to correct setup.
 
+#### Validation Order
+
+The application validates configuration in a specific order to ensure all prerequisites are met:
+
+1. **Paths Configured**: Both AppData and Game paths must be non-empty
+2. **Paths Exist**: Both directories must exist on disk
+3. **Data Folder Exists**: Game path must contain a `Data` subfolder
+4. **Plugins.txt Exists**: AppData path must contain `Plugins.txt` file (cannot be auto-generated)
+5. **Profiles Folder Writable**: Profiles folder must be creatable and writable
+
+This order ensures efficient validation—each check depends on the previous ones being successful.
+
 #### Main Window Error Banner
 
 When either configured path becomes invalid, a non-dismissible error banner appears at the top of the main window:
@@ -638,15 +650,18 @@ The settings window features a permanent status banner that provides real-time v
 **Success State** (green background):
 - Checkmark icon
 - Message: "The configured paths are valid."
-- Displayed when both paths exist and Game path contains `Data` folder
+- Displayed when all validation checks pass
 
 **Error State** (red background):
 - Alert icon
-- Specific error messages:
+- Specific error messages for each validation failure:
   - "The app data path is invalid."
   - "The game path is invalid."
   - "Both the game path and app data path are invalid."
   - "The game Data folder was not found."
+  - "Plugins.txt not found in the app data folder."
+  - "Access denied when creating the Profiles folder."
+  - "The Profiles folder cannot be created or accessed."
 
 **Validation Triggers**:
 - When settings window opens
@@ -658,6 +673,60 @@ The settings window features a permanent status banner that provides real-time v
 - Immediate feedback prevents saving invalid configuration
 - Clear guidance on what needs to be fixed
 - No confusion about disabled UI elements
+- Specific messages pinpoint the exact issue
+
+#### Plugins.txt Validation
+
+The `Plugins.txt` file is a critical requirement that cannot be auto-generated:
+
+**Why It's Required**:
+- File created by Starfield on first game launch
+- Contains the mod load order
+- Application cannot function without it
+
+**Validation Behavior**:
+- Checked after basic path validation
+- Must exist in the configured AppData path
+- Configuration invalid if file missing
+
+**User Guidance**:
+- Error message: "Plugins.txt not found in the app data folder"
+- Instructs user to run Starfield at least once
+- Suggests verifying correct AppData path
+
+**Impact When Missing**:
+- All operations disabled
+- File monitoring won't start
+- Profile operations blocked
+- Reference file operations blocked
+
+#### Profiles Folder Validation
+
+The Profiles folder is required for storing profile data and must be writable:
+
+**Validation Process**:
+- Checked after Plugins.txt validation
+- Attempts to create folder if it doesn't exist
+- Tests writability with temporary file
+- Cleans up test file automatically
+
+**Error Scenarios**:
+1. **Access Denied**: Insufficient permissions
+   - Message: "Access denied when creating the Profiles folder"
+   - Guidance: May need administrator rights or different location
+2. **Creation Failed**: Other I/O errors
+   - Message: "The Profiles folder cannot be created or accessed"
+   - Guidance: Check permissions or select different AppData path
+
+**Startup Validation**:
+- Profiles folder validated via `ProfileService.EnsureProfilesFolderExists()` on startup
+- Error dialog shown if folder cannot be created with option to open settings or shutdown
+- Profile operations validate folder existence before proceeding
+
+**Operation-Level Validation**:
+- Profile creation calls `ProfileService.EnsureProfilesFolderExists()`
+- Profile copying validates folder before proceeding
+- Consistent error handling across all profile operations
 
 #### Secondary Window Error Handling
 
@@ -691,20 +760,60 @@ To optimize performance and prevent excessive file system operations:
 - Prevents repeated file system checks on invalid paths
 - User doesn't wait for timer tick after fixing paths
 - Efficient resource usage
+- Smooth UI experience
 
 #### Technical Implementation
 
-**Validation Logic**:
-- Checks both paths are non-empty
-- Verifies directories exist on disk
-- Confirms Game path contains `Data` subfolder
-- All operations gated by configuration validity check
+**Validation in AppConfigModel.IsValid()**:
+```
+1. Check paths are non-empty strings
+2. Check directories exist on disk
+3. Check Game/Data folder exists
+4. Check Plugins.txt exists
+5. Try to create Profiles folder
+6. Test Profiles folder writability
+7. Return true only if all checks pass
+```
+
+**Validation in SettingsViewModel**:
+- Builds list of specific error messages
+- Shows cumulative errors in status banner
+- Follows same validation order as AppConfigModel
+- Provides immediate feedback on each path change
 
 **Error Recovery**:
 - Settings window must be used to correct invalid paths
 - Application continues running with disabled features
 - Clear visual feedback guides user to resolution
 - Automatic recovery when paths become valid again
+
+**Centralized Messages**:
+All error messages stored in `Constants/UserMessages.cs`:
+- `ConfigInvalidGuidance`: General configuration error guidance
+- `ProfilesFolderRequired`: Profiles folder creation failure explanation
+- `ProfilesFolderAccessDenied`: Permission-specific error message
+- `PluginsTxtRequired`: Missing Plugins.txt guidance
+
+#### First-Time User Experience
+
+For users who have never run Starfield:
+
+**Expected Behavior**:
+1. User installs and launches application
+2. Paths auto-detected (if possible)
+3. Validation fails: "Plugins.txt not found"
+4. Clear error message in settings window
+5. User instructed to run Starfield first
+6. After running Starfield once, file created
+7. Validation passes, application fully functional
+
+**Why This Is Correct**:
+- Application genuinely cannot function without Plugins.txt
+- Clear guidance prevents user confusion
+- Prevents partial functionality and obscure errors
+- Ensures proper setup before first use
+
+---
 
 ## Configuration
 
@@ -725,8 +834,12 @@ The application validates configuration on startup:
 - Paths are not empty
 - Directories exist on disk
 - Game `Data` folder exists
+- **Plugins.txt file exists** (required, cannot be auto-generated by application)
+- **Profiles folder can be created and is writable** (tested with temporary file)
 - Continuous validation during runtime via timer ticks
 - Real-time feedback in settings window
+
+**Validation Order**: paths configured → paths exist → Data folder exists → Plugins.txt exists → Profiles folder writable
 
 **Configuration Enforcement**: App prompts for settings and shuts down if invalid after settings dialog.
 
@@ -734,8 +847,14 @@ The application validates configuration on startup:
 - Error banner in main window when paths invalid
 - Status banner in settings window with success/error states
 - Disabled UI elements when configuration invalid
+- Specific error messages for each validation failure
 
 **Status Messages**: Multiple status history entries shown when settings are invalid or folders are missing.
+
+**Startup Validation**:
+- Profiles folder validated via `ProfileService.EnsureProfilesFolderExists()` on startup
+- Error dialog shown if folder cannot be created with option to open settings or shutdown
+- Profile operations validate folder existence before proceeding
 
 ### Auto-Discovery
 

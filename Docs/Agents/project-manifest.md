@@ -21,6 +21,18 @@
   - **MVVM**
     - ViewModels: `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`, `ReferenceHistoryViewModel`, `CommentInputViewModel`
     - Views: `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `ReferenceHistoryWindow`, `CommentInputDialog`
+  - **Coordinator Pattern**
+    - Coordinators handle specific domain logic and state management
+    - All coordinators inherit from `CoordinatorBase` (provides `INotifyPropertyChanged` + `IDisposable`)
+    - Event-driven communication between coordinators and ViewModels
+    - Coordinators:
+      - `FileMonitoringCoordinator`: Periodic file monitoring, change detection, Steam process detection, sorting recommendations
+      - `StatusCoordinator`: Status message management and history tracking
+      - `UpdateCheckCoordinator`: Background and manual update checking with caching
+      - `ProfileCoordinator`: Active profile state management and switching
+      - `ConfigurationCoordinator`: Configuration validation with caching and detailed error reporting
+      - `GameLauncherCoordinator`: SFSE detection and game launching
+      - `WindowManager`: Window lifecycle management and duplicate prevention
   - **Static Services**
     - `SettingsService`: configuration persistence and default path discovery (includes Steam library detection)
     - `FileService`: plugins/reference file operations plus diff helpers
@@ -34,12 +46,20 @@
     - `MainWindow` as shell
     - Secondary windows opened modally: `SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `CommentInputDialog`
   - **Non-Modal Windows**
-    - `DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow` allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle
+    - `DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow` allow main window interaction while open; tracked by `WindowManager` coordinator to prevent duplicates
   - **File Monitoring**
-    - `MainViewModel` uses `DispatcherTimer` with fixed 3-second interval (optimized through testing)
+    - `FileMonitoringCoordinator` uses fixed 3-second interval (optimized through testing)
     - Monitoring paused when configuration invalid to prevent unnecessary I/O operations
+    - Detects Steam process running and shows warning banner when detected
+  - **Steam Process Detection**
+    - `FileMonitoringCoordinator` detects Steam process (steam.exe) running
+    - Shows persistent warning banner when Steam is running
+    - Provides tooltip explaining why Steam should be closed before making changes
+    - Detection runs on same 3-second timer as file monitoring
+    - Warning automatically dismissed when Steam closes
   - **Profile Management**
     - Profiles stored per active configuration under `Profiles/{profileId}` with `main.txt`, `reference.txt`, `profile.json`, `pending-changes.json`, and `History/` folder
+    - `ProfileCoordinator` manages active profile state and switching
     - Commands and dialogs coordinate through `ProfileService` to switch and manage profiles
   - **Reference History**
     - Each profile maintains independent version history in `Profiles/{profileId}/History/`
@@ -52,12 +72,13 @@
     - Custom Material Design styled `ConfirmationDialog` replaces all `MessageBox.Show` calls
     - Supports multiple icon types (Information, Question, Warning, Error) and button configurations (OK, OKCancel, YesNo, YesNoCancel)
   - **Update Notifications**
+    - `UpdateCheckCoordinator` manages update checking and notification state
     - Non-intrusive info bar in `MainWindow` shows when updates available
     - Automatic background check on startup with 24-hour caching
     - Manual check via Help menu bypasses cache
     - `UpdateOptionsDialog` provides clickable download buttons for Nexusmods and GitHub
   - **Configuration Validation**
-    - `MainViewModel` maintains cached validation state to prevent excessive I/O on invalid paths
+    - `ConfigurationCoordinator` manages validation state with caching to prevent excessive I/O
     - Error banner in `MainWindow` displays when paths are invalid with "Open settings" button
     - Status banner in `SettingsWindow` shows real-time validation feedback (error/success states)
     - Validation triggers: timer tick, config changes, settings save, auto-detected path clicks
@@ -83,6 +104,23 @@
 ├─ MainWindow.xaml.cs
 ├─ Constants/
 │  └─ UserMessages.cs
+├─ Coordinators/
+│  ├─ ICoordinator.cs
+│  ├─ CoordinatorBase.cs
+│  ├─ FileMonitoringCoordinator.cs
+│  ├─ StatusCoordinator.cs
+│  ├─ UpdateCheckCoordinator.cs
+│  ├─ ProfileCoordinator.cs
+│  ├─ ConfigurationCoordinator.cs
+│  ├─ GameLauncherCoordinator.cs
+│  ├─ WindowManager.cs
+│  └─ Events/
+│     ├─ CoordinatorEventArgs.cs
+│     ├─ ChangeDetectedEventArgs.cs
+│     ├─ SortingRecommendationChangedEventArgs.cs
+│     ├─ SteamWarningChangedEventArgs.cs
+│     ├─ ProfileChangedEventArgs.cs
+│     └─ ConfigValidationChangedEventArgs.cs
 ├─ Models/
 │  ├─ AppConfigModel.cs
 │  ├─ DiffLineModel.cs
@@ -164,7 +202,16 @@
 │  │     ├─ 04-enabled-disabled-status-awareness.md
 │  │     ├─ 05-problem-resolution-controls.md
 │  │     ├─ 06-profiles-feature.md
-│  │     └─ 07-group-dependent-mod-changes.md
+│  │     ├─ 07-group-dependent-mod-changes.md
+│  │     ├─ 13-steam-guard.md
+│  │     ├─ 14-refactor-file-monitoring-coordinator.md
+│  │     ├─ 15-window-manager-coordinator.md
+│  │     ├─ 16-status-coordinator.md
+│  │     ├─ 17-update-check-coordinator.md
+│  │     ├─ 18-profile-coordinator.md
+│  │     ├─ 19-configuration-coordinator.md
+│  │     ├─ 20-game-launcher-coordinator.md
+│  │     └─ coordinator-refactoring-complete-summary.md
 ├─ Tests/
 │  └─ LoadOrderKeeper.Tests/
 │     ├─ LoadOrderKeeper.Tests.csproj
@@ -179,7 +226,221 @@
 
 ## 3. Public API (Signatures Only)
 
-### 3.1 Models
+### 3.1 Coordinators
+
+#### `LoadOrderKeeper.Coordinators.ICoordinator`
+
+```csharp
+public interface ICoordinator : IDisposable
+{
+    void Initialize();
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.CoordinatorBase`
+
+```csharp
+public abstract class CoordinatorBase : ObservableObject, ICoordinator
+{
+    public virtual void Initialize();
+    public void Dispose();
+    protected virtual void Dispose(bool disposing);
+    protected virtual void OnDisposing();
+    protected void ThrowIfDisposed();
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.FileMonitoringCoordinator`
+
+```csharp
+public sealed class FileMonitoringCoordinator : CoordinatorBase
+{
+    // Properties
+    public bool PluginsFileChangedExternally { get; }
+    public int ChangeCount { get; }
+    public string SortingRecommendationMessage { get; }
+    public bool SortingRecommendationActive { get; }
+    public bool ShowSteamWarning { get; }
+    public string SteamWarningTooltip { get; }
+    public bool IsSteamInstalled { get; }
+    public bool IsSteamRunning { get; }
+    
+    // Events
+    public event EventHandler<ChangeDetectedEventArgs>? ChangeDetected;
+    public event EventHandler<SortingRecommendationChangedEventArgs>? SortingRecommendationChanged;
+    public event EventHandler<SteamWarningChangedEventArgs>? SteamWarningChanged;
+    
+    // Methods
+    public void UpdateState(AppConfigModel config, bool refExists, bool isBusy, bool configIsInvalid);
+    public Task CheckPluginsFileAsync();
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.StatusCoordinator`
+
+```csharp
+public sealed class StatusCoordinator : CoordinatorBase
+{
+    // Properties
+    public string StatusMessage { get; }
+    public ObservableCollection<StatusMessageModel> StatusMessageHistory { get; }
+    
+    // Methods
+    public void AddStatusMessage(string message, StatusMessageType type = StatusMessageType.Info);
+    public string GetReadyStatusMessage(bool configIsValid);
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.UpdateCheckCoordinator`
+
+```csharp
+public sealed class UpdateCheckCoordinator : CoordinatorBase
+{
+    // Properties
+    public bool UpdateAvailable { get; }
+    public string UpdateMessage { get; }
+    public bool UpdateInfoBarVisible { get; }
+    
+    // Methods
+    public Task<UpdateCheckResult> CheckForUpdatesBackgroundAsync();
+    public Task<UpdateCheckResult> CheckForUpdatesManualAsync();
+    public void DismissUpdateNotification();
+    public string? GetLatestVersion();
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.ProfileCoordinator`
+
+```csharp
+public sealed class ProfileCoordinator : CoordinatorBase
+{
+    // Properties
+    public ProfileModel ActiveProfile { get; }
+    public string ActiveProfileLabel { get; }
+    
+    // Events
+    public event EventHandler<ProfileChangedEventArgs>? ProfileChanged;
+    
+    // Methods
+    public void UpdateConfiguration(AppConfigModel? config);
+    public Task RefreshActiveProfileAsync();
+    public Task<bool> SwitchProfileAsync(string targetProfileId);
+    public bool IsActiveProfile(string profileId);
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.ConfigurationCoordinator`
+
+```csharp
+public sealed class ConfigurationCoordinator : CoordinatorBase
+{
+    // Properties
+    public bool IsConfigValid { get; }
+    public bool ShowErrorBanner { get; }
+    
+    // Events
+    public event EventHandler<ConfigValidationChangedEventArgs>? ValidationChanged;
+    
+    // Methods
+    public void UpdateConfiguration(AppConfigModel? config);
+    public void ValidateConfiguration();
+    public ValidationResult GetValidationResult();
+}
+
+public sealed class ValidationResult
+{
+    public bool IsValid { get; }
+    public string? ErrorMessage { get; }
+    
+    public static ValidationResult Success();
+    public static ValidationResult Failed(string errorMessage);
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.GameLauncherCoordinator`
+
+```csharp
+public sealed class GameLauncherCoordinator : CoordinatorBase
+{
+    // Properties
+    public string PlayButtonText { get; }
+    public bool HasSfseInstalled { get; }
+    
+    // Methods
+    public void UpdateGamePath(string? gamePath);
+    public void UpdateConfiguration(AppConfigModel? config);
+    public bool LaunchGame();
+    public string? GetExecutablePath();
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.WindowManager`
+
+```csharp
+public sealed class WindowManager : CoordinatorBase
+{
+    // Methods (examples - full API in WindowManager documentation)
+    public bool IsWindowOpen<T>() where T : Window;
+    public void RegisterWindow<T>(T window) where T : Window;
+    public void UnregisterWindow<T>() where T : Window;
+    public void BringToFront<T>() where T : Window;
+}
+```
+
+### 3.2 Coordinator Events
+
+#### `LoadOrderKeeper.Coordinators.Events.ChangeDetectedEventArgs`
+
+```csharp
+public sealed class ChangeDetectedEventArgs : EventArgs
+{
+    public bool HasChanges { get; }
+    public int ChangeCount { get; }
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.Events.SteamWarningChangedEventArgs`
+
+```csharp
+public sealed class SteamWarningChangedEventArgs : EventArgs
+{
+    public bool ShowWarning { get; }
+    public string Tooltip { get; }
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.Events.SortingRecommendationChangedEventArgs`
+
+```csharp
+public sealed class SortingRecommendationChangedEventArgs : EventArgs
+{
+    public bool RecommendSorting { get; }
+    public string Message { get; }
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.Events.ProfileChangedEventArgs`
+
+```csharp
+public sealed class ProfileChangedEventArgs : EventArgs
+{
+    public ProfileModel OldProfile { get; }
+    public ProfileModel NewProfile { get; }
+}
+```
+
+#### `LoadOrderKeeper.Coordinators.Events.ConfigValidationChangedEventArgs`
+
+```csharp
+public sealed class ConfigValidationChangedEventArgs : EventArgs
+{
+    public bool WasValid { get; }
+    public bool IsValid { get; }
+    public bool StateChanged { get; }
+}
+```
+
+### 3.3 Models
 
 #### `LoadOrderKeeper.Constants.UserMessages`
 
@@ -1085,14 +1346,30 @@ public sealed class ChangeSummaryConverter : IValueConverter
 
 - **Startup & Configuration**
   - `App.OnStartup` creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows it.
-  - `MainViewModel` loads settings via `SettingsService.LoadSettingsAsync()`, validates Profiles folder via `ProfileService.EnsureProfilesFolderExists()`, ensures the default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`, checks `FileService.DoesReferenceFileExist()`, and enforces configuration validity by displaying `SettingsWindow` when needed.
+  - `MainViewModel` initializes 6 coordinators: `FileMonitoringCoordinator`, `StatusCoordinator`, `UpdateCheckCoordinator`, `ProfileCoordinator`, `ConfigurationCoordinator`, `GameLauncherCoordinator`.
+  - Loads settings via `SettingsService.LoadSettingsAsync()`, validates Profiles folder via `ProfileService.EnsureProfilesFolderExists()`.
+  - Updates all coordinators with configuration via `UpdateConfiguration()` calls.
+  - `ConfigurationCoordinator.UpdateConfiguration()` validates paths and Profiles folder writability.
+  - `ProfileCoordinator.RefreshActiveProfileAsync()` loads active profile state.
+  - `GameLauncherCoordinator.UpdateConfiguration()` detects SFSE installation and updates play button text.
+  - `FileMonitoringCoordinator.UpdateState()` initializes monitoring with config, reference existence, and validation state.
+  - `UpdateCheckCoordinator.CheckForUpdatesBackgroundAsync()` checks for new versions on startup.
+  - Ensures default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`.
   - If Profiles folder cannot be created or accessed, error dialog shown with option to open settings or shutdown.
   - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
+  
+- **Coordinator Communication**
+  - Coordinators raise events when state changes; `MainViewModel` subscribes and propagates to UI via `OnPropertyChanged()`.
+  - `FileMonitoringCoordinator.ChangeDetected` → `MainViewModel.OnChangeDetected()` → refreshes diff window if open.
+  - `ProfileCoordinator.ProfileChanged` → `MainViewModel.OnProfileChanged()` → shows status message.
+  - `ConfigurationCoordinator.ValidationChanged` → `MainViewModel.OnConfigValidationChanged()` → notifies commands to refresh `CanExecute`.
+  - All coordinator properties exposed as pass-through properties in `MainViewModel` for UI binding.
   
 - **Profile Initialization & Switching**
   - `MainViewModel.SwitchProfileCommand` opens `SwitchProfileWindow` with `SwitchProfileViewModel`, which loads profiles via `ProfileService.LoadProfilesAsync()`.
   - Selecting a profile calls `ProfileService.SwitchProfileAsync()`: the current `Plugins.txt` is persisted to the active profile's `main.txt`, the target profile's `main.txt` and `reference.txt` are ensured, the target `main.txt` replaces `Plugins.txt`, and `ActiveProfileId` is saved.
-  - After switching, `MainViewModel` refreshes `ActiveProfileLabel`, `RefExists`, timer state, and kicks off `CheckPluginsFileAsync()` so monitoring uses the new profile's reference.
+  - After switching, `ProfileCoordinator.RefreshActiveProfileAsync()` updates active profile state and fires `ProfileChanged` event.
+  - `FileMonitoringCoordinator.UpdateState()` called to use new profile's reference file for monitoring.
   
 - **Profile Management**
   - `MainViewModel.ManageProfilesCommand` opens `ManageProfilesWindow` backed by `ManageProfilesViewModel`.
@@ -1100,7 +1377,11 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - The profiles list refreshes after each operation so the UI and `MainViewModel` reflect edits.
   
 - **Settings Flow**
-  - `MainViewModel.OpenSettingsCommand` shows `SettingsWindow`; on success, `SettingsService.SaveSettingsAsync()` persists `AppConfigModel`, `RefExists` is recomputed, and monitoring restarts.
+  - `MainViewModel.OpenSettingsCommand` shows `SettingsWindow`; on success, `SettingsService.SaveSettingsAsync()` persists `AppConfigModel`.
+  - `ConfigurationCoordinator.UpdateConfiguration()` validates new configuration and fires `ValidationChanged` event if state changes.
+  - `ProfileCoordinator.UpdateConfiguration()` updates profile context.
+  - `GameLauncherCoordinator.UpdateConfiguration()` redetects SFSE and updates button text.
+  - `RefExists` is recomputed and `FileMonitoringCoordinator.UpdateState()` called with new config.
   - Configuration edits retain `ActiveProfileId`, so profile-specific references stay aligned.
   - `SettingsService.TryGetDefaultSteamPath()` intelligently detects Starfield installation by:
     1. Calling `TryGetSteamInstallPath()` to find main Steam installation via Windows registry (CurrentUser, LocalMachine paths)
@@ -1117,10 +1398,22 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - `DiscardChangesCommand` resets `Plugins.txt` from the active profile reference via `FileService.DiscardChangesAsync()`.
   
 - **Monitoring & diffing**
-  - `DispatcherTimer` invokes `CheckPluginsFileAsync()` every 3 seconds (fixed interval optimized through testing); the method calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile's reference.
-  - Timer pauses when configuration becomes invalid to prevent unnecessary I/O operations; resumes when configuration valid again.
-  - Validation state cached in `MainViewModel._configIsInvalid` to minimize repeated checks.
-  - On differences, `FileService.WouldSortingChangeDiffsAsync()` sets the sorting recommendation, `DiffService.GetPluginsDiffAsync()` feeds both the badge count and the `DiffDialogViewModel`, and switching profiles triggers `DiffDialogViewModel.RefreshDiffAsync()` when open.
+  - `FileMonitoringCoordinator` runs periodic checks every 3 seconds when state is valid (config valid, reference exists, not busy).
+  - `CheckPluginsFileAsync()` calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile's reference.
+  - Detects Steam process (steam.exe) running and updates `IsSteamRunning`, `ShowSteamWarning`, and `SteamWarningTooltip` properties.
+  - Fires `ChangeDetected` event when file changes detected, `SteamWarningChanged` when Steam state changes, `SortingRecommendationChanged` when sorting issues detected.
+  - On differences, `FileService.WouldSortingChangeDiffsAsync()` sets the sorting recommendation, `DiffService.GetPluginsDiffAsync()` feeds both the badge count and the `DiffDialogViewModel`.
+  - Switching profiles triggers `DiffDialogViewModel.RefreshDiffAsync()` when diff window is open.
+  
+- **Steam Process Detection**
+  - `FileMonitoringCoordinator.DetectSteamProcess()` checks if steam.exe is running using `Process.GetProcessesByName()`.
+  - Updates `IsSteamInstalled` (checks registry for Steam installation).
+  - Updates `IsSteamRunning` (checks for running steam.exe process).
+  - Calculates `ShowSteamWarning` (true when both Steam installed and running).
+  - Generates `SteamWarningTooltip` with contextual message explaining why Steam should be closed.
+  - Fires `SteamWarningChanged` event when warning state changes.
+  - `MainViewModel` exposes pass-through properties for UI binding.
+  - Warning banner in `MainWindow` shows/hides automatically based on Steam state.
   
 - **Diff dialog operations**
   - In `DiffDialogViewModel`, commands trigger `FileService.ReEnableModAsync()`, `RemoveNewModAsync()`, `ReplaceModWithNewAsync()`, and `MainViewModel.DiscardChangesCommand` (which calls `FileService.DiscardChangesAsync()`), refreshing diffs afterward.
@@ -1138,16 +1431,18 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - `AboutViewModel.OpenHomepageCommand` launches the project homepage URL in the default browser.
   
 - **Status History**
-  - `MainViewModel` maintains `StatusMessageHistory` (ObservableCollection) with last 3 status messages.
+  - `StatusCoordinator` maintains `StatusMessageHistory` (ObservableCollection) with last 3 status messages.
   - Each status message has a timestamp and type (Info, Success, Warning, Error).
-  - Displayed in main window UI for quick reference of recent operations.
+  - `MainViewModel` calls `StatusCoordinator.AddStatusMessage()` for all status updates.
+  - Displayed in main window UI via pass-through properties for quick reference of recent operations.
 
 - **Version Check & Updates**
-  - `MainViewModel.LoadInitialStateAsync()` calls `CheckForUpdatesBackgroundAsync()` on startup to check for new versions.
-  - Background check calls `UpdateCheckService.CheckForUpdatesAsync(bypassCache: false)` with 24-hour cache.
-  - If update available, `UpdateAvailable`, `UpdateMessage`, and `UpdateInfoBarVisible` properties are set, triggering info bar display.
-  - `MainViewModel.CheckForUpdatesCommand` (from Help menu) calls `UpdateCheckService.CheckForUpdatesAsync(bypassCache: true)` for immediate check.
-  - Manual check shows `ConfirmationDialog` if no update available, or sets info bar properties if update found.
+  - `UpdateCheckCoordinator` manages all update checking and notification state.
+  - `CheckForUpdatesBackgroundAsync()` called on startup, uses 24-hour cache.
+  - If update available, fires `PropertyChanged` for `UpdateAvailable`, `UpdateMessage`, and `UpdateInfoBarVisible`.
+  - `MainViewModel` exposes these as pass-through properties for UI binding.
+  - `MainViewModel.CheckForUpdatesCommand` (from Help menu) calls `CheckForUpdatesManualAsync()` which bypasses cache.
+  - Manual check shows `ConfirmationDialog` if no update available, or updates info bar if update found.
   - `MainViewModel.OpenDownloadPageCommand` shows `UpdateOptionsDialog` with download buttons for Nexusmods and GitHub.
   - `UpdateOptionsViewModel` opens URLs in default browser via `Process.Start()` and closes dialog automatically.
   - Network failures in background check are silent; manual check shows `UpdateOptionsDialog` with error message.
@@ -1171,22 +1466,41 @@ public sealed class ChangeSummaryConverter : IValueConverter
     1. Shows confirmation dialog with version details
     2. Calls `ReferenceHistoryService.RollbackToVersionAsync()` to restore archived reference as current reference
     3. Closes history window
-    4. Triggers `CheckPluginsFileAsync()` to show changes in diff window for review
+    4. Triggers `FileMonitoringCoordinator.CheckPluginsFileAsync()` to show changes in diff window for review
   - Context menu actions call `ReferenceHistoryService.UpdateVersionCommentAsync()`, `DeleteVersionAsync()`, and `ClearAllHistoryAsync()` with confirmation dialogs.
   - History window auto-refreshes when new versions created while window is open (non-modal behavior).
   - Each profile maintains independent history with maximum 16 versions; `ReferenceHistoryService.PruneOldVersionsAsync()` removes oldest versions after each archive.
   - All version files and metadata stored as UTF-8 without BOM in `Profiles/{profileId}/History/` folder.
   - `DateTimeFormattingService.FormatFriendly()` provides user-friendly timestamps ("Today 14:56", "Yesterday 16:41", "Jan 15 14:56", "Dec 25, 2023 14:56").
 
+- **Game Launching**
+  - `GameLauncherCoordinator` manages SFSE detection and game launching.
+  - `UpdateConfiguration()` called when game path changes, triggers SFSE detection.
+  - Checks for `sfse_loader.exe` presence in game folder.
+  - Updates `HasSfseInstalled` and `PlayButtonText` ("Play (SFSE)" or "Play (Vanilla)") accordingly.
+  - `MainViewModel.PlayGame()` calls `GameLauncherCoordinator.LaunchGame()`.
+  - Returns success/failure; `MainViewModel` shows error if launch fails.
+  - Automatically selects correct executable (SFSE loader or vanilla) based on detection.
+
 ---
 
 ## 5. Current Constraints & Invariants
 
+- **Coordinator Architecture**
+  - All coordinators inherit from `CoordinatorBase` which provides `INotifyPropertyChanged` and `IDisposable`.
+  - Coordinators are initialized in `MainViewModel` constructor and disposed in `Dispose()` method.
+  - Communication between coordinators and ViewModels is event-driven via `PropertyChanged` and custom events.
+  - `MainViewModel` reduced from ~1300 lines to ~900 lines (31% reduction) through coordinator extraction.
+  - Pass-through properties in `MainViewModel` expose coordinator state for UI binding.
+  - Each coordinator has single responsibility: file monitoring, status, updates, profiles, configuration, or game launching.
+
 - **Configuration validity**
+  - `ConfigurationCoordinator` manages validation state with caching to prevent excessive I/O.
   - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
   - `AppConfigModel.IsValid()` also requires `Plugins.txt` to exist in `StarfieldAppDataPath` (cannot be auto-generated, user must run Starfield at least once).
   - `AppConfigModel.IsValid()` validates Profiles folder creation and writability with test file.
   - The app shuts down when configuration remains invalid after the settings dialog.
+  - `ConfigurationCoordinator.ValidationChanged` event fires when validation state changes, triggering command `CanExecute` updates.
   
 - **Profile storage**
   - Profiles live under `StarfieldAppDataPath/Profiles/{profileId}` with `profile.json`, `main.txt`, and `reference.txt`; folders are created automatically.
@@ -1196,9 +1510,11 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
   - The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
   - Profile labels must be unique (case-insensitive), 2–30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
+  - `ProfileCoordinator` manages active profile state and fires `ProfileChanged` event when profile switches.
   
 - **Profile switching guarantees**
   - Switching always backs up the current `Plugins.txt` into the old profile's `main.txt`, ensures the target `main.txt` and `reference.txt`, writes UTF-8 (no BOM), and updates `ActiveProfileId` before monitoring continues.
+  - `ProfileCoordinator.SwitchProfileAsync()` delegates to `ProfileService.SwitchProfileAsync()` and updates coordinator state.
   
 - **File locations & I/O**
   - `Plugins.txt` stays under `StarfieldAppDataPath`; references are profile-specific (`Profiles/{id}/reference.txt`).
@@ -1209,19 +1525,29 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - `FileService.ApplyLoadOrderAsync()` builds a case map from `StarfieldGamePath/Data` (`*.esm` / `*.esp`) so output lines reuse on-disk casing.
   
 - **Diff semantics & monitoring**
+  - `FileMonitoringCoordinator` handles all periodic checking (3-second interval) and change detection.
   - `FileService.GetModDiffAsync()` bases `ModDiffModel` flags on original vs current line numbers; `DiffService` translates them to `DiffLineModel` change types (`Added`, `Removed`, `Moved`, `Replaced`, `Inserted`).
-  - The monitor compares trimmed file contents, tracks a `PluginsSignature`, and only runs when `Config.IsValid()` and `RefExists` are true.
-  - Fixed 3-second check interval (constant `PluginCheckIntervalSeconds` in `MainViewModel`).
-  - Cached validation state (`_configIsInvalid`) prevents excessive I/O operations on invalid paths.
+  - The monitor compares trimmed file contents, tracks a `PluginsSignature`, and only runs when state is valid (config valid, reference exists, not busy, config not invalid).
+  - Monitoring paused when `configIsInvalid` is true to prevent I/O operations on invalid paths.
   - Dependent changes are tracked and displayed: when a mod is removed/added, all mods that shift position as a result are shown as dependent changes.
+  - `FileMonitoringCoordinator` fires `ChangeDetected` event with `HasChanges` and `ChangeCount` when changes detected.
+  
+- **Steam Process Detection**
+  - `FileMonitoringCoordinator` detects Steam installation via Windows registry.
+  - Checks for running steam.exe process on same 3-second timer as file monitoring.
+  - Warning shown when both Steam installed and Steam running.
+  - Warning automatically dismissed when Steam closes.
+  - Tooltip message: "Steam is running. To prevent conflicts, it is recommended to close Steam before making changes to the load order."
+  - Detection uses `Process.GetProcessesByName("steam")` for efficient process checking.
+  - `SteamWarningChanged` event fired when warning state changes (Steam starts/stops).
   
 - **Navigation & threading**
   - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `CommentInputDialog`) block until close; viewmodels flow back via dialog results/events.
-  - Non-modal windows (`DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow`) allow main window interaction while open; `MainViewModel` tracks instances to prevent duplicates and manages window lifecycle.
-  - `DispatcherTimer` runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
+  - Non-modal windows (`DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow`) allow main window interaction while open; `WindowManager` coordinator tracks instances to prevent duplicates and manages window lifecycle.
+  - `FileMonitoringCoordinator` timer runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
   
 - **Error handling**
-  - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates `StatusMessage`, and surfaces `ConfirmationDialog` for errors.
+  - Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates status via `StatusCoordinator.AddStatusMessage()`, and surfaces `ConfirmationDialog` for errors.
   - All user-facing dialogs use `ConfirmationDialog` with appropriate icon types (Error, Warning, Information) for consistent Material Design v5 styling.
   - `IOException` includes specific messages for common issues: access denied, disk full, network paths.
   - Profiles folder creation failures caught at startup with actionable error dialogs offering settings access.
@@ -1231,86 +1557,14 @@ public sealed class ChangeSummaryConverter : IValueConverter
   - Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parse errors, I/O errors) and returns null, allowing fallback detection methods to execute.
 
 - **Configuration Validation**
-  - `MainViewModel` caches validation state in `_configIsInvalid` field, updated on timer ticks, config changes, and settings dialog close.
+  - `ConfigurationCoordinator` caches validation state to minimize repeated file system checks.
   - `AppConfigModel.IsValid()` validates paths AND Plugins.txt existence AND Profiles folder creation/writability with test file.
-  - Error banner (`ConfigErrorBannerVisible`) shown in main window when paths invalid; includes "Open settings" button.
+  - Error banner (`ShowErrorBanner` from coordinator) shown in main window when paths invalid; includes "Open settings" button.
   - Status banner in settings window provides real-time feedback with error/success states:
     - Error state: Shows specific path issues (app data invalid, game path invalid, both invalid, Data folder missing, Plugins.txt missing, Profiles folder access issues)
     - Success state: Confirms "The configured paths are valid" with checkmark icon
   - Validation runs on: window open, input blur, save button click, auto-detected path click.
   - Validation order: paths configured → paths exist → Data folder exists → Plugins.txt exists → Profiles folder writable.
   - All operations gated by validation check to prevent I/O failures with invalid paths.
+  - `ConfigurationCoordinator.GetValidationResult()` provides detailed error messages for debugging and user feedback.
   - Centralized error messages in `Constants/UserMessages.cs` for easy modification and future localization.
-
-- **Reference History System**
-  - Each profile stores version history independently in `Profiles/{profileId}/History/` with `reference_vX.txt` and `reference_vX.json` files.
-  - Version numbers are sequential integers starting at 1, determined by `existingVersions.Max(v => v.VersionNumber) + 1`.
-  - Maximum 16 versions per profile enforced by `PruneOldVersionsAsync()`; oldest versions (lowest numbers) are deleted first when limit exceeded.
-  - Pending changes stored per-profile in `Profiles/{profileId}/pending-changes.json` with `AddedMods` and `RemovedMods` lists.
-  - Pending changes system ensures each archived version describes what changed **when creating that version**, not what comes after it.
-  - First version (when history empty and no pending changes) automatically labeled "Initial version" with empty change lists.
-  - All history files written as UTF-8 without BOM using `System.Text.Json` with indented formatting.
-  - Archive failures log warning but allow reference update to proceed (non-blocking).
-  - Load failures return empty history or empty pending changes (graceful degradation).
-  - Corrupted JSON files silently ignored; missing folders automatically created.
-  - Rollback replaces current reference but does **not** modify `Plugins.txt` directly—user reviews in diff window first.
-  - Version metadata includes: `VersionNumber`, `Timestamp` (ISO 8601), `Comment` (nullable string), `AddedMods`, `RemovedMods`.
-  - Comments limited to 500 characters; empty/null comments allowed (defaults to "Initial version" for first version only).
-  - History window tracks single instance in `MainViewModel._referenceHistoryWindow`; existing window brought to front when command invoked again.
-  - History window auto-refreshes via `ReferenceHistoryViewModel.RefreshVersionsAsync()` when `MainViewModel` creates new version.
-  - Date/time formatting uses `DateTimeFormattingService` for consistency: friendly display (no seconds) in history, timestamps (with seconds) in status messages.
-
-- **Steam Library Detection**
-  - `SettingsService` includes intelligent Steam library folder detection for auto-discovering Starfield installations.
-  - **Implementation Details**:
-    - Uses `Gameloop.Vdf` library (v0.6.2) to parse Valve Data Format files
-    - Reads `steamapps/libraryfolders.vdf` from main Steam installation
-    - Starfield AppID constant: `1716740`
-    - VDF structure: `libraryfolders` → numeric keys (0, 1, 2) → `path` + `apps` properties
-    - Each library's `apps` object contains AppIDs as keys; presence indicates game installation in that library
-    - Constructs path: `{library-path}/steamapps/common/Starfield`
-    - Validates by checking `Data` subfolder existence
-  - **Registry Keys Checked** (in order):
-    1. `HKEY_CURRENT_USER\Software\Valve\Steam\SteamPath`
-    2. `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam\InstallPath` (64-bit systems)
-    3. `HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam\InstallPath` (32-bit systems)
-  - **Fallback Sequence**:
-    1. Parse VDF and search all libraries (preferred method)
-    2. Check default Steam installation: `{steam-path}/steamapps/common/Starfield`
-    3. Check Program Files: `%ProgramFiles(x86)%/Steam/steamapps/common/Starfield`
-  - **Test Coverage**: 8 unit tests in `SettingsServiceTests` covering:
-    - Basic detection with example VDF structure
-    - First-match selection when multiple libraries contain Starfield
-    - Null return when Starfield not found in any library
-    - Null return when VDF file missing
-    - Null return when Data folder missing (invalid installation)
-    - Silent failure on corrupted VDF content
-    - Path normalization (forward slashes → backslashes)
-    - Handling libraries without `apps` property
-  
-- **UI/UX Conventions**
-  - All text displayed in UI uses bindings (no hardcoded strings in XAML).
-  - Material Design v5 semantic brushes used throughout for theme consistency.
-  - Dark mode theme by default.
-  - Confirmation dialogs shown for destructive actions (discard changes, update reference with removed/inserted mods).
-  - Button labels include ellipsis ("...") when they open dialogs or require further interaction.
-  - Design-time attributes (`d:` prefix with `mc:Ignorable="d"`) used for XAML designer support.
-
-- **Version Check System**
-  - `UpdateCheckService` is a static service with no instance state.
-  - Constants for GitHub owner (`Mistralys`), repo (`starfield-load-order-manager`), Nexusmods URL, and GitHub releases URL.
-  - Uses unauthenticated GitHub API requests (60 requests/hour limit, suitable for small user base).
-  - Cache file location: `%LOCALAPPDATA%\StarfieldLoadOrderKeeper\update-check-cache.json`.
-  - Cache expiration: 24 hours from last check timestamp.
-  - Version parsing: semantic versioning (Major.Minor.Patch) with optional pre-release suffix after `-`.
-  - Pre-release versions (containing `-beta`, `-rc`, etc.) are filtered out and ignored.
-  - Version comparison: only major/minor/patch components compared; equal or older versions don't trigger notification.
-  - Update info bar: dismissible per session, non-intrusive, appears at top of `MainWindow` below menu bar.
-  - Update options dialog: modal, shows current and latest version, two download buttons with Material Design icons.
-  - Download URLs open in default browser via `Process.Start()` with `UseShellExecute = true`.
-  - Network timeout: 10 seconds for GitHub API requests.
-  - Background check failures are completely silent (no user notification).
-  - Manual check failures show `UpdateOptionsDialog` with error message and download links.
-  - `HttpClient` instance is static and reused, includes `User-Agent: StarfieldLoadOrderKeeper` header.
-  - JSON serialization uses `System.Text.Json` with indented formatting for cache files.
-  - Cache saves are fire-and-forget; failures don't propagate to caller.

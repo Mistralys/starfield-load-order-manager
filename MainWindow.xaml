@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
-        Height="384"
+        Height="451"
         Width="576"
         MinWidth="480"
         MinHeight="280"
@@ -170,15 +170,17 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center">
                     <TextBlock VerticalAlignment="Center"
-                           Foreground="{DynamicResource MaterialDesignBodyLight}">
-                        <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" />
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           d:Text="Switch profile:">
+                           <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" />
                     </TextBlock>
                     <Button VerticalAlignment="Center"
                         Margin="4,0,0,0"
                         Style="{StaticResource MaterialDesignCompactOutlinedSecondaryButton}"
                         materialDesign:RippleAssist.IsDisabled="True"
                         Command="{Binding SwitchProfileCommand}"
-                        Content="{Binding ActiveProfileLabel, Mode=OneWay}" />
+                        Content="{Binding ActiveProfileLabel, Mode=OneWay}"
+                        d:Content="Profile name"/>
                 </StackPanel>
             </Border>
         </Grid>

@@ -296,6 +296,10 @@ namespace LoadOrderKeeper.ViewModels
             // Update file monitor with initial state
             UpdateFileMonitorState();
 
+            // Perform immediate initial check to eliminate startup delay
+            // This provides instant feedback on the current state without waiting for the first timer tick
+            _ = _fileMonitor.CheckPluginsFileAsync();
+
             // Check for updates in the background
             _ = _updateCheckCoordinator.CheckForUpdatesBackgroundAsync();
         }

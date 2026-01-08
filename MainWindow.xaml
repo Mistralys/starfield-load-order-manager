@@ -18,6 +18,7 @@
         <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
         <local:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <local:InverseCountToVisibilityConverter x:Key="InverseCountToVisibilityConverter" />
+        <local:BooleanAndConverter x:Key="BooleanAndConverter" />
     </Window.Resources>
 
     <DockPanel>
@@ -200,12 +201,80 @@
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource MaterialDesignOutlinedButton}" />
                     <Button Grid.Column="1"
-                            Content="{Binding PlayButtonText}"
-                            d:Content="Play"
                             Margin="8,0,0,0"
                             Command="{Binding PlayGameCommand}"
                             HorizontalAlignment="Stretch"
-                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                            x:Name="PlayButton">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                                <Style.Triggers>
+                                    <!-- Show warning style when Steam is not running -->
+                                    <DataTrigger Binding="{Binding ShowSteamWarning}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <!-- Warning icon (only visible when Steam not running) -->
+                            <materialDesign:PackIcon Kind="Alert"
+                                                    Width="18"
+                                                    Height="18"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,6,0"
+                                                    Visibility="{Binding ShowSteamWarning, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <!-- Button text -->
+                            <TextBlock Text="{Binding PlayButtonText}"
+                                      d:Text="Play (SFSE)"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- Steam Warning Popup (appears instantly on hover) -->
+                    <Popup PlacementTarget="{Binding ElementName=PlayButton}"
+                           Placement="Top"
+                           VerticalOffset="-8"
+                           AllowsTransparency="True"
+                           PopupAnimation="Fade"
+                           StaysOpen="True">
+                        <Popup.IsOpen>
+                            <MultiBinding Converter="{StaticResource BooleanAndConverter}" Mode="OneWay">
+                                <Binding Path="ShowSteamWarning" Mode="OneWay" />
+                                <Binding Path="IsMouseOver" ElementName="PlayButton" Mode="OneWay" />
+                            </MultiBinding>
+                        </Popup.IsOpen>
+                        <Border Background="{DynamicResource MaterialDesign.Brush.Tertiary}"
+                                BorderBrush="{DynamicResource MaterialDesign.Brush.Tertiary}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="12,8"
+                                Margin="0,0,0,12"
+                                Width="280"
+                                materialDesign:ElevationAssist.Elevation="Dp4">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" 
+                                                Direction="270" 
+                                                ShadowDepth="2" 
+                                                BlurRadius="8" 
+                                                Opacity="0.3" />
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Grid.Column="0"
+                                          Text="{Binding SteamWarningTooltip}"
+                                          d:Text="Steam is running. To prevent conflicts, it is recommended to close Steam before making changes to the load order."
+                                          TextWrapping="Wrap"
+                                          Foreground="{DynamicResource MaterialDesignPaper}"
+                                          FontSize="13"
+                                          LineHeight="18"
+                                          VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </Popup>
                 </Grid>
 
                 <ProgressBar Height="18"

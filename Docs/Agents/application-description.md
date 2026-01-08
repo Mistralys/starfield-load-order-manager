@@ -9,6 +9,7 @@
   - [Profile System](#profile-system)
   - [Reference History](#reference-history)
   - [Change Detection](#change-detection)
+  - [Steam Process Detection](#steam-process-detection)
   - [Dependent Change Tracking](#dependent-change-tracking)
   - [Game Integration](#game-integration)
   - [Version Check](#version-check)
@@ -16,6 +17,7 @@
 - [Configuration](#configuration)
 - [File Handling](#file-handling)
 - [User Interface](#user-interface)
+- [Architecture & Design](#architecture--design)
 
 ---
 
@@ -43,13 +45,15 @@ The application provides automated load order protection and management through:
 
 1. **Reference File System**: Creates and maintains a reference copy of a known-good `Plugins.txt` file
 2. **Automatic Detection**: Periodically monitors for unauthorized changes to the load order
-3. **One-Click Fix**: Restores the correct load order while preserving new mods
-4. **Profile Support**: Manages multiple load orders for different characters or playthroughs
-5. **Visual Diff**: Shows exactly what changed with options to accept or revert changes
-6. **Dependent Change Tracking**: Intelligently groups cascading position changes for clarity
-7. **Smart Confirmations**: Warns when destructive changes are about to be made
-8. **Automatic Updates**: Checks for new versions and provides easy download options
-9. **Configuration Validation**: Real-time validation with clear visual feedback to prevent errors
+3. **Steam Process Guard**: Detects when Steam is running and warns users to prevent conflicts
+4. **One-Click Fix**: Restores the correct load order while preserving new mods
+5. **Profile Support**: Manages multiple load orders for different characters or playthroughs
+6. **Visual Diff**: Shows exactly what changed with options to accept or revert changes
+7. **Dependent Change Tracking**: Intelligently groups cascading position changes for clarity
+8. **Smart Confirmations**: Warns when destructive changes are about to be made
+9. **Automatic Updates**: Checks for new versions and provides easy download options
+10. **Configuration Validation**: Real-time validation with clear visual feedback to prevent errors
+11. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -60,7 +64,8 @@ The application is built as a **WPF .NET 9** desktop application using:
 - **Framework**: .NET 9
 - **UI Framework**: WPF (Windows Presentation Foundation)
 - **Design**: Material Design v5 theme with dark mode
-- **Architecture**: MVVM pattern using CommunityToolkit.Mvvm
+- **Architecture**: MVVM pattern using CommunityToolkit.Mvvm with Coordinator pattern
+- **Coordinators**: Modular domain logic handlers for file monitoring, status, updates, profiles, configuration, and game launching
 - **Testing**: xUnit for unit tests
 - **Dialogs**: Custom Material Design confirmation dialogs
 
@@ -411,6 +416,46 @@ compares both mod names and positions to determine the type of change.
 
 ---
 
+### Steam Process Detection
+
+The application includes intelligent Steam process detection to help prevent conflicts when managing load orders.
+
+#### Why Steam Detection Matters
+
+Steam can interfere with load order management in several ways:
+- May lock files when the game is running
+- Can trigger automatic updates that modify game files
+- Cloud sync features might conflict with load order changes
+- Better to make changes when Steam is fully closed
+
+#### How It Works
+
+**Automatic Detection**:
+- Runs on the same 3-second interval as file monitoring
+- Checks for Steam installation via Windows registry
+- Detects if steam.exe process is currently running
+- Updates warning state automatically when Steam starts/stops
+
+**Visual Warning**:
+- Persistent warning banner appears in main window when Steam is running
+- Shows clear icon and warning message
+- Provides helpful tooltip: "Steam is running. To prevent conflicts, it is recommended to close Steam before making changes to the load order."
+- Warning automatically disappears when Steam closes
+
+**Benefits**:
+- Prevents potential file conflicts and corruption
+- Reduces risk of lost changes due to Steam sync
+- Clear visual feedback helps users avoid problems
+- Non-intrusive—doesn't block operations, just warns
+
+**Technical Details**:
+- Steam installation detected via registry keys (HKEY_CURRENT_USER and HKEY_LOCAL_MACHINE)
+- Process detection uses `Process.GetProcessesByName("steam")` for efficiency
+- Detection is part of the FileMonitoringCoordinator for optimal performance
+- Warning state managed through event-driven architecture
+
+---
+
 ### Dependent Change Tracking
 
 When a mod is removed or inserted in the middle of the load order, all mods below it shift positions.
@@ -625,7 +670,7 @@ This order ensures efficient validation—each check depends on the previous one
 
 #### Main Window Error Banner
 
-When either configured path becomes invalid, a non-dismissible error banner appears at the top of the main window:
+When either configured path becomes invalid, a non-dismissable error banner appears at the top of the main window:
 
 **Characteristics**:
 - Material Design v5 error styling (red background)
@@ -1044,6 +1089,7 @@ The application follows **Material Design v5** guidelines with:
 - Color coding: Info (Primary), Success (Tertiary), Warning (Secondary), Error (Error)
 - Configuration error banner when paths invalid
 - Update notification info bar when new version available
+- Steam process warning banner when Steam is running
 
 **Settings Window**:
 - Status banner showing validation state
@@ -1060,6 +1106,12 @@ The application follows **Material Design v5** guidelines with:
 - Prominent banner when inserted mods detected
 - Warning icon and colored text
 - Explains need to sort first
+
+**Steam Warning**:
+- Shows when Steam process is detected running
+- Orange warning banner with helpful tooltip
+- Explains potential conflicts
+- Automatically disappears when Steam closes
 
 ### Window Types
 
@@ -1102,3 +1154,90 @@ The application maintains semantic versioning:
 - v1.2.0: Status message history
 - v1.1.0: About dialog, always-open diff window
 - v1.0.0: Initial release with profile switching
+
+---
+
+## Architecture & Design
+
+### Coordinator Pattern
+
+The application uses a **coordinator pattern** to separate concerns and improve maintainability:
+
+#### What Are Coordinators?
+
+Coordinators are specialized components that handle specific domain logic and state management. Each coordinator:
+- Inherits from `CoordinatorBase` (provides `INotifyPropertyChanged` + `IDisposable`)
+- Has a single, well-defined responsibility
+- Communicates via events and property changes
+- Is independently testable
+- Can be reused across ViewModels
+
+#### Implemented Coordinators
+
+**FileMonitoringCoordinator** (~300 lines):
+- Periodic file monitoring (3-second intervals)
+- Change detection and counting
+- Steam process detection and warnings
+- Sorting recommendations
+
+**StatusCoordinator** (~80 lines):
+- Status message management
+- History tracking (last 3 messages)
+- Timestamped message formatting
+
+**UpdateCheckCoordinator** (~120 lines):
+- Background and manual update checking
+- Version comparison with caching
+- Update notification management
+
+**ProfileCoordinator** (~150 lines):
+- Active profile state management
+- Profile switching coordination
+- Profile change events
+
+**ConfigurationCoordinator** (~180 lines):
+- Configuration validation with caching
+- Error banner state management
+- Detailed validation results
+
+**GameLauncherCoordinator** (~150 lines):
+- SFSE (Script Extender) detection
+- Game launching
+- Dynamic play button text
+
+**WindowManager** (~200 lines):
+- Window lifecycle management
+- Duplicate window prevention
+- Instance tracking
+
+#### Benefits
+
+**Testability**: Each coordinator can be unit tested independently with mocked dependencies.
+
+**Maintainability**: Changes are localized to specific coordinators, reducing risk of breaking other features.
+
+**Reusability**: Coordinators can be shared across multiple ViewModels for consistent behavior.
+
+**Clarity**: MainViewModel reduced from ~1300 lines to ~900 lines (31% reduction) by extracting domain logic.
+
+**Scalability**: New features can be added as new coordinators following established patterns.
+
+#### Communication Pattern
+
+Coordinators communicate with ViewModels through:
+1. **Properties**: Exposed for UI binding via pass-through properties in ViewModels
+2. **Events**: Custom events (e.g., `ProfileChanged`, `ValidationChanged`) notify ViewModels of state changes
+3. **Methods**: Public methods provide operations (e.g., `CheckForUpdatesAsync()`, `SwitchProfileAsync()`)
+
+Example flow:
+```
+User clicks "Check for Updates"
+  → MainViewModel.CheckForUpdatesCommand
+    → UpdateCheckCoordinator.CheckForUpdatesManualAsync()
+      → UpdateCheckCoordinator.UpdateAvailable property changes
+        → PropertyChanged event fires
+          → MainViewModel.OnPropertyChanged(nameof(UpdateAvailable))
+            → UI updates automatically
+```
+
+This architecture ensures clean separation of concerns while maintaining responsive UI updates through event-driven communication.

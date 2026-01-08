@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.Views;
@@ -15,22 +16,21 @@ namespace LoadOrderKeeper.ViewModels
     public partial class MainViewModel : ObservableObject, IDisposable
     {
         private const int MaxStatusHistoryCount = 3;
-        private const int PluginCheckIntervalSeconds = 3;
         
-        private readonly DispatcherTimer _pluginsMonitorTimer;
+        private readonly FileMonitoringCoordinator _fileMonitor;
+        private readonly StatusCoordinator _statusCoordinator;
+        private readonly UpdateCheckCoordinator _updateCheckCoordinator;
+        private readonly ProfileCoordinator _profileCoordinator;
+        private readonly ConfigurationCoordinator _configCoordinator;
+        private readonly GameLauncherCoordinator _gameLauncher;
         private readonly CancellationTokenSource _shutdownCts = new();
-        private bool _isCheckingPluginsFile;
         private bool _disposed;
         private DiffDialogViewModel? _activeDiffDialog;
-        private string _lastObservedPluginsSignature = string.Empty;
 
-        // Track non-modal windows to prevent multiple instances
+        // Track non-modal windows to prevent duplicates
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
         private ReferenceHistoryWindow? _referenceHistoryWindow;
-
-        // Cached configuration validation state
-        private bool _configIsInvalid;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -43,12 +43,6 @@ namespace LoadOrderKeeper.ViewModels
         private bool _refExists;
 
         [ObservableProperty]
-        private string _statusMessage = "Loading settings...";
-
-        [ObservableProperty]
-        private ObservableCollection<StatusMessageModel> _statusMessageHistory = new();
-
-        [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
         [NotifyCanExecuteChangedFor(nameof(DiscardChangesCommand))]
         private bool _isBusy;
@@ -59,24 +53,7 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _fixLoadOrderButtonText = "Sort mods";
 
-        private string _playButtonText = "Play (Vanilla)";
-        public string PlayButtonText
-        {
-            get => _playButtonText;
-            private set => SetProperty(ref _playButtonText, value);
-        }
-
-        [ObservableProperty]
-        private bool _updateAvailable;
-
-        [ObservableProperty]
-        private string _updateMessage = string.Empty;
-
-        [ObservableProperty]
-        private bool _updateInfoBarVisible;
-
-        [ObservableProperty]
-        private bool _configErrorBannerVisible;
+        public string PlayButtonText => _gameLauncher.PlayButtonText;
 
         public string WindowTitle => $"Starfield Load Order Keeper v{VersionService.GetApplicationVersion()}";
         public string FileMenuHeader { get; } = "_File";
@@ -104,31 +81,29 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
 
-        [ObservableProperty]
-        private bool _pluginsFileChangedExternally;
+        // Pass-through properties from FileMonitoringCoordinator
+        public bool PluginsFileChangedExternally => _fileMonitor.PluginsFileChangedExternally;
+        public string SortingRecommendationMessage => _fileMonitor.SortingRecommendationMessage;
+        public bool SortingRecommendationActive => _fileMonitor.SortingRecommendationActive;
+        public bool ShowSteamWarning => _fileMonitor.ShowSteamWarning;
+        public string SteamWarningTooltip => _fileMonitor.SteamWarningTooltip;
+        public bool IsSteamInstalled => _fileMonitor.IsSteamInstalled;
+        public bool IsSteamRunning => _fileMonitor.IsSteamRunning;
 
-        [ObservableProperty]
-        private string _sortingRecommendationMessage = string.Empty;
+        // Pass-through properties from StatusCoordinator
+        public string StatusMessage => _statusCoordinator.StatusMessage;
+        public ObservableCollection<StatusMessageModel> StatusMessageHistory => _statusCoordinator.StatusMessageHistory;
 
-        [ObservableProperty]
-        private bool _sortingRecommendationActive;
+        // Pass-through properties from UpdateCheckCoordinator
+        public bool UpdateAvailable => _updateCheckCoordinator.UpdateAvailable;
+        public string UpdateMessage => _updateCheckCoordinator.UpdateMessage;
+        public bool UpdateInfoBarVisible => _updateCheckCoordinator.UpdateInfoBarVisible;
 
-        [ObservableProperty]
-        private string _activeProfileLabel = "Default";
+        // Pass-through properties from ProfileCoordinator
+        public string ActiveProfileLabel => _profileCoordinator.ActiveProfileLabel;
 
-        [ObservableProperty]
-        private bool _isSteamInstalled;
-
-        [ObservableProperty]
-        private bool _isSteamRunning;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(SteamWarningTooltip))]
-        private bool _showSteamWarning;
-
-        public string SteamWarningTooltip => ShowSteamWarning 
-            ? "Steam is not running. SFSE requires Steam to be open to function correctly."
-            : string.Empty;
+        // Pass-through properties from ConfigurationCoordinator
+        public bool ConfigErrorBannerVisible => _configCoordinator.ShowErrorBanner;
 
         public IRelayCommand OpenPluginsFileCommand { get; }
         public IRelayCommand OpenReferenceFileCommand { get; }
@@ -139,11 +114,115 @@ namespace LoadOrderKeeper.ViewModels
 
         public MainViewModel()
         {
-            _pluginsMonitorTimer = new DispatcherTimer
+            _fileMonitor = new FileMonitoringCoordinator();
+            _statusCoordinator = new StatusCoordinator();
+            _updateCheckCoordinator = new UpdateCheckCoordinator();
+            _profileCoordinator = new ProfileCoordinator();
+            _configCoordinator = new ConfigurationCoordinator();
+            _gameLauncher = new GameLauncherCoordinator();
+
+            // Wire up property change events for UI bindings
+            _fileMonitor.PropertyChanged += (s, e) =>
             {
-                Interval = TimeSpan.FromSeconds(PluginCheckIntervalSeconds)
+                switch (e.PropertyName)
+                {
+                    case nameof(FileMonitoringCoordinator.PluginsFileChangedExternally):
+                        OnPropertyChanged(nameof(PluginsFileChangedExternally));
+                        if (_fileMonitor.PluginsFileChangedExternally)
+                        {
+                            _statusCoordinator.AddStatusMessage(PluginsModifiedWarningText, StatusMessageType.Warning);
+                        }
+                        else
+                        {
+                            _statusCoordinator.AddStatusMessage(_statusCoordinator.GetReadyStatusMessage(Config.IsValid()), StatusMessageType.Info);
+                        }
+                        ShowDiffCommand?.NotifyCanExecuteChanged();
+                        break;
+                    case nameof(FileMonitoringCoordinator.SortingRecommendationMessage):
+                        OnPropertyChanged(nameof(SortingRecommendationMessage));
+                        break;
+                    case nameof(FileMonitoringCoordinator.SortingRecommendationActive):
+                        OnPropertyChanged(nameof(SortingRecommendationActive));
+                        break;
+                    case nameof(FileMonitoringCoordinator.ShowSteamWarning):
+                        OnPropertyChanged(nameof(ShowSteamWarning));
+                        OnPropertyChanged(nameof(SteamWarningTooltip));
+                        break;
+                    case nameof(FileMonitoringCoordinator.IsSteamInstalled):
+                        OnPropertyChanged(nameof(IsSteamInstalled));
+                        break;
+                    case nameof(FileMonitoringCoordinator.IsSteamRunning):
+                        OnPropertyChanged(nameof(IsSteamRunning));
+                        break;
+                    case nameof(FileMonitoringCoordinator.ChangeCount):
+                        UpdateChangeCountDisplay(_fileMonitor.ChangeCount);
+                        break;
+                }
             };
-            _pluginsMonitorTimer.Tick += OnPluginsMonitorTick;
+
+            // Wire up StatusCoordinator property changes for UI bindings
+            _statusCoordinator.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(StatusCoordinator.StatusMessage))
+                {
+                    OnPropertyChanged(nameof(StatusMessage));
+                }
+                else if (e.PropertyName == nameof(StatusCoordinator.StatusMessageHistory))
+                {
+                    OnPropertyChanged(nameof(StatusMessageHistory));
+                }
+            };
+
+            // Wire up UpdateCheckCoordinator property changes for UI bindings
+            _updateCheckCoordinator.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(UpdateCheckCoordinator.UpdateAvailable))
+                {
+                    OnPropertyChanged(nameof(UpdateAvailable));
+                }
+                else if (e.PropertyName == nameof(UpdateCheckCoordinator.UpdateMessage))
+                {
+                    OnPropertyChanged(nameof(UpdateMessage));
+                }
+                else if (e.PropertyName == nameof(UpdateCheckCoordinator.UpdateInfoBarVisible))
+                {
+                    OnPropertyChanged(nameof(UpdateInfoBarVisible));
+                }
+            };
+
+            // Wire up ProfileCoordinator property changes for UI bindings
+            _profileCoordinator.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ProfileCoordinator.ActiveProfileLabel))
+                {
+                    OnPropertyChanged(nameof(ActiveProfileLabel));
+                }
+            };
+
+            // Wire up ConfigurationCoordinator property changes for UI bindings
+            _configCoordinator.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ConfigurationCoordinator.ShowErrorBanner))
+                {
+                    OnPropertyChanged(nameof(ConfigErrorBannerVisible));
+                }
+            };
+
+            // Wire up GameLauncherCoordinator property changes for UI bindings
+            _gameLauncher.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(GameLauncherCoordinator.PlayButtonText))
+                {
+                    OnPropertyChanged(nameof(PlayButtonText));
+                }
+            };
+
+            // Wire up coordinator events
+            _fileMonitor.ChangeDetected += OnChangeDetected;
+            _fileMonitor.SortingRecommendationChanged += OnSortingRecommendationChanged;
+            _fileMonitor.SteamWarningChanged += OnSteamWarningChanged;
+            _profileCoordinator.ProfileChanged += OnProfileChanged;
+            _configCoordinator.ValidationChanged += OnConfigValidationChanged;
 
             OpenPluginsFileCommand = new RelayCommand(OpenPluginsFile, CanAccessAppDataPath);
             OpenReferenceFileCommand = new RelayCommand(OpenReferenceFile, CanAccessAppDataPath);
@@ -152,8 +231,7 @@ namespace LoadOrderKeeper.ViewModels
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
             ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync);
 
-            // Initialize status history with the initial message
-            AddStatusMessage("Loading settings...", StatusMessageType.Info);
+            // Initialize status history with the initial message (handled by StatusCoordinator.Initialize())
 
             _ = LoadInitialStateAsync();
         }
@@ -161,6 +239,11 @@ namespace LoadOrderKeeper.ViewModels
         private async Task LoadInitialStateAsync()
         {
             Config = await SettingsService.LoadSettingsAsync();
+            
+            // Update coordinator configurations
+            _configCoordinator.UpdateConfiguration(Config);
+            _profileCoordinator.UpdateConfiguration(Config);
+            _gameLauncher.UpdateConfiguration(Config);
             
             // Validate configuration early, including Profiles folder
             if (Config.IsValid())
@@ -206,13 +289,15 @@ namespace LoadOrderKeeper.ViewModels
                 AddStatusMessage(GetReadyStatusMessage(), StatusMessageType.Info);
             }
 
-            await UpdateActiveProfileLabelAsync();
+            // Initialize profile coordinator with config and load active profile
+            _profileCoordinator.UpdateConfiguration(Config);
+            await _profileCoordinator.RefreshActiveProfileAsync();
 
-            ConfigurePluginsMonitor();
-            await CheckPluginsFileAsync();
+            // Update file monitor with initial state
+            UpdateFileMonitorState();
 
             // Check for updates in the background
-            _ = CheckForUpdatesBackgroundAsync();
+            _ = _updateCheckCoordinator.CheckForUpdatesBackgroundAsync();
         }
 
         private async Task EnsureValidConfigurationAsync()
@@ -264,7 +349,7 @@ namespace LoadOrderKeeper.ViewModels
                 IsBusy = false;
             }
 
-            await CheckPluginsFileAsync();
+            await _fileMonitor.CheckPluginsFileAsync();
         }
 
         private bool CanFixLoadOrder() => Config.IsValid() && RefExists && !IsBusy;
@@ -381,7 +466,7 @@ namespace LoadOrderKeeper.ViewModels
                 IsBusy = false;
             }
 
-            await CheckPluginsFileAsync();
+            await _fileMonitor.CheckPluginsFileAsync();
         }
 
         private bool CanCreateReference() => Config.IsValid() && !IsBusy;
@@ -389,23 +474,25 @@ namespace LoadOrderKeeper.ViewModels
         partial void OnRefExistsChanged(bool value)
         {
             ReferenceButtonText = value ? "Accept changes" : "Create Reference";
-            ConfigurePluginsMonitor();
+            UpdateFileMonitorState();
         }
  
         partial void OnConfigChanged(AppConfigModel value)
         {
-            ConfigurePluginsMonitor();
+            // Update coordinators with new configuration
+            _configCoordinator.UpdateConfiguration(value);
+            _profileCoordinator.UpdateConfiguration(value);
+            _gameLauncher.UpdateConfiguration(value);
+            
+            UpdateFileMonitorState();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
             ShowDiffCommand?.NotifyCanExecuteChanged();
-            UpdatePlayButtonText();
-            
-            // Update configuration validation state immediately
-            UpdateConfigValidationState();
         }
 
         partial void OnIsBusyChanged(bool value)
         {
+            UpdateFileMonitorState();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
             ShowDiffCommand?.NotifyCanExecuteChanged();
@@ -461,36 +548,17 @@ namespace LoadOrderKeeper.ViewModels
 
         private void PlayGame()
         {
-            var gamePath = Config.StarfieldGamePath;
-            if (string.IsNullOrWhiteSpace(gamePath) || !Directory.Exists(gamePath))
+            if (!_gameLauncher.LaunchGame())
             {
-                ShowError("Game folder is not configured or does not exist.");
-                return;
-            }
-
-            string executablePath = HasSfseExecutable()
-                ? Path.Combine(gamePath, "sfse_loader.exe")
-                : Path.Combine(gamePath, "starfield.exe");
-
-            if (!File.Exists(executablePath))
-            {
-                ShowError($"Unable to find executable: {executablePath}");
-                return;
-            }
-
-            try
-            {
-                var psi = new ProcessStartInfo
+                var executablePath = _gameLauncher.GetExecutablePath();
+                if (executablePath == null)
                 {
-                    FileName = executablePath,
-                    WorkingDirectory = gamePath,
-                    UseShellExecute = true
-                };
-                Process.Start(psi);
-            }
-            catch (Exception ex)
-            {
-                ShowError($"Failed to launch Starfield: {ex.Message}");
+                    ShowError("Unable to find game executable.");
+                }
+                else
+                {
+                    ShowError($"Failed to launch Starfield: {executablePath}");
+                }
             }
         }
 
@@ -524,11 +592,15 @@ namespace LoadOrderKeeper.ViewModels
             {
                 Config = settingsVm.GetConfig();
                 await SettingsService.SaveSettingsAsync(Config);
+                
+                // Update coordinator configurations
+                _profileCoordinator.UpdateConfiguration(Config);
+                
                 RefExists = FileService.DoesReferenceFileExist(Config);
                 var referenceResult = await EnsureReferenceFileExistsAsync();
                 if (referenceResult == ReferenceInitializationResult.AlreadyExists)
                 {
-                    AddStatusMessage(Config.IsValid()
+                    _statusCoordinator.AddStatusMessage(Config.IsValid()
                         ? "Configuration updated."
                         : "Configuration is invalid.", Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
                 }
@@ -536,8 +608,8 @@ namespace LoadOrderKeeper.ViewModels
                 {
                     AddStatusMessage("Configuration is invalid.", StatusMessageType.Warning);
                 }
-                ConfigurePluginsMonitor();
-                await CheckPluginsFileAsync();
+                UpdateFileMonitorState();
+                await _fileMonitor.CheckPluginsFileAsync();
                 return true;
             }
 
@@ -564,12 +636,12 @@ namespace LoadOrderKeeper.ViewModels
             if (result == true)
             {
                 // Profile was switched, reload state
-                await UpdateActiveProfileLabelAsync();
+                await _profileCoordinator.RefreshActiveProfileAsync();
                 RefExists = FileService.DoesReferenceFileExist(Config);
                 await EnsureReferenceFileExistsAsync();
-                ConfigurePluginsMonitor();
-                await CheckPluginsFileAsync();
-                AddStatusMessage($"Switched to profile '{ActiveProfileLabel}'.", StatusMessageType.Success);
+                UpdateFileMonitorState();
+                await _fileMonitor.CheckPluginsFileAsync();
+                // Status message is handled by ProfileChanged event
             }
         }
 
@@ -670,7 +742,7 @@ namespace LoadOrderKeeper.ViewModels
                 parentWindow.Close();
 
                 // Trigger change detection to show in DIFF window
-                await CheckPluginsFileAsync();
+                await _fileMonitor.CheckPluginsFileAsync();
             }
             catch (Exception ex)
             {
@@ -694,15 +766,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private async Task UpdateActiveProfileLabelAsync()
         {
-            try
-            {
-                var activeProfile = await ProfileService.GetActiveProfileAsync(Config);
-                ActiveProfileLabel = activeProfile.Label;
-            }
-            catch
-            {
-                ActiveProfileLabel = "Default";
-            }
+            await _profileCoordinator.RefreshActiveProfileAsync();
         }
 
         private void LaunchShellTarget(string target, string failureMessage)
@@ -743,13 +807,6 @@ namespace LoadOrderKeeper.ViewModels
             OpenGameFolderCommand?.NotifyCanExecuteChanged();
         }
 
-        private void UpdatePlayButtonText()
-        {
-            PlayButtonText = HasSfseExecutable()
-                ? "Play (SFSE)"
-                : "Play (Vanilla)";
-        }
- 
         private async Task<bool> RefreshDiffAsync(string reason)
         {
             if (_activeDiffDialog != null)
@@ -838,150 +895,59 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
-        private void ConfigurePluginsMonitor()
+        private async void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
-            _pluginsMonitorTimer.Interval = GetMonitorInterval();
-
-            if (Config.IsValid() && RefExists)
+            // Refresh diff dialog if open
+            if (_activeDiffDialog != null)
             {
-                if (!_pluginsMonitorTimer.IsEnabled)
-                {
-                    _pluginsMonitorTimer.Start();
-                }
-            }
-            else
-            {
-                if (_pluginsMonitorTimer.IsEnabled)
-                {
-                    _pluginsMonitorTimer.Stop();
-                }
-
-                PluginsFileChangedExternally = false;
+                string reason = e.HasChanges ? "Detected changes" : "Plugins.txt now matches the reference";
+                await _activeDiffDialog.RefreshDiffAsync(reason);
             }
         }
 
-        private TimeSpan GetMonitorInterval()
+        private void OnSortingRecommendationChanged(object? sender, Coordinators.Events.SortingRecommendationChangedEventArgs e)
         {
-            return TimeSpan.FromSeconds(PluginCheckIntervalSeconds);
+            // UI updates already handled by PropertyChanged
         }
 
-        private async void OnPluginsMonitorTick(object? sender, EventArgs e)
+        private void OnSteamWarningChanged(object? sender, Coordinators.Events.SteamWarningChangedEventArgs e)
         {
-            await CheckPluginsFileAsync();
+            // UI updates already handled by PropertyChanged
         }
- 
-        private async Task CheckPluginsFileAsync()
+
+        private void OnProfileChanged(object? sender, Coordinators.Events.ProfileChangedEventArgs e)
         {
-            if (_isCheckingPluginsFile || IsBusy)
+            // Profile changed - update status message
+            AddStatusMessage($"Switched to profile '{e.NewProfile.Label}'.", StatusMessageType.Success);
+        }
+
+        private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
+        {
+            // Configuration validation state changed
+            if (e.StateChanged)
             {
-                return;
-            }
-
-            // Update configuration validation state on every tick
-            UpdateConfigValidationState();
-
-            // Update Steam detection state (only if Steam-installed)
-            UpdateSteamDetectionState();
-
-            if (!Config.IsValid() || !RefExists)
-            {
-                PluginsFileChangedExternally = false;
-                UpdateChangeCountDisplay(0);
-                return;
-            }
-
-            _isCheckingPluginsFile = true;
-
-            try
-            {
-                var comparison = await FileService.ComparePluginsWithReferenceAsync(Config);
-                bool hasChanged = comparison.HasDifferences;
-                bool signatureChanged = !string.Equals(_lastObservedPluginsSignature, comparison.PluginsSignature, StringComparison.Ordinal);
-                _lastObservedPluginsSignature = comparison.PluginsSignature;
-                bool sortingRecommendation = false;
-                bool hasInsertedMods = false;
-
-                if (hasChanged)
+                // Notify commands to re-check CanExecute when config becomes valid
+                if (e.IsValid)
                 {
-                    sortingRecommendation = await FileService.WouldSortingChangeDiffsAsync(Config);
-                    
-                    // Check if there are any inserted mods
-                    var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                    hasInsertedMods = diffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
-                }
-
-                await UpdateChangeCountDisplayAsync(hasChanged);
-
-                 if (hasChanged != PluginsFileChangedExternally)
-                 {
-                     PluginsFileChangedExternally = hasChanged;
-                     AddStatusMessage(hasChanged
-                        ? PluginsModifiedWarningText
-                        : GetReadyStatusMessage(), hasChanged ? StatusMessageType.Warning : StatusMessageType.Info);
+                    NotifyFileCommandsCanExecuteChanged();
+                    PlayGameCommand?.NotifyCanExecuteChanged();
                     ShowDiffCommand?.NotifyCanExecuteChanged();
-                 }
-
-                UpdateSortingRecommendationState(sortingRecommendation, hasInsertedMods);
-
-                if (_activeDiffDialog is not null)
-                {
-                    bool needsDiffRefresh = signatureChanged || (!hasChanged && _activeDiffDialog.HasDifferences);
-                    if (needsDiffRefresh)
-                    {
-                        string reason = hasChanged
-                            ? "Detected new external modifications"
-                            : "Plugins.txt now matches the reference";
-                        await _activeDiffDialog.RefreshDiffAsync(reason);
-                    }
+                    CreateReferenceCommand?.NotifyCanExecuteChanged();
+                    FixLoadOrderCommand?.NotifyCanExecuteChanged();
+                    DiscardChangesCommand?.NotifyCanExecuteChanged();
                 }
-            }
-            catch (Exception ex)
-            {
-                AddStatusMessage($"ERROR: Failed to monitor Plugins.txt: {ex.Message}", StatusMessageType.Error);
-                UpdateChangeCountDisplay(0);
-            }
-            finally
-            {
-                _isCheckingPluginsFile = false;
             }
         }
 
         /// <summary>
-        /// Updates Steam detection state if the game is installed via Steam.
-        /// This method is called on every file monitoring tick (every 3 seconds).
+        /// Updates the file monitor with current configuration, reference existence, busy state, and invalid config state.
+        /// Call this whenever any of these states change.
         /// </summary>
-        private void UpdateSteamDetectionState()
+        private void UpdateFileMonitorState()
         {
-            try
-            {
-                // Only check Steam status if Starfield was installed via Steam
-                bool steamInstalled = SettingsService.IsStarfieldInstalledViaSteam();
-                IsSteamInstalled = steamInstalled;
-
-                if (steamInstalled)
-                {
-                    bool steamRunning = SettingsService.IsSteamRunning();
-                    IsSteamRunning = steamRunning;
-
-                    // Show warning only if SFSE is installed AND Steam is NOT running
-                    ShowSteamWarning = HasSfseExecutable() && !steamRunning;
-                }
-                else
-                {
-                    // Not installed via Steam, no warning needed
-                    IsSteamRunning = false;
-                    ShowSteamWarning = false;
-                }
-            }
-            catch
-            {
-                // Detection failed, fail silently
-                IsSteamInstalled = false;
-                IsSteamRunning = false;
-                ShowSteamWarning = false;
-            }
+            _fileMonitor.UpdateState(Config, RefExists, IsBusy, !_configCoordinator.IsConfigValid);
         }
- 
+
         [RelayCommand]
         private async Task DiscardChangesAsync()
         {
@@ -1009,31 +975,10 @@ namespace LoadOrderKeeper.ViewModels
                 IsBusy = false;
             }
 
-            await CheckPluginsFileAsync();
+            await _fileMonitor.CheckPluginsFileAsync();
         }
 
         private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
-
-        private void UpdateSortingRecommendationState(bool sortingRecommended, bool hasInsertedMods = false)
-        {
-            if (sortingRecommended)
-            {
-                if (hasInsertedMods)
-                {
-                    SortingRecommendationMessage = "?? IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.";
-                }
-                else
-                {
-                    SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
-                }
-                SortingRecommendationActive = true;
-            }
-            else
-            {
-                SortingRecommendationMessage = string.Empty;
-                SortingRecommendationActive = false;
-            }
-        }
 
         private enum ReferenceInitializationResult
         {
@@ -1093,38 +1038,12 @@ namespace LoadOrderKeeper.ViewModels
 
         private void AddStatusMessage(string message, StatusMessageType type = StatusMessageType.Info)
         {
-            var statusEntry = new StatusMessageModel(message, DateTime.Now, type);
-            
-            // Add to beginning of collection (most recent first)
-            StatusMessageHistory.Insert(0, statusEntry);
-            
-            // Keep only the last MaxStatusHistoryCount messages
-            while (StatusMessageHistory.Count > MaxStatusHistoryCount)
-            {
-                StatusMessageHistory.RemoveAt(StatusMessageHistory.Count - 1);
-            }
-
-            // Update the current status message for backward compatibility
-            StatusMessage = message;
+            _statusCoordinator.AddStatusMessage(message, type);
         }
 
         private string GetReadyStatusMessage()
         {
-            return Config.IsValid()
-                ? "Ready. Configuration is valid."
-                : "Configuration is required. Please set paths in the Settings window.";
-        }
-
-        private bool HasSfseExecutable()
-        {
-            var gamePath = Config?.StarfieldGamePath;
-            if (string.IsNullOrWhiteSpace(gamePath))
-            {
-                return false;
-            }
- 
-            string sfsePath = Path.Combine(gamePath, "sfse_loader.exe");
-            return File.Exists(sfsePath);
+            return _statusCoordinator.GetReadyStatusMessage(Config.IsValid());
         }
 
         [RelayCommand]
@@ -1132,15 +1051,9 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: true);
+                var result = await _updateCheckCoordinator.CheckForUpdatesManualAsync();
 
-                if (result.UpdateAvailable)
-                {
-                    UpdateAvailable = true;
-                    UpdateMessage = $"Version {result.LatestVersion} is available!";
-                    UpdateInfoBarVisible = true;
-                }
-                else
+                if (!result.UpdateAvailable)
                 {
                     ConfirmationDialog.Show(
                         "No Updates Available",
@@ -1157,35 +1070,17 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
-        private async Task CheckForUpdatesBackgroundAsync()
-        {
-            try
-            {
-                var result = await UpdateCheckService.CheckForUpdatesAsync(bypassCache: false, _shutdownCts.Token);
-
-                if (result.UpdateAvailable)
-                {
-                    UpdateAvailable = true;
-                    UpdateMessage = $"Version {result.LatestVersion} is available!";
-                    UpdateInfoBarVisible = true;
-                }
-            }
-            catch
-            {
-                // Silent failure for background check
-            }
-        }
-
         [RelayCommand]
         private void DismissUpdateNotification()
         {
-            UpdateInfoBarVisible = false;
+            _updateCheckCoordinator.DismissUpdateNotification();
         }
 
         [RelayCommand]
         private void OpenDownloadPage()
         {
-            if (string.IsNullOrEmpty(UpdateMessage))
+            var latestVersion = _updateCheckCoordinator.GetLatestVersion();
+            if (string.IsNullOrEmpty(latestVersion))
             {
                 // Fallback if no update info available
                 ShowUpdateCheckErrorDialog();
@@ -1193,7 +1088,6 @@ namespace LoadOrderKeeper.ViewModels
             }
 
             var currentVersion = VersionService.GetApplicationVersion();
-            var latestVersion = UpdateMessage.Replace("Version ", "").Replace(" is available!", "").Trim();
 
             var updateVm = new UpdateOptionsViewModel(currentVersion, latestVersion);
             var updateDialog = new UpdateOptionsDialog
@@ -1219,29 +1113,6 @@ namespace LoadOrderKeeper.ViewModels
             updateDialog.ShowDialog();
         }
 
-        /// <summary>
-        /// Updates the cached configuration validation state and error banner visibility.
-        /// Called on timer tick, config change, and after settings dialog closes.
-        /// </summary>
-        private void UpdateConfigValidationState()
-        {
-            bool wasInvalid = _configIsInvalid;
-            _configIsInvalid = !Config.IsValid();
-            
-            ConfigErrorBannerVisible = _configIsInvalid;
-            
-            // If config became valid, notify commands to re-check CanExecute
-            if (wasInvalid && !_configIsInvalid)
-            {
-                NotifyFileCommandsCanExecuteChanged();
-                PlayGameCommand?.NotifyCanExecuteChanged();
-                ShowDiffCommand?.NotifyCanExecuteChanged();
-                CreateReferenceCommand?.NotifyCanExecuteChanged();
-                FixLoadOrderCommand?.NotifyCanExecuteChanged();
-                DiscardChangesCommand?.NotifyCanExecuteChanged();
-            }
-        }
-
         [RelayCommand]
         private async Task OpenSettingsFromErrorBannerAsync()
         {
@@ -1257,7 +1128,13 @@ namespace LoadOrderKeeper.ViewModels
 
             _disposed = true;
 
-            _pluginsMonitorTimer?.Stop();
+            // Dispose coordinators
+            _fileMonitor?.Dispose();
+            _statusCoordinator?.Dispose();
+            _updateCheckCoordinator?.Dispose();
+            _profileCoordinator?.Dispose();
+            _configCoordinator?.Dispose();
+            _gameLauncher?.Dispose();
             
             try
             {

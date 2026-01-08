@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.0 - Steam Integration
+- General: Added Steam process detection to inform when SFSE needs Steam running.
+- Core:  Split the main window logic into separate files for better maintainability.
+
 ## v1.5.0 - Improved Error Handling
 - Settings: A banner now shows instantly if the selected folders are valid.
 - Settings: Removed the update delay setting.

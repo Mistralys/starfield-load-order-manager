@@ -5,7 +5,7 @@ using LoadOrderKeeper.Models;
 
 namespace LoadOrderKeeper.Tests;
 
-internal sealed class TestConfigContext : IDisposable
+public sealed class TestConfigContext : IDisposable
 {
     private readonly string _rootPath;
 

@@ -1,0 +1,147 @@
+# File Tree (Logical Overview)
+
+> Complete directory and file structure of the project.
+
+---
+
+```text
+.
+?? Starfield Load Order Keeper.csproj
+?? App.xaml
+?? App.xaml.cs
+?? AssemblyInfo.cs
+?? MainWindow.xaml
+?? MainWindow.xaml.cs
+?? Constants/
+?  ?? UserMessages.cs
+?? Coordinators/
+?  ?? ICoordinator.cs
+?  ?? CoordinatorBase.cs
+?  ?? FileMonitoringCoordinator.cs
+?  ?? StatusCoordinator.cs
+?  ?? UpdateCheckCoordinator.cs
+?  ?? ProfileCoordinator.cs
+?  ?? ConfigurationCoordinator.cs
+?  ?? GameLauncherCoordinator.cs
+?  ?? WindowManager.cs
+?  ?? Events/
+?     ?? CoordinatorEventArgs.cs
+?     ?? ChangeDetectedEventArgs.cs
+?     ?? SortingRecommendationChangedEventArgs.cs
+?     ?? SteamWarningChangedEventArgs.cs
+?     ?? ProfileChangedEventArgs.cs
+?     ?? ConfigValidationChangedEventArgs.cs
+?? Models/
+?  ?? AppConfigModel.cs
+?  ?? DiffLineModel.cs
+?  ?? ModDiffModel.cs
+?  ?? ModEntryModel.cs
+?  ?? PendingChangesModel.cs
+?  ?? PluginsComparisonResult.cs
+?  ?? ProfileModel.cs
+?  ?? ReferenceVersionMetadataModel.cs
+?  ?? StatusMessageModel.cs
+?  ?? UpdateCheckResult.cs
+?? Services/
+?  ?? DateTimeFormattingService.cs
+?  ?? DiffService.cs
+?  ?? FileService.cs
+?  ?? ProfileService.cs
+?  ?? ReferenceHistoryService.cs
+?  ?? SettingsService.cs
+?  ?? UpdateCheckService.cs
+?  ?? VersionService.cs
+?? ViewModels/
+?  ?? AboutViewModel.cs
+?  ?? CommentInputViewModel.cs
+?  ?? ConfirmationDialogViewModel.cs
+?  ?? DiffDialogViewModel.cs
+?  ?? MainViewModel.cs
+?  ?? ManageProfilesViewModel.cs
+?  ?? ProfilePropertiesViewModel.cs
+?  ?? ReferenceHistoryViewModel.cs
+?  ?? SettingsViewModel.cs
+?  ?? SwitchProfileViewModel.cs
+?  ?? UpdateOptionsViewModel.cs
+?? Views/
+?  ?? AboutWindow.xaml
+?  ?? AboutWindow.xaml.cs
+?  ?? CommentInputDialog.xaml
+?  ?? CommentInputDialog.xaml.cs
+?  ?? ConfirmationDialog.xaml
+?  ?? ConfirmationDialog.xaml.cs
+?  ?? DiffWindow.xaml
+?  ?? DiffWindow.xaml.cs
+?  ?? ManageProfilesWindow.xaml
+?  ?? ManageProfilesWindow.xaml.cs
+?  ?? ProfilePropertiesWindow.xaml
+?  ?? ProfilePropertiesWindow.xaml.cs
+?  ?? ReferenceHistoryWindow.xaml
+?  ?? ReferenceHistoryWindow.xaml.cs
+?  ?? SettingsWindow.xaml
+?  ?? SettingsWindow.xaml.cs
+?  ?? SwitchProfileWindow.xaml
+?  ?? SwitchProfileWindow.xaml.cs
+?  ?? UpdateOptionsDialog.xaml
+?  ?? UpdateOptionsDialog.xaml.cs
+?? Converters/
+?  ?? ActiveProfileVisibilityConverter.cs
+?  ?? ChangeSummaryConverter.cs
+?  ?? CountToVisibilityConverter.cs
+?  ?? InverseBooleanToVisibilityConverter.cs
+?  ?? InverseCountToVisibilityConverter.cs
+?  ?? ReplacementCommandParameterConverter.cs
+?? Styles/
+?  ?? ButtonStyles.xaml
+?  ?? DataGridStyles.xaml
+?  ?? TextStyles.xaml
+?  ?? WindowStyles.xaml
+?? Docs/
+?  ?? Agents/
+?  ?  ?? application-description.md
+?  ?  ?? impl-mvvm-architecture-overview.md
+?  ?  ?? impl-diff-detection-overview.md
+?  ?  ?? impl-periodic-change-checking.md
+?  ?  ?? implementation-guidelines.md
+?  ?  ?? example-plugins.txt
+?  ?  ?? Project Manifest/
+?  ?  ?  ?? README.md
+?  ?  ?  ?? tech-stack.md
+?  ?  ?  ?? file-tree.md
+?  ?  ?  ?? api-coordinators.md
+?  ?  ?  ?? api-models.md
+?  ?  ?  ?? api-services.md
+?  ?  ?  ?? api-viewmodels.md
+?  ?  ?  ?? api-views.md
+?  ?  ?  ?? data-flows.md
+?  ?  ?  ?? constraints-invariants.md
+?  ?  ?? Development History/
+?  ?     ?? 01-initial-agent-plan.md
+?  ?     ?? 02-add-content-diff.md
+?  ?     ?? 03-numbered-mod-order.md
+?  ?     ?? 04-enabled-disabled-status-awareness.md
+?  ?     ?? 05-problem-resolution-controls.md
+?  ?     ?? 06-profiles-feature.md
+?  ?     ?? 07-group-dependent-mod-changes.md
+?  ?     ?? 13-steam-guard.md
+?  ?     ?? 14-refactor-file-monitoring-coordinator.md
+?  ?     ?? 15-window-manager-coordinator.md
+?  ?     ?? 16-status-coordinator.md
+?  ?     ?? 17-update-check-coordinator.md
+?  ?     ?? 18-profile-coordinator.md
+?  ?     ?? 19-configuration-coordinator.md
+?  ?     ?? 20-game-launcher-coordinator.md
+?  ?     ?? coordinator-refactoring-complete-summary.md
+?? Tests/
+?  ?? LoadOrderKeeper.Tests/
+?     ?? LoadOrderKeeper.Tests.csproj
+?     ?? DiffServiceTests.cs
+?     ?? FileServiceTests.cs
+?     ?? ProfileServiceTests.cs
+?     ?? SettingsServiceTests.cs
+?     ?? TestConfigContext.cs
+```
+
+---
+
+[? Back to Index](README.md)

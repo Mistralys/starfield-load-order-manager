@@ -20,12 +20,12 @@ The mod "OutpostFishTank.esm" has been replaced with
 #10 *fixgraydockingcolors.esm
 #11 *DayLengthMessage.esm
 #12 *Eit_Clothiers_Z.esm
-#13	*Easy Digipick.esm
-#14	*Eli_RenamedSnowglobes.esm
-#15	*Nanosuit_f_new.esm
-#16	*OutpostFishTank.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
+#13 *Easy Digipick.esm
+#14 *Eli_RenamedSnowglobes.esm
+#15 *Nanosuit_f_new.esm
+#16 *OutpostFishTank.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
 ```
 
 ## Current Order
@@ -51,14 +51,14 @@ The mod "OutpostFishTank.esm" has been replaced with
 #18	*GagarinNewDawn.esm
 ```
 
-## Detected Changes
+## Expected Changes Detected
 
 The replaced mod does not cause any shifts in the load
 order, as no lines are removed or added.
 
-- [#16 <>] OutpostFishTank.esm -> ReplacementMod.esm
+- [~ #16] OutpostFishTank.esm -> ReplacementMod.esm
 
-## Action Results
+## Expected Action Results
 
 ### Sorting
 
@@ -66,4 +66,4 @@ Because a mod replacement is considered a user-directed change,
 replacements are excluded from sorting actions. Therefore, no
 sorting changes are made to the load order.
 
-- [#16 <>] OutpostFishTank.esm -> ReplacementMod.esm
+- [~ #16] OutpostFishTank.esm -> ReplacementMod.esm

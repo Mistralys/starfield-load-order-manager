@@ -20,12 +20,12 @@ the existing mod list.
 #10 *fixgraydockingcolors.esm
 #11 *DayLengthMessage.esm
 #12 *Eit_Clothiers_Z.esm
-#13	*Easy Digipick.esm
-#14	*Eli_RenamedSnowglobes.esm
-#15	*Nanosuit_f_new.esm
-#16	*OutpostFishTank.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
+#13 *Easy Digipick.esm
+#14 *Eli_RenamedSnowglobes.esm
+#15 *Nanosuit_f_new.esm
+#16 *OutpostFishTank.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
 ```
 
 ## Current Order
@@ -52,19 +52,19 @@ the existing mod list.
 #19 *GagarinNewDawn.esm
 ```
 
-## Detected Changes
+## Expected Changes Detected
 
 The inserted mod causes mods coming after it to shift down.
 
-- [#17 >] InsertedMod.esm
-- [#17->#18] Fragile.esm
-- [#18->#19] GagarinNewDawn.esm
+- [> #17] InsertedMod.esm
+- [↓ #17->#18] Fragile.esm
+- [↓ #18->#19] GagarinNewDawn.esm
 
-## Action Results
+## Expected Action Results
 
 ### Sorting
 
 The sorting correctly appends the newly inserted mod to the 
 end of the load order, preserving the order of existing mods.
 
-- [#19 +] InsertedMod.esm
+- [+ #19] InsertedMod.esm

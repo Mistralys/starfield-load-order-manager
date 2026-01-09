@@ -20,12 +20,12 @@ mod list.
 #10 *fixgraydockingcolors.esm
 #11 *DayLengthMessage.esm
 #12 *Eit_Clothiers_Z.esm
-#13	*Easy Digipick.esm
-#14	*Eli_RenamedSnowglobes.esm
-#15	*Nanosuit_f_new.esm
-#16	*OutpostFishTank.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
+#13 *Easy Digipick.esm
+#14 *Eli_RenamedSnowglobes.esm
+#15 *Nanosuit_f_new.esm
+#16 *OutpostFishTank.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
 ```
 
 ## Current Order
@@ -50,22 +50,22 @@ mod list.
 #17 *GagarinNewDawn.esm
 ```
 
-## Detected Changes
+## Expected Changes Detected
 
 The deleted mod causes mods coming after it to shift up.
 
-- [#16 -] OutpostFishTank.esm
-- [#17 > #16] Fragile.esm
-- [#18 > #17] GagarinNewDawn.esm
+- [- #16] OutpostFishTank.esm
+- [↑ #17->#16] Fragile.esm
+- [↑ #18->#17] GagarinNewDawn.esm
 
-## Action Results
+## Expected Action Results
 
 ### Sorting
 
 Sorting does not change anything to the fact that the
 mod has been deleted, so the result remains:
 
-- [#16 -] OutpostFishTank.esm
-- [#17 > #16] Fragile.esm
-- [#18 > #17] GagarinNewDawn.esm
+- [- #16] OutpostFishTank.esm
+- [↑ #17->#16] Fragile.esm
+- [↑ #18->#17] GagarinNewDawn.esm
 

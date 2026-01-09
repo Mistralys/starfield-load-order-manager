@@ -1,56 +1,25 @@
 ﻿# Real World Sorting Examples
 
-## Scenario 1: Adding a New Mod
+This folder contains a collection of real-world examples for sorting
+mod load orders. These scenarios illustrate various situations that users
+may encounter when managing their mod load orders. Each example includes
+the reference order, current order, expected changes, and the results of
+applying sorting actions.
 
-### Reference Order
+## Line Numbering
 
-```
-*StarfieldCommunityPatch.esm
-*AmazonCrew.esm
-*ShipBuilderCategories.esm
-*BetterShipPartFlips.esm
-*BetterShipPartSnaps.esm
-*Better_Living.esm
-*Richer Merchants.esm
-*xatmosPerkUpVendors.esp
-*BuySwimsuits.esm
-*fixgraydockingcolors.esm
-*DayLengthMessage.esm
-*Eit_Clothiers_Z.esm
-*Easy Digipick.esm
-*Eli_RenamedSnowglobes.esm
-*Nanosuit_f_new.esm
-*OutpostFishTank.esm
-*Fragile.esm
-*GagarinNewDawn.esm
-```
+The example mod lists contain line numbers for clarity, in the format `#01`.
+These line numbers are for reference only and are not part of the actual
+mod load order files, and can be safely ignored when managing load orders.
 
-### Current Order
+## Change Type Markers
 
-```
-*StarfieldCommunityPatch.esm
-*AmazonCrew.esm
-*ShipBuilderCategories.esm
-*BetterShipPartFlips.esm
-*BetterShipPartSnaps.esm
-*Better_Living.esm
-*Richer Merchants.esm
-*xatmosPerkUpVendors.esp
-*BuySwimsuits.esm
-*fixgraydockingcolors.esm
-*DayLengthMessage.esm
-*Eit_Clothiers_Z.esm
-*Easy Digipick.esm
-*Eli_RenamedSnowglobes.esm
-*Nanosuit_f_new.esm
-*OutpostFishTank.esm
-*Fragile.esm
-*GagarinNewDawn.esm
-*NewMod.esm
-```
+The expected changes sections use specific markers to indicate the type
+of change detected:
 
-### Result
-
-- Added Mods
-  -	NewMod.esm
-
+- `~` : Replacement (mod replaced with another)
+- `↑`  : Moved Up (mod moved to an earlier position)
+- `↓`  : Moved Down (mod moved to a later position)
+- `+`  : Added (mod added to the load order)
+- `-`  : Removed (mod removed from the load order)
+- `>` : Inserted (mod inserted at a specific position)

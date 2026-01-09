@@ -52,11 +52,11 @@ of the load order by an external edit.
 #19 *NewMod.esm
 ```
 
-## Detected Changes
+## Expected Changes Detected
 
 - [#19 +] NewMod.esm
 
-## Action Results
+## Expected Action Results
 
 ### Sorting
 

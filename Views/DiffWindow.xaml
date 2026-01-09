@@ -21,6 +21,37 @@
         <converters:ReplacementCommandParameterConverter x:Key="ReplacementCommandParameterConverter" />
     </Window.Resources>
     <DockPanel Margin="16" Background="{DynamicResource MaterialDesignPaper}">
+        <Menu DockPanel.Dock="Top" 
+              Margin="-16,-16,-16,8"
+              Background="{DynamicResource MaterialDesignPaper}"
+              Style="{StaticResource MaterialDesignMenu}">
+            <MenuItem Header="{Binding FileMenuHeader}" d:Header="_File">
+                <MenuItem Header="{Binding ExitMenuText}"
+                          d:Header="E_xit"
+                          Click="OnCloseClicked" />
+            </MenuItem>
+            <MenuItem Header="{Binding EditMenuHeader}" d:Header="_Edit">
+                <MenuItem Header="{Binding FixLoadOrderButtonText}"
+                          d:Header="Sort mods"
+                          Command="{Binding FixLoadOrderCommand}"
+                          IsEnabled="{Binding HasDifferences}" />
+                <MenuItem Header="{Binding UpdateReferenceButtonText}"
+                          d:Header="Accept changes"
+                          Command="{Binding UpdateReferenceCommand}"
+                          IsEnabled="{Binding HasDifferences}" />
+                <Separator />
+                <MenuItem Header="{Binding DiscardChangesButtonText}"
+                          d:Header="Discard all changes"
+                          Command="{Binding DiscardChangesCommand}"
+                          IsEnabled="{Binding HasDifferences}" />
+            </MenuItem>
+            <MenuItem Header="{Binding HelpMenuHeader}" d:Header="_Help">
+                <MenuItem Header="{Binding CopyDebugStateMenuText}"
+                          d:Header="Copy Debug State"
+                          Command="{Binding CopyDebugStateCommand}" />
+            </MenuItem>
+        </Menu>
+        
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

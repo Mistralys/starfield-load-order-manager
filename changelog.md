@@ -6,6 +6,7 @@
 - Changes window: Added a menu strip with all existing actions.
 - Changes window: Added the "Help" > "Copy Debug State" menu item.
 - Changes Window: Fixed replaced mods bein broken by sorting.
+- Changes Window: Improved sorting recommendation, now shown more intelligently.
 - Core: Added a comprehensive suite of sorting scenarios for documentation and testing.
 - Core: Split the main window logic into separate files for better maintainability.
 

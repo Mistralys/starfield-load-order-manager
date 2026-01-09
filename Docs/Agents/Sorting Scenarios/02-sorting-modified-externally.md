@@ -43,12 +43,12 @@ An external program has modified the load order by moving
 #10 *fixgraydockingcolors.esm
 #11 *DayLengthMessage.esm
 #12 *Eit_Clothiers_Z.esm
-#13	*Easy Digipick.esm
-#14	*Eli_RenamedSnowglobes.esm
-#15	*Nanosuit_f_new.esm
-#16	*OutpostFishTank.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
+#13 *Easy Digipick.esm
+#14 *Eli_RenamedSnowglobes.esm
+#15 *Nanosuit_f_new.esm
+#16 *OutpostFishTank.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
 ```
 
 ## Expected Changes Detected
@@ -56,9 +56,7 @@ An external program has modified the load order by moving
 - [↑ #2->#1] AmazonCrew.esm
 - [↓ #1->#2] StarfieldCommunityPatch.esm
 
-## Expected Action Results
-
-### Sorting
+## Expected Sorting Results
 
 Sorting correctly repositions the modified mods, the result
 being that there are no differences between the current

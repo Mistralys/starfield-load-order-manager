@@ -58,9 +58,13 @@ The deleted mod causes mods coming after it to shift up.
 - [↑ #17->#16] Fragile.esm
 - [↑ #18->#17] GagarinNewDawn.esm
 
-## Expected Action Results
+### Dependent Mod Lists
 
-### Sorting
+- OupostFishTank.esm
+    - Fragile.esm
+    - GagarinNewDawn.esm
+
+## Expected Sorting Results
 
 Sorting does not change anything to the fact that the
 mod has been deleted, so the result remains:
@@ -69,3 +73,8 @@ mod has been deleted, so the result remains:
 - [↑ #17->#16] Fragile.esm
 - [↑ #18->#17] GagarinNewDawn.esm
 
+### Dependent Mod Lists
+
+- OupostFishTank.esm
+    - Fragile.esm
+    - GagarinNewDawn.esm

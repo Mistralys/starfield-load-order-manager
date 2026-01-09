@@ -46,9 +46,9 @@ The mod "OutpostFishTank.esm" has been replaced with
 #13 *Easy Digipick.esm
 #14 *Eli_RenamedSnowglobes.esm
 #15 *Nanosuit_f_new.esm
-#16	*ReplacementMod.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
+#16 *ReplacementMod.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
 ```
 
 ## Expected Changes Detected
@@ -58,9 +58,7 @@ order, as no lines are removed or added.
 
 - [~ #16] OutpostFishTank.esm -> ReplacementMod.esm
 
-## Expected Action Results
-
-### Sorting
+## Expected Sorting Results
 
 Because a mod replacement is considered a user-directed change,
 replacements are excluded from sorting actions. Therefore, no

@@ -60,9 +60,7 @@ The inserted mod causes mods coming after it to shift down.
 - [↓ #17->#18] Fragile.esm
 - [↓ #18->#19] GagarinNewDawn.esm
 
-## Expected Action Results
-
-### Sorting
+## Expected Sorting Results
 
 The sorting correctly appends the newly inserted mod to the 
 end of the load order, preserving the order of existing mods.

@@ -1,9 +1,8 @@
-﻿# Scenario: Adding a New Mod
+﻿# Scenario: Added New Mods
 
 ## Description
 
-The mod "NewMod.esm" has been appended at the end
-of the load order by an external edit.
+The mod "NewMod1.esm" and "NewMod2.esm" have been appended at the end.
 
 ## Reference Order
 
@@ -20,12 +19,12 @@ of the load order by an external edit.
 #10 *fixgraydockingcolors.esm
 #11 *DayLengthMessage.esm
 #12 *Eit_Clothiers_Z.esm
-#13	*Easy Digipick.esm
-#14	*Eli_RenamedSnowglobes.esm
-#15	*Nanosuit_f_new.esm
-#16	*OutpostFishTank.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
+#13 *Easy Digipick.esm
+#14 *Eli_RenamedSnowglobes.esm
+#15 *Nanosuit_f_new.esm
+#16 *OutpostFishTank.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
 ```
 
 ## Current Order
@@ -43,21 +42,22 @@ of the load order by an external edit.
 #10 *fixgraydockingcolors.esm
 #11 *DayLengthMessage.esm
 #12 *Eit_Clothiers_Z.esm
-#13	*Easy Digipick.esm
-#14	*Eli_RenamedSnowglobes.esm
-#15	*Nanosuit_f_new.esm
-#16	*OutpostFishTank.esm
-#17	*Fragile.esm
-#18	*GagarinNewDawn.esm
-#19 *NewMod.esm
+#13 *Easy Digipick.esm
+#14 *Eli_RenamedSnowglobes.esm
+#15 *Nanosuit_f_new.esm
+#16 *OutpostFishTank.esm
+#17 *Fragile.esm
+#18 *GagarinNewDawn.esm
+#19 *NewMod1.esm
+#20 *NewMod2.esm
 ```
 
 ## Expected Changes Detected
 
-- [#19 +] NewMod.esm
+- [+ #19] NewMod1.esm
+- [+ #20] NewMod2.esm
 
-## Expected Action Results
+## Expected Sorting Results
 
-### Sorting
-
-- [#19 +] NewMod.esm
+- [+ #19] NewMod1.esm
+- [+ #20] NewMod2.esm

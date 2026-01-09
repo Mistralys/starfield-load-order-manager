@@ -533,9 +533,9 @@ A dedicated non-modal window shows and manages detected changes:
 - Indicates when no new changes detected
 
 **Sorting Recommendations**:
-- Special banner appears when inserted mods detected
-- Warns to sort first before other changes
-- Explains that inserted mods should be at the end
+- Prominent banner to show when there are mods that have shifted position but only under the condition that they are not part of any dependent change lists (because those are not affected by sorting anyway).
+- Warning icon and colored text
+- Explains need to sort first
 
 ---
 
@@ -1103,7 +1103,7 @@ The application follows **Material Design v5** guidelines with:
 - Button text: "Manage load order" or "Manage load order (X changes)"
 
 **Sorting Recommendation**:
-- Prominent banner when inserted mods detected
+- Prominent banner to show when there are mods that have shifted position but only under the condition that they are not part of any dependent change lists (because those are not affected by sorting anyway).
 - Warning icon and colored text
 - Explains need to sort first
 

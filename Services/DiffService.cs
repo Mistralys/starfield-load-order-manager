@@ -81,6 +81,50 @@ namespace LoadOrderKeeper.Services
             return result;
         }
 
+        /// <summary>
+        /// Checks if there are any moved mods that are NOT part of dependent change lists.
+        /// These independent moves indicate external reordering that sorting could fix.
+        /// </summary>
+        public static async Task<bool> HasIndependentMovedModsAsync(AppConfigModel config)
+        {
+            if (config is null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (!config.IsValid())
+            {
+                return false;
+            }
+
+            string targetPath = config.GetPluginsFilePath();
+            string referencePath = config.GetReferenceFilePath();
+
+            if (!File.Exists(referencePath) || !File.Exists(targetPath))
+            {
+                return false;
+            }
+
+            var diffLines = await GetPluginsDiffAsync(config).ConfigureAwait(false);
+            
+            // Get all mods that are part of dependent change lists
+            var dependentMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var line in diffLines)
+            {
+                foreach (var dependent in line.DependentChanges)
+                {
+                    dependentMods.Add(dependent.FileName);
+                }
+            }
+            
+            // Check if there are any moved mods that are NOT in the dependent set
+            bool hasIndependentMoves = diffLines.Any(line => 
+                line.ChangeType == DiffChangeType.Moved && 
+                !dependentMods.Contains(line.FileName));
+            
+            return hasIndependentMoves;
+        }
+
         private static void DetectAndAssignDependentChanges(List<DiffLineModel> allLines)
         {
             var dependentLines = new HashSet<DiffLineModel>();

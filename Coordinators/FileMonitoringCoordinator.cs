@@ -171,9 +171,11 @@ namespace LoadOrderKeeper.Coordinators
 
                 if (hasChanged)
                 {
-                    sortingRecommendation = await FileService.WouldSortingChangeDiffsAsync(_config);
+                    // Only recommend sorting if there are independent moved mods
+                    // (mods that have changed position but aren't part of dependent change lists)
+                    sortingRecommendation = await DiffService.HasIndependentMovedModsAsync(_config);
 
-                    // Check if there are any inserted mods
+                    // Check if there are any inserted mods for the warning message
                     var diffLines = await DiffService.GetPluginsDiffAsync(_config);
                     hasInsertedMods = diffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
                 }

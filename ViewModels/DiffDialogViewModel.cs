@@ -49,6 +49,7 @@ namespace LoadOrderKeeper.ViewModels
             RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
             ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(ReplaceRemovedModAsync);
             ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
+            CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
@@ -86,6 +87,16 @@ namespace LoadOrderKeeper.ViewModels
 
         public string RemoveModMenuText { get; } = "Remove mod";
 
+        public string FileMenuHeader { get; } = "_File";
+
+        public string ExitMenuText { get; } = "E_xit";
+
+        public string EditMenuHeader { get; } = "_Edit";
+
+        public string HelpMenuHeader { get; } = "_Help";
+
+        public string CopyDebugStateMenuText { get; } = "Copy Debug State";
+
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
@@ -107,6 +118,8 @@ namespace LoadOrderKeeper.ViewModels
         public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
 
         public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
+
+        public IAsyncRelayCommand CopyDebugStateCommand { get; }
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
@@ -487,6 +500,43 @@ namespace LoadOrderKeeper.ViewModels
             if (_mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false)
             {
                 await _mainViewModel.CreateReferenceCommand.ExecuteAsync(null);
+            }
+        }
+
+        private async Task CopyDebugStateAsync()
+        {
+            try
+            {
+                // Capture debug state using the service
+                string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
+                    _mainViewModel.Config, 
+                    DiffLines.ToList());
+
+                // Copy to clipboard
+                System.Windows.Clipboard.SetText(debugStateJson);
+
+                // Show success message
+                var eventArgs = new ConfirmationRequestedEventArgs(
+                    "Debug State Copied",
+                    "The debug state has been successfully copied to your clipboard in JSON format.\n\n" +
+                    "You can now paste this information to share with developers for troubleshooting.",
+                    ConfirmationIcon.Information,
+                    ConfirmationButton.OK);
+                ConfirmationRequested?.Invoke(this, eventArgs);
+
+                DiffStatusMessage = "Debug state copied to clipboard.";
+            }
+            catch (Exception ex)
+            {
+                // Show error message
+                var eventArgs = new ConfirmationRequestedEventArgs(
+                    "Copy Failed",
+                    $"Failed to copy debug state to clipboard:\n\n{ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK);
+                ConfirmationRequested?.Invoke(this, eventArgs);
+
+                DiffStatusMessage = $"Failed to copy debug state: {ex.Message}";
             }
         }
 

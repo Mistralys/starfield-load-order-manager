@@ -2,6 +2,9 @@
 
 ## v1.6.0 - Steam Integration
 - General: Added Steam process detection to inform when SFSE needs Steam running.
+- General: Added a debug feature to export the current application state to JSON for easier debugging.
+- Changes window: Added a menu strip with all existing actions.
+- Changes window: Added the "Help" > "Copy Debug State" menu item.
 - Core:  Split the main window logic into separate files for better maintainability.
 
 ## v1.5.0 - Improved Error Handling

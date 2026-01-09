@@ -5,7 +5,9 @@
 - General: Added a debug feature to export the current application state to JSON for easier debugging.
 - Changes window: Added a menu strip with all existing actions.
 - Changes window: Added the "Help" > "Copy Debug State" menu item.
-- Core:  Split the main window logic into separate files for better maintainability.
+- Changes Window: Fixed replaced mods bein broken by sorting.
+- Core: Added a comprehensive suite of sorting scenarios for documentation and testing.
+- Core: Split the main window logic into separate files for better maintainability.
 
 ## v1.5.0 - Improved Error Handling
 - Settings: A banner now shows instantly if the selected folders are valid.

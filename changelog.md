@@ -5,8 +5,9 @@
 - General: Added a debug feature to export the current application state to JSON for easier debugging.
 - Changes window: Added a menu strip with all existing actions.
 - Changes window: Added the "Help" > "Copy Debug State" menu item.
-- Changes Window: Fixed replaced mods bein broken by sorting.
+- Changes Window: Fixed replaced mods being unrecognized after sorting.
 - Changes Window: Improved sorting recommendation, now shown more intelligently.
+- Changes Window: Added an info banner when multiple replacements are detected.
 - Core: Added a comprehensive suite of sorting scenarios for documentation and testing.
 - Core: Split the main window logic into separate files for better maintainability.
 

@@ -126,7 +126,9 @@ namespace LoadOrderKeeper.ViewModels
 
         public string MultipleReplacementsHelpMessage => 
             "There are a lot of changes in the list, including replacements and removals." +
+            " "+
             "This can confuse the change detection - If you made these edits, it is recommended to accept the changes." + 
+            " "+
             "Otherwise, consider discarding the changes.";
 
         private bool HasMultipleReplacementsOrRemovals => 

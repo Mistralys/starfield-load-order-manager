@@ -233,6 +233,7 @@ namespace LoadOrderKeeper.Services
 
         private static Dictionary<ModDiffModel, ModDiffModel> DetectReplacements(IReadOnlyList<ModDiffModel> diffs, out HashSet<ModDiffModel> matchedAdditions)
         {
+            // Build dictionary of new mods by their current position
             var additionsByLine = new Dictionary<int, ModDiffModel>();
             foreach (var diff in diffs)
             {
@@ -245,16 +246,44 @@ namespace LoadOrderKeeper.Services
             var replacements = new Dictionary<ModDiffModel, ModDiffModel>();
             var usedAdditions = new HashSet<ModDiffModel>();
 
-            foreach (var diff in diffs)
-            {
-                if (!diff.IsRemoved || diff.ReferenceNumber is not int referenceLine)
-                {
-                    continue;
-                }
+            // Get all removed mods sorted by reference position
+            var removedMods = diffs
+                .Where(d => d.IsRemoved && d.ReferenceNumber.HasValue)
+                .OrderBy(d => d.ReferenceNumber!.Value)
+                .ToList();
 
+            // First pass: Match exact positions (original behavior for no-shift scenarios)
+            foreach (var diff in removedMods)
+            {
+                int referenceLine = diff.ReferenceNumber!.Value;
+                
                 if (additionsByLine.TryGetValue(referenceLine, out var candidate) && usedAdditions.Add(candidate))
                 {
                     replacements[diff] = candidate;
+                }
+            }
+
+            // Second pass: Match shifted positions (for scenarios with earlier deletions)
+            // Calculate cumulative position shifts caused by earlier deletions
+            foreach (var removedMod in removedMods)
+            {
+                // Skip if already matched in first pass
+                if (replacements.ContainsKey(removedMod))
+                    continue;
+
+                int referencePosition = removedMod.ReferenceNumber!.Value;
+                
+                // Count how many deletions occurred before this position
+                int deletionsBeforeThisPosition = removedMods
+                    .Count(r => r.ReferenceNumber!.Value < referencePosition);
+                
+                // Calculate the shifted position where a replacement would appear
+                int shiftedPosition = referencePosition - deletionsBeforeThisPosition;
+                
+                // Try to find a new mod at the shifted position
+                if (additionsByLine.TryGetValue(shiftedPosition, out var candidate) && usedAdditions.Add(candidate))
+                {
+                    replacements[removedMod] = candidate;
                 }
             }
 

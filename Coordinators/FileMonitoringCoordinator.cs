@@ -297,7 +297,7 @@ namespace LoadOrderKeeper.Coordinators
             {
                 if (hasInsertedMods)
                 {
-                    SortingRecommendationMessage = "?? IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.";
+                    SortingRecommendationMessage = "IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.";
                 }
                 else
                 {

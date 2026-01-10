@@ -138,6 +138,8 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public string RemoveModMenuText { get; }
     public bool ShowSortingRecommendation { get; }
     public string SortingRecommendationMessage { get; }
+    public bool ShowMultipleReplacementsHelp { get; }
+    public string MultipleReplacementsHelpMessage { get; }
     public IReadOnlyList<DiffLineModel> AddedMods { get; }
     public bool HasAddedMods { get; }
     public bool HasInsertedMods { get; }

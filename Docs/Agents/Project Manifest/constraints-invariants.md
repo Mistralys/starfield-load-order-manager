@@ -71,6 +71,20 @@
 
 ---
 
+## Replacement Workflow Constraints
+
+- **Reference File is Source of Truth**: All diff comparisons are made against the reference file on disk, not in-memory state.
+- **Replacement Operations are Temporary**: `ReplaceModWithNewAsync()` updates `Plugins.txt` immediately but **never** writes to the reference file—only "Accept changes" updates the reference.
+- **Sequential Replacements**: When making multiple replacements in one session, users have two options:
+  1. Click "Accept changes" after each replacement to persist it before making the next
+  2. Make all replacements together, then click "Accept changes" once to accept all
+- **Visual Guidance**: Blue info banner appears in diff window when 2+ removals/replacements detected, explaining the workflow options.
+- **Documented Limitation**: This behavior is documented in application-description.md under "Managing Changes: The DIFF Window" > "Replacement Workflow Notes".
+- **No Session State Management**: The application intentionally does NOT cache replacement state in memory to keep architecture simple and avoid lifecycle management complexity.
+- **Working As Designed**: This is correct behavior—the diff window shows current state vs. reference baseline, which is the fundamental purpose of the tool.
+
+---
+
 ## Steam Process Detection
 
 - `FileMonitoringCoordinator` detects Steam installation via Windows registry.

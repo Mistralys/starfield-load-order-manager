@@ -103,6 +103,10 @@
 
 - In `DiffDialogViewModel`, commands trigger `FileService.ReEnableModAsync()`, `RemoveNewModAsync()`, `ReplaceModWithNewAsync()`, and `MainViewModel.DiscardChangesCommand` (which calls `FileService.DiscardChangesAsync()`), refreshing diffs afterward.
 - Update reference and discard changes actions request confirmation via `ConfirmationRequested` event, which is handled by `DiffWindow` to show `ConfirmationDialog`.
+- **Multiple Replacements Help**: When 2+ removals or replacements detected, `ShowMultipleReplacementsHelp` property becomes true, triggering blue info banner display.
+- Info banner explains two workflow options: (1) Accept after each replacement, or (2) Make all replacements then accept once.
+- Banner message stored in `MultipleReplacementsHelpMessage` property for consistent display.
+- `UpdateDiffState()` notifies `ShowMultipleReplacementsHelp` property change whenever diff lines collection changes.
 
 ---
 

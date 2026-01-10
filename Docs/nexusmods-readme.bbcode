@@ -9,7 +9,9 @@ accidental load-order changes that can break saves.
 [*]Why it exists
 [*]What it does
 [*]How to use[list][*]New playthrough[*]Loading a savegame[*]Adding new mods[*]Deleting mods[*]Replacing mods[/list]
-[*]Installation
+[*]Limitations
+[*]Vortex Installation
+[*]Manual Installation
 [*]More on GitHub
 [/list]
 [img]http://aeonoftime.com/linked/nexusmods/starfield/header_why_it_exists.png[/img]
@@ -37,11 +39,15 @@ SLOK helps you to stop that from happening.
 
 [list=1]
 [*]Set up your load order in Starfield or your mod manager.
-[*]Run SLOK, and create a reference file.
+[*]Run SLOK, which automatically creates a copy as sorting reference.
 [*]Optional: Create a profile for the playthrough.
 [*]Run Starfield.
 [*]Keep an eye on SLOK for any changes to [font=Courier New]Plugins.txt[/font].
 [/list]
+
+If anyone changes the `Plugins.txt file, SLOK will detect them, and you can
+use the changes window to see what exactly changed and restore the correct order.
+
 [size=2][b]Loading a savegame[/b][/size]
 
 [list=1]
@@ -50,7 +56,12 @@ SLOK helps you to stop that from happening.
 [*]Before confirming the savegame to load, check SLOK for any changes.
 [*]Reorder mods if needed to match the reference.
 [*]Load your savegame safely.
-[/list]  
+[/list]
+
+For example, Starfield can update the load order after clicking "Continue" on the
+main menu, and before you confirm loading. Resetting the load order before you 
+click "Confirm" ensures your save stays stable.
+
 [size=2][b]Adding new mods[/b][/size]
 
 [list=1]
@@ -61,15 +72,20 @@ SLOK helps you to stop that from happening.
 [*]New mods will be appended at the end.
 [*]Update the reference file to accept the added mods.
 [/list]
+
+Adding mods typically works without issues. 
+
+One problematic use case is when want to add a mod that should be loaded before 
+or after another mod in your load order. This will change your load order, which
+can break your save. Only testing will tell if it works.
+
 [size=2][b]Deleting mods[/b][/size]
 
-To keep your save stable, do not delete any mods mid-playthrough. The reason is simple:
-If you delete a mod from line #5, for example, all mods below it will shift up one line,
-changing the load order of all those mods.
+Avoid deleting any mods mid-playthrough if at all possible. It will change your
+load order, and possibly break your save. One possible workaround is to replace
+the deleted mod with a new mod to avoid the load order shift (see "Replacing mods").
 
-Try to replace mods instead of deleting them, for example by replacing them with new mods. 
-
-If you must delete mods, follow these steps:
+If really you must delete mods, follow these steps:
 
 [list=1]
 [*]Delete the target mods.
@@ -77,8 +93,8 @@ If you must delete mods, follow these steps:
 [*]Sort mods.
 [*]Update the reference file to accept the deleted mods.
 [/list]
-NOTE: You will probably see a lot of changes in the load order even after sorting: Those 
-are all the mods that shifted due to the deletion.
+NOTE: You will probably see a lot of changes in the load order even after sorting: 
+Those are all the mods that shifted due to the deletion.
 
 [size=2][b]Replacing mods[/b][/size]
 
@@ -91,6 +107,15 @@ are all the mods that shifted due to the deletion.
 [*]Choose the target mod.
 [*]Update the reference file to accept the replacements.
 [/list]
+[img]http://aeonoftime.com/linked/nexusmods/starfield/header_limitations.png[/img]
+
+The tool is made primarily to sort mods according to the reference list. It can handle some
+cases like removed, replaced or inserted mods, but only to a certain extent. Combining many
+different changes, for example, can possibly not be displayed in a meaningful way.
+
+You can still update the reference file with the changes you made, but it's really up to you
+to know what you are doing.                                                                             
+
 [img]http://aeonoftime.com/linked/nexusmods/starfield/header_vortex_installation.png[/img]
 
 [list=1]

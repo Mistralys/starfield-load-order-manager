@@ -527,6 +527,14 @@ A dedicated non-modal window shows and manages detected changes:
 - **Replace old with new**: Right-click on removed mod to replace with added mod
 - **Expand/collapse dependent changes**: Click on dependency summary line
 
+**Replacement Workflow Notes**:
+When working with multiple mod replacements in a single session, be aware that the application compares the current state against the reference file on disk. This means:
+
+- **Option 1**: Click "Accept changes" after each replacement to make it permanent before making the next replacement
+- **Option 2**: Make all your replacements together, then click "Accept changes" once to accept all changes
+
+The app shows an informational banner when multiple removals or replacements are detected to remind you of these options. This is the intended behavior—replacements are temporary change resolution actions until explicitly accepted.
+
 **Status Messages**:
 - Timestamped updates shown at bottom of window
 - Success, warning, and error messages color-coded

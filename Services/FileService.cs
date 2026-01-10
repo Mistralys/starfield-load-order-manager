@@ -577,7 +577,10 @@ namespace LoadOrderKeeper.Services
             referenceMods[referenceIndex] = replacementEntry;
             currentMods.Add(new ModEntryModel(replacementEntry.ToLine()));
 
+            // Write updated load order to Plugins.txt ONLY
+            // Reference file is never touched - only updated when user clicks "Update Reference"
             await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
+            
             return true;
         }
 

@@ -20,17 +20,24 @@ public class SettingsServiceTests
             var steamAppsPath = Path.Combine(mainSteamPath, "steamapps");
             Directory.CreateDirectory(steamAppsPath);
 
-            // Create a Steam library folder with Starfield
+            // Create a Steam library folder with Starfield - using C:\Steam location from VDF
+            var cSteamPath = "C:\\Steam";
+            var cSteamLibraryPath = Path.Combine(tempRoot, "CSteamLibrary");
+            var cSteamStarfieldDataPath = Path.Combine(cSteamLibraryPath, "steamapps", "common", "Starfield", "Data");
+            Directory.CreateDirectory(cSteamStarfieldDataPath);
+
+            // Create another library folder (without Starfield)
             var libraryPath = Path.Combine(tempRoot, "SteamLibrary");
             var libraryAppsPath = Path.Combine(libraryPath, "steamapps", "common", "Starfield", "Data");
             Directory.CreateDirectory(libraryAppsPath);
 
             // Create the libraryfolders.vdf file with the example content
+            // Starfield AppID 1716740 is in library "0" at C:\Steam, but we'll map it to our temp directory
             var vdfContent = @"""libraryfolders""
 {
 	""0""
 	{
-		""path""		""C:\\Steam""
+		""path""		""" + cSteamLibraryPath.Replace("\\", "\\\\") + @"""
 		""label""		""""
 		""contentid""		""8941062469189073444""
 		""totalsize""		""0""
@@ -67,7 +74,7 @@ public class SettingsServiceTests
 
             var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
 
-            // Assert: Should find Starfield in library 0 (C:\Steam)
+            // Assert: Should find Starfield in library 0
             Assert.NotNull(result);
             Assert.Contains("steamapps", result, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("common", result, StringComparison.OrdinalIgnoreCase);

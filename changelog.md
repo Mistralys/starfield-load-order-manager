@@ -8,6 +8,8 @@
 - Changes Window: Fixed replaced mods being unrecognized after sorting.
 - Changes Window: Improved sorting recommendation, now shown more intelligently.
 - Changes Window: Added an info banner when multiple replacements are detected.
+- Changes Window: Added the same utility File menu items as the main window.
+- Changes Window: Added button icons.
 - Core: Added a comprehensive suite of sorting scenarios for documentation and testing.
 - Core: Split the main window logic into separate files for better maintainability.
 

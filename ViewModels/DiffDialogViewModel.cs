@@ -101,6 +101,16 @@ namespace LoadOrderKeeper.ViewModels
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
 
+        public bool ShowMultipleReplacementsHelp => HasMultipleReplacementsOrRemovals;
+
+        public string MultipleReplacementsHelpMessage => 
+            "There are a lot of changes in the list, including replacements and removals." +
+            "This can confuse the change detection - If you made these edits, it is recommended to accept the changes." + 
+            "Otherwise, consider discarding the changes.";
+
+        private bool HasMultipleReplacementsOrRemovals => 
+            DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Replaced) > 1;
+
         public IReadOnlyList<DiffLineModel> AddedMods => DiffLines.Where(line => line.ChangeType == DiffChangeType.Added).ToList();
 
         public bool HasAddedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Added);
@@ -192,6 +202,7 @@ namespace LoadOrderKeeper.ViewModels
             HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged);
             ScrollTargetIndex = ComputeScrollTargetIndex();
             OnPropertyChanged(nameof(ShowSortingRecommendation));
+            OnPropertyChanged(nameof(ShowMultipleReplacementsHelp));
             OnPropertyChanged(nameof(AddedMods));
             OnPropertyChanged(nameof(HasAddedMods));
             OnPropertyChanged(nameof(HasInsertedMods));

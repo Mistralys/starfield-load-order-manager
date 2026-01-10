@@ -58,6 +58,11 @@ public sealed class FileMonitoringCoordinator : CoordinatorBase
 }
 ```
 
+**Event Firing Behavior:**
+- `ChangeDetected` fires when `PluginsFileChangedExternally` state changes (false?true or true?false) **OR** when file signature changes.
+- This enables both main window state updates and automatic refresh of open diff windows.
+- Multiple subscribers can listen simultaneously (e.g., `MainViewModel` and `DiffDialogViewModel`).
+
 ### `LoadOrderKeeper.Coordinators.StatusCoordinator`
 
 ```csharp

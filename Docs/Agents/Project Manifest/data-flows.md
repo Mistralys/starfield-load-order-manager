@@ -80,22 +80,26 @@
 - `FileMonitoringCoordinator` runs periodic checks every 3 seconds when state is valid (config valid, reference exists, not busy).
 - `CheckPluginsFileAsync()` calls `FileService.ComparePluginsWithReferenceAsync()` to compare against the active profile's reference.
 - Detects Steam process (steam.exe) running and updates `IsSteamRunning`, `ShowSteamWarning`, and `SteamWarningTooltip` properties.
-- Fires `ChangeDetected` event when file changes detected, `SteamWarningChanged` when Steam state changes, `SortingRecommendationChanged` when sorting issues detected.
+- Fires `ChangeDetected` event when **file state changes (false?true or true?false) OR when file signature changes** (enables auto-refresh of open diff windows).
+- Event includes `HasChanges` boolean and `ChangeCount` integer in `ChangeDetectedEventArgs`.
+- `MainViewModel` subscribes to `ChangeDetected` for main window state updates; `DiffDialogViewModel` also subscribes for automatic diff refresh.
 - On differences, `FileService.WouldSortingChangeDiffsAsync()` sets the sorting recommendation, `DiffService.GetPluginsDiffAsync()` feeds both the badge count and the `DiffDialogViewModel`.
-- Switching profiles triggers `DiffDialogViewModel.RefreshDiffAsync()` when diff window is open.
+- Switching profiles triggers `FileMonitoringCoordinator.CheckPluginsFileAsync()` to detect changes with new reference.
+- Fires `SteamWarningChanged` when Steam state changes, `SortingRecommendationChanged` when sorting issues detected.
 
 ---
 
-## Steam Process Detection
+## Diff Window Auto-Refresh
 
-- `FileMonitoringCoordinator.DetectSteamProcess()` checks if steam.exe is running using `Process.GetProcessesByName()`.
-- Updates `IsSteamInstalled` (checks registry for Steam installation).
-- Updates `IsSteamRunning` (checks for running steam.exe process).
-- Calculates `ShowSteamWarning` (true when both Steam installed and running).
-- Generates `SteamWarningTooltip` with contextual message explaining why Steam should be closed.
-- Fires `SteamWarningChanged` event when warning state changes.
-- `MainViewModel` exposes pass-through properties for UI binding.
-- Warning banner in `MainWindow` shows/hides automatically based on Steam state.
+- **Event-Based Architecture**: `DiffDialogViewModel` subscribes directly to `FileMonitoringCoordinator.ChangeDetected` event in constructor.
+- When file changes detected (every 3 seconds), `OnFileChangeDetected()` handler calls `RefreshDiffAsync()` automatically.
+- `RefreshDiffAsync()` fetches latest diff via `DiffService.GetPluginsDiffAsync()`, compares signatures, and updates `DiffLines` collection if changed.
+- `ReplaceDiffLines()` clears and repopulates `ObservableCollection<DiffLineModel>`, triggering UI updates via `UpdateDiffState()` and `OnPropertyChanged(nameof(DiffLines))`.
+- Status message updated with timestamp: "Detected changes at HH:mm:ss" or "No new differences detected (HH:mm:ss)".
+- `_isRefreshing` flag prevents concurrent refresh operations.
+- `MainViewModel` no longer tracks `_activeDiffDialog`; each diff window is self-managing and reactive.
+- Only tracks `_diffWindow` reference to prevent duplicate windows (single-instance guarantee).
+- Window properly unsubscribes from `ChangeDetected` event in `Dispose()` when closed.
 
 ---
 

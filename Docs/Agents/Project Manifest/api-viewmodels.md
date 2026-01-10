@@ -11,7 +11,7 @@
 ### `LoadOrderKeeper.ViewModels.MainViewModel`
 
 ```csharp
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     public MainViewModel();
 
@@ -72,8 +72,16 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand OpenDownloadPageCommand { get; }
     public IRelayCommand ShowAboutCommand { get; }
     public IRelayCommand ExitApplicationCommand { get; }
+    
+    public FileMonitoringCoordinator GetFileMonitoringCoordinator();
+    public void Dispose();
 }
 ```
+
+**Window Management:**
+- Tracks `_diffWindow`, `_manageProfilesWindow`, and `_referenceHistoryWindow` references to prevent duplicate instances.
+- Only tracks window references, not ViewModels—each window is self-managing via direct event subscriptions.
+- `GetFileMonitoringCoordinator()` exposes the coordinator for diff window event subscriptions.
 
 ### `LoadOrderKeeper.ViewModels.SettingsViewModel`
 
@@ -163,6 +171,14 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public void Dispose();
 }
 ```
+
+**Auto-Refresh Architecture:**
+- Constructor subscribes to `FileMonitoringCoordinator.ChangeDetected` event via `mainViewModel.GetFileMonitoringCoordinator()`.
+- When event fires, `OnFileChangeDetected()` handler automatically calls `RefreshDiffAsync()`.
+- `RefreshDiffAsync()` fetches latest diff, compares signatures, and updates `DiffLines` collection if changed.
+- `ReplaceDiffLines()` clears and repopulates collection, triggering UI updates via `UpdateDiffState()` and `OnPropertyChanged(nameof(DiffLines))`.
+- `Dispose()` unsubscribes from `ChangeDetected` event when window closes.
+- Status messages include timestamps for user feedback ("Detected changes at HH:mm:ss").
 
 ---
 

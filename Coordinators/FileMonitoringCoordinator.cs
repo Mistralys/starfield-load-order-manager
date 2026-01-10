@@ -166,6 +166,7 @@ namespace LoadOrderKeeper.Coordinators
                 bool hasChanged = comparison.HasDifferences;
                 bool signatureChanged = !string.Equals(_lastObservedPluginsSignature, comparison.PluginsSignature, StringComparison.Ordinal);
                 _lastObservedPluginsSignature = comparison.PluginsSignature;
+                
                 bool sortingRecommendation = false;
                 bool hasInsertedMods = false;
 
@@ -182,7 +183,8 @@ namespace LoadOrderKeeper.Coordinators
 
                 await UpdateChangeCountDisplayAsync(hasChanged);
 
-                if (hasChanged != PluginsFileChangedExternally)
+                // Fire event when state changes OR when signature changes (to update open diff windows)
+                if (hasChanged != PluginsFileChangedExternally || signatureChanged)
                 {
                     PluginsFileChangedExternally = hasChanged;
                     ChangeDetected?.Invoke(this, new ChangeDetectedEventArgs(hasChanged, ChangeCount));

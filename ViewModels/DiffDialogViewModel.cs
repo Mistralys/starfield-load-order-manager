@@ -51,6 +51,11 @@ namespace LoadOrderKeeper.ViewModels
             ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
             CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
+            
+            // Subscribe to file monitoring coordinator's change detected event
+            var coordinator = _mainViewModel.GetFileMonitoringCoordinator();
+            coordinator.ChangeDetected += OnFileChangeDetected;
+            
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
             DiffStatusMessage = "Differences loaded.";
@@ -75,7 +80,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
 
-        public string DiscardChangesButtonText { get; } = "Discard all changes...";
+        public string DiscardChangesButtonText { get; } = "Discard all changes..." ;
 
         public string CloseButtonText { get; } = "Close";
 
@@ -83,7 +88,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public string ReEnableModMenuText { get; } = "Re-enable mod";
 
-        public string ReplaceWithMenuText { get; } = "Replace with...";
+        public string ReplaceWithMenuText { get; } = "Replace with..." ;
 
         public string RemoveModMenuText { get; } = "Remove mod";
 
@@ -233,13 +238,25 @@ namespace LoadOrderKeeper.ViewModels
         private void ReplaceDiffLines(IEnumerable<DiffLineModel> newLines)
         {
             _suppressCollectionNotification = true;
-            DiffLines.Clear();
-            foreach (var line in newLines)
+            try
             {
-                DiffLines.Add(line);
+                DiffLines.Clear();
+                foreach (var line in newLines)
+                {
+                    DiffLines.Add(line);
+                }
             }
-            _suppressCollectionNotification = false;
+            finally
+            {
+                _suppressCollectionNotification = false;
+            }
+            
+            // Force property change notifications for all computed properties
             UpdateDiffState();
+            
+            // Also notify that the DiffLines collection property itself may have changed
+            // This ensures WPF rebinds to the collection
+            OnPropertyChanged(nameof(DiffLines));
         }
 
         private static string BuildSignature(IEnumerable<DiffLineModel> lines)
@@ -284,6 +301,7 @@ namespace LoadOrderKeeper.ViewModels
                 string newSignature = BuildSignature(latestLines);
 
                 bool signatureChanged = !string.Equals(newSignature, _lastDiffSignature, StringComparison.Ordinal);
+                
                 if (signatureChanged)
                 {
                     ReplaceDiffLines(latestLines);
@@ -551,10 +569,17 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
+        private async void OnFileChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
+        {
+            string reason = e.HasChanges ? "Detected changes" : "Plugins.txt now matches the reference";
+            await RefreshDiffAsync(reason);
+        }
+
         public void Dispose()
         {
             DiffLines.CollectionChanged -= OnDiffCollectionChanged;
             _mainViewModel.PropertyChanged -= OnMainViewModelPropertyChanged;
+            _mainViewModel.GetFileMonitoringCoordinator().ChangeDetected -= OnFileChangeDetected;
         }
     }
 }

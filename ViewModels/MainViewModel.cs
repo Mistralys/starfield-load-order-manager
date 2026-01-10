@@ -25,7 +25,6 @@ namespace LoadOrderKeeper.ViewModels
         private readonly GameLauncherCoordinator _gameLauncher;
         private readonly CancellationTokenSource _shutdownCts = new();
         private bool _disposed;
-        private DiffDialogViewModel? _activeDiffDialog;
 
         // Track non-modal windows to prevent duplicates
         private ManageProfilesWindow? _manageProfilesWindow;
@@ -811,43 +810,6 @@ namespace LoadOrderKeeper.ViewModels
             OpenGameFolderCommand?.NotifyCanExecuteChanged();
         }
 
-        private async Task<bool> RefreshDiffAsync(string reason)
-        {
-            if (_activeDiffDialog != null)
-            {
-                await _activeDiffDialog.RefreshDiffAsync(reason);
-                return true;
-            }
-            return false;
-        }
-
-        private async Task UpdateChangeCountDisplayAsync(bool hasDifferences)
-        {
-            if (!hasDifferences)
-            {
-                UpdateChangeCountDisplay(0);
-                return;
-            }
-
-            try
-            {
-                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                int totalCount = diffLines.Count;
-                
-                // Include dependent changes in the total count
-                foreach (var line in diffLines)
-                {
-                    totalCount += line.DependentChanges.Count;
-                }
-                
-                UpdateChangeCountDisplay(totalCount);
-            }
-            catch
-            {
-                UpdateChangeCountDisplay(0);
-            }
-        }
-
         private void UpdateChangeCountDisplay(int changeCount)
         {
             ShowChangesButtonText = changeCount > 0 
@@ -862,12 +824,11 @@ namespace LoadOrderKeeper.ViewModels
                 return;
             }
 
-            // If diff window is already open, bring it to front and refresh
-            if (_diffWindow != null && _activeDiffDialog != null)
+            // If diff window is already open, bring it to front
+            if (_diffWindow != null)
             {
                 _diffWindow.Activate();
                 _diffWindow.Focus();
-                await _activeDiffDialog.RefreshDiffAsync("Manual refresh requested");
                 return;
             }
 
@@ -882,13 +843,10 @@ namespace LoadOrderKeeper.ViewModels
                     DataContext = diffViewModel
                 };
 
-                _activeDiffDialog = diffViewModel;
-
-                // Handle window closed event to clear references
+                // Handle window closed event to clear reference
                 _diffWindow.Closed += (s, e) => 
                 {
                     _diffWindow = null;
-                    _activeDiffDialog = null;
                 };
 
                 _diffWindow.Show();
@@ -901,12 +859,8 @@ namespace LoadOrderKeeper.ViewModels
 
         private async void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
-            // Refresh diff dialog if open
-            if (_activeDiffDialog != null)
-            {
-                string reason = e.HasChanges ? "Detected changes" : "Plugins.txt now matches the reference";
-                await _activeDiffDialog.RefreshDiffAsync(reason);
-            }
+            // DiffWindow now subscribes directly to FileMonitoringCoordinator.ChangeDetected
+            // No need to manually refresh here anymore
         }
 
         private void OnSortingRecommendationChanged(object? sender, Coordinators.Events.SortingRecommendationChangedEventArgs e)
@@ -1048,6 +1002,14 @@ namespace LoadOrderKeeper.ViewModels
         private string GetReadyStatusMessage()
         {
             return _statusCoordinator.GetReadyStatusMessage(Config.IsValid());
+        }
+
+        /// <summary>
+        /// Gets the file monitoring coordinator for subscribing to change events.
+        /// </summary>
+        public FileMonitoringCoordinator GetFileMonitoringCoordinator()
+        {
+            return _fileMonitor;
         }
 
         [RelayCommand]

@@ -93,6 +93,14 @@ namespace LoadOrderKeeper.ViewModels
         public string RemoveModMenuText { get; } = "Remove mod";
 
         public string FileMenuHeader { get; } = "_File";
+        
+        public string OpenPluginsMenuText => _mainViewModel.OpenPluginsMenuText;
+        
+        public string OpenReferenceMenuText => _mainViewModel.OpenReferenceMenuText;
+        
+        public string OpenAppDataFolderMenuText => _mainViewModel.OpenAppDataFolderMenuText;
+        
+        public string OpenGameFolderMenuText => _mainViewModel.OpenGameFolderMenuText;
 
         public string ExitMenuText { get; } = "E_xit";
 
@@ -101,6 +109,14 @@ namespace LoadOrderKeeper.ViewModels
         public string HelpMenuHeader { get; } = "_Help";
 
         public string CopyDebugStateMenuText { get; } = "Copy Debug State";
+        
+        public IRelayCommand OpenPluginsFileCommand => _mainViewModel.OpenPluginsFileCommand;
+        
+        public IRelayCommand OpenReferenceFileCommand => _mainViewModel.OpenReferenceFileCommand;
+        
+        public IRelayCommand OpenAppDataFolderCommand => _mainViewModel.OpenAppDataFolderCommand;
+        
+        public IRelayCommand OpenGameFolderCommand => _mainViewModel.OpenGameFolderCommand;
 
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 

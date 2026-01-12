@@ -1128,15 +1128,6 @@ namespace LoadOrderKeeper.ViewModels
                 UpdateFileMonitorState();
 
                 AddStatusMessage("Configuration has been reset to empty values.", StatusMessageType.Success);
-
-                // Show a confirmation
-                ConfirmationDialog.Show(
-                    "Configuration Reset",
-                    "Configuration has been successfully reset to empty values.\n\nPlease configure the paths in Settings before using the application.",
-                    ConfirmationIcon.Information,
-                    ConfirmationButton.OK,
-                    ConfirmationResult.OK,
-                    WpfApplication.Current?.MainWindow);
             }
             catch (Exception ex)
             {

@@ -65,6 +65,11 @@
                           Command="{Binding ShowAboutCommand}"
                           Icon="{materialDesign:PackIcon Kind=Information}" />
             </MenuItem>
+            <MenuItem Header="{Binding DebugMenuHeader}" d:Header="Debug">
+                <MenuItem Header="{Binding ResetConfigMenuText}"
+                          Command="{Binding ResetConfigurationCommand}"
+                          Icon="{materialDesign:PackIcon Kind=Refresh}" />
+            </MenuItem>
         </Menu>
 
         <!-- Configuration error banner (shown above update banner when config invalid) -->

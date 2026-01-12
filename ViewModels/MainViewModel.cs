@@ -66,6 +66,8 @@ namespace LoadOrderKeeper.ViewModels
         public string HelpMenuHeader { get; } = "_Help";
         public string CheckForUpdatesMenuText { get; } = "Check for _Updates...";
         public string AboutMenuText { get; } = "_About...";
+        public string DebugMenuHeader { get; } = "_Debug";
+        public string ResetConfigMenuText { get; } = "_Reset Configuration (for testing)...";
         public string DownloadOptionsButtonText { get; } = "Download options...";
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
@@ -1083,6 +1085,63 @@ namespace LoadOrderKeeper.ViewModels
         private async Task OpenSettingsFromErrorBannerAsync()
         {
             await ShowSettingsDialogInternalAsync();
+        }
+
+        [RelayCommand]
+        private async Task ResetConfigurationAsync()
+        {
+            var result = ConfirmationDialog.Show(
+                "Reset Configuration",
+                "This will clear all configuration settings and reset them to empty values for testing purposes.\n\nThis action cannot be undone. Are you sure you want to continue?",
+                ConfirmationIcon.Warning,
+                ConfirmationButton.YesNo,
+                ConfirmationResult.No,
+                WpfApplication.Current?.MainWindow);
+
+            if (result != ConfirmationResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                // Create a new empty config
+                Config = new AppConfigModel
+                {
+                    StarfieldAppDataPath = string.Empty,
+                    StarfieldGamePath = string.Empty,
+                    ActiveProfileId = "default"
+                };
+
+                // Save the empty config
+                await SettingsService.SaveSettingsAsync(Config);
+
+                // Update coordinators
+                _configCoordinator.UpdateConfiguration(Config);
+                _profileCoordinator.UpdateConfiguration(Config);
+                _gameLauncher.UpdateConfiguration(Config);
+                
+                // Reset reference existence flag
+                RefExists = false;
+                
+                // Update file monitor state
+                UpdateFileMonitorState();
+
+                AddStatusMessage("Configuration has been reset to empty values.", StatusMessageType.Success);
+
+                // Show a confirmation
+                ConfirmationDialog.Show(
+                    "Configuration Reset",
+                    "Configuration has been successfully reset to empty values.\n\nPlease configure the paths in Settings before using the application.",
+                    ConfirmationIcon.Information,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Failed to reset configuration: {ex.Message}");
+            }
         }
 
         public void Dispose()

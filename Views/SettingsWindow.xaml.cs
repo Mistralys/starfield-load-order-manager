@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,7 @@ namespace LoadOrderKeeper.Views
             InitializeComponent();
             DataContextChanged += OnSettingsDataContextChanged;
             Loaded += OnWindowLoaded;
+            Closing += OnWindowClosing;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -36,6 +38,22 @@ namespace LoadOrderKeeper.Views
             if (DataContext is SettingsViewModel vm)
             {
                 vm.ValidateConfiguration();
+            }
+        }
+
+        private void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            // Auto-save if configuration is valid and DialogResult is not explicitly set
+            if (DialogResult != true && DataContext is SettingsViewModel vm)
+            {
+                vm.ValidateConfiguration();
+                
+                // Check if configuration is valid by examining the status banner
+                if (!vm.StatusBannerIsError)
+                {
+                    // Configuration is valid, auto-save it
+                    DialogResult = true;
+                }
             }
         }
 

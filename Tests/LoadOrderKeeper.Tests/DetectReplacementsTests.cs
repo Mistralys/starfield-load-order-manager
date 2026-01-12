@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LoadOrderKeeper.Models;
@@ -40,10 +41,12 @@ public class DetectReplacementsTests
         // Act - call DetectReplacements using reflection
         var method = typeof(LoadOrderKeeper.Services.DiffService)
             .GetMethod("DetectReplacements", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-        
-        var parameters = new object[] { diffs, null };
-        var replacements = (Dictionary<ModDiffModel, ModDiffModel>)method.Invoke(null, parameters);
-        var matchedAdditions = (HashSet<ModDiffModel>)parameters[1];
+        Assert.NotNull(method);
+         
+        var matchedAdditions = new HashSet<ModDiffModel>();
+        var parameters = new object[] { diffs, matchedAdditions };
+        var invokeResult = method!.Invoke(null, parameters) ?? throw new InvalidOperationException("DetectReplacements returned null.");
+        var replacements = (Dictionary<ModDiffModel, ModDiffModel>)invokeResult;
 
         // Assert
         _output.WriteLine($"Replacements found: {replacements.Count}");

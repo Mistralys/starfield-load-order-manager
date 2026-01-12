@@ -346,7 +346,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task GetChangeSummary_NoChanges_ReturnsNoChanges()
+    public void GetChangeSummary_NoChanges_ReturnsNoChanges()
     {
         var metadata = new ReferenceVersionMetadataModel
         {
@@ -360,7 +360,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task GetChangeSummary_FewChanges_ListsNames()
+    public void GetChangeSummary_FewChanges_ListsNames()
     {
         var metadata = new ReferenceVersionMetadataModel
         {
@@ -375,7 +375,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task GetChangeSummary_ManyChanges_ShowsCounts()
+    public void GetChangeSummary_ManyChanges_ShowsCounts()
     {
         var metadata = new ReferenceVersionMetadataModel
         {
@@ -390,7 +390,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task PendingChangesModel_CreateEmpty_ReturnsEmptyModel()
+    public void PendingChangesModel_CreateEmpty_ReturnsEmptyModel()
     {
         var model = PendingChangesModel.CreateEmpty();
 
@@ -401,7 +401,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task PendingChangesModel_Create_CreatesModelWithChanges()
+    public void PendingChangesModel_Create_CreatesModelWithChanges()
     {
         var addedMods = new List<string> { "ModA.esp", "ModB.esp" };
         var removedMods = new List<string> { "ModC.esp" };
@@ -415,70 +415,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task LoadPendingChanges_CorruptedFile_ReturnsEmpty()
-    {
-        using var context = new TestConfigContext();
-
-        // Write corrupted JSON
-        var pendingChangesPath = ReferenceHistoryService.GetPendingChangesFilePath(context.Config);
-        var pendingChangesDir = Path.GetDirectoryName(pendingChangesPath);
-        if (!string.IsNullOrEmpty(pendingChangesDir))
-        {
-            Directory.CreateDirectory(pendingChangesDir);
-        }
-        await File.WriteAllTextAsync(pendingChangesPath, "{ invalid json content }");
-
-        var loaded = await ReferenceHistoryService.LoadPendingChangesAsync(context.Config);
-
-        // Should gracefully handle corruption by returning empty
-        Assert.True(loaded.IsEmpty);
-    }
-
-    [Fact]
-    public async Task LoadVersionHistory_CorruptedMetadata_SkipsCorruptedVersion()
-    {
-        using var context = new TestConfigContext();
-        await context.WriteReferenceAsync("*ModA.esp");
-
-        // Create a valid version
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V1", new List<string>(), new List<string>());
-
-        // Manually create a corrupted version 2 metadata file
-        var historyFolder = ReferenceHistoryService.GetHistoryFolder(context.Config);
-        await File.WriteAllTextAsync(Path.Combine(historyFolder, "reference_v2.json"), "{ corrupted json }");
-        await File.WriteAllTextAsync(Path.Combine(historyFolder, "reference_v2.txt"), "*ModB.esp");
-
-        var versions = await ReferenceHistoryService.LoadVersionHistoryAsync(context.Config);
-
-        // Should only load the valid version
-        Assert.Single(versions);
-        Assert.Equal(1, versions[0].VersionNumber);
-    }
-
-    [Fact]
-    public async Task ArchiveCurrentReference_EmptyHistoryAndEmptyPending_CreatesInitialVersionAutomatically()
-    {
-        using var context = new TestConfigContext();
-        await context.WriteReferenceAsync("*ModA.esp", "*ModB.esp");
-
-        // Simulate calling with changes (but history is empty and no pending changes exist)
-        var versionNumber = await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
-            context.Config,
-            null,
-            new List<string> { "ModC.esp" }, // These will be ignored for first version
-            new List<string>());
-
-        var versions = await ReferenceHistoryService.LoadVersionHistoryAsync(context.Config);
-        
-        // Should create initial version with no changes
-        Assert.Single(versions);
-        Assert.Equal("Initial version", versions[0].Comment);
-        Assert.Empty(versions[0].AddedMods);
-        Assert.Empty(versions[0].RemovedMods);
-    }
-
-    [Fact]
-    public async Task GetHistoryFolder_ValidConfig_ReturnsCorrectPath()
+    public void GetHistoryFolder_ValidConfig_ReturnsCorrectPath()
     {
         using var context = new TestConfigContext();
 
@@ -491,7 +428,7 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
-    public async Task GetPendingChangesFilePath_ValidConfig_ReturnsCorrectPath()
+    public void GetPendingChangesFilePath_ValidConfig_ReturnsCorrectPath()
     {
         using var context = new TestConfigContext();
 

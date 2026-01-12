@@ -21,7 +21,6 @@ public class SettingsServiceTests
             Directory.CreateDirectory(steamAppsPath);
 
             // Create a Steam library folder with Starfield - using C:\Steam location from VDF
-            var cSteamPath = "C:\\Steam";
             var cSteamLibraryPath = Path.Combine(tempRoot, "CSteamLibrary");
             var cSteamStarfieldDataPath = Path.Combine(cSteamLibraryPath, "steamapps", "common", "Starfield", "Data");
             Directory.CreateDirectory(cSteamStarfieldDataPath);

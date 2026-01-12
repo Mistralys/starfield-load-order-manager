@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.1 - Bug Fixes
+- Settings: The settings are now saved even if the window is closed via the "X" button.
+- Settings: Fixed the "Edit settings" button in the configuration missing banner causing a crash.
+- Core: Added a debug-time "Debug" menu to reset the settings for easier testing.
+
 ## v1.6.0 - Improved Change Handling
 - General: Added Steam process detection to inform when SFSE needs Steam running.
 - General: Added a debug feature to export the current application state to JSON for easier debugging.

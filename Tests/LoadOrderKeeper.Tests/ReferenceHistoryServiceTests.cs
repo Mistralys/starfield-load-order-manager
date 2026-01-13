@@ -29,7 +29,6 @@ public sealed class ReferenceHistoryServiceTests
 
         var versionNumber = await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
             context.Config,
-            null,
             new List<string>(),
             new List<string>());
 
@@ -53,9 +52,12 @@ public sealed class ReferenceHistoryServiceTests
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*ModA.esp");
 
+        // Save comment in pending changes
+        var pendingChanges = PendingChangesModel.Create("My custom comment", new List<string>(), new List<string>());
+        await ReferenceHistoryService.SavePendingChangesAsync(context.Config, pendingChanges);
+
         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
             context.Config,
-            "My custom comment",
             new List<string>(),
             new List<string>());
 
@@ -72,7 +74,6 @@ public sealed class ReferenceHistoryServiceTests
         // First version (initial)
         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
             context.Config,
-            null,
             new List<string>(),
             new List<string>());
 
@@ -82,7 +83,6 @@ public sealed class ReferenceHistoryServiceTests
 
         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
             context.Config,
-            "Added mods C and D, removed A",
             addedMods,
             removedMods);
 
@@ -103,9 +103,9 @@ public sealed class ReferenceHistoryServiceTests
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*ModA.esp");
 
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V1", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V2", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V3", new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         var versions = await ReferenceHistoryService.LoadVersionHistoryAsync(context.Config);
 
@@ -124,7 +124,6 @@ public sealed class ReferenceHistoryServiceTests
 
         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
             context.Config,
-            "Test",
             new List<string>(),
             new List<string>());
 
@@ -144,9 +143,9 @@ public sealed class ReferenceHistoryServiceTests
         await context.WriteReferenceAsync("*ModA.esp");
 
         // Create versions out of order (shouldn't happen in practice, but test for robustness)
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V1", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V2", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V3", new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         var versions = await ReferenceHistoryService.LoadVersionHistoryAsync(context.Config);
 
@@ -163,11 +162,11 @@ public sealed class ReferenceHistoryServiceTests
         
         // Create initial reference
         await context.WriteReferenceAsync("*ModA.esp", "*ModB.esp");
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V1", new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         // Modify reference and archive again
         await context.WriteReferenceAsync("*ModA.esp", "*ModB.esp", "*ModC.esp");
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V2", new List<string> { "ModC.esp" }, new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string> { "ModC.esp" }, new List<string>());
 
         // Rollback to version 1 (note: rollback copies to Plugins.txt, not reference.txt)
         await ReferenceHistoryService.RollbackToVersionAsync(context.Config, 1);
@@ -196,8 +195,8 @@ public sealed class ReferenceHistoryServiceTests
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*ModA.esp");
 
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V1", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V2", new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         await ReferenceHistoryService.DeleteVersionAsync(context.Config, 1);
 
@@ -216,9 +215,9 @@ public sealed class ReferenceHistoryServiceTests
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*ModA.esp");
 
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V1", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V2", new List<string>(), new List<string>());
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "V3", new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         await ReferenceHistoryService.ClearHistoryAsync(context.Config);
 
@@ -235,7 +234,11 @@ public sealed class ReferenceHistoryServiceTests
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*ModA.esp");
 
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "Original comment", new List<string>(), new List<string>());
+        // Save comment in pending changes before archiving
+        var pendingChanges = PendingChangesModel.Create("Original comment", new List<string>(), new List<string>());
+        await ReferenceHistoryService.SavePendingChangesAsync(context.Config, pendingChanges);
+
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         await ReferenceHistoryService.UpdateVersionCommentAsync(context.Config, 1, "Updated comment");
 
@@ -249,7 +252,11 @@ public sealed class ReferenceHistoryServiceTests
         using var context = new TestConfigContext();
         await context.WriteReferenceAsync("*ModA.esp");
 
-        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, "Original comment", new List<string>(), new List<string>());
+        // Save comment in pending changes before archiving
+        var pendingChanges = PendingChangesModel.Create("Original comment", new List<string>(), new List<string>());
+        await ReferenceHistoryService.SavePendingChangesAsync(context.Config, pendingChanges);
+
+        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(context.Config, new List<string>(), new List<string>());
 
         await ReferenceHistoryService.UpdateVersionCommentAsync(context.Config, 1, null);
 
@@ -292,6 +299,25 @@ public sealed class ReferenceHistoryServiceTests
     }
 
     [Fact]
+    public async Task SaveAndLoadPendingChanges_WithComment_PersistsComment()
+    {
+        using var context = new TestConfigContext();
+
+        var changes = PendingChangesModel.Create(
+            "Test comment for pending changes",
+            new List<string> { "ModX.esp" },
+            new List<string>());
+
+        await ReferenceHistoryService.SavePendingChangesAsync(context.Config, changes);
+
+        var loaded = await ReferenceHistoryService.LoadPendingChangesAsync(context.Config);
+
+        Assert.Equal("Test comment for pending changes", loaded.Comment);
+        Assert.Single(loaded.AddedMods);
+        Assert.Contains("ModX.esp", loaded.AddedMods);
+    }
+
+    [Fact]
     public async Task ClearPendingChanges_ExistingChanges_RemovesFile()
     {
         using var context = new TestConfigContext();
@@ -321,9 +347,12 @@ public sealed class ReferenceHistoryServiceTests
         // Create 18 versions (exceeds the limit of 16)
         for (int i = 1; i <= 18; i++)
         {
+            // Save comment in pending changes before archiving
+            var pendingChanges = PendingChangesModel.Create($"Version {i}", new List<string>(), new List<string>());
+            await ReferenceHistoryService.SavePendingChangesAsync(context.Config, pendingChanges);
+
             await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
                 context.Config,
-                $"Version {i}",
                 new List<string>(),
                 new List<string>());
         }
@@ -409,6 +438,21 @@ public sealed class ReferenceHistoryServiceTests
         var model = PendingChangesModel.Create(addedMods, removedMods);
 
         Assert.False(model.IsEmpty);
+        Assert.Equal(2, model.AddedMods.Count);
+        Assert.Single(model.RemovedMods);
+        Assert.Equal(3, model.TotalChanges);
+    }
+
+    [Fact]
+    public void PendingChangesModel_CreateWithComment_CreatesModelWithCommentAndChanges()
+    {
+        var addedMods = new List<string> { "ModA.esp", "ModB.esp" };
+        var removedMods = new List<string> { "ModC.esp" };
+
+        var model = PendingChangesModel.Create("Test comment", addedMods, removedMods);
+
+        Assert.False(model.IsEmpty);
+        Assert.Equal("Test comment", model.Comment);
         Assert.Equal(2, model.AddedMods.Count);
         Assert.Single(model.RemovedMods);
         Assert.Equal(3, model.TotalChanges);

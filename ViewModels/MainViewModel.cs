@@ -394,21 +394,12 @@ namespace LoadOrderKeeper.ViewModels
                     // Calculate current changes (what changed THIS time)
                     var (currentAddedMods, currentRemovedMods) = await FileService.CalculateReferenceChangesAsync(Config);
 
-                    // Archive current reference with PREVIOUS changes
+                    // Archive current reference with PREVIOUS changes (including the previous comment from pending changes)
                     // This makes the history entry describe what that version accomplished
                     try
                     {
-                        string effectiveComment = comment;
-                        
-                        // If this is the first version (no pending changes), mark it appropriately
-                        if (pendingChanges.IsEmpty && string.IsNullOrWhiteSpace(comment))
-                        {
-                            effectiveComment = "Initial version";
-                        }
-
                         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
                             Config, 
-                            effectiveComment, 
                             pendingChanges.AddedMods, 
                             pendingChanges.RemovedMods);
                         
@@ -421,8 +412,8 @@ namespace LoadOrderKeeper.ViewModels
                         // Continue with update even if archiving fails
                     }
 
-                    // Store CURRENT changes as pending for the NEXT update
-                    var newPendingChanges = PendingChangesModel.Create(currentAddedMods, currentRemovedMods);
+                    // Store CURRENT changes and comment as pending for the NEXT update
+                    var newPendingChanges = PendingChangesModel.Create(comment, currentAddedMods, currentRemovedMods);
                     try
                     {
                         await ReferenceHistoryService.SavePendingChangesAsync(Config, newPendingChanges);

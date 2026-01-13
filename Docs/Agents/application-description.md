@@ -1009,12 +1009,13 @@ The `Plugins.txt` file must be encoded in **UTF-8 without BOM** (Byte Order Mark
 **Pending Changes** (`pending-changes.json`):
 ```json
 {
+  "comment": "Added new gameplay mods",
   "addedMods": ["ModX.esp"],
   "removedMods": ["ModY.esp"]
 }
 ```
 
-**Note**: Stores changes made since last reference update, used for next version's metadata.
+**Note**: Stores comment and changes made since last reference update. The comment describes the changes being accepted and is archived with the next version when the reference is updated again.
 
 ### Version History Storage
 

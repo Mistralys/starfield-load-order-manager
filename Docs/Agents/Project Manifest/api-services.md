@@ -99,7 +99,6 @@ public static class ReferenceHistoryService
     public static Task<IReadOnlyList<ReferenceVersionMetadataModel>> LoadVersionHistoryAsync(AppConfigModel config);
     public static Task<int> ArchiveCurrentReferenceAsync(
         AppConfigModel config,
-        string? comment,
         IReadOnlyList<string> addedMods,
         IReadOnlyList<string> removedMods);
     public static Task RollbackToVersionAsync(AppConfigModel config, int versionNumber);

@@ -10,6 +10,11 @@ namespace LoadOrderKeeper.Models
     public sealed class PendingChangesModel
     {
         /// <summary>
+        /// Optional user comment describing the changes.
+        /// </summary>
+        public string? Comment { get; set; }
+
+        /// <summary>
         /// List of mod file names that were added since the last reference update.
         /// </summary>
         public List<string> AddedMods { get; set; } = new();
@@ -44,6 +49,19 @@ namespace LoadOrderKeeper.Models
         {
             return new PendingChangesModel
             {
+                AddedMods = addedMods.ToList(),
+                RemovedMods = removedMods.ToList()
+            };
+        }
+
+        /// <summary>
+        /// Creates a pending changes instance with comment, added mods, and removed mods.
+        /// </summary>
+        public static PendingChangesModel Create(string? comment, IReadOnlyList<string> addedMods, IReadOnlyList<string> removedMods)
+        {
+            return new PendingChangesModel
+            {
+                Comment = comment,
                 AddedMods = addedMods.ToList(),
                 RemovedMods = removedMods.ToList()
             };

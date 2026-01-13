@@ -126,13 +126,11 @@ namespace LoadOrderKeeper.Services
         /// Archives the current reference file with metadata before updating it.
         /// </summary>
         /// <param name="config">Application configuration</param>
-        /// <param name="comment">Optional user comment describing the changes</param>
         /// <param name="addedMods">List of mod names that were added in this version</param>
         /// <param name="removedMods">List of mod names that were removed in this version</param>
         /// <returns>The created version number</returns>
         public static async Task<int> ArchiveCurrentReferenceAsync(
             AppConfigModel config,
-            string? comment,
             IReadOnlyList<string> addedMods,
             IReadOnlyList<string> removedMods)
         {
@@ -154,9 +152,12 @@ namespace LoadOrderKeeper.Services
                 Directory.CreateDirectory(historyFolder);
             }
 
+            // Load pending changes to get comment
+            var pendingChanges = await LoadPendingChangesAsync(config);
+            string? comment = pendingChanges.Comment;
+
             // Check for on-demand migration: create initial version if history is empty and no pending changes exist
             var existingVersions = await LoadVersionHistoryAsync(config);
-            var pendingChanges = await LoadPendingChangesAsync(config);
 
             if (existingVersions.Count == 0 && pendingChanges.IsEmpty)
             {

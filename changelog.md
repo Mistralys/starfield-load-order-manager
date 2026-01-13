@@ -1,16 +1,20 @@
 # Changelog
 
+## v1.7.0 - Pending Changes Dialog
+- Profiles: Added a dialog to view all pending changes.
+- Profiles: Fixed the change comment being stored for the wrong version in the version archive ([#14](https://github.com/Mistralys/starfield-load-order-manager/issues/14)).
+
 ## v1.6.1 - Bug Fixes
 - Settings: The settings are now saved even if the window is closed via the "X" button.
 - Settings: Fixed the "Edit settings" button in the configuration missing banner causing a crash.
 - Core: Added a debug-time "Debug" menu to reset the settings for easier testing.
 
 ## v1.6.0 - Improved Change Handling
-- General: Added Steam process detection to inform when SFSE needs Steam running.
+- General: Added Steam process detection to inform when SFSE needs Steam running ([#15](https://github.com/Mistralys/starfield-load-order-manager/issues/15)).
 - General: Added a debug feature to export the current application state to JSON for easier debugging.
 - Changes window: Added a menu strip with all existing actions.
 - Changes window: Added the "Help" > "Copy Debug State" menu item.
-- Changes Window: Fixed replaced mods being unrecognized after sorting.
+- Changes Window: Fixed replaced mods being unrecognized after sorting ([#12](https://github.com/Mistralys/starfield-load-order-manager/issues/12)).
 - Changes Window: Improved sorting recommendation, now shown more intelligently.
 - Changes Window: Added an info banner when multiple replacements are detected.
 - Changes Window: Added the same utility File menu items as the main window.
@@ -34,9 +38,10 @@
 - Versioning: Changes to reference files are now tracked with version history.
 - General: Improved data grid styling.
 - General: Renamed some menu items and buttons for clarity.
-- Settings: Now searching in Steam library folders for custom game installations.
+- Settings: Now searching in Steam library folders for custom game installations ([#5](https://github.com/Mistralys/starfield-load-order-manager/issues/5)).
 - Core: Moved central style presets into separate files.
 - Core: Added application icon.
+- Core: Added an application version check ([#6](https://github.com/Mistralys/starfield-load-order-manager/issues/6)).
 
 ## v1.3.0 - Settings helper
 - Settings: Now auto-detecting the game path for Steam users.

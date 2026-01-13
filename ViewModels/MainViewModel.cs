@@ -30,6 +30,7 @@ namespace LoadOrderKeeper.ViewModels
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
         private ReferenceHistoryWindow? _referenceHistoryWindow;
+        private ViewPendingChangesWindow? _viewPendingChangesWindow;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -78,6 +79,7 @@ namespace LoadOrderKeeper.ViewModels
         public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
         public string RecentStatusMessagesText { get; } = "Recent Status Messages:";
         public string ReferenceHistoryMenuText { get; } = "History of changes...";
+        public string ViewPendingChangesMenuText { get; } = "_View Pending Changes...";
 
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
@@ -394,21 +396,12 @@ namespace LoadOrderKeeper.ViewModels
                     // Calculate current changes (what changed THIS time)
                     var (currentAddedMods, currentRemovedMods) = await FileService.CalculateReferenceChangesAsync(Config);
 
-                    // Archive current reference with PREVIOUS changes
+                    // Archive current reference with PREVIOUS changes (including the previous comment from pending changes)
                     // This makes the history entry describe what that version accomplished
                     try
                     {
-                        string effectiveComment = comment;
-                        
-                        // If this is the first version (no pending changes), mark it appropriately
-                        if (pendingChanges.IsEmpty && string.IsNullOrWhiteSpace(comment))
-                        {
-                            effectiveComment = "Initial version";
-                        }
-
                         await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
                             Config, 
-                            effectiveComment, 
                             pendingChanges.AddedMods, 
                             pendingChanges.RemovedMods);
                         
@@ -421,8 +414,8 @@ namespace LoadOrderKeeper.ViewModels
                         // Continue with update even if archiving fails
                     }
 
-                    // Store CURRENT changes as pending for the NEXT update
-                    var newPendingChanges = PendingChangesModel.Create(currentAddedMods, currentRemovedMods);
+                    // Store CURRENT changes and comment as pending for the NEXT update
+                    var newPendingChanges = PendingChangesModel.Create(comment, currentAddedMods, currentRemovedMods);
                     try
                     {
                         await ReferenceHistoryService.SavePendingChangesAsync(Config, newPendingChanges);
@@ -714,6 +707,33 @@ namespace LoadOrderKeeper.ViewModels
             };
 
             _referenceHistoryWindow.Show();
+        }
+
+        [RelayCommand]
+        private void ViewPendingChanges()
+        {
+            // If window is already open, bring it to front
+            if (_viewPendingChangesWindow != null)
+            {
+                _viewPendingChangesWindow.Activate();
+                _viewPendingChangesWindow.Focus();
+                return;
+            }
+
+            var pendingChangesVm = new ViewPendingChangesViewModel(Config);
+            _viewPendingChangesWindow = new ViewPendingChangesWindow
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = pendingChangesVm
+            };
+
+            // Handle window closed event to clear reference
+            _viewPendingChangesWindow.Closed += (s, e) => 
+            {
+                _viewPendingChangesWindow = null;
+            };
+
+            _viewPendingChangesWindow.Show();
         }
 
         private async Task HandleRollbackRequestAsync(ReferenceVersionMetadataModel version, System.Windows.Window parentWindow)
@@ -1167,6 +1187,7 @@ namespace LoadOrderKeeper.ViewModels
             _diffWindow?.Close();
             _manageProfilesWindow?.Close();
             _referenceHistoryWindow?.Close();
+            _viewPendingChangesWindow?.Close();
         }
     }
 }

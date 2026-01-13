@@ -176,6 +176,7 @@ public sealed class ReferenceVersionMetadataModel
 ```csharp
 public sealed class PendingChangesModel
 {
+    public string? Comment { get; set; }
     public List<string> AddedMods { get; set; }
     public List<string> RemovedMods { get; set; }
     public bool IsEmpty { get; }
@@ -183,6 +184,7 @@ public sealed class PendingChangesModel
 
     public static PendingChangesModel CreateEmpty();
     public static PendingChangesModel Create(IReadOnlyList<string> addedMods, IReadOnlyList<string> removedMods);
+    public static PendingChangesModel Create(string? comment, IReadOnlyList<string> addedMods, IReadOnlyList<string> removedMods);
 }
 ```
 

@@ -165,10 +165,13 @@
   1. Shows `CommentInputDialog` for optional comment (cancelling aborts the update)
   2. Loads pending changes via `ReferenceHistoryService.LoadPendingChangesAsync()`
   3. Calculates current changes via `FileService.CalculateReferenceChangesAsync()`
-  4. Archives current reference with **previous** pending changes via `ReferenceHistoryService.ArchiveCurrentReferenceAsync()`
-  5. Stores **current** changes as new pending via `ReferenceHistoryService.SavePendingChangesAsync()`
+  4. Archives current reference with **previous** pending changes (including comment) via `ReferenceHistoryService.ArchiveCurrentReferenceAsync()`
+  5. Stores **current** changes and comment as new pending via `ReferenceHistoryService.SavePendingChangesAsync()` using `PendingChangesModel.Create(comment, addedMods, removedMods)`
   6. Updates reference file via `FileService.CreateReferenceFileAsync()`
   7. Refreshes history window if open via `MainViewModel.RefreshReferenceHistoryWindowAsync()`
+- **Comment Storage Flow**: Comments describe changes being accepted and are stored in pending changes. When the next reference update occurs, the pending changes (including the comment) are archived with that version. This ensures each version's comment accurately describes what changed when creating that version.
+- **Pending Changes File**: Stored in `Profiles/{profileId}/pending-changes.json` with structure: `{ "Comment": "...", "AddedMods": [...], "RemovedMods": [...] }`
+- `ArchiveCurrentReferenceAsync()` reads comment from pending changes internally, no longer accepts comment as parameter
 - On-demand migration: When history is empty and no pending changes exist, `ArchiveCurrentReferenceAsync()` automatically creates "Initial version" with no changes, then stores current diff as pending.
 - `ReferenceHistoryViewModel.RollbackRequested` event triggers `MainViewModel.HandleRollbackRequestAsync()`:
   1. Shows confirmation dialog with version details

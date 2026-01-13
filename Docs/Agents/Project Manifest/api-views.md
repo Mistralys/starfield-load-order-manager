@@ -68,6 +68,15 @@ public partial class ReferenceHistoryWindow : Window
 }
 ```
 
+### `LoadOrderKeeper.Views.ViewPendingChangesWindow`
+
+```csharp
+public partial class ViewPendingChangesWindow : Window
+{
+    public ViewPendingChangesWindow();
+}
+```
+
 ---
 
 ## Modal Dialog Windows

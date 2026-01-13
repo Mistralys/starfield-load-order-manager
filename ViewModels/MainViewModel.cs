@@ -30,6 +30,7 @@ namespace LoadOrderKeeper.ViewModels
         private ManageProfilesWindow? _manageProfilesWindow;
         private DiffWindow? _diffWindow;
         private ReferenceHistoryWindow? _referenceHistoryWindow;
+        private ViewPendingChangesWindow? _viewPendingChangesWindow;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -78,6 +79,7 @@ namespace LoadOrderKeeper.ViewModels
         public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
         public string RecentStatusMessagesText { get; } = "Recent Status Messages:";
         public string ReferenceHistoryMenuText { get; } = "History of changes...";
+        public string ViewPendingChangesMenuText { get; } = "_View Pending Changes...";
 
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
@@ -707,6 +709,33 @@ namespace LoadOrderKeeper.ViewModels
             _referenceHistoryWindow.Show();
         }
 
+        [RelayCommand]
+        private void ViewPendingChanges()
+        {
+            // If window is already open, bring it to front
+            if (_viewPendingChangesWindow != null)
+            {
+                _viewPendingChangesWindow.Activate();
+                _viewPendingChangesWindow.Focus();
+                return;
+            }
+
+            var pendingChangesVm = new ViewPendingChangesViewModel(Config);
+            _viewPendingChangesWindow = new ViewPendingChangesWindow
+            {
+                Owner = WpfApplication.Current?.MainWindow,
+                DataContext = pendingChangesVm
+            };
+
+            // Handle window closed event to clear reference
+            _viewPendingChangesWindow.Closed += (s, e) => 
+            {
+                _viewPendingChangesWindow = null;
+            };
+
+            _viewPendingChangesWindow.Show();
+        }
+
         private async Task HandleRollbackRequestAsync(ReferenceVersionMetadataModel version, System.Windows.Window parentWindow)
         {
             // Show confirmation dialog
@@ -1158,6 +1187,7 @@ namespace LoadOrderKeeper.ViewModels
             _diffWindow?.Close();
             _manageProfilesWindow?.Close();
             _referenceHistoryWindow?.Close();
+            _viewPendingChangesWindow?.Close();
         }
     }
 }

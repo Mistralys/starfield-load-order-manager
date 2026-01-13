@@ -52,6 +52,9 @@
                           Command="{Binding ManageProfilesCommand}"
                           Icon="{materialDesign:PackIcon Kind=FolderMultiple}" />
                 <Separator />
+                <MenuItem Header="{Binding ViewPendingChangesMenuText}"
+                          Command="{Binding ViewPendingChangesCommand}"
+                          Icon="{materialDesign:PackIcon Kind=ClipboardTextClock}" />
                 <MenuItem Header="{Binding ReferenceHistoryMenuText}"
                           Command="{Binding ShowReferenceHistoryCommand}"
                           Icon="{materialDesign:PackIcon Kind=History}" />

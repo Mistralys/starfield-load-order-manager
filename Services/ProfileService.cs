@@ -100,6 +100,9 @@ public static class ProfileService
             throw new InvalidOperationException("Configuration is not valid.");
         }
 
+        // Ensure Profiles folder exists before creating profile
+        EnsureProfilesFolderExists(config);
+
         var profiles = await LoadProfilesAsync(config);
         var existingIds = profiles.Select(p => p.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         
@@ -110,6 +113,10 @@ public static class ProfileService
         try
         {
             Directory.CreateDirectory(profileFolder);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            throw new IOException($"Access denied when creating profile folder: {ex.Message}", ex);
         }
         catch (Exception ex)
         {
@@ -249,6 +256,9 @@ public static class ProfileService
             throw new InvalidOperationException("Configuration is not valid.");
         }
 
+        // Ensure Profiles folder exists before copying profile
+        EnsureProfilesFolderExists(config);
+
         var profiles = await LoadProfilesAsync(config);
         var sourceProfile = profiles.FirstOrDefault(p => p.Id == sourceProfileId);
         
@@ -298,6 +308,10 @@ public static class ProfileService
             await File.WriteAllTextAsync(profileJsonPath, json);
 
             return new ProfileModel(newProfileId, newLabel, sourceProfile.Description);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            throw new IOException($"Access denied when copying profile: {ex.Message}", ex);
         }
         catch (Exception ex)
         {
@@ -443,6 +457,46 @@ public static class ProfileService
     }
 
     /// <summary>
+    /// Ensures the Profiles folder exists and is writable.
+    /// Throws IOException with actionable message if folder cannot be created or accessed.
+    /// </summary>
+    public static void EnsureProfilesFolderExists(AppConfigModel config)
+    {
+        if (!config.IsValid())
+        {
+            throw new InvalidOperationException("Configuration is not valid.");
+        }
+
+        var profilesFolder = GetProfilesFolder(config);
+        
+        try
+        {
+            if (!Directory.Exists(profilesFolder))
+            {
+                Directory.CreateDirectory(profilesFolder);
+            }
+            
+            // Verify writability by creating a test file
+            var testFile = Path.Combine(profilesFolder, $".test_{Guid.NewGuid():N}");
+            File.WriteAllText(testFile, "test");
+            File.Delete(testFile);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            throw new IOException(
+                $"Access denied when creating Profiles folder at '{profilesFolder}'. " +
+                "Please check folder permissions or choose a different app data path.",
+                ex);
+        }
+        catch (Exception ex)
+        {
+            throw new IOException(
+                $"Failed to create or access Profiles folder at '{profilesFolder}': {ex.Message}",
+                ex);
+        }
+    }
+
+    /// <summary>
     /// Gets the path to the profiles folder.
     /// </summary>
     public static string GetProfilesFolder(AppConfigModel config)
@@ -476,10 +530,29 @@ public static class ProfileService
 
     private static void EnsureProfileFolder(AppConfigModel config, string profileId)
     {
+        // Ensure Profiles folder exists first
+        EnsureProfilesFolderExists(config);
+        
         var profileFolder = GetProfileFolder(config, profileId);
         if (!Directory.Exists(profileFolder))
         {
-            Directory.CreateDirectory(profileFolder);
+            try
+            {
+                Directory.CreateDirectory(profileFolder);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                throw new IOException(
+                    $"Access denied when creating profile folder at '{profileFolder}'. " +
+                    "Please check folder permissions.",
+                    ex);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException(
+                    $"Failed to create profile folder at '{profileFolder}': {ex.Message}",
+                    ex);
+            }
         }
     }
 

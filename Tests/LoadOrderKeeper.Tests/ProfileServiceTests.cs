@@ -61,7 +61,7 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
-    public async Task GenerateProfileId_SimpleLabel_ReturnsLowercaseDashed()
+    public void GenerateProfileId_SimpleLabel_ReturnsLowercaseDashed()
     {
         var existingIds = new System.Collections.Generic.HashSet<string>();
 
@@ -71,7 +71,7 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
-    public async Task GenerateProfileId_DuplicateLabel_AppendsNumericSuffix()
+    public void GenerateProfileId_DuplicateLabel_AppendsNumericSuffix()
     {
         var existingIds = new System.Collections.Generic.HashSet<string> { "test", "test-1" };
 
@@ -81,7 +81,7 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
-    public async Task GenerateProfileId_AccentedCharacters_RemovesAccents()
+    public void GenerateProfileId_AccentedCharacters_RemovesAccents()
     {
         var existingIds = new System.Collections.Generic.HashSet<string>();
 
@@ -91,7 +91,7 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
-    public async Task GenerateProfileId_EmptyAfterTransliteration_UsesFallback()
+    public void GenerateProfileId_EmptyAfterTransliteration_UsesFallback()
     {
         var existingIds = new System.Collections.Generic.HashSet<string>();
 

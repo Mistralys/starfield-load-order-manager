@@ -49,7 +49,13 @@ namespace LoadOrderKeeper.ViewModels
             RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
             ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(ReplaceRemovedModAsync);
             ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
+            CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
+            
+            // Subscribe to file monitoring coordinator's change detected event
+            var coordinator = _mainViewModel.GetFileMonitoringCoordinator();
+            coordinator.ChangeDetected += OnFileChangeDetected;
+            
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
             DiffStatusMessage = "Differences loaded.";
@@ -74,7 +80,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
 
-        public string DiscardChangesButtonText { get; } = "Discard all changes...";
+        public string DiscardChangesButtonText { get; } = "Discard all changes..." ;
 
         public string CloseButtonText { get; } = "Close";
 
@@ -82,13 +88,51 @@ namespace LoadOrderKeeper.ViewModels
 
         public string ReEnableModMenuText { get; } = "Re-enable mod";
 
-        public string ReplaceWithMenuText { get; } = "Replace with...";
+        public string ReplaceWithMenuText { get; } = "Replace with..." ;
 
         public string RemoveModMenuText { get; } = "Remove mod";
+
+        public string FileMenuHeader { get; } = "_File";
+        
+        public string OpenPluginsMenuText => _mainViewModel.OpenPluginsMenuText;
+        
+        public string OpenReferenceMenuText => _mainViewModel.OpenReferenceMenuText;
+        
+        public string OpenAppDataFolderMenuText => _mainViewModel.OpenAppDataFolderMenuText;
+        
+        public string OpenGameFolderMenuText => _mainViewModel.OpenGameFolderMenuText;
+
+        public string ExitMenuText { get; } = "E_xit";
+
+        public string EditMenuHeader { get; } = "_Edit";
+
+        public string HelpMenuHeader { get; } = "_Help";
+
+        public string CopyDebugStateMenuText { get; } = "Copy Debug State";
+        
+        public IRelayCommand OpenPluginsFileCommand => _mainViewModel.OpenPluginsFileCommand;
+        
+        public IRelayCommand OpenReferenceFileCommand => _mainViewModel.OpenReferenceFileCommand;
+        
+        public IRelayCommand OpenAppDataFolderCommand => _mainViewModel.OpenAppDataFolderCommand;
+        
+        public IRelayCommand OpenGameFolderCommand => _mainViewModel.OpenGameFolderCommand;
 
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
+
+        public bool ShowMultipleReplacementsHelp => HasMultipleReplacementsOrRemovals;
+
+        public string MultipleReplacementsHelpMessage => 
+            "There are a lot of changes in the list, including replacements and removals." +
+            " "+
+            "This can confuse the change detection - If you made these edits, it is recommended to accept the changes." + 
+            " "+
+            "Otherwise, consider discarding the changes.";
+
+        private bool HasMultipleReplacementsOrRemovals => 
+            DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Replaced) > 1;
 
         public IReadOnlyList<DiffLineModel> AddedMods => DiffLines.Where(line => line.ChangeType == DiffChangeType.Added).ToList();
 
@@ -107,6 +151,8 @@ namespace LoadOrderKeeper.ViewModels
         public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
 
         public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
+
+        public IAsyncRelayCommand CopyDebugStateCommand { get; }
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
@@ -179,6 +225,7 @@ namespace LoadOrderKeeper.ViewModels
             HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged);
             ScrollTargetIndex = ComputeScrollTargetIndex();
             OnPropertyChanged(nameof(ShowSortingRecommendation));
+            OnPropertyChanged(nameof(ShowMultipleReplacementsHelp));
             OnPropertyChanged(nameof(AddedMods));
             OnPropertyChanged(nameof(HasAddedMods));
             OnPropertyChanged(nameof(HasInsertedMods));
@@ -209,13 +256,25 @@ namespace LoadOrderKeeper.ViewModels
         private void ReplaceDiffLines(IEnumerable<DiffLineModel> newLines)
         {
             _suppressCollectionNotification = true;
-            DiffLines.Clear();
-            foreach (var line in newLines)
+            try
             {
-                DiffLines.Add(line);
+                DiffLines.Clear();
+                foreach (var line in newLines)
+                {
+                    DiffLines.Add(line);
+                }
             }
-            _suppressCollectionNotification = false;
+            finally
+            {
+                _suppressCollectionNotification = false;
+            }
+            
+            // Force property change notifications for all computed properties
             UpdateDiffState();
+            
+            // Also notify that the DiffLines collection property itself may have changed
+            // This ensures WPF rebinds to the collection
+            OnPropertyChanged(nameof(DiffLines));
         }
 
         private static string BuildSignature(IEnumerable<DiffLineModel> lines)
@@ -260,6 +319,7 @@ namespace LoadOrderKeeper.ViewModels
                 string newSignature = BuildSignature(latestLines);
 
                 bool signatureChanged = !string.Equals(newSignature, _lastDiffSignature, StringComparison.Ordinal);
+                
                 if (signatureChanged)
                 {
                     ReplaceDiffLines(latestLines);
@@ -490,10 +550,54 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
+        private async Task CopyDebugStateAsync()
+        {
+            try
+            {
+                // Capture debug state using the service
+                string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
+                    _mainViewModel.Config, 
+                    DiffLines.ToList());
+
+                // Copy to clipboard
+                System.Windows.Clipboard.SetText(debugStateJson);
+
+                // Show success message
+                var eventArgs = new ConfirmationRequestedEventArgs(
+                    "Debug State Copied",
+                    "The debug state has been successfully copied to your clipboard in JSON format.\n\n" +
+                    "You can now paste this information to share with developers for troubleshooting.",
+                    ConfirmationIcon.Information,
+                    ConfirmationButton.OK);
+                ConfirmationRequested?.Invoke(this, eventArgs);
+
+                DiffStatusMessage = "Debug state copied to clipboard.";
+            }
+            catch (Exception ex)
+            {
+                // Show error message
+                var eventArgs = new ConfirmationRequestedEventArgs(
+                    "Copy Failed",
+                    $"Failed to copy debug state to clipboard:\n\n{ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK);
+                ConfirmationRequested?.Invoke(this, eventArgs);
+
+                DiffStatusMessage = $"Failed to copy debug state: {ex.Message}";
+            }
+        }
+
+        private async void OnFileChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
+        {
+            string reason = e.HasChanges ? "Detected changes" : "Plugins.txt now matches the reference";
+            await RefreshDiffAsync(reason);
+        }
+
         public void Dispose()
         {
             DiffLines.CollectionChanged -= OnDiffCollectionChanged;
             _mainViewModel.PropertyChanged -= OnMainViewModelPropertyChanged;
+            _mainViewModel.GetFileMonitoringCoordinator().ChangeDetected -= OnFileChangeDetected;
         }
     }
 }

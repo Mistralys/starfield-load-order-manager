@@ -9,12 +9,15 @@
   - [Profile System](#profile-system)
   - [Reference History](#reference-history)
   - [Change Detection](#change-detection)
+  - [Steam Process Detection](#steam-process-detection)
   - [Dependent Change Tracking](#dependent-change-tracking)
   - [Game Integration](#game-integration)
   - [Version Check](#version-check)
+  - [Configuration Validation](#configuration-validation)
 - [Configuration](#configuration)
 - [File Handling](#file-handling)
 - [User Interface](#user-interface)
+- [Architecture & Design](#architecture--design)
 
 ---
 
@@ -42,12 +45,15 @@ The application provides automated load order protection and management through:
 
 1. **Reference File System**: Creates and maintains a reference copy of a known-good `Plugins.txt` file
 2. **Automatic Detection**: Periodically monitors for unauthorized changes to the load order
-3. **One-Click Fix**: Restores the correct load order while preserving new mods
-4. **Profile Support**: Manages multiple load orders for different characters or playthroughs
-5. **Visual Diff**: Shows exactly what changed with options to accept or revert changes
-6. **Dependent Change Tracking**: Intelligently groups cascading position changes for clarity
-7. **Smart Confirmations**: Warns when destructive changes are about to be made
-8. **Automatic Updates**: Checks for new versions and provides easy download options
+3. **Steam Process Guard**: Detects when Steam is running and warns users to prevent conflicts
+4. **One-Click Fix**: Restores the correct load order while preserving new mods
+5. **Profile Support**: Manages multiple load orders for different characters or playthroughs
+6. **Visual Diff**: Shows exactly what changed with options to accept or revert changes
+7. **Dependent Change Tracking**: Intelligently groups cascading position changes for clarity
+8. **Smart Confirmations**: Warns when destructive changes are about to be made
+9. **Automatic Updates**: Checks for new versions and provides easy download options
+10. **Configuration Validation**: Real-time validation with clear visual feedback to prevent errors
+11. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -58,7 +64,8 @@ The application is built as a **WPF .NET 9** desktop application using:
 - **Framework**: .NET 9
 - **UI Framework**: WPF (Windows Presentation Foundation)
 - **Design**: Material Design v5 theme with dark mode
-- **Architecture**: MVVM pattern using CommunityToolkit.Mvvm
+- **Architecture**: MVVM pattern using CommunityToolkit.Mvvm with Coordinator pattern
+- **Coordinators**: Modular domain logic handlers for file monitoring, status, updates, profiles, configuration, and game launching
 - **Testing**: xUnit for unit tests
 - **Dialogs**: Custom Material Design confirmation dialogs
 
@@ -336,6 +343,39 @@ Optional comment input when updating reference:
 - Comment appears in italic in history window
 - Editable after creation via context menu
 
+#### View Pending Changes Window
+
+A dedicated non-modal window for viewing and editing pending changes before they are archived:
+
+**Features**:
+- Shows explanation of pending changes concept
+- Displays pending comment (or "(No comment entered)" placeholder)
+- Lists all added mods (with green + icon)
+- Lists all removed mods (with red - icon)
+- Material Design v5 styled with dark theme
+- Single instance: Prevents duplicate windows
+
+**Actions**:
+- **Edit comment...**: Opens comment dialog to modify pending comment
+  - Updates comment immediately in pending changes
+  - Saves to pending-changes.json
+- **Close**: Closes the window
+
+**Access**:
+- Profile menu → "View Pending Changes..."
+- Available even when no pending changes exist
+- Shows "No pending changes" message when empty
+
+**Window Behavior**:
+- Non-modal: Can interact with main window while open
+- Single instance: Brings existing window to front if already open
+- Scrollable content area for long mod lists
+
+**Purpose**:
+- Review what will be archived on next reference update
+- Edit comment before archiving
+- Understand current pending state at a glance
+
 #### Automatic Migration
 
 For existing installations without history:
@@ -384,7 +424,7 @@ For existing installations without history:
 #### Automatic Change Detection
 
 The application periodically checks the `Plugins.txt` file on disk for changes:
-- **Configurable Interval**: Default every 5 seconds, customizable in settings
+- **Fixed Interval**: Checks every 3 seconds (foundational value optimized through testing)
 - **Signature Tracking**: Detects changes without re-reading the entire file
 - **Profile-Aware**: Automatically uses the active profile's reference file
 - **Smart Updates**: Only refreshes diff window when actual changes detected
@@ -406,6 +446,46 @@ compares both mod names and positions to determine the type of change.
 - Main window shows total number of changes (including dependent changes)
 - Badge updates automatically as changes are detected or resolved
 - Button text dynamically displays change count: "Manage load order (X changes)"
+
+---
+
+### Steam Process Detection
+
+The application includes intelligent Steam process detection to help prevent conflicts when managing load orders.
+
+#### Why Steam Detection Matters
+
+Steam can interfere with load order management in several ways:
+- May lock files when the game is running
+- Can trigger automatic updates that modify game files
+- Cloud sync features might conflict with load order changes
+- Better to make changes when Steam is fully closed
+
+#### How It Works
+
+**Automatic Detection**:
+- Runs on the same 3-second interval as file monitoring
+- Checks for Steam installation via Windows registry
+- Detects if steam.exe process is currently running
+- Updates warning state automatically when Steam starts/stops
+
+**Visual Warning**:
+- Persistent warning banner appears in main window when Steam is running
+- Shows clear icon and warning message
+- Provides helpful tooltip: "Steam is running. To prevent conflicts, it is recommended to close Steam before making changes to the load order."
+- Warning automatically disappears when Steam closes
+
+**Benefits**:
+- Prevents potential file conflicts and corruption
+- Reduces risk of lost changes due to Steam sync
+- Clear visual feedback helps users avoid problems
+- Non-intrusive—doesn't block operations, just warns
+
+**Technical Details**:
+- Steam installation detected via registry keys (HKEY_CURRENT_USER and HKEY_LOCAL_MACHINE)
+- Process detection uses `Process.GetProcessesByName("steam")` for efficiency
+- Detection is part of the FileMonitoringCoordinator for optimal performance
+- Warning state managed through event-driven architecture
 
 ---
 
@@ -480,15 +560,23 @@ A dedicated non-modal window shows and manages detected changes:
 - **Replace old with new**: Right-click on removed mod to replace with added mod
 - **Expand/collapse dependent changes**: Click on dependency summary line
 
+**Replacement Workflow Notes**:
+When working with multiple mod replacements in a single session, be aware that the application compares the current state against the reference file on disk. This means:
+
+- **Option 1**: Click "Accept changes" after each replacement to make it permanent before making the next replacement
+- **Option 2**: Make all your replacements together, then click "Accept changes" once to accept all changes
+
+The app shows an informational banner when multiple removals or replacements are detected to remind you of these options. This is the intended behavior—replacements are temporary change resolution actions until explicitly accepted.
+
 **Status Messages**:
 - Timestamped updates shown at bottom of window
 - Success, warning, and error messages color-coded
 - Indicates when no new changes detected
 
 **Sorting Recommendations**:
-- Special banner appears when inserted mods detected
-- Warns to sort first before other changes
-- Explains that inserted mods should be at the end
+- Prominent banner to show when there are mods that have shifted position but only under the condition that they are not part of any dependent change lists (because those are not affected by sorting anyway).
+- Warning icon and colored text
+- Explains need to sort first
 
 ---
 
@@ -605,6 +693,214 @@ The application automatically checks for updates and notifies users when new ver
 
 ---
 
+### Configuration Validation
+
+The application provides comprehensive validation of configuration paths to prevent errors and guide users to correct setup.
+
+#### Validation Order
+
+The application validates configuration in a specific order to ensure all prerequisites are met:
+
+1. **Paths Configured**: Both AppData and Game paths must be non-empty
+2. **Paths Exist**: Both directories must exist on disk
+3. **Data Folder Exists**: Game path must contain a `Data` subfolder
+4. **Plugins.txt Exists**: AppData path must contain `Plugins.txt` file (cannot be auto-generated)
+5. **Profiles Folder Writable**: Profiles folder must be creatable and writable
+
+This order ensures efficient validation—each check depends on the previous ones being successful.
+
+#### Main Window Error Banner
+
+When either configured path becomes invalid, a non-dismissable error banner appears at the top of the main window:
+
+**Characteristics**:
+- Material Design v5 error styling (red background)
+- Alert icon with clear error message
+- "Open settings" button for quick access to configuration
+- Stacks above update notification banner when both visible
+- Automatically disappears when configuration becomes valid
+
+**Error Message**:
+- "Path configuration error, please review the configured paths."
+
+**Behavior**:
+- Appears when either AppData or Game path becomes invalid
+- Checks configuration on every timer tick (3-second intervals)
+- Prevents operations that require valid paths while visible
+- UI elements disabled when paths invalid
+
+#### Settings Window Status Banner
+
+The settings window features a permanent status banner that provides real-time validation feedback:
+
+**Success State** (green background):
+- Checkmark icon
+- Message: "The configured paths are valid."
+- Displayed when all validation checks pass
+
+**Error State** (red background):
+- Alert icon
+- Specific error messages for each validation failure:
+  - "The app data path is invalid."
+  - "The game path is invalid."
+  - "Both the game path and app data path are invalid."
+  - "The game Data folder was not found."
+  - "Plugins.txt not found in the app data folder."
+  - "Access denied when creating the Profiles folder."
+  - "The Profiles folder cannot be created or accessed."
+
+**Validation Triggers**:
+- When settings window opens
+- When input fields lose focus (blur event)
+- When user clicks "Save" button
+- When user clicks auto-detected path link
+
+**Benefits**:
+- Immediate feedback prevents saving invalid configuration
+- Clear guidance on what needs to be fixed
+- No confusion about disabled UI elements
+- Specific messages pinpoint the exact issue
+
+#### Plugins.txt Validation
+
+The `Plugins.txt` file is a critical requirement that cannot be auto-generated:
+
+**Why It's Required**:
+- File created by Starfield on first game launch
+- Contains the mod load order
+- Application cannot function without it
+
+**Validation Behavior**:
+- Checked after basic path validation
+- Must exist in the configured AppData path
+- Configuration invalid if file missing
+
+**User Guidance**:
+- Error message: "Plugins.txt not found in the app data folder"
+- Instructs user to run Starfield at least once
+- Suggests verifying correct AppData path
+
+**Impact When Missing**:
+- All operations disabled
+- File monitoring won't start
+- Profile operations blocked
+- Reference file operations blocked
+
+#### Profiles Folder Validation
+
+The Profiles folder is required for storing profile data and must be writable:
+
+**Validation Process**:
+- Checked after Plugins.txt validation
+- Attempts to create folder if it doesn't exist
+- Tests writability with temporary file
+- Cleans up test file automatically
+
+**Error Scenarios**:
+1. **Access Denied**: Insufficient permissions
+   - Message: "Access denied when creating the Profiles folder"
+   - Guidance: May need administrator rights or different location
+2. **Creation Failed**: Other I/O errors
+   - Message: "The Profiles folder cannot be created or accessed"
+   - Guidance: Check permissions or select different AppData path
+
+**Startup Validation**:
+- Profiles folder validated via `ProfileService.EnsureProfilesFolderExists()` on startup
+- Error dialog shown if folder cannot be created with option to open settings or shutdown
+- Profile operations validate folder existence before proceeding
+
+**Operation-Level Validation**:
+- Profile creation calls `ProfileService.EnsureProfilesFolderExists()`
+- Profile copying validates folder before proceeding
+- Consistent error handling across all profile operations
+
+#### Secondary Window Error Handling
+
+When operations fail in secondary windows (Profile Management, Changes Window, etc.) due to invalid configuration:
+
+**Enhanced Error Messages**:
+- Original error message displayed
+- Appended guidance: "The likely cause is that the current configuration is invalid. Please refer to the error message in the main window to fix this."
+- Centralized message stored in `Constants/UserMessages.cs` for easy maintenance
+
+**Benefits**:
+- Users immediately understand root cause
+- Directed to main window's error banner for resolution
+- Consistent messaging across all windows
+
+#### Validation Caching
+
+To optimize performance and prevent excessive file system operations:
+
+**Cached State**:
+- `MainViewModel` maintains `_configIsInvalid` field
+- Updated only on timer ticks (every 3 seconds)
+- Prevents I/O operations when paths known to be invalid
+
+**Cache Update Triggers**:
+1. File monitoring timer tick (every 3 seconds)
+2. `Config` property changed (after settings save)
+3. Settings dialog closes with valid configuration
+
+**Benefits**:
+- Prevents repeated file system checks on invalid paths
+- User doesn't wait for timer tick after fixing paths
+- Efficient resource usage
+- Smooth UI experience
+
+#### Technical Implementation
+
+**Validation in AppConfigModel.IsValid()**:
+```
+1. Check paths are non-empty strings
+2. Check directories exist on disk
+3. Check Game/Data folder exists
+4. Check Plugins.txt exists
+5. Try to create Profiles folder
+6. Test Profiles folder writability
+7. Return true only if all checks pass
+```
+
+**Validation in SettingsViewModel**:
+- Builds list of specific error messages
+- Shows cumulative errors in status banner
+- Follows same validation order as AppConfigModel
+- Provides immediate feedback on each path change
+
+**Error Recovery**:
+- Settings window must be used to correct invalid paths
+- Application continues running with disabled features
+- Clear visual feedback guides user to resolution
+- Automatic recovery when paths become valid again
+
+**Centralized Messages**:
+All error messages stored in `Constants/UserMessages.cs`:
+- `ConfigInvalidGuidance`: General configuration error guidance
+- `ProfilesFolderRequired`: Profiles folder creation failure explanation
+- `ProfilesFolderAccessDenied`: Permission-specific error message
+- `PluginsTxtRequired`: Missing Plugins.txt guidance
+
+#### First-Time User Experience
+
+For users who have never run Starfield:
+
+**Expected Behavior**:
+1. User installs and launches application
+2. Paths auto-detected (if possible)
+3. Validation fails: "Plugins.txt not found"
+4. Clear error message in settings window
+5. User instructed to run Starfield first
+6. After running Starfield once, file created
+7. Validation passes, application fully functional
+
+**Why This Is Correct**:
+- Application genuinely cannot function without Plugins.txt
+- Clear guidance prevents user confusion
+- Prevents partial functionality and obscure errors
+- Ensures proper setup before first use
+
+---
+
 ## Configuration
 
 ### Required Settings
@@ -616,8 +912,7 @@ The application requires two essential configuration settings:
 
 ### Optional Settings
 
-3. **Change Detection Interval**: How often to check for changes (default: 5 seconds)
-4. **Active Profile ID**: Currently selected profile (default: "default")
+3. **Active Profile ID**: Currently selected profile (default: "default")
 
 ### Configuration Validation
 
@@ -625,10 +920,27 @@ The application validates configuration on startup:
 - Paths are not empty
 - Directories exist on disk
 - Game `Data` folder exists
+- **Plugins.txt file exists** (required, cannot be auto-generated by application)
+- **Profiles folder can be created and is writable** (tested with temporary file)
+- Continuous validation during runtime via timer ticks
+- Real-time feedback in settings window
+
+**Validation Order**: paths configured → paths exist → Data folder exists → Plugins.txt exists → Profiles folder writable
 
 **Configuration Enforcement**: App prompts for settings and shuts down if invalid after settings dialog.
 
+**Visual Feedback**:
+- Error banner in main window when paths invalid
+- Status banner in settings window with success/error states
+- Disabled UI elements when configuration invalid
+- Specific error messages for each validation failure
+
 **Status Messages**: Multiple status history entries shown when settings are invalid or folders are missing.
+
+**Startup Validation**:
+- Profiles folder validated via `ProfileService.EnsureProfilesFolderExists()` on startup
+- Error dialog shown if folder cannot be created with option to open settings or shutdown
+- Profile operations validate folder existence before proceeding
 
 ### Auto-Discovery
 
@@ -730,12 +1042,13 @@ The `Plugins.txt` file must be encoded in **UTF-8 without BOM** (Byte Order Mark
 **Pending Changes** (`pending-changes.json`):
 ```json
 {
+  "comment": "Added new gameplay mods",
   "addedMods": ["ModX.esp"],
   "removedMods": ["ModY.esp"]
 }
 ```
 
-**Note**: Stores changes made since last reference update, used for next version's metadata.
+**Note**: Stores comment and changes made since last reference update. The comment describes the changes being accepted and is archived with the next version when the reference is updated again.
 
 ### Version History Storage
 
@@ -816,6 +1129,15 @@ The application follows **Material Design v5** guidelines with:
 - Last 3 status messages in history list
 - Timestamps for all status entries
 - Color coding: Info (Primary), Success (Tertiary), Warning (Secondary), Error (Error)
+- Configuration error banner when paths invalid
+- Update notification info bar when new version available
+- Steam process warning banner when Steam is running
+
+**Settings Window**:
+- Status banner showing validation state
+- Error state: Specific messages about invalid paths
+- Success state: Confirmation that paths are valid
+- Cannot be dismissed (always visible for feedback)
 
 **Change Badge**:
 - Shows total changes including dependent changes
@@ -823,9 +1145,15 @@ The application follows **Material Design v5** guidelines with:
 - Button text: "Manage load order" or "Manage load order (X changes)"
 
 **Sorting Recommendation**:
-- Prominent banner when inserted mods detected
+- Prominent banner to show when there are mods that have shifted position but only under the condition that they are not part of any dependent change lists (because those are not affected by sorting anyway).
 - Warning icon and colored text
 - Explains need to sort first
+
+**Steam Warning**:
+- Shows when Steam process is detected running
+- Orange warning banner with helpful tooltip
+- Explains potential conflicts
+- Automatically disappears when Steam closes
 
 ### Window Types
 
@@ -842,6 +1170,7 @@ The application follows **Material Design v5** guidelines with:
 - Diff Window (tracks changes, prevents duplicates)
 - Manage Profiles Window (tracks instance, prevents duplicates)
 - Reference History Window (tracks instance, prevents duplicates, auto-refreshes)
+- View Pending Changes Window (tracks instance, prevents duplicates)
 
 ### Accessibility Features
 
@@ -862,8 +1191,96 @@ The application maintains semantic versioning:
 - Copyright year updates automatically
 
 **Recent Major Features**:
+- v1.5.0: Configuration validation with error banners and real-time feedback
 - v1.4.0: Reference history with versioning, rollback, and comment support
 - v1.3.0: Settings helper, dependent change grouping, confirmations, dark theme dialogs
 - v1.2.0: Status message history
 - v1.1.0: About dialog, always-open diff window
 - v1.0.0: Initial release with profile switching
+
+---
+
+## Architecture & Design
+
+### Coordinator Pattern
+
+The application uses a **coordinator pattern** to separate concerns and improve maintainability:
+
+#### What Are Coordinators?
+
+Coordinators are specialized components that handle specific domain logic and state management. Each coordinator:
+- Inherits from `CoordinatorBase` (provides `INotifyPropertyChanged` + `IDisposable`)
+- Has a single, well-defined responsibility
+- Communicates via events and property changes
+- Is independently testable
+- Can be reused across ViewModels
+
+#### Implemented Coordinators
+
+**FileMonitoringCoordinator** (~300 lines):
+- Periodic file monitoring (3-second intervals)
+- Change detection and counting
+- Steam process detection and warnings
+- Sorting recommendations
+
+**StatusCoordinator** (~80 lines):
+- Status message management
+- History tracking (last 3 messages)
+- Timestamped message formatting
+
+**UpdateCheckCoordinator** (~120 lines):
+- Background and manual update checking
+- Version comparison with caching
+- Update notification management
+
+**ProfileCoordinator** (~150 lines):
+- Active profile state management
+- Profile switching coordination
+- Profile change events
+
+**ConfigurationCoordinator** (~180 lines):
+- Configuration validation with caching
+- Error banner state management
+- Detailed validation results
+
+**GameLauncherCoordinator** (~150 lines):
+- SFSE (Script Extender) detection
+- Game launching
+- Dynamic play button text
+
+**WindowManager** (~200 lines):
+- Window lifecycle management
+- Duplicate window prevention
+- Instance tracking
+
+#### Benefits
+
+**Testability**: Each coordinator can be unit tested independently with mocked dependencies.
+
+**Maintainability**: Changes are localized to specific coordinators, reducing risk of breaking other features.
+
+**Reusability**: Coordinators can be shared across multiple ViewModels for consistent behavior.
+
+**Clarity**: MainViewModel reduced from ~1300 lines to ~900 lines (31% reduction) by extracting domain logic.
+
+**Scalability**: New features can be added as new coordinators following established patterns.
+
+#### Communication Pattern
+
+Coordinators communicate with ViewModels through:
+1. **Properties**: Exposed for UI binding via pass-through properties in ViewModels
+2. **Events**: Custom events (e.g., `ProfileChanged`, `ValidationChanged`) notify ViewModels of state changes
+3. **Methods**: Public methods provide operations (e.g., `CheckForUpdatesAsync()`, `SwitchProfileAsync()`)
+
+Example flow:
+```
+User clicks "Check for Updates"
+  → MainViewModel.CheckForUpdatesCommand
+    → UpdateCheckCoordinator.CheckForUpdatesManualAsync()
+      → UpdateCheckCoordinator.UpdateAvailable property changes
+        → PropertyChanged event fires
+          → MainViewModel.OnPropertyChanged(nameof(UpdateAvailable))
+            → UI updates automatically
+```
+
+This architecture ensures clean separation of concerns while maintaining responsive UI updates through event-driven communication.

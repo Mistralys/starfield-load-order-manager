@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Load Order Keeper Settings"
-        Height="435"
+        Height="394"
         Width="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -23,147 +23,184 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-
-        <TextBlock Grid.Row="0"
-                   Grid.Column="0"
-                   Grid.ColumnSpan="2"
-                   Margin="0,0,0,4"
-                   Text="Starfield AppData Path:"
-                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <TextBox Grid.Row="1"
-                 Grid.Column="0"
-                 Margin="0,0,8,8"
-                 MinWidth="360"
-                 Text="{Binding StarfieldAppDataPath, UpdateSourceTrigger=PropertyChanged}"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 materialDesign:HintAssist.Hint="Starfield AppData Path"
-                 Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <Button Grid.Row="1"
-                Grid.Column="1"
-                Content="Browse..."
-                Width="90"
+    
+    <DockPanel>
+        <!-- Status banner at the top -->
+        <Border DockPanel.Dock="Top"
+                Padding="12,8"
                 Margin="0,0,0,8"
-                Command="{Binding BrowseAppDataCommand}"
-                Style="{StaticResource MaterialDesignRaisedButton}" />
-        
-        <StackPanel Grid.Row="2"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Orientation="Horizontal"
-                    Margin="0,0,0,8">
-            <TextBlock Text="Detected: "
-                       FontSize="11"
+                Visibility="{Binding StatusBannerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Error}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding StatusBannerIsError}" Value="False">
+                            <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <materialDesign:PackIcon Grid.Column="0"
+                                        Width="20"
+                                        Height="20"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,8,0"
+                                        Foreground="{DynamicResource MaterialDesignPaper}">
+                    <materialDesign:PackIcon.Style>
+                        <Style TargetType="materialDesign:PackIcon">
+                            <Setter Property="Kind" Value="AlertCircle" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusBannerIsError}" Value="False">
+                                    <Setter Property="Kind" Value="CheckCircle" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </materialDesign:PackIcon.Style>
+                </materialDesign:PackIcon>
+
+                <TextBlock Grid.Column="1"
+                          Text="{Binding StatusBannerMessage}"
+                          d:Text="The game path is invalid."
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource MaterialDesignPaper}"
+                          TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Margin="0,0,0,4"
+                       Text="Starfield AppData Path:"
                        Foreground="{DynamicResource MaterialDesignBodyLight}" />
-            <Button Style="{StaticResource MaterialDesignFlatButton}"
-                    Padding="0"
-                    Height="Auto"
-                    MinHeight="0"
-                    VerticalAlignment="Center"
-                    Command="{Binding UseDetectedAppDataPathCommand}"
-                    Visibility="{Binding HasDetectedAppDataPath, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Text="{Binding DetectedAppDataPath, Mode=OneWay}"
-                           d:Text="C:\Users\Example\AppData\Local\Starfield"
-                           FontSize="11"
-                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                           TextDecorations="None" />
-            </Button>
-            <TextBlock Text="(None found)"
-                       FontSize="11"
-                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                       DataContext="{Binding HasDetectedAppDataPath}"
-                       Style="{StaticResource InverseBooleanToVisibilityStyle}" />
-        </StackPanel>
-
-        <TextBlock Grid.Row="3"
-                   Grid.Column="0"
-                   Grid.ColumnSpan="2"
-                   Margin="0,8,0,4"
-                   Text="Starfield Game Path:"
-                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <TextBox Grid.Row="4"
-                 Grid.Column="0"
-                 Margin="0,0,8,8"
-                 Text="{Binding StarfieldGamePath, UpdateSourceTrigger=PropertyChanged}"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 materialDesign:HintAssist.Hint="Starfield Game Path"
-                 Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <Button Grid.Row="4"
-                Grid.Column="1"
-                Content="Browse..."
-                Width="90"
-                Margin="0,0,0,8"
-                Command="{Binding BrowseGamePathCommand}"
-                Style="{StaticResource MaterialDesignRaisedButton}" />
-
-        <StackPanel Grid.Row="5"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Orientation="Horizontal"
-                    Margin="0,0,0,8">
-            <TextBlock Text="Detected: "
-                       FontSize="11"
-                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
-            <Button Style="{StaticResource MaterialDesignFlatButton}"
-                    Padding="0"
-                    Height="Auto"
-                    MinHeight="0"
-                    VerticalAlignment="Center"
-                    Command="{Binding UseDetectedGamePathCommand}"
-                    Visibility="{Binding HasDetectedGamePath, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock Text="{Binding DetectedGamePath, Mode=OneWay}"
-                           d:Text="C:\Program Files (x86)\Steam\steamapps\common\Starfield"
-                           FontSize="11"
-                           Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                           TextDecorations="None" />
-            </Button>
-            <TextBlock Text="(None found)"
-                       FontSize="11"
-                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                       DataContext="{Binding HasDetectedGamePath}"
-                       Style="{StaticResource InverseBooleanToVisibilityStyle}" />
-        </StackPanel>
-
-        <TextBlock Grid.Row="6"
-                   Grid.Column="0"
-                   Grid.ColumnSpan="2"
-                   Margin="0,8,0,4"
-                   Text="Check for modifications every (seconds):"
-                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
-        <TextBox Grid.Row="7"
-                 Grid.Column="0"
-                 Grid.ColumnSpan="2"
-                 Margin="0,0,8,8"
-                 Text="{Binding PluginCheckIntervalSeconds, UpdateSourceTrigger=PropertyChanged}"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 materialDesign:HintAssist.Hint="Interval in seconds"
-                 Foreground="{DynamicResource MaterialDesignBodyLight}" />
-
-        <StackPanel Grid.Row="8"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,12,0,0">
-            <Button Content="Save"
-                    Width="100"
-                    Command="{Binding SaveSettingsCommand}"
+            <TextBox x:Name="AppDataPathTextBox"
+                     Grid.Row="1"
+                     Grid.Column="0"
+                     Margin="0,0,8,8"
+                     MinWidth="360"
+                     Text="{Binding StarfieldAppDataPath, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     materialDesign:HintAssist.Hint="Starfield AppData Path"
+                     Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <Button Grid.Row="1"
+                    Grid.Column="1"
+                    Content="Browse..."
+                    Width="90"
+                    Margin="0,0,0,8"
+                    Command="{Binding BrowseAppDataCommand}"
                     Style="{StaticResource MaterialDesignRaisedButton}" />
-        </StackPanel>
-    </Grid>
+            
+            <StackPanel Grid.Row="2"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        Margin="0,0,0,8">
+                <TextBlock Text="Detected: "
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                        Padding="0"
+                        Height="Auto"
+                        MinHeight="0"
+                        VerticalAlignment="Center"
+                        Command="{Binding UseDetectedAppDataPathCommand}"
+                        Visibility="{Binding HasDetectedAppDataPath, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="{Binding DetectedAppDataPath, Mode=OneWay}"
+                               d:Text="C:\Users\Example\AppData\Local\Starfield"
+                               FontSize="11"
+                               Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                               TextDecorations="None" />
+                </Button>
+                <TextBlock Text="(None found)"
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           DataContext="{Binding HasDetectedAppDataPath}"
+                           Style="{StaticResource InverseBooleanToVisibilityStyle}" />
+            </StackPanel>
+
+            <TextBlock Grid.Row="3"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Margin="0,8,0,4"
+                       Text="Starfield Game Path:"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <TextBox x:Name="GamePathTextBox"
+                     Grid.Row="4"
+                     Grid.Column="0"
+                     Margin="0,0,8,8"
+                     Text="{Binding StarfieldGamePath, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     materialDesign:HintAssist.Hint="Starfield Game Path"
+                     Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <Button Grid.Row="4"
+                    Grid.Column="1"
+                    Content="Browse..."
+                    Width="90"
+                    Margin="0,0,0,8"
+                    Command="{Binding BrowseGamePathCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+
+            <StackPanel Grid.Row="5"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        Margin="0,0,0,8">
+                <TextBlock Text="Detected: "
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                        Padding="0"
+                        Height="Auto"
+                        MinHeight="0"
+                        VerticalAlignment="Center"
+                        Command="{Binding UseDetectedGamePathCommand}"
+                        Visibility="{Binding HasDetectedGamePath, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="{Binding DetectedGamePath, Mode=OneWay}"
+                               d:Text="C:\Program Files (x86)\Steam\steamapps\common\Starfield"
+                               FontSize="11"
+                               Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                               TextDecorations="None" />
+                </Button>
+                <TextBlock Text="(None found)"
+                           FontSize="11"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           DataContext="{Binding HasDetectedGamePath}"
+                           Style="{StaticResource InverseBooleanToVisibilityStyle}" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="6"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,12,0,0">
+                <Button Content="Save"
+                        Width="100"
+                        Command="{Binding SaveSettingsCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
+            </StackPanel>
+        </Grid>
+    </DockPanel>
 </Window>

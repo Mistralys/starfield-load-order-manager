@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
@@ -85,6 +87,32 @@ namespace LoadOrderKeeper.Services
                 "Starfield");
 
             return Directory.Exists(appDataPath) ? appDataPath : string.Empty;
+        }
+
+        /// <summary>
+        /// Checks if Starfield was installed via Steam by detecting Steam installation paths.
+        /// </summary>
+        public static bool IsStarfieldInstalledViaSteam()
+        {
+            var steamPath = TryGetSteamInstallPath();
+            return !string.IsNullOrWhiteSpace(steamPath);
+        }
+
+        /// <summary>
+        /// Checks if the Steam process is currently running.
+        /// Returns true if running, false otherwise.
+        /// </summary>
+        public static bool IsSteamRunning()
+        {
+            try
+            {
+                return Process.GetProcessesByName("steam").Any();
+            }
+            catch
+            {
+                // Process enumeration failed, return false (fail-safe)
+                return false;
+            }
         }
 
         /// <summary>

@@ -420,33 +420,79 @@ namespace LoadOrderKeeper.Services
         {
             var caseLookup = GetCaseLookup(config.StarfieldGamePath);
             var currentModSet = new HashSet<ModEntryModel>(currentMods);
-            var newMods = currentMods.Where(mod => !referenceMods.Contains(mod)).ToList();
-
-            var finalOrder = new List<string>(referenceMods.Count + newMods.Count);
-
+            var currentModLookup = currentMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
+            var referenceModLookup = referenceMods.ToDictionary(m => m.FileName, StringComparer.OrdinalIgnoreCase);
+            
+            // Detect replacements: new mods at the same position as removed reference mods
+            var replacements = new Dictionary<int, ModEntryModel>();
+            var processedNewMods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            
+            foreach (var referenceMod in referenceMods)
+            {
+                // Skip if this reference mod still exists in current
+                if (currentModLookup.ContainsKey(referenceMod.FileName))
+                {
+                    continue;
+                }
+                
+                // This reference mod was removed - check if a new mod took its position
+                int referencePosition = referenceMod.LineNumber!.Value;
+                
+                // Find a new mod at this exact position
+                var replacementCandidate = currentMods.FirstOrDefault(cm => 
+                    cm.LineNumber == referencePosition && 
+                    !referenceModLookup.ContainsKey(cm.FileName) &&
+                    !processedNewMods.Contains(cm.FileName));
+                
+                if (replacementCandidate != null)
+                {
+                    replacements[referencePosition] = replacementCandidate;
+                    processedNewMods.Add(replacementCandidate.FileName);
+                }
+            }
+            
+            // Build final order
+            var finalOrder = new List<string>(referenceMods.Count + currentMods.Count);
+            
+            // Process reference mods in order, preserving replacements
             foreach (var referenceMod in referenceMods)
             {
                 if (!referenceMod.IsEnabled)
                 {
                     continue;
                 }
-
-                if (currentModSet.Contains(referenceMod))
+                
+                int position = referenceMod.LineNumber!.Value;
+                
+                // Check if this position has a replacement
+                if (replacements.TryGetValue(position, out var replacementMod))
                 {
+                    // Use the replacement mod instead
+                    finalOrder.Add(FormatLine(replacementMod, caseLookup));
+                }
+                else if (currentModSet.Contains(referenceMod))
+                {
+                    // Reference mod still exists, keep it
                     finalOrder.Add(FormatLine(referenceMod, caseLookup));
                 }
+                // If neither, the mod was removed - skip it
             }
-
+            
+            // Add remaining new mods that weren't replacements (append to end)
+            var newMods = currentMods.Where(mod => 
+                !referenceMods.Contains(mod) && 
+                !processedNewMods.Contains(mod.FileName)).ToList();
+            
             foreach (var newMod in newMods)
             {
                 if (!newMod.IsEnabled)
                 {
                     continue;
                 }
-
+                
                 finalOrder.Add(FormatLine(newMod, caseLookup));
             }
-
+            
             await File.WriteAllLinesAsync(targetPath, finalOrder, Utf8NoBom).ConfigureAwait(false);
         }
 
@@ -531,7 +577,10 @@ namespace LoadOrderKeeper.Services
             referenceMods[referenceIndex] = replacementEntry;
             currentMods.Add(new ModEntryModel(replacementEntry.ToLine()));
 
+            // Write updated load order to Plugins.txt ONLY
+            // Reference file is never touched - only updated when user clicks "Update Reference"
             await WriteAlignedLoadOrderAsync(config, referenceMods, currentMods, targetPath);
+            
             return true;
         }
 

@@ -24,6 +24,22 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Run unit tests
+        run: |
+          dotnet test "Tests/LoadOrderKeeper.Tests/LoadOrderKeeper.Tests.csproj" `
+            --configuration Release `
+            --logger "trx;LogFileName=test-results.trx" `
+            --logger "console;verbosity=detailed"
+        
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Unit Test Results
+          path: '**/test-results.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+
       - name: Install WiX Toolset
         run: choco upgrade wixtoolset -y
 

@@ -1,6 +1,8 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using LoadOrderKeeper.ViewModels;
 using Forms = System.Windows.Forms;
 
@@ -12,6 +14,56 @@ namespace LoadOrderKeeper.Views
         {
             InitializeComponent();
             DataContextChanged += OnSettingsDataContextChanged;
+            Loaded += OnWindowLoaded;
+            Closing += OnWindowClosing;
+        }
+
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            // Find the text boxes and attach blur event handlers
+            var appDataTextBox = FindName("AppDataPathTextBox") as System.Windows.Controls.TextBox;
+            var gamePathTextBox = FindName("GamePathTextBox") as System.Windows.Controls.TextBox;
+
+            if (appDataTextBox != null)
+            {
+                appDataTextBox.LostFocus += OnPathTextBoxLostFocus;
+            }
+
+            if (gamePathTextBox != null)
+            {
+                gamePathTextBox.LostFocus += OnPathTextBoxLostFocus;
+            }
+
+            // Validate on window load
+            if (DataContext is SettingsViewModel vm)
+            {
+                vm.ValidateConfiguration();
+            }
+        }
+
+        private void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            // Auto-save if configuration is valid and DialogResult is not explicitly set
+            if (DialogResult != true && DataContext is SettingsViewModel vm)
+            {
+                vm.ValidateConfiguration();
+                
+                // Check if configuration is valid by examining the status banner
+                if (!vm.StatusBannerIsError)
+                {
+                    // Configuration is valid, auto-save it
+                    DialogResult = true;
+                }
+            }
+        }
+
+        private void OnPathTextBoxLostFocus(object sender, RoutedEventArgs e)
+        {
+            // Validate configuration when user leaves a text box
+            if (DataContext is SettingsViewModel vm)
+            {
+                vm.ValidateConfiguration();
+            }
         }
 
         private void OnSettingsDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
@@ -42,6 +94,7 @@ namespace LoadOrderKeeper.Views
             if (!string.IsNullOrWhiteSpace(selected))
             {
                 vm.UpdateAppDataPath(selected);
+                vm.ValidateConfiguration(); // Validate after browse
             }
         }
 
@@ -56,6 +109,7 @@ namespace LoadOrderKeeper.Views
             if (!string.IsNullOrWhiteSpace(selected))
             {
                 vm.UpdateGamePath(selected);
+                vm.ValidateConfiguration(); // Validate after browse
             }
         }
 
@@ -78,6 +132,12 @@ namespace LoadOrderKeeper.Views
 
         private void OnSaveRequested(object? sender, EventArgs e)
         {
+            // Validate before saving
+            if (sender is SettingsViewModel vm)
+            {
+                vm.ValidateConfiguration();
+            }
+
             DialogResult = true;
             Close();
         }

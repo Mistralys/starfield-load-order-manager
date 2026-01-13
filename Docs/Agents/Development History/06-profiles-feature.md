@@ -8,22 +8,6 @@ character in Starfield (it is up to the user to select the mod profile matching 
 This means that the application must support something similar to switch between load orders. 
 I think that it makes sense to use the "Profile" terminology as it is already familiar to mod users.
 
-## Implementation guidelines
-
-Refer to the [Application Description](./application-description.md) for a high-level overview of the
-application's goals, features and architecture.
-
-Refer to the [Project Manifest](./project-manifest.md) document for an overview of the tech stack, file tree,
-architecture, MVVM patterns and key components of the application.
-
-Refer to the [Implementation Guidelines](../implementation-guidelines.md) document for guidelines
-on implementing features (code behind and UI). 
-
-See [MVVM Architecture Overview](./impl-mvvm-architecture-overview.md) for an overview of the MVVM architecture
-used in the application.
-
-**IMPORTANT**: Overall, don't ask about existing architecture; follow the established patterns in the codebase.
-
 ## The Profile System
 
 ### Profile folders
@@ -260,3 +244,16 @@ public string GetReferenceFilePath()
     return Path.Combine(StarfieldAppDataPath, "Profiles", activeProfileId ?? "default", "reference.txt");
 }
 ```
+
+## Implementation Guidelines
+
+Refer to the [Application Description](../application-description.md) for a high-level overview of the
+application's goals, features and architecture.
+
+Refer to the [Project Manifest](../Project%20Manifest/README.md) document for an overview of the tech stack, file tree,
+architecture, MVVM patterns and key components of the application.
+
+Refer to the [Implementation Guidelines](../implementation-guidelines.md) document for guidelines
+on implementing features (code behind and UI). 
+
+**IMPORTANT**: Overall, don't ask about existing architecture; follow the established patterns in the codebase.

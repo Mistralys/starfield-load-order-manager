@@ -343,6 +343,39 @@ Optional comment input when updating reference:
 - Comment appears in italic in history window
 - Editable after creation via context menu
 
+#### View Pending Changes Window
+
+A dedicated non-modal window for viewing and editing pending changes before they are archived:
+
+**Features**:
+- Shows explanation of pending changes concept
+- Displays pending comment (or "(No comment entered)" placeholder)
+- Lists all added mods (with green + icon)
+- Lists all removed mods (with red - icon)
+- Material Design v5 styled with dark theme
+- Single instance: Prevents duplicate windows
+
+**Actions**:
+- **Edit comment...**: Opens comment dialog to modify pending comment
+  - Updates comment immediately in pending changes
+  - Saves to pending-changes.json
+- **Close**: Closes the window
+
+**Access**:
+- Profile menu → "View Pending Changes..."
+- Available even when no pending changes exist
+- Shows "No pending changes" message when empty
+
+**Window Behavior**:
+- Non-modal: Can interact with main window while open
+- Single instance: Brings existing window to front if already open
+- Scrollable content area for long mod lists
+
+**Purpose**:
+- Review what will be archived on next reference update
+- Edit comment before archiving
+- Understand current pending state at a glance
+
 #### Automatic Migration
 
 For existing installations without history:
@@ -1137,6 +1170,7 @@ The application follows **Material Design v5** guidelines with:
 - Diff Window (tracks changes, prevents duplicates)
 - Manage Profiles Window (tracks instance, prevents duplicates)
 - Reference History Window (tracks instance, prevents duplicates, auto-refreshes)
+- View Pending Changes Window (tracks instance, prevents duplicates)
 
 ### Accessibility Features
 

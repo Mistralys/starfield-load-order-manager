@@ -63,6 +63,7 @@
 ?  ?? SettingsViewModel.cs
 ?  ?? SwitchProfileViewModel.cs
 ?  ?? UpdateOptionsViewModel.cs
+?  ?? ViewPendingChangesViewModel.cs
 ?? Views/
 ?  ?? AboutWindow.xaml
 ?  ?? AboutWindow.xaml.cs
@@ -84,6 +85,8 @@
 ?  ?? SwitchProfileWindow.xaml.cs
 ?  ?? UpdateOptionsDialog.xaml
 ?  ?? UpdateOptionsDialog.xaml.cs
+?  ?? ViewPendingChangesWindow.xaml
+?  ?? ViewPendingChangesWindow.xaml.cs
 ?? Converters/
 ?  ?? ActiveProfileVisibilityConverter.cs
 ?  ?? ChangeSummaryConverter.cs
@@ -131,6 +134,7 @@
 ?  ?     ?? 18-profile-coordinator.md
 ?  ?     ?? 19-configuration-coordinator.md
 ?  ?     ?? 20-game-launcher-coordinator.md
+?  ?     ?? 20-view-pending-changes.md
 ?  ?     ?? coordinator-refactoring-complete-summary.md
 ?? Tests/
 ?  ?? LoadOrderKeeper.Tests/

@@ -44,6 +44,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string SwitchProfileMenuText { get; }
     public string ManageProfilesMenuText { get; }
     public string RecentStatusMessagesText { get; }
+    public string ReferenceHistoryMenuText { get; }
+    public string ViewPendingChangesMenuText { get; }
     public string ShowChangesButtonText { get; set; }
     public bool PluginsFileChangedExternally { get; set; }
     public string SortingRecommendationMessage { get; set; }
@@ -65,6 +67,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand DiscardChangesCommand { get; }
     public IAsyncRelayCommand SwitchProfileCommand { get; }
     public IAsyncRelayCommand ManageProfilesCommand { get; }
+    public IRelayCommand ShowReferenceHistoryCommand { get; }
+    public IRelayCommand ViewPendingChangesCommand { get; }
     public IAsyncRelayCommand OpenSettingsCommand { get; }
     public IAsyncRelayCommand OpenSettingsFromErrorBannerCommand { get; }
     public IAsyncRelayCommand CheckForUpdatesCommand { get; }
@@ -79,7 +83,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 ```
 
 **Window Management:**
-- Tracks `_diffWindow`, `_manageProfilesWindow`, and `_referenceHistoryWindow` references to prevent duplicate instances.
+- Tracks `_diffWindow`, `_manageProfilesWindow`, `_referenceHistoryWindow`, and `_viewPendingChangesWindow` references to prevent duplicate instances.
 - Only tracks window references, not ViewModels—each window is self-managing via direct event subscriptions.
 - `GetFileMonitoringCoordinator()` exposes the coordinator for diff window event subscriptions.
 
@@ -104,8 +108,8 @@ public partial class SettingsViewModel : ObservableObject
     public event EventHandler? BrowseGamePathRequested;
     public event EventHandler? SaveRequested;
 
-    public void UpdateAppDataPath(string selectedPath);
-    public void UpdateGamePath(string selectedPath);
+    public void UpdateAppDataPath(String selectedPath);
+    public void UpdateGamePath(String selectedPath);
     public void ValidateConfiguration();
     public AppConfigModel GetConfig();
 }
@@ -292,6 +296,37 @@ public partial class ReferenceHistoryViewModel : ObservableObject
 
     public Task LoadVersionsAsync();
     public Task RefreshVersionsAsync();
+}
+```
+
+### `LoadOrderKeeper.ViewModels.ViewPendingChangesViewModel`
+
+```csharp
+public partial class ViewPendingChangesViewModel : ObservableObject
+{
+    public ViewPendingChangesViewModel(AppConfigModel config);
+
+    public string Comment { get; set; }
+    public string CommentDisplay { get; set; }
+    public List<string> AddedMods { get; set; }
+    public List<string> RemovedMods { get; set; }
+    public bool HasAddedMods { get; set; }
+    public bool HasRemovedMods { get; set; }
+    public bool HasPendingChanges { get; set; }
+    public bool IsLoading { get; set; }
+    public int TotalChanges { get; set; }
+    public string WindowTitle { get; }
+    public string ExplanationText { get; }
+    public string CommentLabel { get; }
+    public string AddedModsLabel { get; }
+    public string RemovedModsLabel { get; }
+    public string EditCommentButtonText { get; }
+    public string CloseButtonText { get; }
+    public string NoPendingChangesMessage { get; }
+
+    public event EventHandler? CloseRequested;
+
+    public Task LoadPendingChangesAsync();
 }
 ```
 

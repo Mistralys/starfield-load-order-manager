@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:LoadOrderKeeper.Models"
         xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
+        xmlns:controls="clr-namespace:LoadOrderKeeper.Controls"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="{Binding Title}"
@@ -20,267 +21,350 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:ReplacementCommandParameterConverter x:Key="ReplacementCommandParameterConverter" />
     </Window.Resources>
-    <DockPanel Margin="16" Background="{DynamicResource MaterialDesignPaper}">
-        <Menu DockPanel.Dock="Top" 
-              Margin="-16,-16,-16,8"
-              Background="{DynamicResource MaterialDesignPaper}"
-              Style="{StaticResource MaterialDesignMenu}">
-            <MenuItem Header="{Binding FileMenuHeader}" d:Header="_File">
-                <MenuItem Header="{Binding OpenPluginsMenuText}"
-                          d:Header="Open _Plugins.txt"
-                          Command="{Binding OpenPluginsFileCommand}" />
-                <MenuItem Header="{Binding OpenReferenceMenuText}"
-                          d:Header="Open _Reference File"
-                          Command="{Binding OpenReferenceFileCommand}" />
-                <Separator />
-                <MenuItem Header="{Binding OpenAppDataFolderMenuText}"
-                          d:Header="Open _AppData Folder"
-                          Command="{Binding OpenAppDataFolderCommand}" />
-                <MenuItem Header="{Binding OpenGameFolderMenuText}"
-                          d:Header="Open _Game Folder"
-                          Command="{Binding OpenGameFolderCommand}" />
-                <Separator />
-                <MenuItem Header="{Binding ExitMenuText}"
-                          d:Header="E_xit"
-                          Click="OnCloseClicked" />
-            </MenuItem>
-            <MenuItem Header="{Binding EditMenuHeader}" d:Header="_Edit">
-                <MenuItem Header="{Binding FixLoadOrderButtonText}"
-                          d:Header="Sort mods"
-                          Command="{Binding FixLoadOrderCommand}"
-                          IsEnabled="{Binding HasDifferences}" />
-                <MenuItem Header="{Binding UpdateReferenceButtonText}"
-                          d:Header="Accept changes"
-                          Command="{Binding UpdateReferenceCommand}"
-                          IsEnabled="{Binding HasDifferences}" />
-                <Separator />
-                <MenuItem Header="{Binding DiscardChangesButtonText}"
-                          d:Header="Discard all changes"
-                          Command="{Binding DiscardChangesCommand}"
-                          IsEnabled="{Binding HasDifferences}" />
-            </MenuItem>
-            <MenuItem Header="{Binding HelpMenuHeader}" d:Header="_Help">
-                <MenuItem Header="{Binding CopyDebugStateMenuText}"
-                          d:Header="Copy Debug State"
-                          Command="{Binding CopyDebugStateCommand}" />
-            </MenuItem>
-        </Menu>
-        
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid>
+        <DockPanel Margin="16" Background="{DynamicResource MaterialDesignPaper}">
+            <Menu DockPanel.Dock="Top" 
+                  Margin="-16,-16,-16,8"
+                  Background="{DynamicResource MaterialDesignPaper}"
+                  Style="{StaticResource MaterialDesignMenu}">
+                <MenuItem Header="{Binding FileMenuHeader}" d:Header="_File">
+                    <MenuItem Header="{Binding OpenPluginsMenuText}"
+                              d:Header="Open _Plugins.txt"
+                              Command="{Binding OpenPluginsFileCommand}" />
+                    <MenuItem Header="{Binding OpenReferenceMenuText}"
+                              d:Header="Open _Reference File"
+                              Command="{Binding OpenReferenceFileCommand}" />
+                    <Separator />
+                    <MenuItem Header="{Binding OpenAppDataFolderMenuText}"
+                              d:Header="Open _AppData Folder"
+                              Command="{Binding OpenAppDataFolderCommand}" />
+                    <MenuItem Header="{Binding OpenGameFolderMenuText}"
+                              d:Header="Open _Game Folder"
+                              Command="{Binding OpenGameFolderCommand}" />
+                    <Separator />
+                    <MenuItem Header="{Binding ExitMenuText}"
+                              d:Header="E_xit"
+                              Click="OnCloseClicked" />
+                </MenuItem>
+                <MenuItem Header="{Binding EditMenuHeader}" d:Header="_Edit">
+                    <MenuItem Header="{Binding FixLoadOrderButtonText}"
+                              d:Header="Sort mods"
+                              Command="{Binding FixLoadOrderCommand}"
+                              IsEnabled="{Binding HasDifferences}" />
+                    <MenuItem Header="{Binding UpdateReferenceButtonText}"
+                              d:Header="Accept changes"
+                              Command="{Binding UpdateReferenceCommand}"
+                              IsEnabled="{Binding HasDifferences}" />
+                    <Separator />
+                    <MenuItem Header="{Binding DiscardChangesButtonText}"
+                              d:Header="Discard all changes"
+                              Command="{Binding DiscardChangesCommand}"
+                              IsEnabled="{Binding HasDifferences}" />
+                </MenuItem>
+                <MenuItem Header="{Binding HelpMenuHeader}" d:Header="_Help">
+                    <MenuItem Header="{Binding CopyDebugStateMenuText}"
+                              d:Header="Copy Debug State"
+                              Command="{Binding CopyDebugStateCommand}" />
+                </MenuItem>
+            </Menu>
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0"
-                       Text="{Binding Description}"
-                       d:Text="Window abstract text"
-                       Margin="0,0,0,12"
-                       TextWrapping="Wrap"
-                       Foreground="{DynamicResource MaterialDesignBody}" />
+                <TextBlock Grid.Row="0"
+                           Text="{Binding Description}"
+                           d:Text="Window abstract text"
+                           Margin="0,0,0,12"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource MaterialDesignBody}" />
 
-            <Border Grid.Row="1"
-                    BorderThickness="1"
-                    BorderBrush="{DynamicResource MaterialDesignDivider}"
-                    Background="{DynamicResource MaterialDesignCardBackground}">
-                <ListView x:Name="DiffListView" ItemsSource="{Binding DiffLines}"
-                          Margin="0"
-                          BorderThickness="0"
-                          Background="Transparent"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.CanContentScroll="True">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
-                            <Setter Property="ContextMenu">
-                                <Setter.Value>
-                                    <ContextMenu Style="{StaticResource MaterialDesignContextMenu}"
-                                                 DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="{Binding ReEnableModMenuText}"
-                                                  d:Header="Re-enable mod"
-                                                  Command="{Binding ReEnableModCommand}"
-                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                            <MenuItem.Style>
-                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                <Border Grid.Row="1"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource MaterialDesignDivider}"
+                        Background="{DynamicResource MaterialDesignCardBackground}">
+                    <ListView x:Name="DiffListView" ItemsSource="{Binding DiffLines}"
+                              Margin="0"
+                              BorderThickness="0"
+                              Background="Transparent"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.CanContentScroll="True">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu Style="{StaticResource MaterialDesignContextMenu}"
+                                                     DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Header="{Binding ReEnableModMenuText}"
+                                                      d:Header="Re-enable mod"
+                                                      Command="{Binding ReEnableModCommand}"
+                                                      CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                <MenuItem.Style>
+                                                    <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                         Value="{x:Static models:DiffChangeType.Removed}">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </MenuItem.Style>
+                                            </MenuItem>
+                                            <MenuItem Header="{Binding ReplaceWithMenuText}"
+                                                      d:Header="Replace with...">
+                                                <MenuItem.Style>
+                                                    <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                               Value="{x:Static models:DiffChangeType.Removed}" />
+                                                                    <Condition Binding="{Binding HasAddedMods}" Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </MenuItem.Style>
+                                                <MenuItem.ItemsSource>
+                                                    <Binding Path="AddedMods" />
+                                                </MenuItem.ItemsSource>
+                                                <MenuItem.ItemContainerStyle>
+                                                    <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                                                        <Setter Property="Header" Value="{Binding FileName}" />
+                                                        <Setter Property="Command" Value="{Binding DataContext.ReplaceRemovedModCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                                        <Setter Property="CommandParameter">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource ReplacementCommandParameterConverter}">
+                                                                    <Binding />
+                                                                    <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.DataContext" />
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </MenuItem.ItemContainerStyle>
+                                            </MenuItem>
+                                            <MenuItem Header="{Binding RemoveModMenuText}"
+                                                      d:Header="Remove mod"
+                                                      Command="{Binding RemoveNewModCommand}"
+                                                      CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                                <MenuItem.Style>
+                                                    <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                         Value="{x:Static models:DiffChangeType.Added}">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </MenuItem.Style>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Added}">
+                                        <Setter Property="Background" Value="#1A4CAF50" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
+                                        <Setter Property="Background" Value="#1AF44336" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
+                                        <Setter Property="Background" Value="#1AFFEB3B" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
+                                        <Setter Property="Background" Value="#1A2196F3" />
+                                        <Setter Property="ContextMenu" Value="{x:Null}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Replaced}">
+                                        <Setter Property="Background" Value="#1A9C27B0" />
+                                        <Setter Property="ContextMenu" Value="{x:Null}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:DiffLineModel}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="4,2">
+                                        <!-- Warning icon for inserted mods -->
+                                        <materialDesign:PackIcon Kind="AlertCircle" 
+                                                                Width="16" 
+                                                                Height="16"
+                                                                Foreground="Orange"
+                                                                VerticalAlignment="Center"
+                                                                Margin="0,0,4,0"
+                                                                ToolTip="This mod was inserted into the middle of the load order. Consider sorting the list first.">
+                                            <materialDesign:PackIcon.Style>
+                                                <Style TargetType="materialDesign:PackIcon">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                     Value="{x:Static models:DiffChangeType.Removed}">
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
                                                             <Setter Property="Visibility" Value="Visible" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </MenuItem.Style>
-                                        </MenuItem>
-                                        <MenuItem Header="{Binding ReplaceWithMenuText}"
-                                                  d:Header="Replace with...">
-                                            <MenuItem.Style>
-                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <MultiDataTrigger>
-                                                            <MultiDataTrigger.Conditions>
-                                                                <Condition Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                           Value="{x:Static models:DiffChangeType.Removed}" />
-                                                                <Condition Binding="{Binding HasAddedMods}" Value="True" />
-                                                            </MultiDataTrigger.Conditions>
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </MultiDataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </MenuItem.Style>
-                                            <MenuItem.ItemsSource>
-                                                <Binding Path="AddedMods" />
-                                            </MenuItem.ItemsSource>
-                                            <MenuItem.ItemContainerStyle>
-                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
-                                                    <Setter Property="Header" Value="{Binding FileName}" />
-                                                    <Setter Property="Command" Value="{Binding DataContext.ReplaceRemovedModCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                                    <Setter Property="CommandParameter">
-                                                        <Setter.Value>
-                                                            <MultiBinding Converter="{StaticResource ReplacementCommandParameterConverter}">
-                                                                <Binding />
-                                                                <Binding RelativeSource="{RelativeSource AncestorType=ContextMenu}" Path="PlacementTarget.DataContext" />
-                                                            </MultiBinding>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </MenuItem.ItemContainerStyle>
-                                        </MenuItem>
-                                        <MenuItem Header="{Binding RemoveModMenuText}"
-                                                  d:Header="Remove mod"
-                                                  Command="{Binding RemoveNewModCommand}"
-                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                            <MenuItem.Style>
-                                                <Style TargetType="MenuItem" BasedOn="{StaticResource MaterialDesignMenuItem}">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding PlacementTarget.DataContext.ChangeType, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                     Value="{x:Static models:DiffChangeType.Added}">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </MenuItem.Style>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </Setter.Value>
-                            </Setter>
+                                            </materialDesign:PackIcon.Style>
+                                        </materialDesign:PackIcon>
+                                        
+                                        <TextBlock Text="{Binding Prefix}"
+                                                   FontWeight="Bold"
+                                                   Width="16"
+                                                   HorizontalAlignment="Left" />
+                                        <TextBlock Text="{Binding Text}"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource MaterialDesignBody}" />
+                                    </StackPanel>
+
+                                    <StackPanel Visibility="{Binding HasDependentChanges, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Button Content="{Binding DependentChangesSummary}"
+                                                Margin="20,2,4,2"
+                                                Padding="4,2"
+                                                HorizontalAlignment="Left"
+                                                Style="{StaticResource MaterialDesignFlatButton}"
+                                                Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                FontSize="11"
+                                                Command="{Binding Tag.ToggleDependentChangesCommand, RelativeSource={RelativeSource AncestorType=ListViewItem}}"
+                                                CommandParameter="{Binding}" />
+
+                                        <ScrollViewer MaxHeight="200"
+                                                      Margin="36,0,4,2"
+                                                      VerticalScrollBarVisibility="Auto"
+                                                      HorizontalScrollBarVisibility="Disabled"
+                                                      Visibility="{Binding IsDependentChangesExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <ItemsControl ItemsSource="{Binding DependentChanges}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal" Margin="0,1">
+                                                            <TextBlock Text="{Binding Prefix}"
+                                                                       FontWeight="Bold"
+                                                                       Width="16"
+                                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                                            <TextBlock Text="{Binding Text}"
+                                                                       TextWrapping="Wrap"
+                                                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                                       FontSize="11" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Border>
+                
+                <!-- Sorting Recommendation Banner -->
+                <Border Grid.Row="2"
+                        Margin="0,8,0,0"
+                        Background="#FFFFA726"
+                        BorderBrush="#FFFF9800"
+                        BorderThickness="2"
+                        CornerRadius="4"
+                        Padding="12,8"
+                        Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Command="{Binding FixLoadOrderCommand}"
+                                Style="{StaticResource MaterialDesignRaisedButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Sort" 
+                                                         Width="16" 
+                                                         Height="16"
+                                                         VerticalAlignment="Center"
+                                                         Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding FixLoadOrderButtonText}"
+                                           d:Text="Sort now"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <materialDesign:PackIcon Kind="Sort" 
+                                                DockPanel.Dock="Left"
+                                                Width="20" 
+                                                Height="20"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,8,0"
+                                                Foreground="{DynamicResource MaterialDesignPaper}" />
+                        <TextBlock Text="{Binding SortingRecommendationMessage}"
+                                   d:Text="Sorting recommendation message"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MaterialDesignPaper}"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </DockPanel>
+                </Border>
+                
+                <!-- Multiple Replacements Help Banner -->
+                <Border Grid.Row="3"
+                        Margin="0,8,0,0"
+                        Background="#FFD3E4FD"
+                        BorderBrush="#FF0B57D0"
+                        BorderThickness="2"
+                        CornerRadius="4"
+                        Padding="12,8"
+                        Visibility="{Binding ShowMultipleReplacementsHelp, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <DockPanel>
+                        <materialDesign:PackIcon Kind="InformationOutline" 
+                                                DockPanel.Dock="Left"
+                                                Width="20" 
+                                                Height="20"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,8,0"
+                                                Foreground="#FF0B57D0" />
+                        <TextBlock Text="{Binding MultipleReplacementsHelpMessage}"
+                                   d:Text="Many changes message."
+                                   TextWrapping="Wrap"
+                                   Foreground="#FF001A41"
+                                   VerticalAlignment="Center" />
+                    </DockPanel>
+                </Border>
+                
+                <TextBlock Grid.Row="4"
+                           Text="{Binding DiffStatusMessage}"
+                           d:Text="Status message"
+                           Margin="0,8,0,0"
+                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                           Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <TextBlock Grid.Row="5"
+                            Text="{Binding NoDifferencesMessage}"
+                            d:Text="No differences detected."
+                            Margin="0,8,0,0"
+                            Foreground="{DynamicResource MaterialDesignBodyLight}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Added}">
-                                    <Setter Property="Background" Value="#1A4CAF50" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
-                                    <Setter Property="Background" Value="#1AF44336" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
-                                    <Setter Property="Background" Value="#1AFFEB3B" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
-                                    <Setter Property="Background" Value="#1A2196F3" />
-                                    <Setter Property="ContextMenu" Value="{x:Null}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Replaced}">
-                                    <Setter Property="Background" Value="#1A9C27B0" />
-                                    <Setter Property="ContextMenu" Value="{x:Null}" />
+                                <DataTrigger Binding="{Binding HasDifferences}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemTemplate>
-                        <DataTemplate DataType="{x:Type models:DiffLineModel}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="4,2">
-                                    <!-- Warning icon for inserted mods -->
-                                    <materialDesign:PackIcon Kind="AlertCircle" 
-                                                            Width="16" 
-                                                            Height="16"
-                                                            Foreground="Orange"
-                                                            VerticalAlignment="Center"
-                                                            Margin="0,0,4,0"
-                                                            ToolTip="This mod was inserted into the middle of the load order. Consider sorting the list first.">
-                                        <materialDesign:PackIcon.Style>
-                                            <Style TargetType="materialDesign:PackIcon">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </materialDesign:PackIcon.Style>
-                                    </materialDesign:PackIcon>
-                                    
-                                    <TextBlock Text="{Binding Prefix}"
-                                               FontWeight="Bold"
-                                               Width="16"
-                                               HorizontalAlignment="Left" />
-                                    <TextBlock Text="{Binding Text}"
-                                               TextWrapping="Wrap"
-                                               Foreground="{DynamicResource MaterialDesignBody}" />
-                                </StackPanel>
-
-                                <StackPanel Visibility="{Binding HasDependentChanges, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <Button Content="{Binding DependentChangesSummary}"
-                                            Margin="20,2,4,2"
-                                            Padding="4,2"
-                                            HorizontalAlignment="Left"
-                                            Style="{StaticResource MaterialDesignFlatButton}"
-                                            Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                            FontSize="11"
-                                            Command="{Binding Tag.ToggleDependentChangesCommand, RelativeSource={RelativeSource AncestorType=ListViewItem}}"
-                                            CommandParameter="{Binding}" />
-
-                                    <ScrollViewer MaxHeight="200"
-                                                  Margin="36,0,4,2"
-                                                  VerticalScrollBarVisibility="Auto"
-                                                  HorizontalScrollBarVisibility="Disabled"
-                                                  Visibility="{Binding IsDependentChangesExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <ItemsControl ItemsSource="{Binding DependentChanges}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" Margin="0,1">
-                                                        <TextBlock Text="{Binding Prefix}"
-                                                                   FontWeight="Bold"
-                                                                   Width="16"
-                                                                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                                                        <TextBlock Text="{Binding Text}"
-                                                                   TextWrapping="Wrap"
-                                                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                                                   FontSize="11" />
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </StackPanel>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </Border>
-            
-            <!-- Sorting Recommendation Banner -->
-            <Border Grid.Row="2"
-                    Margin="0,8,0,0"
-                    Background="#FFFFA726"
-                    BorderBrush="#FFFF9800"
-                    BorderThickness="2"
-                    CornerRadius="4"
-                    Padding="12,8"
-                    Visibility="{Binding ShowSortingRecommendation, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <DockPanel>
-                    <Button DockPanel.Dock="Right"
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center"
+                    </TextBlock.Style>
+                </TextBlock>
+                <StackPanel Grid.Row="6"
+                             Orientation="Horizontal"
+                             HorizontalAlignment="Right"
+                             Margin="0,16,0,0">
+                    <Button Margin="8,0,0,0"
                             Command="{Binding FixLoadOrderCommand}"
+                            IsEnabled="{Binding HasDifferences}"
                             Style="{StaticResource MaterialDesignRaisedButton}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Sort" 
@@ -289,129 +373,52 @@
                                                      VerticalAlignment="Center"
                                                      Margin="0,0,4,0" />
                             <TextBlock Text="{Binding FixLoadOrderButtonText}"
-                                       d:Text="Sort now"
+                                       d:Text="Sort mods"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <materialDesign:PackIcon Kind="Sort" 
-                                            DockPanel.Dock="Left"
-                                            Width="20" 
-                                            Height="20"
-                                            VerticalAlignment="Center"
-                                            Margin="0,0,8,0"
-                                            Foreground="{DynamicResource MaterialDesignPaper}" />
-                    <TextBlock Text="{Binding SortingRecommendationMessage}"
-                               d:Text="Sorting recommendation message"
-                               TextWrapping="Wrap"
-                               Foreground="{DynamicResource MaterialDesignPaper}"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center" />
-                </DockPanel>
-            </Border>
-            
-            <!-- Multiple Replacements Help Banner -->
-            <Border Grid.Row="3"
-                    Margin="0,8,0,0"
-                    Background="#FFD3E4FD"
-                    BorderBrush="#FF0B57D0"
-                    BorderThickness="2"
-                    CornerRadius="4"
-                    Padding="12,8"
-                    Visibility="{Binding ShowMultipleReplacementsHelp, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <DockPanel>
-                    <materialDesign:PackIcon Kind="InformationOutline" 
-                                            DockPanel.Dock="Left"
-                                            Width="20" 
-                                            Height="20"
-                                            VerticalAlignment="Center"
-                                            Margin="0,0,8,0"
-                                            Foreground="#FF0B57D0" />
-                    <TextBlock Text="{Binding MultipleReplacementsHelpMessage}"
-                               d:Text="Many changes message."
-                               TextWrapping="Wrap"
-                               Foreground="#FF001A41"
-                               VerticalAlignment="Center" />
-                </DockPanel>
-            </Border>
-            
-            <TextBlock Grid.Row="4"
-                       Text="{Binding DiffStatusMessage}"
-                       d:Text="Status message"
-                       Margin="0,8,0,0"
-                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                       Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            <TextBlock Grid.Row="5"
-                        Text="{Binding NoDifferencesMessage}"
-                        d:Text="No differences detected."
-                        Margin="0,8,0,0"
-                        Foreground="{DynamicResource MaterialDesignBodyLight}">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasDifferences}" Value="False">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-            <StackPanel Grid.Row="6"
-                         Orientation="Horizontal"
-                         HorizontalAlignment="Right"
-                         Margin="0,16,0,0">
-                <Button Margin="8,0,0,0"
-                        Command="{Binding FixLoadOrderCommand}"
-                        IsEnabled="{Binding HasDifferences}"
-                        Style="{StaticResource MaterialDesignRaisedButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Sort" 
-                                                 Width="16" 
-                                                 Height="16"
-                                                 VerticalAlignment="Center"
-                                                 Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding FixLoadOrderButtonText}"
-                                   d:Text="Sort mods"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button Margin="8,0,0,0"
-                        Command="{Binding UpdateReferenceCommand}"
-                        IsEnabled="{Binding HasDifferences}"
-                        Style="{StaticResource MaterialDesignOutlinedButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Check" 
-                                                 Width="16" 
-                                                 Height="16"
-                                                 VerticalAlignment="Center"
-                                                 Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding UpdateReferenceButtonText}"
-                                   d:Text="Accept changes"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button Margin="8,0,0,0"
-                        Command="{Binding DiscardChangesCommand}"
-                        IsEnabled="{Binding HasDifferences}"
-                        Style="{StaticResource MaterialDesignOutlinedButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Delete" 
-                                                 Width="16" 
-                                                 Height="16"
-                                                 VerticalAlignment="Center"
-                                                 Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding DiscardChangesButtonText}"
-                                   d:Text="Discard all changes"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-                <Button Content="{Binding CloseButtonText}"
-                        d:Content="Close"
-                        Margin="8,0,0,0"
-                        IsCancel="True"
-                        Click="OnCloseClicked"
-                        Style="{StaticResource MaterialDesignOutlinedButton}" />
-            </StackPanel>
-        </Grid>
-    </DockPanel>
+                    <Button Margin="8,0,0,0"
+                            Command="{Binding UpdateReferenceCommand}"
+                            IsEnabled="{Binding HasDifferences}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Check" 
+                                                     Width="16" 
+                                                     Height="16"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,0,4,0" />
+                            <TextBlock Text="{Binding UpdateReferenceButtonText}"
+                                       d:Text="Accept changes"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="8,0,0,0"
+                            Command="{Binding DiscardChangesCommand}"
+                            IsEnabled="{Binding HasDifferences}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Delete" 
+                                                     Width="16" 
+                                                     Height="16"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,0,4,0" />
+                            <TextBlock Text="{Binding DiscardChangesButtonText}"
+                                       d:Text="Discard all changes"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Content="{Binding CloseButtonText}"
+                            d:Content="Close"
+                            Margin="8,0,0,0"
+                            IsCancel="True"
+                            Click="OnCloseClicked"
+                            Style="{StaticResource MaterialDesignOutlinedButton}" />
+                </StackPanel>
+            </Grid>
+        </DockPanel>
+        
+        <!-- Configuration Invalid Overlay -->
+        <controls:ConfigInvalidOverlay Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      Panel.ZIndex="1000" />
+    </Grid>
 </Window>

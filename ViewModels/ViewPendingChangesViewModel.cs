@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.Views;
@@ -17,6 +18,7 @@ namespace LoadOrderKeeper.ViewModels
     public partial class ViewPendingChangesViewModel : ObservableObject
     {
         private readonly AppConfigModel _config;
+        private readonly ConfigurationCoordinator? _configCoordinator;
 
         [ObservableProperty]
         private string _comment = string.Empty;
@@ -45,6 +47,16 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private int _totalChanges;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+        private bool _isConfigValid = true;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+        private bool _isOperationInProgress;
+
+        public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
+
         public string WindowTitle { get; } = "Pending Changes";
         public string ExplanationText { get; } = "This shows all changes you have made since the last reference update. When you next update the reference file, these changes will be archived.";
         public string CommentLabel { get; } = "Comment:";
@@ -56,10 +68,23 @@ namespace LoadOrderKeeper.ViewModels
 
         public event EventHandler? CloseRequested;
 
-        public ViewPendingChangesViewModel(AppConfigModel config)
+        public ViewPendingChangesViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            _configCoordinator = configCoordinator;
+
+            if (_configCoordinator != null)
+            {
+                IsConfigValid = _configCoordinator.IsConfigValid;
+                _configCoordinator.ValidationChanged += OnConfigValidationChanged;
+            }
+
             _ = LoadPendingChangesAsync();
+        }
+
+        private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
+        {
+            IsConfigValid = e.IsValid;
         }
 
         public async Task LoadPendingChangesAsync()

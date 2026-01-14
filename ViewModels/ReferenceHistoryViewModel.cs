@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.Views;
@@ -14,6 +15,7 @@ namespace LoadOrderKeeper.ViewModels
     public partial class ReferenceHistoryViewModel : ObservableObject
     {
         private readonly AppConfigModel _config;
+        private readonly ConfigurationCoordinator? _configCoordinator;
 
         [ObservableProperty]
         private ObservableCollection<ReferenceVersionMetadataModel> _versions = new();
@@ -33,6 +35,16 @@ namespace LoadOrderKeeper.ViewModels
         [NotifyCanExecuteChangedFor(nameof(ClearHistoryCommand))]
         private bool _hasVersions;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+        private bool _isConfigValid = true;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+        private bool _isOperationInProgress;
+
+        public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
+
         public string WindowTitle { get; } = "Reference File Version History";
         public string RollbackButtonText { get; } = "Rollback to selected version...";
         public string DeleteVersionButtonText { get; } = "Delete version";
@@ -51,10 +63,23 @@ namespace LoadOrderKeeper.ViewModels
         public event EventHandler? CloseRequested;
         public event EventHandler<ReferenceVersionMetadataModel>? RollbackRequested;
 
-        public ReferenceHistoryViewModel(AppConfigModel config)
+        public ReferenceHistoryViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            _configCoordinator = configCoordinator;
+
+            if (_configCoordinator != null)
+            {
+                IsConfigValid = _configCoordinator.IsConfigValid;
+                _configCoordinator.ValidationChanged += OnConfigValidationChanged;
+            }
+
             _ = LoadVersionsAsync();
+        }
+
+        private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
+        {
+            IsConfigValid = e.IsValid;
         }
 
         public async Task RefreshVersionsAsync()

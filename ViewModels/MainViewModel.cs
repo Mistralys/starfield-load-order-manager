@@ -69,6 +69,7 @@ namespace LoadOrderKeeper.ViewModels
         public string AboutMenuText { get; } = "_About...";
         public string DebugMenuHeader { get; } = "_Debug";
         public string ResetConfigMenuText { get; } = "_Reset Configuration (for testing)...";
+        public string OpenConfigFolderMenuText { get; } = "Open _Configuration Folder";
         public string DownloadOptionsButtonText { get; } = "Download options...";
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
@@ -112,6 +113,7 @@ namespace LoadOrderKeeper.ViewModels
         public IRelayCommand OpenReferenceFileCommand { get; }
         public IRelayCommand OpenAppDataFolderCommand { get; }
         public IRelayCommand OpenGameFolderCommand { get; }
+        public IRelayCommand OpenConfigFolderCommand { get; }
         public IRelayCommand PlayGameCommand { get; }
         public IAsyncRelayCommand ShowDiffCommand { get; }
 
@@ -231,6 +233,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenReferenceFileCommand = new RelayCommand(OpenReferenceFile, CanAccessAppDataPath);
             OpenAppDataFolderCommand = new RelayCommand(OpenAppDataFolder, CanAccessAppDataPath);
             OpenGameFolderCommand = new RelayCommand(OpenGameFolder, CanAccessGamePath);
+            OpenConfigFolderCommand = new RelayCommand(OpenConfigFolder);
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
             ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync);
 
@@ -544,6 +547,18 @@ namespace LoadOrderKeeper.ViewModels
             LaunchShellTarget(path, "Failed to open game folder");
         }
 
+        private void OpenConfigFolder()
+        {
+            var path = SettingsService.GetConfigFolderPath();
+            if (!Directory.Exists(path))
+            {
+                ShowError($"Configuration folder not found: {path}");
+                return;
+            }
+
+            LaunchShellTarget(path, "Failed to open configuration folder");
+        }
+
         private void PlayGame()
         {
             if (!_gameLauncher.LaunchGame())
@@ -830,6 +845,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenReferenceFileCommand?.NotifyCanExecuteChanged();
             OpenAppDataFolderCommand?.NotifyCanExecuteChanged();
             OpenGameFolderCommand?.NotifyCanExecuteChanged();
+            OpenConfigFolderCommand?.NotifyCanExecuteChanged();
         }
 
         private void UpdateChangeCountDisplay(int changeCount)

@@ -72,6 +72,9 @@
                 <MenuItem Header="{Binding ResetConfigMenuText}"
                           Command="{Binding ResetConfigurationCommand}"
                           Icon="{materialDesign:PackIcon Kind=Refresh}" />
+                <MenuItem Header="{Binding OpenConfigFolderMenuText}"
+                          Command="{Binding OpenConfigFolderCommand}"
+                          Icon="{materialDesign:PackIcon Kind=Folder}" />
             </MenuItem>
         </Menu>
 

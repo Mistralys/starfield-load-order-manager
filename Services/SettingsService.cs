@@ -89,6 +89,11 @@ namespace LoadOrderKeeper.Services
             return Directory.Exists(appDataPath) ? appDataPath : string.Empty;
         }
 
+        public static string GetConfigFolderPath()
+        {
+            return Path.GetDirectoryName(ConfigPath) ?? string.Empty;
+        }
+
         /// <summary>
         /// Checks if Starfield was installed via Steam by detecting Steam installation paths.
         /// </summary>

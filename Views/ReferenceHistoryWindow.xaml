@@ -199,9 +199,10 @@
                     Command="{Binding CloseCommand}"
                     Style="{StaticResource MaterialDesignOutlinedButton}" />
         </StackPanel>
-
+        
         <!-- Configuration Invalid Overlay -->
-        <controls:ConfigInvalidOverlay Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+        <controls:ConfigInvalidOverlay Grid.RowSpan="4"
+                                      Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>
 </Window>

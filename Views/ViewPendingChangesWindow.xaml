@@ -183,9 +183,10 @@
                         Style="{StaticResource MaterialDesignOutlinedButton}" />
             </StackPanel>
         </Border>
-
+        
         <!-- Configuration Invalid Overlay -->
-        <controls:ConfigInvalidOverlay Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+        <controls:ConfigInvalidOverlay Grid.RowSpan="5"
+                                      Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>
 </Window>

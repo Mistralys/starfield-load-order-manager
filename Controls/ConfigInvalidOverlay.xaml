@@ -18,59 +18,38 @@
         <Border Background="{DynamicResource MaterialDesignPaper}"
                 CornerRadius="8"
                 Padding="32"
-                MaxWidth="500"
+                MaxWidth="450"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Effect="{StaticResource MaterialDesignElevationShadow4}">
             <StackPanel>
                 <!-- Error icon -->
                 <materialDesign:PackIcon Kind="AlertCircle"
-                                        Width="64"
-                                        Height="64"
+                                        Width="48"
+                                        Height="48"
                                         HorizontalAlignment="Center"
-                                        Margin="0,0,0,24"
+                                        Margin="0,0,0,16"
                                         Foreground="{DynamicResource MaterialDesign.Brush.Error}" />
                 
                 <!-- Title -->
                 <TextBlock Text="Configuration Required"
-                          Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                          Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                           Foreground="{DynamicResource MaterialDesignBody}"
                           TextAlignment="Center"
-                          Margin="0,0,0,16" />
+                          Margin="0,0,0,12" />
                 
                 <!-- Message -->
                 <TextBlock TextWrapping="Wrap"
                           TextAlignment="Center"
                           Style="{StaticResource MaterialDesignBody1TextBlock}"
                           Foreground="{DynamicResource MaterialDesignBody}"
-                          LineHeight="24"
-                          Margin="0,0,0,8">
-                    <Run Text="The application configuration is invalid and must be fixed before this window can be used." />
-                </TextBlock>
-                
-                <!-- Guidance -->
-                <TextBlock TextWrapping="Wrap"
-                          TextAlignment="Center"
-                          Style="{StaticResource MaterialDesignBody2TextBlock}"
-                          Foreground="{DynamicResource MaterialDesignBodyLight}"
-                          LineHeight="20"
+                          LineHeight="22"
                           Margin="0,0,0,16">
-                    <Run Text="Please open the settings dialog from the main window to fix the configuration. This window will remain open and become usable again when the configuration is valid." />
+                    <Run Text="Please fix the configuration in the main window's settings." />
+                    <LineBreak />
+                    <Run Text="This window will become usable when the configuration is valid." 
+                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 </TextBlock>
-                
-                <!-- Reassurance -->
-                <Border Background="{DynamicResource MaterialDesignDivider}"
-                        CornerRadius="4"
-                        Padding="16,12">
-                    <TextBlock TextWrapping="Wrap"
-                              TextAlignment="Center"
-                              Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                              Foreground="{DynamicResource MaterialDesignBodyLight}"
-                              FontStyle="Italic"
-                              LineHeight="18">
-                        <Run Text="Your window state is preserved. All functionality will be restored automatically when the configuration is fixed." />
-                    </TextBlock>
-                </Border>
             </StackPanel>
         </Border>
     </Grid>

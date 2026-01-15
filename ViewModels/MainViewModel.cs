@@ -478,7 +478,6 @@ namespace LoadOrderKeeper.ViewModels
             UpdateFileMonitorState();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
-            ShowDiffCommand?.NotifyCanExecuteChanged();
         }
 
         partial void OnIsBusyChanged(bool value)
@@ -486,7 +485,6 @@ namespace LoadOrderKeeper.ViewModels
             UpdateFileMonitorState();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
-            ShowDiffCommand?.NotifyCanExecuteChanged();
         }
  
         private void OpenPluginsFile()
@@ -847,11 +845,6 @@ namespace LoadOrderKeeper.ViewModels
  
         private async Task ShowDiffAsync()
         {
-            if (!Config.IsValid())
-            {
-                return;
-            }
-
             // If diff window is already open, bring it to front
             if (_diffWindow != null)
             {
@@ -917,7 +910,6 @@ namespace LoadOrderKeeper.ViewModels
                 {
                     NotifyFileCommandsCanExecuteChanged();
                     PlayGameCommand?.NotifyCanExecuteChanged();
-                    ShowDiffCommand?.NotifyCanExecuteChanged();
                     CreateReferenceCommand?.NotifyCanExecuteChanged();
                     FixLoadOrderCommand?.NotifyCanExecuteChanged();
                     DiscardChangesCommand?.NotifyCanExecuteChanged();

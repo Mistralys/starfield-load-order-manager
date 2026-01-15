@@ -1,6 +1,6 @@
 # Views & Converters API
 
-> Public API signatures for Views (Windows) and Value Converters.
+> Public API signatures for Views (Windows), User Controls, and Value Converters.
 
 ---
 
@@ -50,6 +50,11 @@ public partial class DiffWindow : Window
 }
 ```
 
+**Configuration Overlay:**
+- Includes `ConfigInvalidOverlay` control with `Grid.RowSpan` spanning all rows.
+- Overlay visibility bound to `ShowOverlay` property in ViewModel.
+- Positioned with `Panel.ZIndex="1000"` to ensure it appears on top of all content.
+
 ### `LoadOrderKeeper.Views.ManageProfilesWindow`
 
 ```csharp
@@ -58,6 +63,11 @@ public partial class ManageProfilesWindow : Window
     public ManageProfilesWindow(AppConfigModel config);
 }
 ```
+
+**Configuration Overlay:**
+- Includes `ConfigInvalidOverlay` control with `Grid.RowSpan` spanning all rows.
+- Overlay visibility bound to `ShowOverlay` property in ViewModel.
+- Positioned with `Panel.ZIndex="1000"` to ensure it appears on top of all content.
 
 ### `LoadOrderKeeper.Views.ReferenceHistoryWindow`
 
@@ -68,6 +78,11 @@ public partial class ReferenceHistoryWindow : Window
 }
 ```
 
+**Configuration Overlay:**
+- Includes `ConfigInvalidOverlay` control with `Grid.RowSpan` spanning all rows.
+- Overlay visibility bound to `ShowOverlay` property in ViewModel.
+- Positioned with `Panel.ZIndex="1000"` to ensure it appears on top of all content.
+
 ### `LoadOrderKeeper.Views.ViewPendingChangesWindow`
 
 ```csharp
@@ -76,6 +91,11 @@ public partial class ViewPendingChangesWindow : Window
     public ViewPendingChangesWindow();
 }
 ```
+
+**Configuration Overlay:**
+- Includes `ConfigInvalidOverlay` control with `Grid.RowSpan` spanning all rows.
+- Overlay visibility bound to `ShowOverlay` property in ViewModel.
+- Positioned with `Panel.ZIndex="1000"` to ensure it appears on top of all content.
 
 ---
 
@@ -89,6 +109,11 @@ public partial class SwitchProfileWindow : Window
     public SwitchProfileWindow(AppConfigModel config);
 }
 ```
+
+**Configuration Overlay:**
+- Includes `ConfigInvalidOverlay` control with `Grid.RowSpan` spanning all rows.
+- Overlay visibility bound to `ShowOverlay` property in ViewModel.
+- Positioned with `Panel.ZIndex="1000"` to ensure it appears on top of all content.
 
 ### `LoadOrderKeeper.Views.ProfilePropertiesWindow`
 
@@ -140,6 +165,41 @@ public partial class UpdateOptionsDialog : Window
 {
     public UpdateOptionsDialog();
 }
+```
+
+---
+
+## User Controls
+
+### `LoadOrderKeeper.Controls.ConfigInvalidOverlay`
+
+```csharp
+public partial class ConfigInvalidOverlay : UserControl
+{
+    public ConfigInvalidOverlay();
+}
+```
+
+**Design:**
+- Material Design v5 styled overlay control for blocking window interaction when configuration is invalid.
+- Semi-transparent dark background (`#CC000000`) covering entire window area.
+- Centered message card with Material Design elevation shadow.
+- Alert icon (48x48) in error color at top of card.
+- Concise title: "Configuration Required".
+- Brief message explaining need to fix configuration in main window settings.
+- Secondary text explaining automatic recovery when configuration becomes valid.
+
+**Usage:**
+- Added to window XAML with `Grid.RowSpan` spanning all grid rows to overlay entire window.
+- Visibility bound to ViewModel's `ShowOverlay` property (`!IsConfigValid && !IsOperationInProgress`).
+- Positioned with `Panel.ZIndex="1000"` to ensure it appears on top of all other content.
+- No interaction required—purely informational and automatically hides when configuration becomes valid.
+
+**XAML Integration:**
+```xaml
+<controls:ConfigInvalidOverlay Grid.RowSpan="N"
+                              Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              Panel.ZIndex="1000" />
 ```
 
 ---

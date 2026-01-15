@@ -21,8 +21,14 @@
 - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
 - `AppConfigModel.IsValid()` also requires `Plugins.txt` to exist in `StarfieldAppDataPath` (cannot be auto-generated, user must run Starfield at least once).
 - `AppConfigModel.IsValid()` validates Profiles folder creation and writability with test file.
-- The app shuts down when configuration remains invalid after the settings dialog.
-- `ConfigurationCoordinator.ValidationChanged` event fires when validation state changes, triggering command `CanExecute` updates.
+- **Invalid Configuration Handling**: Application remains open when configuration is invalid; error banner shown in main window with "Open settings" button.
+- **Secondary Window Overlays**: DiffWindow, ManageProfilesWindow, ReferenceHistoryWindow, ViewPendingChangesWindow, and SwitchProfileWindow show `ConfigInvalidOverlay` when configuration becomes invalid.
+- **Overlay Behavior**: Semi-transparent dark overlay blocks all window interaction; automatically disappears when configuration becomes valid again.
+- **State Preservation**: Windows remain open and preserve state during invalid configuration periods; no data loss occurs.
+- **Operation Management**: `IsOperationInProgress` flag prevents overlay display during active file operations to allow completion without interruption.
+- `ConfigurationCoordinator.ValidationChanged` event fires when validation state changes, triggering command `CanExecute` updates and overlay visibility changes in secondary windows.
+- **Command Restrictions**: File menu commands (`OpenPluginsFile`, `OpenReferenceFile`, etc.) and Play button still require valid configuration as they operate in main window without overlay protection.
+- **ShowDiffCommand**: No longer checks `Config.IsValid()` in CanExecute; overlay protection replaces button disabling for better UX.
 
 ---
 
@@ -131,7 +137,4 @@
 - All operations gated by validation check to prevent I/O failures with invalid paths.
 - `ConfigurationCoordinator.GetValidationResult()` provides detailed error messages for debugging and user feedback.
 - Centralized error messages in `Constants/UserMessages.cs` for easy modification and future localization.
-
----
-
-[? Back to Index](README.md)
+- **Overlay Integration**: Secondary windows subscribe to `ConfigurationCoordinator.ValidationChanged` event via constructor injection for real-time overlay management.

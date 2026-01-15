@@ -628,7 +628,7 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private async Task SwitchProfileAsync()
         {
-            var switchVm = new SwitchProfileViewModel(Config);
+            var switchVm = new SwitchProfileViewModel(Config, _configCoordinator);
             var switchWindow = new SwitchProfileWindow(Config)
             {
                 Owner = WpfApplication.Current?.MainWindow,

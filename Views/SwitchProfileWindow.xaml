@@ -4,6 +4,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:models="clr-namespace:LoadOrderKeeper.Models"
         xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
+        xmlns:controls="clr-namespace:LoadOrderKeeper.Controls"
         Title="{Binding WindowTitle}"
         Height="500"
         Width="600"
@@ -119,5 +120,10 @@
                      IsIndeterminate="True"
                      Height="4"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        
+        <!-- Configuration Invalid Overlay -->
+        <controls:ConfigInvalidOverlay Grid.RowSpan="3"
+                                      Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      Panel.ZIndex="1000" />
     </Grid>
 </Window>

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.1 - Invalid Config Handling
+- Configuration: Removed all paths leading to the app closing on its own.
+- General: Added error overlays to all windows when the configuration is invalid.
+- General: The "Manage changes" button now stays enabled even if the configuration is invalid.
+- General: More graceful handling of invalid configuration on startup.
+- Core: Added a debug menu item to open the app's configuration folder.
+
 ## v1.7.0 - Pending Changes Dialog
 - Profiles: Added a dialog to view all pending changes.
 - Profiles: Fixed the change comment being stored for the wrong version in the version archive ([#14](https://github.com/Mistralys/starfield-load-order-manager/issues/14)).

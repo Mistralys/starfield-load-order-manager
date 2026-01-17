@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Window Title -->
+  <data name="WindowTitleFormat" xml:space="preserve">
+    <value>Starfield Load Order Keeper v{0}</value>
+    <comment>Main window title format. {0} is the version number</comment>
+  </data>
+  
+  <!-- Menu: File -->
+  <data name="FileMenuHeader" xml:space="preserve">
+    <value>_Fichier</value>
+    <comment>File menu header (underscore indicates mnemonic key)</comment>
+  </data>
+  <data name="OpenPluginsMenuText" xml:space="preserve">
+    <value>Ouvrir _Plugins.txt</value>
+    <comment>Menu item to open Plugins.txt file</comment>
+  </data>
+  <data name="OpenReferenceMenuText" xml:space="preserve">
+    <value>Ouvrir fichier de _référence</value>
+    <comment>Menu item to open reference file</comment>
+  </data>
+  <data name="OpenAppDataFolderMenuText" xml:space="preserve">
+    <value>Ouvrir dossier _AppData</value>
+    <comment>Menu item to open AppData folder</comment>
+  </data>
+  <data name="OpenGameFolderMenuText" xml:space="preserve">
+    <value>Ouvrir dossier du _jeu</value>
+    <comment>Menu item to open game installation folder</comment>
+  </data>
+  <data name="ExitMenuText" xml:space="preserve">
+    <value>_Quitter</value>
+    <comment>Menu item to exit application</comment>
+  </data>
+  
+  <!-- Menu: Edit -->
+  <data name="EditMenuHeader" xml:space="preserve">
+    <value>_Édition</value>
+    <comment>Edit menu header</comment>
+  </data>
+  <data name="SettingsMenuText" xml:space="preserve">
+    <value>_Paramètres...</value>
+    <comment>Menu item to open settings</comment>
+  </data>
+  
+  <!-- Menu: Profile -->
+  <data name="ProfileMenuHeader" xml:space="preserve">
+    <value>_Profil</value>
+    <comment>Profile menu header</comment>
+  </data>
+  <data name="SwitchProfileMenuText" xml:space="preserve">
+    <value>_Changer de profil...</value>
+    <comment>Menu item to switch profile</comment>
+  </data>
+  <data name="ManageProfilesMenuText" xml:space="preserve">
+    <value>_Gérer les profils...</value>
+    <comment>Menu item to manage profiles</comment>
+  </data>
+  <data name="ViewPendingChangesMenuText" xml:space="preserve">
+    <value>_Voir les modifications en attente...</value>
+    <comment>Menu item to view pending changes</comment>
+  </data>
+  <data name="ReferenceHistoryMenuText" xml:space="preserve">
+    <value>Historique des modifications...</value>
+    <comment>Menu item to view reference history</comment>
+  </data>
+  
+  <!-- Menu: Help -->
+  <data name="HelpMenuHeader" xml:space="preserve">
+    <value>_Aide</value>
+    <comment>Help menu header</comment>
+  </data>
+  <data name="CheckForUpdatesMenuText" xml:space="preserve">
+    <value>Vérifier les _mises à jour...</value>
+    <comment>Menu item to check for updates</comment>
+  </data>
+  <data name="AboutMenuText" xml:space="preserve">
+    <value>À _propos...</value>
+    <comment>Menu item to show About window</comment>
+  </data>
+  
+  <!-- Menu: Debug -->
+  <data name="DebugMenuHeader" xml:space="preserve">
+    <value>_Débogage</value>
+    <comment>Debug menu header</comment>
+  </data>
+  <data name="ResetConfigMenuText" xml:space="preserve">
+    <value>_Réinitialiser la configuration (pour les tests)...</value>
+    <comment>Menu item to reset configuration</comment>
+  </data>
+  <data name="OpenConfigFolderMenuText" xml:space="preserve">
+    <value>Ouvrir le dossier de _configuration</value>
+    <comment>Menu item to open configuration folder</comment>
+  </data>
+  
+  <!-- Error Banner -->
+  <data name="ConfigErrorBannerText" xml:space="preserve">
+    <value>Erreur de configuration des chemins, veuillez vérifier les chemins configurés.</value>
+    <comment>Error banner text when configuration is invalid</comment>
+  </data>
+  <data name="OpenSettingsButtonText" xml:space="preserve">
+    <value>Ouvrir les paramètres</value>
+    <comment>Button text to open settings from error banner</comment>
+  </data>
+  
+  <!-- Update Banner -->
+  <data name="DownloadOptionsButtonText" xml:space="preserve">
+    <value>Options de téléchargement...</value>
+    <comment>Button text for download options</comment>
+  </data>
+  <data name="DismissTooltip" xml:space="preserve">
+    <value>Ignorer</value>
+    <comment>Tooltip for dismiss button</comment>
+  </data>
+  
+  <!-- Profile Section -->
+  <data name="ActiveProfilePrefixText" xml:space="preserve">
+    <value>Profil actif : </value>
+    <comment>Prefix text before active profile name (note trailing space)</comment>
+  </data>
+  
+  <!-- Main Buttons -->
+  <data name="ShowChangesButtonText" xml:space="preserve">
+    <value>Gérer l'ordre de chargement</value>
+    <comment>Button text to show changes (without count)</comment>
+  </data>
+  <data name="ShowChangesButtonTextWithCount" xml:space="preserve">
+    <value>Gérer l'ordre de chargement ({0} modifications)</value>
+    <comment>Button text to show changes with count. {0} is the number of changes</comment>
+  </data>
+  
+  <!-- Status Messages -->
+  <data name="RecentStatusMessagesText" xml:space="preserve">
+    <value>Messages d'état récents :</value>
+    <comment>Label for status message history section</comment>
+  </data>
+  <data name="PluginsModifiedWarningText" xml:space="preserve">
+    <value>Plugins.txt a été modifié en dehors de Load Order Keeper.</value>
+    <comment>Warning message when Plugins.txt is modified externally</comment>
+  </data>
+  
+  <!-- Play Button -->
+  <data name="PlayButtonSfse" xml:space="preserve">
+    <value>Jouer (SFSE)</value>
+    <comment>Play button text when SFSE is installed</comment>
+  </data>
+  <data name="PlayButtonVanilla" xml:space="preserve">
+    <value>Jouer (Vanilla)</value>
+    <comment>Play button text when SFSE is not installed</comment>
+  </data>
+  
+  <!-- Update Check -->
+  <data name="UpdateAvailableFormat" xml:space="preserve">
+    <value>La version {0} est disponible !</value>
+    <comment>Update notification message format. {0} is the version number</comment>
+  </data>
+</root>

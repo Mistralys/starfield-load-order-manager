@@ -55,35 +55,38 @@ namespace LoadOrderKeeper.ViewModels
 
         public string PlayButtonText => _gameLauncher.PlayButtonText;
 
-        public string WindowTitle => $"Starfield Load Order Keeper v{VersionService.GetApplicationVersion()}";
-        public string FileMenuHeader { get; } = "_File";
-        public string OpenPluginsMenuText { get; } = "Open _Plugins.txt";
-        public string OpenReferenceMenuText { get; } = "Open _Reference File";
-        public string OpenAppDataFolderMenuText { get; } = "Open _AppData Folder";
-        public string OpenGameFolderMenuText { get; } = "Open _Game Folder";
-        public string ExitMenuText { get; } = "E_xit";
-        public string EditMenuHeader { get; } = "_Edit";
-        public string SettingsMenuText { get; } = "_Settings...";
-        public string HelpMenuHeader { get; } = "_Help";
-        public string CheckForUpdatesMenuText { get; } = "Check for _Updates...";
-        public string AboutMenuText { get; } = "_About...";
-        public string DebugMenuHeader { get; } = "_Debug";
-        public string ResetConfigMenuText { get; } = "_Reset Configuration (for testing)...";
-        public string OpenConfigFolderMenuText { get; } = "Open _Configuration Folder";
-        public string DownloadOptionsButtonText { get; } = "Download options...";
+        public string WindowTitle => string.Format(Resources.MainWindowResources.WindowTitleFormat, VersionService.GetApplicationVersion());
+        public string FileMenuHeader => Resources.MainWindowResources.FileMenuHeader;
+        public string OpenPluginsMenuText => Resources.MainWindowResources.OpenPluginsMenuText;
+        public string OpenReferenceMenuText => Resources.MainWindowResources.OpenReferenceMenuText;
+        public string OpenAppDataFolderMenuText => Resources.MainWindowResources.OpenAppDataFolderMenuText;
+        public string OpenGameFolderMenuText => Resources.MainWindowResources.OpenGameFolderMenuText;
+        public string ExitMenuText => Resources.MainWindowResources.ExitMenuText;
+        public string EditMenuHeader => Resources.MainWindowResources.EditMenuHeader;
+        public string SettingsMenuText => Resources.MainWindowResources.SettingsMenuText;
+        public string HelpMenuHeader => Resources.MainWindowResources.HelpMenuHeader;
+        public string CheckForUpdatesMenuText => Resources.MainWindowResources.CheckForUpdatesMenuText;
+        public string AboutMenuText => Resources.MainWindowResources.AboutMenuText;
+        public string DebugMenuHeader => Resources.MainWindowResources.DebugMenuHeader;
+        public string ResetConfigMenuText => Resources.MainWindowResources.ResetConfigMenuText;
+        public string OpenConfigFolderMenuText => Resources.MainWindowResources.OpenConfigFolderMenuText;
+        public string DownloadOptionsButtonText => Resources.MainWindowResources.DownloadOptionsButtonText;
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
-        public string PluginsModifiedWarningText { get; } = "Plugins.txt was modified outside Load Order Keeper.";
-        public string ActiveProfilePrefixText { get; } = "Active Profile: ";
-        public string ProfileMenuHeader { get; } = "_Profile";
-        public string SwitchProfileMenuText { get; } = "_Switch Profile...";
-        public string ManageProfilesMenuText { get; } = "_Manage Profiles...";
-        public string RecentStatusMessagesText { get; } = "Recent Status Messages:";
-        public string ReferenceHistoryMenuText { get; } = "History of changes...";
-        public string ViewPendingChangesMenuText { get; } = "_View Pending Changes...";
+        public string PluginsModifiedWarningText => Resources.MainWindowResources.PluginsModifiedWarningText;
+        public string ActiveProfilePrefixText => Resources.MainWindowResources.ActiveProfilePrefixText;
+        public string ProfileMenuHeader => Resources.MainWindowResources.ProfileMenuHeader;
+        public string SwitchProfileMenuText => Resources.MainWindowResources.SwitchProfileMenuText;
+        public string ManageProfilesMenuText => Resources.MainWindowResources.ManageProfilesMenuText;
+        public string RecentStatusMessagesText => Resources.MainWindowResources.RecentStatusMessagesText;
+        public string ReferenceHistoryMenuText => Resources.MainWindowResources.ReferenceHistoryMenuText;
+        public string ViewPendingChangesMenuText => Resources.MainWindowResources.ViewPendingChangesMenuText;
+        public string ConfigErrorBannerText => Resources.MainWindowResources.ConfigErrorBannerText;
+        public string OpenSettingsButtonText => Resources.MainWindowResources.OpenSettingsButtonText;
+        public string DismissTooltip => Resources.MainWindowResources.DismissTooltip;
 
         [ObservableProperty]
-        private string _showChangesButtonText = "Manage load order";
+        private string _showChangesButtonText = Resources.MainWindowResources.ShowChangesButtonText;
 
         // Pass-through properties from FileMonitoringCoordinator
         public bool PluginsFileChangedExternally => _fileMonitor.PluginsFileChangedExternally;
@@ -839,8 +842,8 @@ namespace LoadOrderKeeper.ViewModels
         private void UpdateChangeCountDisplay(int changeCount)
         {
             ShowChangesButtonText = changeCount > 0 
-                ? $"Manage load order ({changeCount} changes)"
-                : "Manage load order";
+                ? string.Format(Resources.MainWindowResources.ShowChangesButtonTextWithCount, changeCount)
+                : Resources.MainWindowResources.ShowChangesButtonText;
         }
  
         private async Task ShowDiffAsync()

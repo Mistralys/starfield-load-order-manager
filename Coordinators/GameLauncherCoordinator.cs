@@ -12,7 +12,7 @@ namespace LoadOrderKeeper.Coordinators
     public sealed class GameLauncherCoordinator : CoordinatorBase
     {
         private string? _gamePath;
-        private string _playButtonText = "Play (Vanilla)";
+        private string _playButtonText = string.Empty;
         private bool _hasSfseInstalled;
 
         /// <summary>
@@ -147,8 +147,8 @@ namespace LoadOrderKeeper.Coordinators
         private void UpdatePlayButtonText()
         {
             PlayButtonText = HasSfseInstalled
-                ? "Play (SFSE)"
-                : "Play (Vanilla)";
+                ? Resources.MainWindowResources.PlayButtonSfse
+                : Resources.MainWindowResources.PlayButtonVanilla;
         }
 
         protected override void OnDisposing()

@@ -100,13 +100,15 @@
                                         Foreground="{DynamicResource MaterialDesignPaper}" />
 
                 <TextBlock Grid.Column="1"
-                          Text="Path configuration error, please review the configured paths."
+                          Text="{Binding ConfigErrorBannerText}"
+                          d:Text="Path configuration error, please review the configured paths."
                           VerticalAlignment="Center"
                           Foreground="{DynamicResource MaterialDesignPaper}"
                           TextWrapping="Wrap" />
 
                 <Button Grid.Column="2"
-                       Content="Open settings"
+                       Content="{Binding OpenSettingsButtonText}"
+                       d:Content="Open settings"
                        Command="{Binding OpenSettingsFromErrorBannerCommand}"
                        Style="{StaticResource MaterialDesignOutlinedButton}"
                        Margin="8,0,0,0"
@@ -161,7 +163,7 @@
                        Height="30"
                        Padding="0"
                        Foreground="{DynamicResource MaterialDesignPaper}"
-                       ToolTip="Dismiss" />
+                       ToolTip="{Binding DismissTooltip}" />
             </Grid>
         </Border>
 

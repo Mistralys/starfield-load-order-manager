@@ -55,6 +55,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>CommonResources.resx</DependentUpon>
     </Compile>
+    <Compile Update="Resources\MainWindowResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MainWindowResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -77,6 +82,16 @@
     <EmbeddedResource Update="Resources\CommonResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>CommonResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\MainWindowResources.de.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\MainWindowResources.fr.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\MainWindowResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MainWindowResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonOk" xml:space="preserve">
+    <value>OK</value>
+    <comment>Standard OK button label</comment>
+  </data>
+  <data name="ButtonCancel" xml:space="preserve">
+    <value>Annuler</value>
+    <comment>Standard Cancel button label</comment>
+  </data>
+  <data name="ButtonYes" xml:space="preserve">
+    <value>Oui</value>
+    <comment>Standard Yes button label</comment>
+  </data>
+  <data name="ButtonNo" xml:space="preserve">
+    <value>Non</value>
+    <comment>Standard No button label</comment>
+  </data>
+  <data name="ButtonSave" xml:space="preserve">
+    <value>Enregistrer</value>
+    <comment>Standard Save button label</comment>
+  </data>
+  <data name="ButtonClose" xml:space="preserve">
+    <value>Fermer</value>
+    <comment>Standard Close button label</comment>
+  </data>
+  <data name="ConfigInvalidGuidance" xml:space="preserve">
+    <value>
+
+La cause probable est que la configuration actuelle n'est pas valide. Veuillez vous référer au message d'erreur dans la fenêtre principale pour corriger cela.</value>
+    <comment>Guidance message appended to errors when configuration is invalid</comment>
+  </data>
+  <data name="ProfilesFolderRequired" xml:space="preserve">
+    <value>L'application nécessite un dossier 'Profiles' dans votre chemin de données d'application configuré pour stocker les données de profil. Ce dossier n'a pas pu être créé ou accessible. Veuillez vérifier les permissions du dossier ou sélectionner un autre chemin de données d'application dans les paramètres.</value>
+    <comment>Error when Profiles folder cannot be created or accessed</comment>
+  </data>
+  <data name="ProfilesFolderAccessDenied" xml:space="preserve">
+    <value>Accès refusé lors de la création du dossier Profiles. Vous pourriez avoir besoin de droits d'administrateur ou de choisir un emplacement différent.</value>
+    <comment>Error when access is denied to Profiles folder</comment>
+  </data>
+  <data name="PluginsTxtRequired" xml:space="preserve">
+    <value>Le fichier Plugins.txt n'a pas été trouvé dans le chemin de données d'application configuré. Ce fichier est requis pour le fonctionnement de l'application. Veuillez vous assurer d'avoir exécuté Starfield au moins une fois pour générer ce fichier, ou sélectionner le bon dossier de données d'application dans les paramètres.</value>
+    <comment>Error when Plugins.txt is not found</comment>
+  </data>
+  <data name="ErrorPrefix" xml:space="preserve">
+    <value>ERREUR : {0}</value>
+    <comment>Format string for error messages. {0} is the error details</comment>
+  </data>
+</root>

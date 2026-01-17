@@ -163,6 +163,33 @@ public static class DateTimeFormattingService
 }
 ```
 
+### `LoadOrderKeeper.Services.LocalizationService`
+
+```csharp
+public class LocalizationService
+{
+    public LocalizationService();
+    
+    public CultureInfo CurrentCulture { get; }
+    public FlowDirection CurrentFlowDirection { get; }
+    
+    public void SetCulture(string cultureName);
+    public string GetPlural(int count, string singularFormat, string pluralFormat);
+    public string GetPluralFromResources(ResourceManager resourceManager, int count, string singularKey, string pluralKey);
+    public IEnumerable<CultureInfo> GetSupportedCultures();
+    public string GetCultureDisplayName(CultureInfo culture);
+    
+    public event EventHandler? CultureChanged;
+}
+```
+
+**Usage:**
+- Access via `App.LocalizationService` singleton
+- Pass `"auto"` to `SetCulture()` for automatic system culture detection
+- Pass specific culture code (e.g., `"fr-FR"`, `"de-DE"`) for explicit language
+- Subscribe to `CultureChanged` event in ViewModels to refresh localized properties
+- `CurrentFlowDirection` prepared for RTL language support (returns `LeftToRight` or `RightToLeft`)
+
 ---
 
 [? Back to Index](README.md)

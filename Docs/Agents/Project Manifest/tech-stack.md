@@ -56,6 +56,39 @@ Coordinators handle specific domain logic and state management:
 - `UpdateCheckService`: GitHub API integration for version checking with caching
 - `ReferenceHistoryService`: version history management, archiving, rollback, and pending changes tracking
 - `DateTimeFormattingService`: user-friendly date/time formatting utilities
+- `LocalizationService`: application localization and culture management
+
+---
+
+## Localization System
+
+### Architecture
+
+- **Resource files**: `.resx` files in `Resources/` folder for default (English) and localized strings
+- **Satellite assemblies**: Culture-specific `.resources.dll` files generated in `bin/{culture}/` folders (e.g., `bin/Debug/net9.0-windows/fr/`)
+- **Designer files**: Auto-generated strongly-typed accessors with `public` visibility via `PublicResXFileCodeGenerator`
+- **Culture detection**: Automatic detection from `CultureInfo.CurrentUICulture` or explicit override via `AppConfigModel.PreferredLanguage`
+
+### Resource Files
+
+- **`CommonResources.resx`**: Shared UI strings (buttons, common messages, error messages)
+- **`AboutWindowResources.resx`**: About window specific strings
+- Additional culture-specific files: `.de.resx` (German), `.fr.resx` (French)
+
+### Implementation
+
+- `LocalizationService` initialized in `App.OnStartup()` before window creation
+- Culture applied via `LocalizationService.SetCulture(cultureName)` which sets both `CurrentUICulture` and `CurrentCulture`
+- ViewModels access resources via strongly-typed properties (e.g., `CommonResources.ButtonOk`)
+- Culture changes broadcast via `LocalizationService.CultureChanged` event for dynamic UI updates
+- `UserMessages` class serves as facade over `CommonResources` for centralized message access
+- `FlowDirection` support prepared for future RTL (Right-to-Left) languages
+
+### Configuration
+
+- Project file (`.csproj`) specifies `PublicResXFileCodeGenerator` as custom tool for all `.resx` files
+- Designer files must be regenerated after editing `.resx` files (right-click ? Run Custom Tool in Visual Studio)
+- Culture preference stored in `AppConfigModel.PreferredLanguage` (defaults to `"auto"` for system detection)
 
 ---
 

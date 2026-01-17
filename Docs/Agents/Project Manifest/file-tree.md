@@ -31,6 +31,15 @@
 ?     ?? SteamWarningChangedEventArgs.cs
 ?     ?? ProfileChangedEventArgs.cs
 ?     ?? ConfigValidationChangedEventArgs.cs
+?? Resources/
+?  ?? CommonResources.resx
+?  ?? CommonResources.fr.resx
+?  ?? CommonResources.de.resx
+?  ?? CommonResources.Designer.cs
+?  ?? AboutWindowResources.resx
+?  ?? AboutWindowResources.fr.resx
+?  ?? AboutWindowResources.de.resx
+?  ?? AboutWindowResources.Designer.cs
 ?? Models/
 ?  ?? AppConfigModel.cs
 ?  ?? DiffLineModel.cs
@@ -46,6 +55,7 @@
 ?  ?? DateTimeFormattingService.cs
 ?  ?? DiffService.cs
 ?  ?? FileService.cs
+?  ?? LocalizationService.cs
 ?  ?? ProfileService.cs
 ?  ?? ReferenceHistoryService.cs
 ?  ?? SettingsService.cs

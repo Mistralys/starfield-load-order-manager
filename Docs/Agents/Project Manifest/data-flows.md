@@ -6,9 +6,10 @@
 
 ## Startup & Configuration
 
-- `App.OnStartup` creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows it.
+- `App.OnStartup` initializes `LocalizationService` first, loads settings via `SettingsService.LoadSettingsAsync()`, applies preferred language via `LocalizationService.SetCulture()`.
+- Creates `MainWindow`, sets `DataContext = new MainViewModel()`, and shows it.
 - `MainViewModel` initializes 6 coordinators: `FileMonitoringCoordinator`, `StatusCoordinator`, `UpdateCheckCoordinator`, `ProfileCoordinator`, `ConfigurationCoordinator`, `GameLauncherCoordinator`.
-- Loads settings via `SettingsService.LoadSettingsAsync()`, validates Profiles folder via `ProfileService.EnsureProfilesFolderExists()`.
+- Validates Profiles folder via `ProfileService.EnsureProfilesFolderExists()`.
 - Updates all coordinators with configuration via `UpdateConfiguration()` calls.
 - `ConfigurationCoordinator.UpdateConfiguration()` validates paths and Profiles folder writability.
 - `ProfileCoordinator.RefreshActiveProfileAsync()` loads active profile state.
@@ -19,6 +20,21 @@
 - If Profiles folder cannot be created or accessed, error dialog shown with option to open settings.
 - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
 - **Invalid Configuration Handling**: Application remains open with error banner when configuration is invalid; secondary windows can be opened but show modal overlay preventing operations until configuration is fixed.
+
+---
+
+## Localization Flow
+
+- `LocalizationService` singleton accessed via `App.LocalizationService` property; initialized in `App.OnStartup()` before any windows.
+- Culture preference loaded from `AppConfigModel.PreferredLanguage` (defaults to `"auto"` for system culture detection).
+- `LocalizationService.SetCulture(cultureName)` applies culture to both `CurrentUICulture` and `CurrentCulture` for consistent resource lookup and formatting.
+- Resource files (`.resx`) generate satellite assemblies in culture-specific folders (e.g., `bin/Debug/net9.0-windows/fr/StarfieldLoadOrderKeeper.resources.dll` for French).
+- ViewModels access resources via strongly-typed properties (e.g., `AboutWindowResources.ApplicationName` returns localized string based on current culture).
+- `LocalizationService.CultureChanged` event allows ViewModels to refresh localized properties dynamically (not currently exposed in UI, prepared for future settings).
+- `UserMessages` class provides centralized facade over `CommonResources` for consistent message access.
+- Designer files (`.Designer.cs`) auto-generated with `PublicResXFileCodeGenerator` to create public strongly-typed accessors.
+- Culture files follow naming convention: `CommonResources.fr.resx` (French), `CommonResources.de.resx` (German).
+- `FlowDirection` property prepared in AboutViewModel for future RTL (Right-to-Left) language support.
 
 ---
 

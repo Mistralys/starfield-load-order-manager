@@ -32,6 +32,7 @@ The application provides automated load order protection and management through:
 10. **Configuration Validation**: Real-time validation with clear visual feedback and graceful error handling
 11. **Modal Overlay Protection**: Secondary windows remain accessible with invalid configuration; overlay blocks operations until fixed
 12. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
+13. **Multi-Language Support**: Automatic language detection based on Windows display language (English, French, German)
 
 ---
 
@@ -44,8 +45,25 @@ The application is built as a **WPF .NET 9** desktop application using:
 - **Design**: Material Design v5 theme with dark mode
 - **Architecture**: MVVM pattern using CommunityToolkit.Mvvm with Coordinator pattern
 - **Coordinators**: Modular domain logic handlers for file monitoring, status, updates, profiles, configuration, and game launching
+- **Localization**: .NET resource files with automatic culture detection
 - **Testing**: xUnit for unit tests
 - **Dialogs**: Custom Material Design confirmation dialogs
+
+---
+
+## Internationalization & Localization
+
+The application supports **multiple languages** through .NET's built-in resource system with automatic language detection based on your Windows display language.
+
+**Supported Languages**: English (default), French (Français), German (Deutsch)
+
+**Key Features**:
+- Automatic Windows language detection - no configuration required
+- All user-facing text localized (buttons, menus, messages, dialogs)
+- Culture-aware date, time, and number formatting
+- Architecture ready for additional languages and RTL (Right-to-Left) support
+
+**? [Complete Localization Guide](localization.md)** - Technical details, contributing translations, troubleshooting
 
 ---
 
@@ -74,6 +92,7 @@ Technical architecture documentation:
 - **[User Interface Guidelines](ui-guidelines.md)** - Design principles, dialogs, buttons, status indicators
 - **[File Handling](file-handling.md)** - File formats, encoding, storage structure
 - **[Configuration](configuration.md)** - Configuration settings and path auto-discovery
+- **[Localization](localization.md)** - Multi-language support, contributing translations, technical details
 
 ---
 
@@ -93,6 +112,7 @@ Technical architecture documentation:
 - MVVM architecture ? [MVVM Structure](Architecture/mvvm-structure.md)
 - UI design principles ? [User Interface Guidelines](ui-guidelines.md)
 - File storage formats ? [File Handling](file-handling.md)
+- Localization and translations ? [Localization](localization.md)
 
 ---
 
@@ -103,14 +123,7 @@ The application maintains semantic versioning:
 - Retrieved from assembly attributes via `VersionService`
 - Commit hashes stripped for clean display (e.g., "1.3.0" not "1.3.0+abc123")
 - Copyright year updates automatically
-
-**Recent Major Features**:
-- v1.5.0: Configuration validation with error banners, real-time feedback, and modal overlay protection
-- v1.4.0: Reference history with versioning, rollback, and comment support
-- v1.3.0: Settings helper, dependent change grouping, confirmations, dark theme dialogs
-- v1.2.0: Status message history
-- v1.1.0: About dialog, always-open diff window
-- v1.0.0: Initial release with profile switching
+- All changes by version are listed in [changelog.md](/changelog.md)
 
 ---
 

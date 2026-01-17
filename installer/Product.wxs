@@ -18,7 +18,7 @@
         AllowDowngrades="no"
         DowngradeErrorMessage="A newer version of Starfield Load Order Keeper is already installed." />
 
-    <MediaTemplate />
+    <MediaTemplate EmbedCab="yes" />
 
     <!-- Installation directory -->
     <Directory Id="TARGETDIR" Name="SourceDir">

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Services;
@@ -10,19 +9,11 @@ namespace LoadOrderKeeper.ViewModels
 {
     public partial class AboutViewModel : ObservableObject
     {
-        // TODO: Uncomment these once AboutWindowResources.resx Designer.cs is regenerated with public properties
-        // public string ApplicationName => LoadOrderKeeper.Resources.AboutWindowResources.ApplicationName;
-        // public string Description => LoadOrderKeeper.Resources.AboutWindowResources.Description;
-        // public string HomepageButtonText => LoadOrderKeeper.Resources.AboutWindowResources.HomepageButtonText;
-        // public string CloseButtonText => LoadOrderKeeper.Resources.AboutWindowResources.CloseButtonText;
-        // public string VersionLabelText => LoadOrderKeeper.Resources.AboutWindowResources.VersionLabelText;
-        
-        // Temporary: Keep original values until Designer.cs is regenerated
-        public string ApplicationName { get; } = "Starfield Load Order Keeper";
-        public string Description { get; } = "A tool to help manage and maintain your Starfield mods load order once you have started a game.";
-        public string HomepageButtonText { get; } = "Homepage";
-        public string CloseButtonText { get; } = "Close";
-        public string VersionLabelText { get; } = "Version ";
+        public string ApplicationName => LoadOrderKeeper.Resources.AboutWindowResources.ApplicationName;
+        public string Description => LoadOrderKeeper.Resources.AboutWindowResources.Description;
+        public string HomepageButtonText => LoadOrderKeeper.Resources.AboutWindowResources.HomepageButtonText;
+        public string CloseButtonText => LoadOrderKeeper.Resources.AboutWindowResources.CloseButtonText;
+        public string VersionLabelText => LoadOrderKeeper.Resources.AboutWindowResources.VersionLabelText;
         
         public string ApplicationVersion { get; }
         public string Copyright { get; private set; }
@@ -34,8 +25,13 @@ namespace LoadOrderKeeper.ViewModels
         public AboutViewModel()
         {
             ApplicationVersion = VersionService.GetApplicationVersion();
-            Copyright = $"© 2025-{DateTime.Now.Year} Mistralys";
-            // TODO: Once Designer.cs is regenerated, use: string.Format(LoadOrderKeeper.Resources.AboutWindowResources.CopyrightFormat, DateTime.Now.Year);
+            Copyright = string.Format(LoadOrderKeeper.Resources.AboutWindowResources.CopyrightFormat, DateTime.Now.Year);
+            
+            // Debug: Log current culture information
+            System.Diagnostics.Debug.WriteLine($"[AboutViewModel] Current UI Culture: {System.Globalization.CultureInfo.CurrentUICulture.Name}");
+            System.Diagnostics.Debug.WriteLine($"[AboutViewModel] Current Culture: {System.Globalization.CultureInfo.CurrentCulture.Name}");
+            System.Diagnostics.Debug.WriteLine($"[AboutViewModel] LocalizationService Culture: {App.LocalizationService.CurrentCulture.Name}");
+            System.Diagnostics.Debug.WriteLine($"[AboutViewModel] ApplicationName from resources: {LoadOrderKeeper.Resources.AboutWindowResources.ApplicationName}");
             
             // Subscribe to culture changes to update FlowDirection
             App.LocalizationService.CultureChanged += OnCultureChanged;
@@ -44,16 +40,15 @@ namespace LoadOrderKeeper.ViewModels
         private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(FlowDirection));
-            // TODO: Uncomment once Designer.cs is regenerated
             // Refresh all localized strings
-            // OnPropertyChanged(nameof(ApplicationName));
-            // OnPropertyChanged(nameof(Description));
-            // OnPropertyChanged(nameof(HomepageButtonText));
-            // OnPropertyChanged(nameof(CloseButtonText));
-            // OnPropertyChanged(nameof(VersionLabelText));
+            OnPropertyChanged(nameof(ApplicationName));
+            OnPropertyChanged(nameof(Description));
+            OnPropertyChanged(nameof(HomepageButtonText));
+            OnPropertyChanged(nameof(CloseButtonText));
+            OnPropertyChanged(nameof(VersionLabelText));
             // Update copyright with new culture formatting
-            // Copyright = string.Format(LoadOrderKeeper.Resources.AboutWindowResources.CopyrightFormat, DateTime.Now.Year);
-            // OnPropertyChanged(nameof(Copyright));
+            Copyright = string.Format(LoadOrderKeeper.Resources.AboutWindowResources.CopyrightFormat, DateTime.Now.Year);
+            OnPropertyChanged(nameof(Copyright));
         }
 
         [RelayCommand]

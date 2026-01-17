@@ -12,28 +12,28 @@ namespace LoadOrderKeeper.Constants
         /// Guidance message to append to error messages when configuration is invalid.
         /// Directs the user to check the main window for the configuration error banner.
         /// </summary>
-        public static string ConfigInvalidGuidance => CommonResources.ConfigInvalidGuidance;
+        public static string ConfigInvalidGuidance => LoadOrderKeeper.Resources.CommonResources.ConfigInvalidGuidance;
         
         /// <summary>
         /// Error message when the Profiles folder cannot be created or accessed.
         /// Provides actionable guidance to the user.
         /// </summary>
-        public static string ProfilesFolderRequired => CommonResources.ProfilesFolderRequired;
+        public static string ProfilesFolderRequired => LoadOrderKeeper.Resources.CommonResources.ProfilesFolderRequired;
         
         /// <summary>
         /// Error message specifically for access denied errors on the Profiles folder.
         /// </summary>
-        public static string ProfilesFolderAccessDenied => CommonResources.ProfilesFolderAccessDenied;
+        public static string ProfilesFolderAccessDenied => LoadOrderKeeper.Resources.CommonResources.ProfilesFolderAccessDenied;
         
         /// <summary>
         /// Error message when Plugins.txt is not found in the app data folder.
         /// Directs the user to run Starfield to generate the file.
         /// </summary>
-        public static string PluginsTxtRequired => CommonResources.PluginsTxtRequired;
+        public static string PluginsTxtRequired => LoadOrderKeeper.Resources.CommonResources.PluginsTxtRequired;
         
         /// <summary>
         /// Format string for error messages. {0} is the error details.
         /// </summary>
-        public static string ErrorPrefix => CommonResources.ErrorPrefix;
+        public static string ErrorPrefix => LoadOrderKeeper.Resources.CommonResources.ErrorPrefix;
     }
 }

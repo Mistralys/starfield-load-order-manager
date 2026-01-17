@@ -1,0 +1,56 @@
+<UserControl x:Class="LoadOrderKeeper.Controls.ConfigInvalidOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=controls:ConfigInvalidOverlay}">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+    
+    <!-- Semi-transparent dark background -->
+    <Grid Background="#CC000000">
+        <!-- Centered message card -->
+        <Border Background="{DynamicResource MaterialDesignPaper}"
+                CornerRadius="8"
+                Padding="32"
+                MaxWidth="450"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Effect="{StaticResource MaterialDesignElevationShadow4}">
+            <StackPanel>
+                <!-- Error icon -->
+                <materialDesign:PackIcon Kind="AlertCircle"
+                                        Width="48"
+                                        Height="48"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,0,0,16"
+                                        Foreground="{DynamicResource MaterialDesign.Brush.Error}" />
+                
+                <!-- Title -->
+                <TextBlock Text="Configuration Required"
+                          Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                          Foreground="{DynamicResource MaterialDesignBody}"
+                          TextAlignment="Center"
+                          Margin="0,0,0,12" />
+                
+                <!-- Message -->
+                <TextBlock TextWrapping="Wrap"
+                          TextAlignment="Center"
+                          Style="{StaticResource MaterialDesignBody1TextBlock}"
+                          Foreground="{DynamicResource MaterialDesignBody}"
+                          LineHeight="22"
+                          Margin="0,0,0,16">
+                    <Run Text="Please fix the configuration in the main window's settings." />
+                    <LineBreak />
+                    <Run Text="This window will become usable when the configuration is valid." 
+                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

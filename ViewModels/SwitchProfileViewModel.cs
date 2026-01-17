@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 
@@ -13,6 +14,7 @@ namespace LoadOrderKeeper.ViewModels;
 public partial class SwitchProfileViewModel : ObservableObject
 {
     private readonly AppConfigModel _config;
+    private readonly ConfigurationCoordinator? _configCoordinator;
     private readonly string _activeProfileId;
     public string ActiveProfileId => _activeProfileId;
 
@@ -22,14 +24,36 @@ public partial class SwitchProfileViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+    private bool _isConfigValid = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+    private bool _isOperationInProgress;
+
+    public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
+
     public event EventHandler<ProfileModel>? ProfileSelected;
 
     public string WindowTitle => "Switch Profile";
 
-    public SwitchProfileViewModel(AppConfigModel config)
+    public SwitchProfileViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
+        _configCoordinator = configCoordinator;
         _activeProfileId = config.ActiveProfileId ?? "default";
+
+        if (_configCoordinator != null)
+        {
+            IsConfigValid = _configCoordinator.IsConfigValid;
+            _configCoordinator.ValidationChanged += OnConfigValidationChanged;
+        }
+    }
+
+    private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
+    {
+        IsConfigValid = e.IsValid;
     }
 
     public async Task LoadProfilesAsync()

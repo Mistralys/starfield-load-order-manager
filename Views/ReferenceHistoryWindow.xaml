@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
+        xmlns:controls="clr-namespace:LoadOrderKeeper.Controls"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         d:Title="Reference History"
@@ -198,5 +199,10 @@
                     Command="{Binding CloseCommand}"
                     Style="{StaticResource MaterialDesignOutlinedButton}" />
         </StackPanel>
+        
+        <!-- Configuration Invalid Overlay -->
+        <controls:ConfigInvalidOverlay Grid.RowSpan="4"
+                                      Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                      Panel.ZIndex="1000" />
     </Grid>
 </Window>

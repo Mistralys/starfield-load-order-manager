@@ -78,6 +78,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public IRelayCommand ExitApplicationCommand { get; }
     
     public FileMonitoringCoordinator GetFileMonitoringCoordinator();
+    public ConfigurationCoordinator GetConfigurationCoordinator();
     public void Dispose();
 }
 ```
@@ -85,7 +86,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
 **Window Management:**
 - Tracks `_diffWindow`, `_manageProfilesWindow`, `_referenceHistoryWindow`, and `_viewPendingChangesWindow` references to prevent duplicate instances.
 - Only tracks window references, not ViewModels—each window is self-managing via direct event subscriptions.
-- `GetFileMonitoringCoordinator()` exposes the coordinator for diff window event subscriptions.
+- `GetFileMonitoringCoordinator()` exposes the coordinator for diff window change detection event subscriptions.
+- `GetConfigurationCoordinator()` exposes the coordinator for secondary windows to subscribe to validation changes for overlay management.
 
 ### `LoadOrderKeeper.ViewModels.SettingsViewModel`
 
@@ -159,6 +161,9 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public int ScrollTargetIndex { get; }
     public string DiffStatusMessage { get; }
     public bool HasStatusMessage { get; }
+    public bool IsConfigValid { get; set; }
+    public bool IsOperationInProgress { get; set; }
+    public bool ShowOverlay { get; }
 
     public IAsyncRelayCommand UpdateReferenceCommand { get; }
     public IAsyncRelayCommand FixLoadOrderCommand { get; }
@@ -177,12 +182,14 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
 ```
 
 **Auto-Refresh Architecture:**
-- Constructor subscribes to `FileMonitoringCoordinator.ChangeDetected` event via `mainViewModel.GetFileMonitoringCoordinator()`.
-- When event fires, `OnFileChangeDetected()` handler automatically calls `RefreshDiffAsync()`.
+- Constructor subscribes to `FileMonitoringCoordinator.ChangeDetected` and `ConfigurationCoordinator.ValidationChanged` events via `mainViewModel.GetFileMonitoringCoordinator()` and `mainViewModel.GetConfigurationCoordinator()`.
+- When `ChangeDetected` fires, `OnFileChangeDetected()` handler automatically calls `RefreshDiffAsync()`.
+- When `ValidationChanged` fires, `OnConfigValidationChanged()` updates `IsConfigValid` property for overlay management.
 - `RefreshDiffAsync()` fetches latest diff, compares signatures, and updates `DiffLines` collection if changed.
 - `ReplaceDiffLines()` clears and repopulates collection, triggering UI updates via `UpdateDiffState()` and `OnPropertyChanged(nameof(DiffLines))`.
-- `Dispose()` unsubscribes from `ChangeDetected` event when window closes.
+- `Dispose()` unsubscribes from both events when window closes.
 - Status messages include timestamps for user feedback ("Detected changes at HH:mm:ss").
+- `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress` to display/hide configuration invalid overlay.
 
 ---
 
@@ -193,10 +200,13 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
 ```csharp
 public partial class SwitchProfileViewModel : ObservableObject
 {
-    public SwitchProfileViewModel(AppConfigModel config);
+    public SwitchProfileViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null);
 
     public ObservableCollection<ProfileModel> Profiles { get; set; }
     public bool IsLoading { get; set; }
+    public bool IsConfigValid { get; set; }
+    public bool IsOperationInProgress { get; set; }
+    public bool ShowOverlay { get; }
     public string WindowTitle { get; }
 
     public event EventHandler<ProfileModel>? ProfileSelected;
@@ -207,16 +217,25 @@ public partial class SwitchProfileViewModel : ObservableObject
 }
 ```
 
+**Configuration Overlay:**
+- Constructor accepts optional `ConfigurationCoordinator` reference for validation tracking.
+- Subscribes to `ConfigurationCoordinator.ValidationChanged` event if coordinator provided.
+- `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress` to display/hide configuration invalid overlay.
+- `IsConfigValid` updated automatically when configuration validity changes.
+
 ### `LoadOrderKeeper.ViewModels.ManageProfilesViewModel`
 
 ```csharp
 public partial class ManageProfilesViewModel : ObservableObject
 {
-    public ManageProfilesViewModel(AppConfigModel config);
+    public ManageProfilesViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null);
 
     public ObservableCollection<ProfileModel> Profiles { get; set; }
     public ProfileModel? SelectedProfile { get; set; }
     public bool IsLoading { get; set; }
+    public bool IsConfigValid { get; set; }
+    public bool IsOperationInProgress { get; set; }
+    public bool ShowOverlay { get; }
     public string WindowTitle { get; }
     public string AddProfileButtonText { get; }
     public string FileMenuText { get; }
@@ -234,6 +253,12 @@ public partial class ManageProfilesViewModel : ObservableObject
     public Task LoadProfilesAsync();
 }
 ```
+
+**Configuration Overlay:**
+- Constructor accepts optional `ConfigurationCoordinator` reference for validation tracking.
+- Subscribes to `ConfigurationCoordinator.ValidationChanged` event if coordinator provided.
+- `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress` to display/hide configuration invalid overlay.
+- `IsConfigValid` updated automatically when configuration validity changes.
 
 ### `LoadOrderKeeper.ViewModels.ProfilePropertiesViewModel`
 
@@ -271,12 +296,15 @@ public partial class ProfilePropertiesViewModel : ObservableObject
 ```csharp
 public partial class ReferenceHistoryViewModel : ObservableObject
 {
-    public ReferenceHistoryViewModel(AppConfigModel config);
+    public ReferenceHistoryViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null);
 
     public ObservableCollection<ReferenceVersionMetadataModel> Versions { get; set; }
     public ReferenceVersionMetadataModel? SelectedVersion { get; set; }
     public bool IsLoading { get; set; }
     public bool HasVersions { get; }
+    public bool IsConfigValid { get; set; }
+    public bool IsOperationInProgress { get; set; }
+    public bool ShowOverlay { get; }
     public string WindowTitle { get; }
     public string RollbackButtonText { get; }
     public string ClearHistoryButtonText { get; }
@@ -299,12 +327,18 @@ public partial class ReferenceHistoryViewModel : ObservableObject
 }
 ```
 
+**Configuration Overlay:**
+- Constructor accepts optional `ConfigurationCoordinator` reference for validation tracking.
+- Subscribes to `ConfigurationCoordinator.ValidationChanged` event if coordinator provided.
+- `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress` to display/hide configuration invalid overlay.
+- `IsConfigValid` updated automatically when configuration validity changes.
+
 ### `LoadOrderKeeper.ViewModels.ViewPendingChangesViewModel`
 
 ```csharp
 public partial class ViewPendingChangesViewModel : ObservableObject
 {
-    public ViewPendingChangesViewModel(AppConfigModel config);
+    public ViewPendingChangesViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null);
 
     public string Comment { get; set; }
     public string CommentDisplay { get; set; }
@@ -315,6 +349,9 @@ public partial class ViewPendingChangesViewModel : ObservableObject
     public bool HasPendingChanges { get; set; }
     public bool IsLoading { get; set; }
     public int TotalChanges { get; set; }
+    public bool IsConfigValid { get; set; }
+    public bool IsOperationInProgress { get; set; }
+    public bool ShowOverlay { get; }
     public string WindowTitle { get; }
     public string ExplanationText { get; }
     public string CommentLabel { get; }
@@ -330,133 +367,8 @@ public partial class ViewPendingChangesViewModel : ObservableObject
 }
 ```
 
----
-
-## Dialog ViewModels
-
-### `LoadOrderKeeper.ViewModels.ConfirmationDialogViewModel`
-
-```csharp
-public enum ConfirmationIcon
-{
-    None,
-    Information,
-    Question,
-    Warning,
-    Error
-}
-
-public enum ConfirmationButton
-{
-    OK,
-    OKCancel,
-    YesNo,
-    YesNoCancel
-}
-
-public enum ConfirmationResult
-{
-    None,
-    OK,
-    Cancel,
-    Yes,
-    No
-}
-
-public partial class ConfirmationDialogViewModel : ObservableObject
-{
-    public ConfirmationDialogViewModel();
-    public ConfirmationDialogViewModel(string title, string message, ConfirmationIcon icon = ConfirmationIcon.None, ConfirmationButton buttons = ConfirmationButton.OK, ConfirmationResult defaultResult = ConfirmationResult.OK);
-
-    public string Title { get; set; }
-    public string Message { get; set; }
-    public ConfirmationIcon Icon { get; set; }
-    public ConfirmationButton Buttons { get; set; }
-    public ConfirmationResult DefaultResult { get; set; }
-    public ConfirmationResult Result { get; }
-    public string IconKind { get; }
-    public string IconColor { get; }
-    public bool ShowIcon { get; }
-    public bool ShowOKButton { get; }
-    public bool ShowCancelButton { get; }
-    public bool ShowYesButton { get; }
-    public bool ShowNoButton { get; }
-    public string OKButtonText { get; }
-    public string CancelButtonText { get; }
-    public string YesButtonText { get; }
-    public string NoButtonText { get; }
-
-    public event EventHandler? DialogResultChanged;
-}
-```
-
-### `LoadOrderKeeper.ViewModels.CommentInputViewModel`
-
-```csharp
-public partial class CommentInputViewModel : ObservableObject
-{
-    public CommentInputViewModel();
-    public CommentInputViewModel(string? existingComment);
-
-    public string? Comment { get; set; }
-    public string WindowTitle { get; }
-    public string PromptText { get; }
-    public string CommentPlaceholder { get; }
-    public string OkButtonText { get; }
-    public string CancelButtonText { get; }
-
-    public event EventHandler? OkRequested;
-    public event EventHandler? CancelRequested;
-}
-```
-
----
-
-## Utility ViewModels
-
-### `LoadOrderKeeper.ViewModels.AboutViewModel`
-
-```csharp
-public partial class AboutViewModel : ObservableObject
-{
-    public AboutViewModel();
-
-    public string ApplicationName { get; }
-    public string ApplicationVersion { get; }
-    public string Copyright { get; }
-    public string Description { get; }
-    public string HomepageUrl { get; }
-    public string HomepageButtonText { get; }
-    public string CloseButtonText { get; }
-    public string VersionLabelText { get; }
-
-    public event EventHandler? CloseRequested;
-}
-```
-
-### `LoadOrderKeeper.ViewModels.UpdateOptionsViewModel`
-
-```csharp
-public partial class UpdateOptionsViewModel : ObservableObject
-{
-    public UpdateOptionsViewModel(string currentVersion, string? latestVersion);
-
-    public string WindowTitle { get; }
-    public string MessageText { get; }
-    public string NexusmodsButtonText { get; }
-    public string GitHubButtonText { get; }
-    public string CancelButtonText { get; }
-    public string NexusmodsUrl { get; }
-    public string GitHubUrl { get; }
-
-    public event EventHandler? CloseRequested;
-
-    public IRelayCommand OpenNexusmodsCommand { get; }
-    public IRelayCommand OpenGitHubCommand { get; }
-    public IRelayCommand CancelCommand { get; }
-}
-```
-
----
-
-[? Back to Index](README.md)
+**Configuration Overlay:**
+- Constructor accepts optional `ConfigurationCoordinator` reference for validation tracking.
+- Subscribes to `ConfigurationCoordinator.ValidationChanged` event if coordinator provided.
+- `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress` to display/hide configuration invalid overlay.
+- `IsConfigValid` updated automatically when configuration validity changes.

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 
@@ -16,6 +17,7 @@ namespace LoadOrderKeeper.ViewModels;
 public partial class ManageProfilesViewModel : ObservableObject
 {
     private readonly AppConfigModel _config;
+    private readonly ConfigurationCoordinator? _configCoordinator;
 
     [ObservableProperty]
     private ObservableCollection<ProfileModel> _profiles = new();
@@ -28,6 +30,16 @@ public partial class ManageProfilesViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isLoading;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+    private bool _isConfigValid = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowOverlay))]
+    private bool _isOperationInProgress;
+
+    public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
 
     public event EventHandler? CloseRequested;
     public event EventHandler<ProfileModel>? AddProfileRequested;
@@ -43,9 +55,21 @@ public partial class ManageProfilesViewModel : ObservableObject
     public string CopyProfileMenuText => "Copy";
     public string CloseButtonText => "Close";
 
-    public ManageProfilesViewModel(AppConfigModel config)
+    public ManageProfilesViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
+        _configCoordinator = configCoordinator;
+
+        if (_configCoordinator != null)
+        {
+            IsConfigValid = _configCoordinator.IsConfigValid;
+            _configCoordinator.ValidationChanged += OnConfigValidationChanged;
+        }
+    }
+
+    private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
+    {
+        IsConfigValid = e.IsValid;
     }
 
     public async Task LoadProfilesAsync()

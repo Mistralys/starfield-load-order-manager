@@ -16,8 +16,9 @@
 - `FileMonitoringCoordinator.UpdateState()` initializes monitoring with config, reference existence, and validation state.
 - `UpdateCheckCoordinator.CheckForUpdatesBackgroundAsync()` checks for new versions on startup.
 - Ensures default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`.
-- If Profiles folder cannot be created or accessed, error dialog shown with option to open settings or shutdown.
+- If Profiles folder cannot be created or accessed, error dialog shown with option to open settings.
 - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
+- **Invalid Configuration Handling**: Application remains open with error banner when configuration is invalid; secondary windows can be opened but show modal overlay preventing operations until configuration is fixed.
 
 ---
 
@@ -26,14 +27,32 @@
 - Coordinators raise events when state changes; `MainViewModel` subscribes and propagates to UI via `OnPropertyChanged()`.
 - `FileMonitoringCoordinator.ChangeDetected` ? `MainViewModel.OnChangeDetected()` ? refreshes diff window if open.
 - `ProfileCoordinator.ProfileChanged` ? `MainViewModel.OnProfileChanged()` ? shows status message.
-- `ConfigurationCoordinator.ValidationChanged` ? `MainViewModel.OnConfigValidationChanged()` ? notifies commands to refresh `CanExecute`.
+- `ConfigurationCoordinator.ValidationChanged` ? `MainViewModel.OnConfigValidationChanged()` ? notifies commands to refresh `CanExecute` and updates secondary window overlays.
 - All coordinator properties exposed as pass-through properties in `MainViewModel` for UI binding.
+
+---
+
+## Invalid Configuration Handling
+
+- **ConfigurationCoordinator** tracks `IsConfigValid` state via `AppConfigModel.IsValid()` validation.
+- **ValidationChanged Event**: Fired when configuration validity state changes, includes `WasValid`, `IsValid`, and `StateChanged` properties.
+- **Main Window Error Banner**: Displayed when `ConfigurationCoordinator.ShowErrorBanner` is true; provides "Open settings" button for quick access.
+- **Secondary Window Overlays**: DiffWindow, ManageProfilesWindow, ReferenceHistoryWindow, ViewPendingChangesWindow, and SwitchProfileWindow include `ConfigInvalidOverlay` control.
+- **ConfigInvalidOverlay Control**: Reusable Material Design v5 user control with semi-transparent dark background and centered message card.
+- **Overlay Display Logic**: `ShowOverlay` property computed as `!IsConfigValid && !IsOperationInProgress` to hide overlay during active operations.
+- **ViewModel Integration**: Each secondary window ViewModel subscribes to `ConfigurationCoordinator.ValidationChanged` event and updates `IsConfigValid` property.
+- **Coordinator Injection**: MainViewModel passes `_configCoordinator` reference when creating secondary window ViewModels.
+- **Automatic Recovery**: Overlay disappears immediately when configuration becomes valid; windows remain open and preserve state.
+- **Operation Management**: `IsOperationInProgress` flag prevents overlay during file operations to allow completion without interruption.
+- **UI Command Changes**: `ShowDiffCommand` no longer checks `Config.IsValid()` in CanExecute; overlay protection replaces button disabling for better UX.
+- **Preserved Restrictions**: File menu commands (`OpenPluginsFile`, `OpenReferenceFile`, etc.) and Play button still require valid configuration as they operate in main window.
 
 ---
 
 ## Profile Initialization & Switching
 
 - `MainViewModel.SwitchProfileCommand` opens `SwitchProfileWindow` with `SwitchProfileViewModel`, which loads profiles via `ProfileService.LoadProfilesAsync()`.
+- `SwitchProfileViewModel` receives `ConfigurationCoordinator` reference and subscribes to validation changes for overlay display.
 - Selecting a profile calls `ProfileService.SwitchProfileAsync()`: the current `Plugins.txt` is persisted to the active profile's `main.txt`, the target profile's `main.txt` and `reference.txt` are ensured, the target `main.txt` replaces `Plugins.txt`, and `ActiveProfileId` is saved.
 - After switching, `ProfileCoordinator.RefreshActiveProfileAsync()` updates active profile state and fires `ProfileChanged` event.
 - `FileMonitoringCoordinator.UpdateState()` called to use new profile's reference file for monitoring.
@@ -43,6 +62,7 @@
 ## Profile Management
 
 - `MainViewModel.ManageProfilesCommand` opens `ManageProfilesWindow` backed by `ManageProfilesViewModel`.
+- `ManageProfilesViewModel` receives `ConfigurationCoordinator` reference and subscribes to validation changes for overlay display.
 - The manage view requests CRUD actions: `ProfileService.CreateProfileAsync()`, `UpdateProfileAsync()`, `DeleteProfileAsync()`, and `CopyProfileAsync()` handle persistence; `ProfilePropertiesWindow` + `ProfilePropertiesViewModel` validates labels/descriptions before save.
 - The profiles list refreshes after each operation so the UI and `MainViewModel` reflect edits.
 
@@ -91,7 +111,7 @@
 
 ## Diff Window Auto-Refresh
 
-- **Event-Based Architecture**: `DiffDialogViewModel` subscribes directly to `FileMonitoringCoordinator.ChangeDetected` event in constructor.
+- **Event-Based Architecture**: `DiffDialogViewModel` subscribes directly to `FileMonitoringCoordinator.ChangeDetected` event in constructor and to `ConfigurationCoordinator.ValidationChanged` for overlay management.
 - When file changes detected (every 3 seconds), `OnFileChangeDetected()` handler calls `RefreshDiffAsync()` automatically.
 - `RefreshDiffAsync()` fetches latest diff via `DiffService.GetPluginsDiffAsync()`, compares signatures, and updates `DiffLines` collection if changed.
 - `ReplaceDiffLines()` clears and repopulates `ObservableCollection<DiffLineModel>`, triggering UI updates via `UpdateDiffState()` and `OnPropertyChanged(nameof(DiffLines))`.
@@ -99,7 +119,8 @@
 - `_isRefreshing` flag prevents concurrent refresh operations.
 - `MainViewModel` no longer tracks `_activeDiffDialog`; each diff window is self-managing and reactive.
 - Only tracks `_diffWindow` reference to prevent duplicate windows (single-instance guarantee).
-- Window properly unsubscribes from `ChangeDetected` event in `Dispose()` when closed.
+- Window properly unsubscribes from `ChangeDetected` and `ValidationChanged` events in `Dispose()` when closed.
+- `ConfigInvalidOverlay` displayed when configuration becomes invalid; hides automatically when valid again.
 
 ---
 
@@ -160,6 +181,7 @@
 ## Reference History & Versioning
 
 - `MainViewModel.ShowReferenceHistoryCommand` opens `ReferenceHistoryWindow` backed by `ReferenceHistoryViewModel`, tracking the instance to prevent duplicates.
+- `ReferenceHistoryViewModel` receives `ConfigurationCoordinator` reference and subscribes to validation changes for overlay display.
 - `ReferenceHistoryViewModel.LoadVersionsAsync()` calls `ReferenceHistoryService.LoadVersionHistoryAsync()` to read all version metadata from the active profile's `History/` folder.
 - When user clicks "Update reference" in `DiffDialogViewModel`:
   1. Shows `CommentInputDialog` for optional comment (cancelling aborts the update)
@@ -183,6 +205,20 @@
 - Each profile maintains independent history with maximum 16 versions; `ReferenceHistoryService.PruneOldVersionsAsync()` removes oldest versions after each archive.
 - All version files and metadata stored as UTF-8 without BOM in `Profiles/{profileId}/History/` folder.
 - `DateTimeFormattingService.FormatFriendly()` provides user-friendly timestamps ("Today 14:56", "Yesterday 16:41", "Jan 15 14:56", "Dec 25, 2023 14:56").
+- `ConfigInvalidOverlay` displayed when configuration becomes invalid; hides automatically when valid again.
+
+---
+
+## View Pending Changes
+
+- `MainViewModel.ViewPendingChangesCommand` opens `ViewPendingChangesWindow` backed by `ViewPendingChangesViewModel`, tracking the instance to prevent duplicates.
+- `ViewPendingChangesViewModel` receives `ConfigurationCoordinator` reference and subscribes to validation changes for overlay display.
+- `ViewPendingChangesViewModel.LoadPendingChangesAsync()` calls `ReferenceHistoryService.LoadPendingChangesAsync()` to load current pending changes.
+- Displays pending comment, added mods list, and removed mods list with Material Design v5 styling.
+- **Edit Comment**: Opens `CommentInputDialog` to modify pending comment; saves immediately via `ReferenceHistoryService.SavePendingChangesAsync()`.
+- Window is non-modal; can interact with main window while open.
+- Single instance: Brings existing window to front if already open.
+- `ConfigInvalidOverlay` displayed when configuration becomes invalid; hides automatically when valid again.
 
 ---
 

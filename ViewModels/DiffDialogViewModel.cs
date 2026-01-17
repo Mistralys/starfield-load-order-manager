@@ -38,6 +38,14 @@ namespace LoadOrderKeeper.ViewModels
         private string _lastDiffSignature = string.Empty;
         private bool _isRefreshing;
 
+        [ObservableProperty]
+        private bool _isConfigValid = true;
+
+        [ObservableProperty]
+        private bool _isOperationInProgress;
+
+        public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
+
         public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
@@ -51,6 +59,11 @@ namespace LoadOrderKeeper.ViewModels
             ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
             CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
+            
+            // Subscribe to configuration validation changes
+            var configCoordinator = _mainViewModel.GetConfigurationCoordinator();
+            IsConfigValid = configCoordinator.IsConfigValid;
+            configCoordinator.ValidationChanged += OnConfigValidationChanged;
             
             // Subscribe to file monitoring coordinator's change detected event
             var coordinator = _mainViewModel.GetFileMonitoringCoordinator();
@@ -593,11 +606,29 @@ namespace LoadOrderKeeper.ViewModels
             await RefreshDiffAsync(reason);
         }
 
+        private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
+        {
+            IsConfigValid = e.IsValid;
+        }
+
+        partial void OnIsConfigValidChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowOverlay));
+        }
+
+        partial void OnIsOperationInProgressChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowOverlay));
+        }
+
         public void Dispose()
         {
             DiffLines.CollectionChanged -= OnDiffCollectionChanged;
             _mainViewModel.PropertyChanged -= OnMainViewModelPropertyChanged;
-            _mainViewModel.GetFileMonitoringCoordinator().ChangeDetected -= OnFileChangeDetected;
+            var fileCoordinator = _mainViewModel.GetFileMonitoringCoordinator();
+            fileCoordinator.ChangeDetected -= OnFileChangeDetected;
+            var configCoordinator = _mainViewModel.GetConfigurationCoordinator();
+            configCoordinator.ValidationChanged -= OnConfigValidationChanged;
         }
     }
 }

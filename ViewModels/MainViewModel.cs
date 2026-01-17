@@ -261,24 +261,18 @@ namespace LoadOrderKeeper.ViewModels
                 }
                 catch (IOException ex)
                 {
-                    var result = ConfirmationDialog.Show(
+                    // Show error message and offer to open settings, but don't force shutdown
+                    ConfirmationDialog.Show(
                         "Profiles Folder Error",
                         $"{ex.Message}\n\n{Constants.UserMessages.ProfilesFolderRequired}",
                         ConfirmationIcon.Error,
-                        ConfirmationButton.OKCancel,
+                        ConfirmationButton.OK,
                         ConfirmationResult.OK,
                         WpfApplication.Current?.MainWindow);
                     
-                    if (result == ConfirmationResult.OK)
-                    {
-                        await ShowSettingsDialogInternalAsync();
-                    }
-                    
-                    if (!Config.IsValid())
-                    {
-                        WpfApplication.Current?.Shutdown();
-                        return;
-                    }
+                    // Configuration is now invalid, error banner will appear automatically
+                    // Re-validate configuration to update error state
+                    _configCoordinator.ValidateConfiguration();
                 }
             }
             
@@ -319,16 +313,12 @@ namespace LoadOrderKeeper.ViewModels
 
             await ShowSettingsDialogInternalAsync();
 
+            // If configuration is still invalid after showing settings, don't shut down
+            // The error banner will be visible and inform the user
             if (!Config.IsValid())
             {
-                ConfirmationDialog.Show(
-                    "Configuration Required",
-                    "Configuration is required before using Starfield Load Order Keeper. The application will now exit.",
-                    ConfirmationIcon.Error,
-                    ConfirmationButton.OK,
-                    ConfirmationResult.OK,
-                    WpfApplication.Current?.MainWindow);
-                WpfApplication.Current?.Shutdown();
+                // Re-validate to ensure error banner is shown
+                _configCoordinator.ValidateConfiguration();
             }
         }
 
@@ -488,7 +478,6 @@ namespace LoadOrderKeeper.ViewModels
             UpdateFileMonitorState();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
-            ShowDiffCommand?.NotifyCanExecuteChanged();
         }
 
         partial void OnIsBusyChanged(bool value)
@@ -496,7 +485,6 @@ namespace LoadOrderKeeper.ViewModels
             UpdateFileMonitorState();
             NotifyFileCommandsCanExecuteChanged();
             PlayGameCommand?.NotifyCanExecuteChanged();
-            ShowDiffCommand?.NotifyCanExecuteChanged();
         }
  
         private void OpenPluginsFile()
@@ -638,7 +626,7 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private async Task SwitchProfileAsync()
         {
-            var switchVm = new SwitchProfileViewModel(Config);
+            var switchVm = new SwitchProfileViewModel(Config, _configCoordinator);
             var switchWindow = new SwitchProfileWindow(Config)
             {
                 Owner = WpfApplication.Current?.MainWindow,
@@ -669,7 +657,7 @@ namespace LoadOrderKeeper.ViewModels
                 return;
             }
 
-            var manageVm = new ManageProfilesViewModel(Config);
+            var manageVm = new ManageProfilesViewModel(Config, _configCoordinator);
             _manageProfilesWindow = new ManageProfilesWindow(Config)
             {
                 Owner = WpfApplication.Current?.MainWindow,
@@ -702,7 +690,7 @@ namespace LoadOrderKeeper.ViewModels
                 return;
             }
 
-            var historyVm = new ReferenceHistoryViewModel(Config);
+            var historyVm = new ReferenceHistoryViewModel(Config, _configCoordinator);
             _referenceHistoryWindow = new ReferenceHistoryWindow
             {
                 Owner = WpfApplication.Current?.MainWindow,
@@ -735,7 +723,7 @@ namespace LoadOrderKeeper.ViewModels
                 return;
             }
 
-            var pendingChangesVm = new ViewPendingChangesViewModel(Config);
+            var pendingChangesVm = new ViewPendingChangesViewModel(Config, _configCoordinator);
             _viewPendingChangesWindow = new ViewPendingChangesWindow
             {
                 Owner = WpfApplication.Current?.MainWindow,
@@ -857,11 +845,6 @@ namespace LoadOrderKeeper.ViewModels
  
         private async Task ShowDiffAsync()
         {
-            if (!Config.IsValid())
-            {
-                return;
-            }
-
             // If diff window is already open, bring it to front
             if (_diffWindow != null)
             {
@@ -927,7 +910,6 @@ namespace LoadOrderKeeper.ViewModels
                 {
                     NotifyFileCommandsCanExecuteChanged();
                     PlayGameCommand?.NotifyCanExecuteChanged();
-                    ShowDiffCommand?.NotifyCanExecuteChanged();
                     CreateReferenceCommand?.NotifyCanExecuteChanged();
                     FixLoadOrderCommand?.NotifyCanExecuteChanged();
                     DiscardChangesCommand?.NotifyCanExecuteChanged();
@@ -1048,6 +1030,14 @@ namespace LoadOrderKeeper.ViewModels
         public FileMonitoringCoordinator GetFileMonitoringCoordinator()
         {
             return _fileMonitor;
+        }
+
+        /// <summary>
+        /// Gets the configuration coordinator for subscribing to validation events.
+        /// </summary>
+        public ConfigurationCoordinator GetConfigurationCoordinator()
+        {
+            return _configCoordinator;
         }
 
         [RelayCommand]

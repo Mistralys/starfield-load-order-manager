@@ -15,7 +15,7 @@ The other windows of the application must be translated to complete
 the localization effort. They will be done incrementally over time,
 in this order:
 
-1. Main Window
+1. Main Window (Completed)
 1. Settings Window
 1. Manage Profiles Window
 1. Profile Properties Window

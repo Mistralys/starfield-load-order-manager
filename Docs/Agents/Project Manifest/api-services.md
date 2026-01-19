@@ -163,6 +163,38 @@ public static class DateTimeFormattingService
 }
 ```
 
+### `LoadOrderKeeper.Services.ErrorLoggingService`
+
+```csharp
+public static class ErrorLoggingService
+{
+    public static string GetErrorLogPath();
+    public static void InitializeErrorLog();
+    public static Task<bool> LogExceptionAsync(
+        Exception exception, 
+        AppConfigModel? config, 
+        IReadOnlyList<DiffLineModel>? changeList);
+    
+    // Private implementation details
+    private static string SanitizeText(string text);
+}
+```
+
+### `LoadOrderKeeper.Services.DebugStateService`
+
+```csharp
+public static class DebugStateService
+{
+    public static Task<string> CaptureDebugStateAsync(
+        AppConfigModel config, 
+        IReadOnlyList<DiffLineModel> changeList);
+    
+    // Private implementation details
+    private static string SanitizePath(string path);
+    private static Task<List<string>> ReadFileContentsAsync(string filePath);
+}
+```
+
 ---
 
 [? Back to Index](README.md)

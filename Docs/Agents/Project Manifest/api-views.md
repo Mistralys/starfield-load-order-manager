@@ -167,6 +167,28 @@ public partial class UpdateOptionsDialog : Window
 }
 ```
 
+### `LoadOrderKeeper.Views.ErrorDialog`
+
+```csharp
+public partial class ErrorDialog : Window
+{
+    public ErrorDialog();
+}
+```
+
+**Exception Dialog:**
+- Material Design v5 styled dialog for displaying unhandled exceptions.
+- Fixed size: 600x420 (non-resizable), always centered on screen.
+- Alert icon (48x48) in error color at top.
+- Title: "An Unexpected Error Occurred".
+- Exception message displayed in readable text.
+- Scrollable error details section showing exception type and message.
+- Four action buttons arranged in two rows:
+  - Primary row: "Open Log Folder" (opens app data folder), "Report Bug" (opens GitHub issues)
+  - Secondary row: "Exit" (recommended, closes app), "Ignore (Unsafe)" (continues running, warning color)
+- `CloseRequested` event raised when Ignore button clicked.
+- `ExitRequested` event raised when Exit button clicked (also triggers app shutdown).
+
 ---
 
 ## User Controls

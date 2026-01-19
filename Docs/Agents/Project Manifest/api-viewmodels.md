@@ -372,3 +372,94 @@ public partial class ViewPendingChangesViewModel : ObservableObject
 - Subscribes to `ConfigurationCoordinator.ValidationChanged` event if coordinator provided.
 - `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress` to display/hide configuration invalid overlay.
 - `IsConfigValid` updated automatically when configuration validity changes.
+
+---
+
+## Utility ViewModels
+
+### `LoadOrderKeeper.ViewModels.ErrorDialogViewModel`
+
+```csharp
+public partial class ErrorDialogViewModel : ObservableObject
+{
+    public ErrorDialogViewModel(Exception exception);
+
+    public string ErrorMessage { get; set; }
+    public string ErrorDetails { get; set; }
+
+    public event EventHandler? CloseRequested;
+    public event EventHandler? ExitRequested;
+
+    public IRelayCommand OpenLogFolderCommand { get; }
+    public IRelayCommand ReportBugCommand { get; }
+    public IRelayCommand ExitCommand { get; }
+    public IRelayCommand IgnoreCommand { get; }
+}
+```
+
+**Exception Handling:**
+- Displays unhandled exceptions in a user-friendly dialog
+- `ErrorMessage` shows the exception message
+- `ErrorDetails` shows exception type and message (can be expanded for stack trace if needed)
+- `OpenLogFolderCommand` opens application data folder containing `error.log`
+- `ReportBugCommand` opens GitHub issues page in browser
+- `ExitCommand` immediately shuts down the application
+- `IgnoreCommand` closes dialog and attempts to continue (unsafe)
+- `CloseRequested` event raised when dialog should close (Ignore action)
+- `ExitRequested` event raised when application should exit (Exit action)
+
+### `LoadOrderKeeper.ViewModels.ConfirmationDialogViewModel`
+
+```csharp
+public enum ConfirmationIcon
+{
+    None,
+    Information,
+    Question,
+    Warning,
+    Error
+}
+
+public enum ConfirmationButton
+{
+    OK,
+    OKCancel,
+    YesNo,
+    YesNoCancel
+}
+
+public enum ConfirmationResult
+{
+    None,
+    OK,
+    Cancel,
+    Yes,
+    No
+}
+
+public partial class ConfirmationDialogViewModel : ObservableObject
+{
+    public ConfirmationDialogViewModel();
+    public ConfirmationDialogViewModel(string title, string message, ConfirmationIcon icon, ConfirmationButton buttons, ConfirmationResult defaultResult);
+
+    public string Title { get; set; }
+    public string Message { get; set; }
+    public ConfirmationIcon Icon { get; set; }
+    public ConfirmationButton Buttons { get; set; }
+    public ConfirmationResult DefaultResult { get; set; }
+    public ConfirmationResult Result { get; }
+    public string IconKind { get; }
+    public string IconColor { get; }
+    public bool ShowIcon { get; }
+    public bool ShowOKButton { get; }
+    public bool ShowCancelButton { get; }
+    public bool ShowYesButton { get; }
+    public bool ShowNoButton { get; }
+
+    public event EventHandler? DialogResultChanged;
+}
+```
+
+---
+
+[? Back to Index](README.md)

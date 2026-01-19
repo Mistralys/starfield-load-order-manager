@@ -31,7 +31,8 @@ The application provides automated load order protection and management through:
 9. **Automatic Updates**: Checks for new versions and provides easy download options
 10. **Configuration Validation**: Real-time validation with clear visual feedback and graceful error handling
 11. **Modal Overlay Protection**: Secondary windows remain accessible with invalid configuration; overlay blocks operations until fixed
-12. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
+12. **Global Exception Handling**: Comprehensive error logging with user-friendly dialogs and privacy protection
+13. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -62,6 +63,7 @@ Detailed documentation for each major feature:
 - **[Game Integration](Features/game-integration.md)** - Play button, file/folder utilities, About dialog
 - **[Version Check](Features/version-check.md)** - Automatic update checking system
 - **[Configuration Validation](Features/configuration-validation.md)** - Path validation and error handling
+- **[Exception Handling](Features/exception-handling.md)** - Global error logging and user-friendly error dialogs
 
 ### Architecture & Design
 Technical architecture documentation:
@@ -87,6 +89,7 @@ Technical architecture documentation:
 - How version history works ? [Reference History](Features/reference-history.md)
 - How the application detects changes ? [Change Detection](Features/change-detection.md)
 - How configuration validation works ? [Configuration Validation](Features/configuration-validation.md)
+- How exceptions are handled ? [Exception Handling](Features/exception-handling.md)
 
 **I want to learn about...**
 - The coordinator pattern ? [Coordinator Pattern](Architecture/coordinator-pattern.md)
@@ -105,6 +108,7 @@ The application maintains semantic versioning:
 - Copyright year updates automatically
 
 **Recent Major Features**:
+- v1.6.0: Global exception handling with error logging and user-friendly dialogs
 - v1.5.0: Configuration validation with error banners, real-time feedback, and modal overlay protection
 - v1.4.0: Reference history with versioning, rollback, and comment support
 - v1.3.0: Settings helper, dependent change grouping, confirmations, dark theme dialogs

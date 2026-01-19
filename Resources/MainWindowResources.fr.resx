@@ -39,13 +39,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  
   <!-- Window Title -->
   <data name="WindowTitleFormat" xml:space="preserve">
     <value>Starfield Load Order Keeper v{0}</value>
     <comment>Main window title format. {0} is the version number</comment>
   </data>
-  
   <!-- Menu: File -->
   <data name="FileMenuHeader" xml:space="preserve">
     <value>_Fichier</value>
@@ -71,7 +69,6 @@
     <value>_Quitter</value>
     <comment>Menu item to exit application</comment>
   </data>
-  
   <!-- Menu: Edit -->
   <data name="EditMenuHeader" xml:space="preserve">
     <value>_Édition</value>
@@ -81,7 +78,6 @@
     <value>_Paramètres...</value>
     <comment>Menu item to open settings</comment>
   </data>
-  
   <!-- Menu: Profile -->
   <data name="ProfileMenuHeader" xml:space="preserve">
     <value>_Profil</value>
@@ -103,7 +99,6 @@
     <value>Historique des modifications...</value>
     <comment>Menu item to view reference history</comment>
   </data>
-  
   <!-- Menu: Help -->
   <data name="HelpMenuHeader" xml:space="preserve">
     <value>_Aide</value>
@@ -117,7 +112,6 @@
     <value>À _propos...</value>
     <comment>Menu item to show About window</comment>
   </data>
-  
   <!-- Menu: Debug -->
   <data name="DebugMenuHeader" xml:space="preserve">
     <value>_Débogage</value>
@@ -131,7 +125,6 @@
     <value>Ouvrir le dossier de _configuration</value>
     <comment>Menu item to open configuration folder</comment>
   </data>
-  
   <!-- Error Banner -->
   <data name="ConfigErrorBannerText" xml:space="preserve">
     <value>Erreur de configuration des chemins, veuillez vérifier les chemins configurés.</value>
@@ -141,7 +134,6 @@
     <value>Ouvrir les paramètres</value>
     <comment>Button text to open settings from error banner</comment>
   </data>
-  
   <!-- Update Banner -->
   <data name="DownloadOptionsButtonText" xml:space="preserve">
     <value>Options de téléchargement...</value>
@@ -151,13 +143,11 @@
     <value>Ignorer</value>
     <comment>Tooltip for dismiss button</comment>
   </data>
-  
   <!-- Profile Section -->
   <data name="ActiveProfilePrefixText" xml:space="preserve">
     <value>Profil actif : </value>
     <comment>Prefix text before active profile name (note trailing space)</comment>
   </data>
-  
   <!-- Main Buttons -->
   <data name="ShowChangesButtonText" xml:space="preserve">
     <value>Gérer l'ordre de chargement</value>
@@ -167,7 +157,6 @@
     <value>Gérer l'ordre de chargement ({0} modifications)</value>
     <comment>Button text to show changes with count. {0} is the number of changes</comment>
   </data>
-  
   <!-- Status Messages -->
   <data name="RecentStatusMessagesText" xml:space="preserve">
     <value>Messages d'état récents :</value>
@@ -177,7 +166,6 @@
     <value>Plugins.txt a été modifié en dehors de Load Order Keeper.</value>
     <comment>Warning message when Plugins.txt is modified externally</comment>
   </data>
-  
   <!-- Play Button -->
   <data name="PlayButtonSfse" xml:space="preserve">
     <value>Jouer (SFSE)</value>
@@ -187,10 +175,12 @@
     <value>Jouer (Vanilla)</value>
     <comment>Play button text when SFSE is not installed</comment>
   </data>
-  
   <!-- Update Check -->
   <data name="UpdateAvailableFormat" xml:space="preserve">
     <value>La version {0} est disponible !</value>
     <comment>Update notification message format. {0} is the version number</comment>
+  </data>
+  <data name="ThrowTestExceptionMenuText" xml:space="preserve">
+    <value>_Lancer une erreur de test</value>
   </data>
 </root>

@@ -1,184 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-    <!-- Schema definition (same as other .resx files) -->
-    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-        <xsd:element name="root" msdata:IsDataSet="true">
+  <!-- Schema definition (same as other .resx files) -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
             <xsd:complexType>
-                <xsd:choice maxOccurs="unbounded">
-                    <xsd:element name="data">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
-                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="resheader">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" />
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
             </xsd:complexType>
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>1.3</value>
-    </resheader>
-    <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-    <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-
-    <!-- Window Title -->
-    <data name="WindowTitleFormat" xml:space="preserve">
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Window Title -->
+  <data name="WindowTitleFormat" xml:space="preserve">
     <value>Starfield Load Order Keeper v{0}</value>
     <comment>Main window title format. {0} is the version number</comment>
   </data>
-
-    <!-- Menu: File -->
-    <data name="FileMenuHeader" xml:space="preserve">
+  <!-- Menu: File -->
+  <data name="FileMenuHeader" xml:space="preserve">
     <value>_File</value>
     <comment>File menu header (underscore indicates mnemonic key)</comment>
   </data>
-    <data name="OpenPluginsMenuText" xml:space="preserve">
+  <data name="OpenPluginsMenuText" xml:space="preserve">
     <value>Open _Plugins.txt</value>
     <comment>Menu item to open Plugins.txt file</comment>
   </data>
-    <data name="OpenReferenceMenuText" xml:space="preserve">
+  <data name="OpenReferenceMenuText" xml:space="preserve">
     <value>Open _Reference File</value>
     <comment>Menu item to open reference file</comment>
   </data>
-    <data name="OpenAppDataFolderMenuText" xml:space="preserve">
+  <data name="OpenAppDataFolderMenuText" xml:space="preserve">
     <value>Open _AppData Folder</value>
     <comment>Menu item to open AppData folder</comment>
   </data>
-    <data name="OpenGameFolderMenuText" xml:space="preserve">
+  <data name="OpenGameFolderMenuText" xml:space="preserve">
     <value>Open _Game Folder</value>
     <comment>Menu item to open game installation folder</comment>
   </data>
-    <data name="ExitMenuText" xml:space="preserve">
+  <data name="ExitMenuText" xml:space="preserve">
     <value>E_xit</value>
     <comment>Menu item to exit application</comment>
   </data>
-
-    <!-- Menu: Edit -->
-    <data name="EditMenuHeader" xml:space="preserve">
+  <!-- Menu: Edit -->
+  <data name="EditMenuHeader" xml:space="preserve">
     <value>_Edit</value>
     <comment>Edit menu header</comment>
   </data>
-    <data name="SettingsMenuText" xml:space="preserve">
+  <data name="SettingsMenuText" xml:space="preserve">
     <value>_Settings...</value>
     <comment>Menu item to open settings</comment>
   </data>
-
-    <!-- Menu: Profile -->
-    <data name="ProfileMenuHeader" xml:space="preserve">
+  <!-- Menu: Profile -->
+  <data name="ProfileMenuHeader" xml:space="preserve">
     <value>_Profile</value>
     <comment>Profile menu header</comment>
   </data>
-    <data name="SwitchProfileMenuText" xml:space="preserve">
+  <data name="SwitchProfileMenuText" xml:space="preserve">
     <value>_Switch Profile...</value>
     <comment>Menu item to switch profile</comment>
   </data>
-    <data name="ManageProfilesMenuText" xml:space="preserve">
+  <data name="ManageProfilesMenuText" xml:space="preserve">
     <value>_Manage Profiles...</value>
     <comment>Menu item to manage profiles</comment>
   </data>
-    <data name="ViewPendingChangesMenuText" xml:space="preserve">
+  <data name="ViewPendingChangesMenuText" xml:space="preserve">
     <value>_View Pending Changes...</value>
     <comment>Menu item to view pending changes</comment>
   </data>
-    <data name="ReferenceHistoryMenuText" xml:space="preserve">
+  <data name="ReferenceHistoryMenuText" xml:space="preserve">
     <value>History of changes...</value>
     <comment>Menu item to view reference history</comment>
   </data>
-
-    <!-- Menu: Help -->
-    <data name="HelpMenuHeader" xml:space="preserve">
+  <!-- Menu: Help -->
+  <data name="HelpMenuHeader" xml:space="preserve">
     <value>_Help</value>
     <comment>Help menu header</comment>
   </data>
-    <data name="CheckForUpdatesMenuText" xml:space="preserve">
+  <data name="CheckForUpdatesMenuText" xml:space="preserve">
     <value>Check for _Updates...</value>
     <comment>Menu item to check for updates</comment>
   </data>
-    <data name="AboutMenuText" xml:space="preserve">
+  <data name="AboutMenuText" xml:space="preserve">
     <value>_About...</value>
     <comment>Menu item to show About window</comment>
   </data>
-
-    <!-- Menu: Debug -->
-    <data name="DebugMenuHeader" xml:space="preserve">
+  <!-- Menu: Debug -->
+  <data name="DebugMenuHeader" xml:space="preserve">
     <value>_Debug</value>
     <comment>Debug menu header</comment>
   </data>
-    <data name="ResetConfigMenuText" xml:space="preserve">
+  <data name="ResetConfigMenuText" xml:space="preserve">
     <value>_Reset Configuration (for testing)...</value>
     <comment>Menu item to reset configuration</comment>
   </data>
-    <data name="OpenConfigFolderMenuText" xml:space="preserve">
+  <data name="OpenConfigFolderMenuText" xml:space="preserve">
     <value>Open _Configuration Folder</value>
     <comment>Menu item to open configuration folder</comment>
   </data>
-
-    <!-- Error Banner -->
-    <data name="ConfigErrorBannerText" xml:space="preserve">
+  <!-- Error Banner -->
+  <data name="ConfigErrorBannerText" xml:space="preserve">
     <value>Path configuration error, please review the configured paths.</value>
     <comment>Error banner text when configuration is invalid</comment>
   </data>
-    <data name="OpenSettingsButtonText" xml:space="preserve">
+  <data name="OpenSettingsButtonText" xml:space="preserve">
     <value>Open settings</value>
     <comment>Button text to open settings from error banner</comment>
   </data>
-
-    <!-- Update Banner -->
-    <data name="DownloadOptionsButtonText" xml:space="preserve">
+  <!-- Update Banner -->
+  <data name="DownloadOptionsButtonText" xml:space="preserve">
     <value>Download options...</value>
     <comment>Button text for download options</comment>
   </data>
-    <data name="DismissTooltip" xml:space="preserve">
+  <data name="DismissTooltip" xml:space="preserve">
     <value>Dismiss</value>
     <comment>Tooltip for dismiss button</comment>
   </data>
-
-    <!-- Profile Section -->
-    <data name="ActiveProfilePrefixText" xml:space="preserve">
+  <!-- Profile Section -->
+  <data name="ActiveProfilePrefixText" xml:space="preserve">
     <value>Active Profile: </value>
     <comment>Prefix text before active profile name (note trailing space)</comment>
   </data>
-
-    <!-- Main Buttons -->
-    <data name="ShowChangesButtonText" xml:space="preserve">
+  <!-- Main Buttons -->
+  <data name="ShowChangesButtonText" xml:space="preserve">
     <value>Manage load order</value>
     <comment>Button text to show changes (without count)</comment>
   </data>
-    <data name="ShowChangesButtonTextWithCount" xml:space="preserve">
+  <data name="ShowChangesButtonTextWithCount" xml:space="preserve">
     <value>Manage load order ({0} changes)</value>
     <comment>Button text to show changes with count. {0} is the number of changes</comment>
   </data>
-
-    <!-- Status Messages -->
-    <data name="RecentStatusMessagesText" xml:space="preserve">
+  <!-- Status Messages -->
+  <data name="RecentStatusMessagesText" xml:space="preserve">
     <value>Recent Status Messages:</value>
     <comment>Label for status message history section</comment>
   </data>
-    <data name="PluginsModifiedWarningText" xml:space="preserve">
+  <data name="PluginsModifiedWarningText" xml:space="preserve">
     <value>Plugins.txt was modified outside Load Order Keeper.</value>
     <comment>Warning message when Plugins.txt is modified externally</comment>
   </data>
-
   <!-- Play Button -->
   <data name="PlayButtonSfse" xml:space="preserve">
     <value>Play (SFSE)</value>
@@ -188,10 +176,12 @@
     <value>Play (Vanilla)</value>
     <comment>Play button text when SFSE is not installed</comment>
   </data>
-  
   <!-- Update Check -->
   <data name="UpdateAvailableFormat" xml:space="preserve">
     <value>Version {0} is available!</value>
     <comment>Update notification message format. {0} is the version number</comment>
+  </data>
+  <data name="ThrowTestExceptionMenuText" xml:space="preserve">
+    <value>_Throw Test Exception</value>
   </data>
 </root>

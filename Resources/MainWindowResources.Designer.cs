@@ -322,6 +322,15 @@ namespace LoadOrderKeeper.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Throw Test Exception.
+        /// </summary>
+        public static string ThrowTestExceptionMenuText {
+            get {
+                return ResourceManager.GetString("ThrowTestExceptionMenuText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version {0} is available!.
         /// </summary>
         public static string UpdateAvailableFormat {

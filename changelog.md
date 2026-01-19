@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.7.2 - Exception Dialog
+- General: Added a global exception dialog to show unhandled exceptions in a user-friendly manner.
+- General: Added logging for unhandled exceptions to aid in debugging.
+- Core: Sanity check update of the project manifest and application description.
+- Tests: Added a comprehensive suite of tests that were incomplete or missing.
+
 ## v1.7.1 - Invalid Config Handling
 - Configuration: Removed all paths leading to the app closing on its own.
 - General: Added error overlays to all windows when the configuration is invalid.

@@ -95,7 +95,18 @@ jobs:
           $start = ($content | Select-String -Pattern "^## v$tag\b").LineNumber
           if (-not $start) {
             echo "entry=No changelog entry found." >> $env:GITHUB_OUTPUT
+            echo "title=" >> $env:GITHUB_OUTPUT
             exit 0
+          }
+
+          # Extract the title from the version header (e.g., "## v1.7.1 - Invalid Config Handling")
+          $headerLine = $content[$start - 1]
+          $titleMatch = [regex]::Match($headerLine, "^## v$tag\s*-\s*(.+)$")
+          if ($titleMatch.Success) {
+            $title = $titleMatch.Groups[1].Value.Trim()
+            echo "title=$title" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "title=" >> $env:GITHUB_OUTPUT
           }
 
           # Find the next version header
@@ -178,7 +189,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}${{ steps.changelog.outputs.title && format(' - {0}', steps.changelog.outputs.title) || '' }}
           body_path: RELEASE_NOTES.txt
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}

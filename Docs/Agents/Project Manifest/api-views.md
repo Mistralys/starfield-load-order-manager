@@ -167,6 +167,28 @@ public partial class UpdateOptionsDialog : Window
 }
 ```
 
+### `LoadOrderKeeper.Views.ErrorDialog`
+
+```csharp
+public partial class ErrorDialog : Window
+{
+    public ErrorDialog();
+}
+```
+
+**Exception Dialog:**
+- Material Design v5 styled dialog for displaying unhandled exceptions.
+- Fixed size: 600x420 (non-resizable), always centered on screen.
+- Alert icon (48x48) in error color at top.
+- Title: "An Unexpected Error Occurred".
+- Exception message displayed in readable text.
+- Scrollable error details section showing exception type and message.
+- Four action buttons arranged in two rows:
+  - Primary row: "Open Log Folder" (opens app data folder), "Report Bug" (opens GitHub issues)
+  - Secondary row: "Exit" (recommended, closes app), "Ignore (Unsafe)" (continues running, warning color)
+- `CloseRequested` event raised when Ignore button clicked.
+- `ExitRequested` event raised when Exit button clicked (also triggers app shutdown).
+
 ---
 
 ## User Controls
@@ -219,10 +241,20 @@ public sealed class ReplacementCommandParameterConverter : IMultiValueConverter
 ### `LoadOrderKeeper.Converters.ActiveProfileVisibilityConverter`
 
 ```csharp
-public sealed class ActiveProfileVisibilityConverter : IValueConverter
+public sealed class ActiveProfileVisibilityConverter : IMultiValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+    public object Convert(object[] values, Type targetType, object? parameter, CultureInfo culture);
+    public object[] ConvertBack(object value, Type[] targetTypes, object? parameter, CultureInfo culture);
+}
+```
+
+### `LoadOrderKeeper.Converters.BooleanAndConverter`
+
+```csharp
+public sealed class BooleanAndConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture);
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture);
 }
 ```
 
@@ -268,4 +300,4 @@ public sealed class ChangeSummaryConverter : IValueConverter
 
 ---
 
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

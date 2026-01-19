@@ -75,6 +75,10 @@
                 <MenuItem Header="{Binding OpenConfigFolderMenuText}"
                           Command="{Binding OpenConfigFolderCommand}"
                           Icon="{materialDesign:PackIcon Kind=Folder}" />
+                <Separator />
+                <MenuItem Header="{Binding ThrowTestExceptionMenuText}"
+                          Command="{Binding ThrowTestExceptionCommand}"
+                          Icon="{materialDesign:PackIcon Kind=AlertCircle}" />
             </MenuItem>
         </Menu>
 

@@ -40,7 +40,6 @@ public class AppConfigModel
     public string StarfieldAppDataPath { get; set; }
     public string StarfieldGamePath { get; set; }
     public string? ActiveProfileId { get; set; }
-    public string PreferredLanguage { get; set; }  // Defaults to "auto" for system culture detection
 
     public bool IsValid();
     public string GetPluginsFilePath();
@@ -191,6 +190,38 @@ public sealed class PendingChangesModel
 
 ---
 
+## Debug & Diagnostics Models
+
+### `LoadOrderKeeper.Models.DebugStateModel`
+
+```csharp
+public sealed class DebugStateModel
+{
+    public string ApplicationVersion { get; set; }
+    public ConfigurationState Configuration { get; set; }
+    public SteamState Steam { get; set; }
+    public int TotalChangesDetected { get; set; }
+    public List<string> PluginsTxtContents { get; set; }
+    public List<string> ReferenceContents { get; set; }
+    public List<DiffLineModel> ChangeList { get; set; }
+
+    public sealed class ConfigurationState
+    {
+        public string AppDataPath { get; set; }
+        public string GamePath { get; set; }
+        public string? ActiveProfileId { get; set; }
+    }
+
+    public sealed class SteamState
+    {
+        public bool IsInstalled { get; set; }
+        public bool IsRunning { get; set; }
+    }
+}
+```
+
+---
+
 ## Status & UI Models
 
 ### `LoadOrderKeeper.Models.StatusMessageModel`
@@ -228,36 +259,4 @@ public sealed record UpdateCheckResult(
 
 ---
 
-## Debug Models
-
-### `LoadOrderKeeper.Models.DebugStateModel`
-
-```csharp
-public sealed class DebugStateModel
-{
-    public string ApplicationVersion { get; set; }
-    public ConfigurationState Configuration { get; set; }
-    public SteamState Steam { get; set; }
-    public int TotalChangesDetected { get; set; }
-    public List<string> PluginsTxtContents { get; set; }
-    public List<string> ReferenceContents { get; set; }
-    public List<DiffLineModel> ChangeList { get; set; }
-
-    public class ConfigurationState
-    {
-        public string AppDataPath { get; set; }
-        public string GamePath { get; set; }
-        public string ActiveProfileId { get; set; }
-    }
-
-    public class SteamState
-    {
-        public bool IsInstalled { get; set; }
-        public bool IsRunning { get; set; }
-    }
-}
-```
-
----
-
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

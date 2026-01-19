@@ -15,6 +15,9 @@ public static class SettingsService
     public static Task SaveSettingsAsync(AppConfigModel config);
     public static string TryGetDefaultSteamPath();
     public static string TryGetDefaultAppDataPath();
+    public static string GetConfigFolderPath();
+    public static bool IsStarfieldInstalledViaSteam();
+    public static bool IsSteamRunning();
     
     // Private methods for Steam detection
     private static string? TryGetSteamInstallPath();
@@ -47,6 +50,7 @@ public static class FileService
         AppConfigModel config,
         string removedModFileName,
         string replacementModFileName);
+    public static Task<(List<string> AddedMods, List<string> RemovedMods)> CalculateReferenceChangesAsync(AppConfigModel config);
 }
 ```
 
@@ -163,33 +167,38 @@ public static class DateTimeFormattingService
 }
 ```
 
-### `LoadOrderKeeper.Services.LocalizationService`
+### `LoadOrderKeeper.Services.ErrorLoggingService`
 
 ```csharp
-public class LocalizationService
+public static class ErrorLoggingService
 {
-    public LocalizationService();
+    public static string GetErrorLogPath();
+    public static void InitializeErrorLog();
+    public static Task<bool> LogExceptionAsync(
+        Exception exception, 
+        AppConfigModel? config, 
+        IReadOnlyList<DiffLineModel>? changeList);
     
-    public CultureInfo CurrentCulture { get; }
-    public FlowDirection CurrentFlowDirection { get; }
-    
-    public void SetCulture(string cultureName);
-    public string GetPlural(int count, string singularFormat, string pluralFormat);
-    public string GetPluralFromResources(ResourceManager resourceManager, int count, string singularKey, string pluralKey);
-    public IEnumerable<CultureInfo> GetSupportedCultures();
-    public string GetCultureDisplayName(CultureInfo culture);
-    
-    public event EventHandler? CultureChanged;
+    // Private implementation details
+    private static string SanitizeText(string text);
 }
 ```
 
-**Usage:**
-- Access via `App.LocalizationService` singleton
-- Pass `"auto"` to `SetCulture()` for automatic system culture detection
-- Pass specific culture code (e.g., `"fr-FR"`, `"de-DE"`) for explicit language
-- Subscribe to `CultureChanged` event in ViewModels to refresh localized properties
-- `CurrentFlowDirection` prepared for RTL language support (returns `LeftToRight` or `RightToLeft`)
+### `LoadOrderKeeper.Services.DebugStateService`
+
+```csharp
+public static class DebugStateService
+{
+    public static Task<string> CaptureDebugStateAsync(
+        AppConfigModel config, 
+        IReadOnlyList<DiffLineModel> changeList);
+    
+    // Private implementation details
+    private static string SanitizePath(string path);
+    private static Task<List<string>> ReadFileContentsAsync(string filePath);
+}
+```
 
 ---
 
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

@@ -71,8 +71,9 @@ namespace LoadOrderKeeper.ViewModels
         public string ResetConfigMenuText => Resources.MainWindowResources.ResetConfigMenuText;
         public string OpenConfigFolderMenuText => Resources.MainWindowResources.OpenConfigFolderMenuText;
         public string DownloadOptionsButtonText => Resources.MainWindowResources.DownloadOptionsButtonText;
-        public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
-        public string TargetPrefixText { get; } = "Target: ";
+        public string ThrowTestExceptionMenuText { get; } = "_Throw Test Exception";
+        public string CurrentTargetLabel { get; } = Resources.MainWindowResources.CurrentTargetLabel;
+        public string TargetPrefixText { get; } = Resources.MainWindowResources.TargetPrefixText;
         public string PluginsModifiedWarningText => Resources.MainWindowResources.PluginsModifiedWarningText;
         public string ActiveProfilePrefixText => Resources.MainWindowResources.ActiveProfilePrefixText;
         public string ProfileMenuHeader => Resources.MainWindowResources.ProfileMenuHeader;
@@ -1162,6 +1163,12 @@ namespace LoadOrderKeeper.ViewModels
             {
                 ShowError($"Failed to reset configuration: {ex.Message}");
             }
+        }
+
+        [RelayCommand]
+        private void ThrowTestException()
+        {
+            throw new InvalidOperationException("This is a test exception to verify the error dialog and logging functionality. Check the error.log file in your application data folder.");
         }
 
         public void Dispose()

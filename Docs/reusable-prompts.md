@@ -42,6 +42,6 @@ about edge cases or technical constraints I might have missed.
 > Open the [README.md](Docs/Agents/Application Description/README.md) for reference.
 
 ```Markdown
-Please also update the high-leve, human-readable Application Description 
+Please also update the high-level, human-readable Application Description 
 to reflect the current state of the application.
 ```

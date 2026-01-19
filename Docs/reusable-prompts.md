@@ -36,3 +36,12 @@ I have provided a project specification. I want you to act as a Senior Lead Deve
 Read my specification and, instead of starting the work, ask me **up to three clarifying questions** 
 about edge cases or technical constraints I might have missed.
 ```
+
+## Update the application description
+
+> Open the [README.md](Docs/Agents/Application Description/README.md) for reference.
+
+```Markdown
+Please also update the high-leve, human-readable Application Description 
+to reflect the current state of the application.
+```

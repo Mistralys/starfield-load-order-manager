@@ -26,10 +26,13 @@
 ### MVVM
 
 **ViewModels:**
-- `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`, `ReferenceHistoryViewModel`, `CommentInputViewModel`
+- `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`, `ReferenceHistoryViewModel`, `CommentInputViewModel`, `ViewPendingChangesViewModel`, `ErrorDialogViewModel`
 
 **Views:**
-- `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `ReferenceHistoryWindow`, `CommentInputDialog`
+- `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `ReferenceHistoryWindow`, `CommentInputDialog`, `ViewPendingChangesWindow`, `ErrorDialog`
+
+**User Controls:**
+- `ConfigInvalidOverlay`
 
 ### Coordinator Pattern
 
@@ -56,6 +59,8 @@ Coordinators handle specific domain logic and state management:
 - `UpdateCheckService`: GitHub API integration for version checking with caching
 - `ReferenceHistoryService`: version history management, archiving, rollback, and pending changes tracking
 - `DateTimeFormattingService`: user-friendly date/time formatting utilities
+- `ErrorLoggingService`: exception logging with user privacy protection (path sanitization)
+- `DebugStateService`: application state capture for debugging with sanitized paths
 
 ---
 
@@ -132,6 +137,24 @@ Coordinators handle specific domain logic and state management:
 - Validates installations by checking for `Data` folder presence
 - Silent failure with multi-level fallbacks ensures robust path detection
 
+### Global Exception Handling
+
+- Comprehensive unhandled exception capturing via `App.xaml.cs`:
+  - **UI thread**: `Application.DispatcherUnhandledException`
+  - **Non-UI threads**: `AppDomain.CurrentDomain.UnhandledException`
+  - **Async tasks**: `TaskScheduler.UnobservedTaskException`
+- All exceptions logged to `error.log` in application data folder with:
+  - Timestamp and exception details (type, message, stack trace)
+  - Full application state via `DebugStateService` (configuration, file contents, change list)
+  - User privacy protection: all paths sanitized (replace user profile with `%USERPROFILE%`)
+- `ErrorDialog` displayed after logging completes with user actions:
+  - **Open Log Folder**: Opens app data folder in File Explorer
+  - **Report Bug**: Opens GitHub issues page in browser
+  - **Exit**: Immediately shuts down application (recommended)
+  - **Ignore (Unsafe)**: Closes dialog and continues running (warning style)
+- Log file reset on each application startup to keep logs focused on current session
+- Test exception menu item in Debug menu for validation (`ThrowTestExceptionCommand`)
+
 ---
 
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

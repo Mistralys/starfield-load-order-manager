@@ -70,6 +70,7 @@ namespace LoadOrderKeeper.ViewModels
         public string DebugMenuHeader { get; } = "_Debug";
         public string ResetConfigMenuText { get; } = "_Reset Configuration (for testing)...";
         public string OpenConfigFolderMenuText { get; } = "Open _Configuration Folder";
+        public string ThrowTestExceptionMenuText { get; } = "_Throw Test Exception";
         public string DownloadOptionsButtonText { get; } = "Download options...";
         public string CurrentTargetLabel { get; } = "Current Plugins.txt target:";
         public string TargetPrefixText { get; } = "Target: ";
@@ -1159,6 +1160,12 @@ namespace LoadOrderKeeper.ViewModels
             {
                 ShowError($"Failed to reset configuration: {ex.Message}");
             }
+        }
+
+        [RelayCommand]
+        private void ThrowTestException()
+        {
+            throw new InvalidOperationException("This is a test exception to verify the error dialog and logging functionality. Check the error.log file in your application data folder.");
         }
 
         public void Dispose()

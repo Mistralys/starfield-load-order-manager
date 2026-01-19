@@ -53,10 +53,11 @@ From the application's point of view, to keep the logic as simple as possible, t
 
 ## Technical Implementation
 
-**Key Classes**:
-- `LoadOrderManager` - Core load order manipulation logic
-- `FileMonitoringCoordinator` - Monitors `Plugins.txt` for changes
+**Key Components**:
+- `FileService` - Core load order manipulation logic (sorting, applying fixes, change detection)
+- `FileMonitoringCoordinator` - Monitors `Plugins.txt` for changes and manages detection state
 - `DiffDialogViewModel` - Manages the diff window and change resolution
+- `DiffService` - Converts file differences into user-friendly diff lines
 
 **File Operations**:
 - All file reads/writes use UTF-8 encoding without BOM

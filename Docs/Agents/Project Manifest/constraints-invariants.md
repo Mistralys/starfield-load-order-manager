@@ -138,3 +138,5 @@
 - `ConfigurationCoordinator.GetValidationResult()` provides detailed error messages for debugging and user feedback.
 - Centralized error messages in `Constants/UserMessages.cs` for easy modification and future localization.
 - **Overlay Integration**: Secondary windows subscribe to `ConfigurationCoordinator.ValidationChanged` event via constructor injection for real-time overlay management.
+
+[<< Back to Index](README.md)

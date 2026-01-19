@@ -1,13 +1,7 @@
 ﻿using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.ViewModels;
-using LoadOrderKeeper.Services;
-using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Views;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace LoadOrderKeeper
 {

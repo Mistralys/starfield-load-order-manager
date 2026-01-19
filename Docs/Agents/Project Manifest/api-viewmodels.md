@@ -462,4 +462,28 @@ public partial class ConfirmationDialogViewModel : ObservableObject
 
 ---
 
-[? Back to Index](README.md)
+## Comment Input ViewModel
+
+### `LoadOrderKeeper.ViewModels.CommentInputViewModel`
+
+```csharp
+public partial class CommentInputViewModel : ObservableObject
+{
+    public CommentInputViewModel();
+    public CommentInputViewModel(string existingComment);
+
+    public string Comment { get; set; }
+    public string WindowTitle { get; set; }
+    public string PromptText { get; set; }
+    public string CommentPlaceholder { get; }
+    public string OkButtonText { get; }
+    public string CancelButtonText { get; }
+
+    public event EventHandler? OkRequested;
+    public event EventHandler? CancelRequested;
+}
+```
+
+---
+
+[<< Back to Index](README.md)

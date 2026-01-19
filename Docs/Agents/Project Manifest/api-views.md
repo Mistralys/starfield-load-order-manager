@@ -241,10 +241,20 @@ public sealed class ReplacementCommandParameterConverter : IMultiValueConverter
 ### `LoadOrderKeeper.Converters.ActiveProfileVisibilityConverter`
 
 ```csharp
-public sealed class ActiveProfileVisibilityConverter : IValueConverter
+public sealed class ActiveProfileVisibilityConverter : IMultiValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture);
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture);
+    public object Convert(object[] values, Type targetType, object? parameter, CultureInfo culture);
+    public object[] ConvertBack(object value, Type[] targetTypes, object? parameter, CultureInfo culture);
+}
+```
+
+### `LoadOrderKeeper.Converters.BooleanAndConverter`
+
+```csharp
+public sealed class BooleanAndConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture);
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture);
 }
 ```
 
@@ -290,4 +300,4 @@ public sealed class ChangeSummaryConverter : IValueConverter
 
 ---
 
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

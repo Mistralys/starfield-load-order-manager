@@ -15,6 +15,9 @@ public static class SettingsService
     public static Task SaveSettingsAsync(AppConfigModel config);
     public static string TryGetDefaultSteamPath();
     public static string TryGetDefaultAppDataPath();
+    public static string GetConfigFolderPath();
+    public static bool IsStarfieldInstalledViaSteam();
+    public static bool IsSteamRunning();
     
     // Private methods for Steam detection
     private static string? TryGetSteamInstallPath();
@@ -47,6 +50,7 @@ public static class FileService
         AppConfigModel config,
         string removedModFileName,
         string replacementModFileName);
+    public static Task<(List<string> AddedMods, List<string> RemovedMods)> CalculateReferenceChangesAsync(AppConfigModel config);
 }
 ```
 
@@ -197,4 +201,4 @@ public static class DebugStateService
 
 ---
 
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

@@ -33,6 +33,7 @@
 ?     ?? ConfigValidationChangedEventArgs.cs
 ?? Models/
 ?  ?? AppConfigModel.cs
+?  ?? DebugStateModel.cs
 ?  ?? DiffLineModel.cs
 ?  ?? ModDiffModel.cs
 ?  ?? ModEntryModel.cs
@@ -44,7 +45,9 @@
 ?  ?? UpdateCheckResult.cs
 ?? Services/
 ?  ?? DateTimeFormattingService.cs
+?  ?? DebugStateService.cs
 ?  ?? DiffService.cs
+?  ?? ErrorLoggingService.cs
 ?  ?? FileService.cs
 ?  ?? ProfileService.cs
 ?  ?? ReferenceHistoryService.cs
@@ -56,6 +59,7 @@
 ?  ?? CommentInputViewModel.cs
 ?  ?? ConfirmationDialogViewModel.cs
 ?  ?? DiffDialogViewModel.cs
+?  ?? ErrorDialogViewModel.cs
 ?  ?? MainViewModel.cs
 ?  ?? ManageProfilesViewModel.cs
 ?  ?? ProfilePropertiesViewModel.cs
@@ -73,6 +77,8 @@
 ?  ?? ConfirmationDialog.xaml.cs
 ?  ?? DiffWindow.xaml
 ?  ?? DiffWindow.xaml.cs
+?  ?? ErrorDialog.xaml
+?  ?? ErrorDialog.xaml.cs
 ?  ?? ManageProfilesWindow.xaml
 ?  ?? ManageProfilesWindow.xaml.cs
 ?  ?? ProfilePropertiesWindow.xaml
@@ -87,8 +93,12 @@
 ?  ?? UpdateOptionsDialog.xaml.cs
 ?  ?? ViewPendingChangesWindow.xaml
 ?  ?? ViewPendingChangesWindow.xaml.cs
+?? Controls/
+?  ?? ConfigInvalidOverlay.xaml
+?  ?? ConfigInvalidOverlay.xaml.cs
 ?? Converters/
 ?  ?? ActiveProfileVisibilityConverter.cs
+?  ?? BooleanAndConverter.cs
 ?  ?? ChangeSummaryConverter.cs
 ?  ?? CountToVisibilityConverter.cs
 ?  ?? InverseBooleanToVisibilityConverter.cs
@@ -135,17 +145,18 @@
 ?  ?     ?? 19-configuration-coordinator.md
 ?  ?     ?? 20-game-launcher-coordinator.md
 ?  ?     ?? 20-view-pending-changes.md
+?  ?     ?? 21-invalid-config-handling.md
 ?  ?     ?? coordinator-refactoring-complete-summary.md
 ?? Tests/
-?  ?? LoadOrderKeeper.Tests/
-?     ?? LoadOrderKeeper.Tests.csproj
-?     ?? DiffServiceTests.cs
-?     ?? FileServiceTests.cs
-?     ?? ProfileServiceTests.cs
-?     ?? SettingsServiceTests.cs
-?     ?? TestConfigContext.cs
+   ?? LoadOrderKeeper.Tests/
+      ?? LoadOrderKeeper.Tests.csproj
+      ?? DiffServiceTests.cs
+      ?? FileServiceTests.cs
+      ?? ProfileServiceTests.cs
+      ?? SettingsServiceTests.cs
+      ?? TestConfigContext.cs
 ```
 
 ---
 
-[? Back to Index](README.md)
+[<< Back to Index](README.md)

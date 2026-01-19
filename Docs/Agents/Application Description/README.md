@@ -22,17 +22,20 @@ The application provides automated load order protection and management through:
 
 1. **Reference File System**: Creates and maintains a reference copy of a known-good `Plugins.txt` file
 2. **Automatic Detection**: Periodically monitors for unauthorized changes to the load order
-3. **Steam Process Guard**: Detects when Steam is running and warns users to prevent conflicts
+3. **Steam Process Guard**: Detects when Steam is running and warns users (required for SFSE functionality)
 4. **One-Click Fix**: Restores the correct load order while preserving new mods
 5. **Profile Support**: Manages multiple load orders for different characters or playthroughs
 6. **Visual Diff**: Shows exactly what changed with options to accept or revert changes
 7. **Dependent Change Tracking**: Intelligently groups cascading position changes for clarity
-8. **Smart Confirmations**: Warns when destructive changes are about to be made
-9. **Automatic Updates**: Checks for new versions and provides easy download options
-10. **Configuration Validation**: Real-time validation with clear visual feedback and graceful error handling
-11. **Modal Overlay Protection**: Secondary windows remain accessible with invalid configuration; overlay blocks operations until fixed
-12. **Global Exception Handling**: Comprehensive error logging with user-friendly dialogs and privacy protection
-13. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
+8. **Version History**: Tracks reference file changes with versioning, rollback, and user comments
+9. **Pending Changes View**: Shows upcoming changes before they're archived in version history
+10. **Smart Confirmations**: Warns when destructive changes are about to be made
+11. **Automatic Updates**: Checks for new versions and provides easy download options
+12. **Configuration Validation**: Real-time validation with clear visual feedback and graceful error handling
+13. **Modal Overlay Protection**: Secondary windows remain accessible with invalid configuration; overlay blocks operations until fixed
+14. **Global Exception Handling**: Comprehensive error logging with user-friendly dialogs and privacy protection
+15. **Debug State Export**: Captures application state for troubleshooting (includes sanitized paths for privacy)
+16. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -84,18 +87,18 @@ Technical architecture documentation:
 ### By Use Case
 
 **I want to understand...**
-- How load order protection works ? [Load Order Management](Features/load-order-management.md)
-- How to manage multiple characters ? [Profile System](Features/profile-system.md)
-- How version history works ? [Reference History](Features/reference-history.md)
-- How the application detects changes ? [Change Detection](Features/change-detection.md)
-- How configuration validation works ? [Configuration Validation](Features/configuration-validation.md)
-- How exceptions are handled ? [Exception Handling](Features/exception-handling.md)
+- How load order protection works >> [Load Order Management](Features/load-order-management.md)
+- How to manage multiple characters >> [Profile System](Features/profile-system.md)
+- How version history works >> [Reference History](Features/reference-history.md)
+- How the application detects changes >> [Change Detection](Features/change-detection.md)
+- How configuration validation works >> [Configuration Validation](Features/configuration-validation.md)
+- How exceptions are handled >> [Exception Handling](Features/exception-handling.md)
 
 **I want to learn about...**
-- The coordinator pattern ? [Coordinator Pattern](Architecture/coordinator-pattern.md)
-- MVVM architecture ? [MVVM Structure](Architecture/mvvm-structure.md)
-- UI design principles ? [User Interface Guidelines](ui-guidelines.md)
-- File storage formats ? [File Handling](file-handling.md)
+- The coordinator pattern >> [Coordinator Pattern](Architecture/coordinator-pattern.md)
+- MVVM architecture >> [MVVM Structure](Architecture/mvvm-structure.md)
+- UI design principles >> [User Interface Guidelines](ui-guidelines.md)
+- File storage formats >> [File Handling](file-handling.md)
 
 ---
 
@@ -105,15 +108,18 @@ The application maintains semantic versioning:
 - Version displayed in window title and About dialog
 - Retrieved from assembly attributes via `VersionService`
 - Commit hashes stripped for clean display (e.g., "1.3.0" not "1.3.0+abc123")
-- Copyright year updates automatically
+- GitHub Actions automatically creates releases when version tags are pushed
 
 **Recent Major Features**:
-- v1.6.0: Global exception handling with error logging and user-friendly dialogs
-- v1.5.0: Configuration validation with error banners, real-time feedback, and modal overlay protection
-- v1.4.0: Reference history with versioning, rollback, and comment support
-- v1.3.0: Settings helper, dependent change grouping, confirmations, dark theme dialogs
+- v1.7.1: Invalid configuration handling improvements with graceful recovery and modal overlays
+- v1.7.0: View Pending Changes dialog and comment storage flow fixes
+- v1.6.1: Settings window improvements and debug menu for testing
+- v1.6.0: Steam process detection, debug state export, and improved diff window with sorting intelligence
+- v1.5.0: Configuration validation with error banners, real-time feedback, and improved error handling
+- v1.4.0: Reference history with versioning, rollback, comment support, and automatic update checking
+- v1.3.0: Settings helper with auto-detection, dependent change grouping, and Material Design dark theme dialogs
 - v1.2.0: Status message history
-- v1.1.0: About dialog, always-open diff window
+- v1.1.0: About dialog and always-open diff window
 - v1.0.0: Initial release with profile switching
 
 ---

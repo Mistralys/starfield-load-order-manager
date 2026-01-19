@@ -72,8 +72,6 @@ namespace LoadOrderKeeper.ViewModels
         public string OpenConfigFolderMenuText => Resources.MainWindowResources.OpenConfigFolderMenuText;
         public string DownloadOptionsButtonText => Resources.MainWindowResources.DownloadOptionsButtonText;
         public string ThrowTestExceptionMenuText { get; } = "_Throw Test Exception";
-        public string CurrentTargetLabel { get; } = Resources.MainWindowResources.CurrentTargetLabel;
-        public string TargetPrefixText { get; } = Resources.MainWindowResources.TargetPrefixText;
         public string PluginsModifiedWarningText => Resources.MainWindowResources.PluginsModifiedWarningText;
         public string ActiveProfilePrefixText => Resources.MainWindowResources.ActiveProfilePrefixText;
         public string ProfileMenuHeader => Resources.MainWindowResources.ProfileMenuHeader;

@@ -107,13 +107,13 @@ namespace LoadOrderKeeper.ViewModels
 
         public string FileMenuHeader { get; } = "_File";
         
-        public string OpenPluginsMenuText => _mainViewModel.OpenPluginsMenuText;
+        public string OpenPluginsMenuText => _mainViewModel.Menu.OpenPluginsMenuText;
         
-        public string OpenReferenceMenuText => _mainViewModel.OpenReferenceMenuText;
+        public string OpenReferenceMenuText => _mainViewModel.Menu.OpenReferenceMenuText;
         
-        public string OpenAppDataFolderMenuText => _mainViewModel.OpenAppDataFolderMenuText;
+        public string OpenAppDataFolderMenuText => _mainViewModel.Menu.OpenAppDataFolderMenuText;
         
-        public string OpenGameFolderMenuText => _mainViewModel.OpenGameFolderMenuText;
+        public string OpenGameFolderMenuText => _mainViewModel.Menu.OpenGameFolderMenuText;
 
         public string ExitMenuText { get; } = "E_xit";
 

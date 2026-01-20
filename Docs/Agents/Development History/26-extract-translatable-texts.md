@@ -26,7 +26,7 @@ We will implement this in two phases, with Phase 1 split into Work Packages (WP)
 Split into Work Packages for manageable, atomic commits:
 
 - **WP1:** Foundation Setup - Create ViewTexts folder, move existing text ViewModels (MenuViewModel, AboutViewModel)
-- **WP2:** Create Text ViewModels for Existing Resources - MainWindow, CommonResources
+- **WP2:** Create ALL Text ViewModels - MainWindow, CommonResources, and all others
 - **WP3:** Audit All ViewModels - Document all hardcoded strings (no code changes)
 
 **Goal:** All windows have text ViewModels in ViewTexts/ folder, prepare for string extraction
@@ -69,22 +69,24 @@ Resources/
 **Text ViewModels** (in new `ViewTexts/` folder):
 ```
 ViewTexts/
-├── MenuViewModel.cs [PHASE 1 - EXISTS, to be moved from ViewModels/]
-├── AboutViewModel.cs [PHASE 1 - EXISTS, to be moved from ViewModels/]
-├── MainWindowTexts.cs [PHASE 1 - to be created for MainWindowResources]
-├── CommonTexts.cs [PHASE 1 - to be created for CommonResources]
-├── CommentInputTexts.cs [PHASE 2]
-├── ConfirmationDialogTexts.cs [PHASE 2]
-├── DiffDialogTexts.cs [PHASE 2]
-├── ErrorDialogTexts.cs [PHASE 2]
-├── ManageProfilesTexts.cs [PHASE 2]
-├── ProfilePropertiesTexts.cs [PHASE 2]
-├── ReferenceHistoryTexts.cs [PHASE 2]
-├── SettingsWindowTexts.cs [PHASE 2]
-├── SwitchProfileTexts.cs [PHASE 2]
-├── UpdateOptionsTexts.cs [PHASE 2]
-└── ViewPendingChangesTexts.cs [PHASE 2]
+├── MenuViewModel.cs [PHASE 1 WP1 - EXISTS, to be moved from ViewModels/]
+├── AboutViewModel.cs [PHASE 1 WP1 - EXISTS, to be moved from ViewModels/]
+├── MainWindowTexts.cs [PHASE 1 WP2 - wrap MainWindowResources]
+├── CommonTexts.cs [PHASE 1 WP2 - wrap CommonResources]
+├── CommentInputTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── ConfirmationDialogTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── DiffDialogTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── ErrorDialogTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── ManageProfilesTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── ProfilePropertiesTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── ReferenceHistoryTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── SettingsWindowTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── SwitchProfileTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+├── UpdateOptionsTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
+└── ViewPendingChangesTexts.cs [PHASE 1 WP2 - created with hardcoded current strings]
 ```
+
+**Note:** In Phase 1, text ViewModels for windows without resource files will be created with temporary placeholder strings or empty properties. In Phase 2, these will be connected to their respective resource files once created.
 
 ---
 
@@ -108,23 +110,27 @@ ViewTexts/
 
 ---
 
-### WP2: Create Text ViewModels for Existing Resources ⚡ Low Risk
-**Goal:** Create text ViewModels for windows that already have resource files
+### WP2: Create ALL Text ViewModels ⚙️ Medium Risk
+**Goal:** Create text ViewModels for ALL windows, establishing complete ViewTexts structure
 
 **Tasks:**
-1. Create `MainWindowTexts.cs` in `ViewTexts/` folder
-   - Provide properties for all strings in `MainWindowResources.resx`
-   - Use `INotifyPropertyChanged` pattern like existing text ViewModels
-2. Create `CommonTexts.cs` in `ViewTexts/` folder
-   - Provide properties for all strings in `CommonResources.resx`
-   - Use `INotifyPropertyChanged` pattern like existing text ViewModels
-3. Update MainViewModel and other ViewModels to use new text ViewModels instead of directly accessing resources
-4. Register text ViewModels in DI container if needed
-5. Build and verify no errors
-6. Test language switching with new text ViewModels
+1. Create text ViewModels for existing resource files:
+   - Create `MainWindowTexts.cs` wrapping `MainWindowResources.resx`
+   - Create `CommonTexts.cs` wrapping `CommonResources.resx`
+2. Create text ViewModels for windows WITHOUT resource files (with hardcoded strings):
+   - Create `CommentInputTexts.cs`, `ConfirmationDialogTexts.cs`, `ErrorDialogTexts.cs`
+   - Create `DiffDialogTexts.cs`, `ManageProfilesTexts.cs`, `ProfilePropertiesTexts.cs`
+   - Create `ReferenceHistoryTexts.cs`, `SettingsWindowTexts.cs`, `SwitchProfileTexts.cs`
+   - Create `UpdateOptionsTexts.cs`, `ViewPendingChangesTexts.cs`
+   - These will contain hardcoded string properties (extracted from their ViewModels)
+3. Use `INotifyPropertyChanged` pattern for all text ViewModels
+4. Update ALL ViewModels to use text ViewModels from `ViewTexts/` instead of hardcoded strings
+5. Register all text ViewModels in DI container
+6. Build and verify no errors
+7. Test all windows and language switching
 
-**Files Changed:** ~3-5 files (2 new text VMs + updates to consuming ViewModels)
-**Commit Message:** `feat: Create text ViewModels for existing resource files`
+**Files Changed:** ~15-25 files (13 new text VMs + updates to all consuming ViewModels)
+**Commit Message:** `feat: Create all text ViewModels and centralize text access`
 
 ---
 
@@ -369,7 +375,7 @@ ViewTexts/
 | WP | Name | Status | Files | Risk | Notes |
 |----|------|--------|-------|------|-------|
 | WP1 | Foundation Setup | ⏳ Pending | 2-4 | ⚡ Low | Create ViewTexts, move existing |
-| WP2 | Create Text ViewModels | ⏳ Pending | 3-5 | ⚡ Low | MainWindow, CommonResources |
+| WP2 | Create ALL Text ViewModels | ⏳ Pending | 15-25 | ⚙️ Medium | All windows get text VMs |
 | WP3 | Audit ViewModels | ⏳ Pending | 1 | 📋 Docs | Document strings only |
 
 ### Phase 2 Progress (Work Packages)

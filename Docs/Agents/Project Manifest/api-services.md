@@ -1,6 +1,6 @@
 # Services API
 
-> Public API signatures for all static service classes.
+> Public API signatures for all static and instance service classes.
 
 ---
 
@@ -63,6 +63,21 @@ public static class DiffService
 }
 ```
 
+### `LoadOrderKeeper.Services.FileOperationsService`
+
+```csharp
+public class FileOperationsService
+{
+    public void OpenPluginsFile(AppConfigModel config);
+    public void OpenReferenceFile(AppConfigModel config);
+    public void OpenAppDataFolder(AppConfigModel config);
+    public void OpenGameFolder(AppConfigModel config);
+    public void OpenConfigFolder();
+}
+```
+
+**Purpose:** Handles file and folder opening operations with shell integration. Centralizes Process.Start logic for launching files/folders.
+
 ---
 
 ## Profile Services
@@ -93,7 +108,7 @@ public static class ProfileService
 
 ---
 
-## History Services
+## Reference Management Services
 
 ### `LoadOrderKeeper.Services.ReferenceHistoryService`
 
@@ -119,6 +134,107 @@ public static class ReferenceHistoryService
     private static Task PruneOldVersionsAsync(AppConfigModel config);
 }
 ```
+
+### `LoadOrderKeeper.Services.ReferenceManagementService`
+
+```csharp
+public class ReferenceManagementService
+{
+    public ReferenceManagementService(
+        Action<string, StatusMessageType> addStatusMessage,
+        Func<Task> refreshHistoryWindow);
+    
+    public Task<bool> CreateOrUpdateReferenceAsync(
+        AppConfigModel config,
+        bool refExists,
+        Window? owner);
+    
+    public Task DiscardChangesAsync(AppConfigModel config);
+    
+    public Task<bool> HandleRollbackAsync(
+        AppConfigModel config,
+        ReferenceVersionMetadataModel version,
+        Window parentWindow,
+        Func<Task> onSuccess);
+}
+```
+
+**Purpose:** Manages reference file operations including creation, updating with version history, discard workflow, and rollback handling. Coordinates comment input dialogs, pending changes, and archiving. Injected into MainViewModel with callbacks for status messages and window refresh.
+
+---
+
+## Window Management Services
+
+### `LoadOrderKeeper.Services.WindowLifecycleService`
+
+```csharp
+public class WindowLifecycleService
+{
+    public void ShowManageProfilesWindow(
+        AppConfigModel config,
+        ConfigurationCoordinator configCoordinator,
+        Window? owner = null,
+        Action? onClosed = null);
+    
+    public Task ShowDiffWindowAsync(
+        AppConfigModel config,
+        MainViewModel mainViewModel,
+        Window? owner = null);
+    
+    public void ShowReferenceHistoryWindow(
+        AppConfigModel config,
+        ConfigurationCoordinator configCoordinator,
+        Window? owner = null,
+        EventHandler<ReferenceVersionMetadataModel>? onRollbackRequested = null);
+    
+    public void ShowViewPendingChangesWindow(
+        AppConfigModel config,
+        ConfigurationCoordinator configCoordinator,
+        Window? owner = null);
+    
+    public Task RefreshReferenceHistoryWindowAsync();
+    public void CloseAllWindows();
+    
+    // Property checks
+    public bool IsDiffWindowOpen { get; }
+    public bool IsManageProfilesWindowOpen { get; }
+    public bool IsReferenceHistoryWindowOpen { get; }
+    public bool IsViewPendingChangesWindowOpen { get; }
+}
+```
+
+**Purpose:** Manages non-modal window lifecycle including singleton tracking (prevents duplicates), window activation/focus, and cleanup. Replaces repetitive window management code in ViewModels.
+
+---
+
+## Initialization Services
+
+### `LoadOrderKeeper.Services.ViewModelInitializer`
+
+```csharp
+public class ViewModelInitializer
+{
+    public ViewModelInitializer(
+        Action<string, StatusMessageType> addStatusMessage,
+        Func<string> getReadyStatusMessage,
+        Action<AppConfigModel> updateCoordinators,
+        Func<Task> showSettingsDialog);
+    
+    public Task<InitializationResult> LoadInitialStateAsync(
+        ConfigurationCoordinator configCoordinator,
+        ProfileCoordinator profileCoordinator,
+        FileMonitoringCoordinator fileMonitor,
+        UpdateCheckCoordinator updateCheckCoordinator);
+}
+
+public class InitializationResult
+{
+    public AppConfigModel Config { get; }
+    public bool RefExists { get; }
+}
+```
+
+**Purpose:** Handles MainViewModel startup sequence including configuration loading, validation, profile setup, coordinator initialization, and initial state establishment. Extracted from MainViewModel to improve testability and maintainability.
 
 ---
 

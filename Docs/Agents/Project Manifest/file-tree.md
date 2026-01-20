@@ -48,12 +48,18 @@
 ?  ?? DebugStateService.cs
 ?  ?? DiffService.cs
 ?  ?? ErrorLoggingService.cs
+?  ?? FileOperationsService.cs
 ?  ?? FileService.cs
 ?  ?? ProfileService.cs
 ?  ?? ReferenceHistoryService.cs
+?  ?? ReferenceManagementService.cs
 ?  ?? SettingsService.cs
 ?  ?? UpdateCheckService.cs
 ?  ?? VersionService.cs
+?  ?? ViewModelInitializer.cs
+?  ?? WindowLifecycleService.cs
+?? Helpers/
+?  ?? CoordinatorEventBinder.cs
 ?? ViewModels/
 ?  ?? AboutViewModel.cs
 ?  ?? CommentInputViewModel.cs
@@ -62,6 +68,7 @@
 ?  ?? ErrorDialogViewModel.cs
 ?  ?? MainViewModel.cs
 ?  ?? ManageProfilesViewModel.cs
+?  ?? MenuViewModel.cs
 ?  ?? ProfilePropertiesViewModel.cs
 ?  ?? ReferenceHistoryViewModel.cs
 ?  ?? SettingsViewModel.cs

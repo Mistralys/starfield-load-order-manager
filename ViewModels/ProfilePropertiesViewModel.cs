@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels;
 
@@ -13,6 +14,7 @@ namespace LoadOrderKeeper.ViewModels;
 /// </summary>
 public partial class ProfilePropertiesViewModel : ObservableObject
 {
+    private readonly ProfilePropertiesTexts _texts = new();
     private readonly ProfileModel? _editingProfile;
     private readonly IReadOnlyList<ProfileModel> _existingProfiles;
 
@@ -38,11 +40,11 @@ public partial class ProfilePropertiesViewModel : ObservableObject
 
     public bool IsEditMode => _editingProfile != null;
 
-    public string WindowTitle => IsEditMode ? "Edit Profile" : "Create Profile";
-    public string SaveButtonText => IsEditMode ? "Save" : "Create";
-    public string CancelButtonText => "Cancel";
-    public string LabelLabelText => "Label:";
-    public string DescriptionLabelText => "Description:";
+    public string WindowTitle => IsEditMode ? _texts.WindowTitleEdit : _texts.WindowTitleCreate;
+    public string SaveButtonText => IsEditMode ? _texts.SaveButtonText : _texts.CreateButtonText;
+    public string CancelButtonText => _texts.CancelButtonText;
+    public string LabelLabelText => _texts.LabelLabelText;
+    public string DescriptionLabelText => _texts.DescriptionLabelText;
 
     /// <summary>
     /// Creates a ViewModel for creating a new profile.
@@ -112,19 +114,19 @@ public partial class ProfilePropertiesViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(trimmedLabel))
         {
-            LabelError = "Label is required.";
+            LabelError = _texts.LabelRequiredError;
         }
         else if (trimmedLabel.Length < 2)
         {
-            LabelError = "Label must be at least 2 characters.";
+            LabelError = _texts.LabelTooShortError;
         }
         else if (trimmedLabel.Length > 30)
         {
-            LabelError = "Label must not exceed 30 characters.";
+            LabelError = _texts.LabelTooLongError;
         }
         else if (string.Equals(trimmedLabel, "Default", StringComparison.OrdinalIgnoreCase))
         {
-            LabelError = "The label 'Default' is reserved.";
+            LabelError = _texts.LabelReservedError;
         }
         else
         {
@@ -135,7 +137,7 @@ public partial class ProfilePropertiesViewModel : ObservableObject
 
             if (isDuplicate)
             {
-                LabelError = "A profile with this label already exists.";
+                LabelError = _texts.LabelDuplicateError;
             }
         }
 
@@ -150,7 +152,7 @@ public partial class ProfilePropertiesViewModel : ObservableObject
 
         if (trimmedDescription.Length > 500)
         {
-            DescriptionError = "Description must not exceed 500 characters.";
+            DescriptionError = _texts.DescriptionTooLongError;
         }
 
         UpdateHasErrors();

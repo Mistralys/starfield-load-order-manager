@@ -1,6 +1,6 @@
 using LoadOrderKeeper.Services;
 
-namespace LoadOrderKeeper.ViewModels
+namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
     /// ViewModel for menu and UI text properties.

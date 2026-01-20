@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels;
 
@@ -16,6 +17,7 @@ namespace LoadOrderKeeper.ViewModels;
 /// </summary>
 public partial class ManageProfilesViewModel : ObservableObject
 {
+    private readonly ManageProfilesTexts _texts = new();
     private readonly AppConfigModel _config;
     private readonly ConfigurationCoordinator? _configCoordinator;
 
@@ -46,14 +48,14 @@ public partial class ManageProfilesViewModel : ObservableObject
     public event EventHandler<ProfileModel>? EditProfileRequested;
     public event EventHandler<ProfileModel>? CopyProfileRequested;
 
-    public string WindowTitle => "Manage Profiles";
-    public string AddProfileButtonText => "Add Profile";
-    public string FileMenuText => "File";
-    public string AddProfileMenuText => "Add Profile";
-    public string EditProfileMenuText => "Edit";
-    public string DeleteProfileMenuText => "Delete";
-    public string CopyProfileMenuText => "Copy";
-    public string CloseButtonText => "Close";
+    public string WindowTitle => _texts.WindowTitle;
+    public string AddProfileButtonText => _texts.AddProfileButtonText;
+    public string FileMenuText => _texts.FileMenuText;
+    public string AddProfileMenuText => _texts.AddProfileMenuText;
+    public string EditProfileMenuText => _texts.EditProfileMenuText;
+    public string DeleteProfileMenuText => _texts.DeleteProfileMenuText;
+    public string CopyProfileMenuText => _texts.CopyProfileMenuText;
+    public string CloseButtonText => _texts.CloseButtonText;
 
     public ManageProfilesViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
     {

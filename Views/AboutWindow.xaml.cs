@@ -1,6 +1,6 @@
 using System;
 using System.Windows;
-using LoadOrderKeeper.ViewModels;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.Views
 {

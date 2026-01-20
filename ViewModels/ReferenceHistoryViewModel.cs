@@ -2,11 +2,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 using LoadOrderKeeper.Views;
 using WpfApplication = System.Windows.Application;
 
@@ -14,6 +16,7 @@ namespace LoadOrderKeeper.ViewModels
 {
     public partial class ReferenceHistoryViewModel : ObservableObject
     {
+        private readonly ReferenceHistoryTexts _texts = new();
         private readonly AppConfigModel _config;
         private readonly ConfigurationCoordinator? _configCoordinator;
 
@@ -45,20 +48,20 @@ namespace LoadOrderKeeper.ViewModels
 
         public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
 
-        public string WindowTitle { get; } = "Reference File Version History";
-        public string RollbackButtonText { get; } = "Rollback to selected version...";
-        public string DeleteVersionButtonText { get; } = "Delete version";
-        public string ClearHistoryButtonText { get; } = "Clear the history...";
-        public string CloseButtonText { get; } = "Close";
-        public string NoVersionsMessage { get; } = "No version history available.";
-        public string VersionColumnHeader { get; } = "Version";
-        public string DateColumnHeader { get; } = "Date & Time";
-        public string ChangesColumnHeader { get; } = "Changes";
-        public string SummaryColumnHeader { get; } = "Summary";
-        public string FileMenuText { get; } = "_File";
-        public string ExitMenuText { get; } = "E_xit";
-        public string EditMenuText { get; } = "_Edit";
-        public string ClearHistoryMenuText { get; } = "Clear the _history...";
+        public string WindowTitle => _texts.WindowTitle;
+        public string RollbackButtonText => _texts.RollbackButtonText;
+        public string DeleteVersionButtonText => _texts.DeleteVersionButtonText;
+        public string ClearHistoryButtonText => _texts.ClearHistoryButtonText;
+        public string CloseButtonText => _texts.CloseButtonText;
+        public string NoVersionsMessage => _texts.NoVersionsMessage;
+        public string VersionColumnHeader => _texts.VersionColumnHeader;
+        public string DateColumnHeader => _texts.DateColumnHeader;
+        public string ChangesColumnHeader => _texts.ChangesColumnHeader;
+        public string SummaryColumnHeader => _texts.SummaryColumnHeader;
+        public string FileMenuText => _texts.FileMenuText;
+        public string ExitMenuText => _texts.ExitMenuText;
+        public string EditMenuText => _texts.EditMenuText;
+        public string ClearHistoryMenuText => _texts.ClearHistoryMenuText;
 
         public event EventHandler? CloseRequested;
         public event EventHandler<ReferenceVersionMetadataModel>? RollbackRequested;

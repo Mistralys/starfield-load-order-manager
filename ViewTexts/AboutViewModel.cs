@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Services;
 using FlowDirection = System.Windows.FlowDirection;
 
-namespace LoadOrderKeeper.ViewModels
+namespace LoadOrderKeeper.ViewTexts
 {
     public partial class AboutViewModel : ObservableObject
     {

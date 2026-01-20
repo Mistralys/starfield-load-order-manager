@@ -367,15 +367,15 @@ ViewTexts/
 ## Status Tracking
 
 **Current Phase:** Phase 1 - Foundation Setup (Code Structure Only)
-**Current Work Package:** WP1 - Foundation Setup  
-**Overall Progress:** 0/11 Work Packages Complete (0%)
+**Current Work Package:** WP3 - Audit ViewModels  
+**Overall Progress:** 2/11 Work Packages Complete (18%)
 
 ### Phase 1 Progress (Work Packages)
 
 | WP | Name | Status | Files | Risk | Notes |
 |----|------|--------|-------|------|-------|
-| WP1 | Foundation Setup | ⏳ Pending | 2-4 | ⚡ Low | Create ViewTexts, move existing |
-| WP2 | Create ALL Text ViewModels | ⏳ Pending | 15-25 | ⚙️ Medium | All windows get text VMs |
+| WP1 | Foundation Setup | ✅ Complete | 4 | ⚡ Low | ViewTexts created, MenuViewModel & AboutViewModel moved |
+| WP2 | Create ALL Text ViewModels | ✅ Complete | 20 | ⚙️ Medium | All text VMs created, ViewModels updated |
 | WP3 | Audit ViewModels | ⏳ Pending | 1 | 📋 Docs | Document strings only |
 
 ### Phase 2 Progress (Work Packages)
@@ -400,38 +400,11 @@ ViewTexts/
 - ✅ Plan document updated with Work Packages
 
 ### Phase 1 Progress
-- ⏳ Not started - WP1, WP2, and WP3 pending
+- ✅ **WP1 Complete** - ViewTexts/ folder created, MenuViewModel and AboutViewModel moved from ViewModels/ to ViewTexts/, namespaces updated to LoadOrderKeeper.ViewTexts, MainViewModel and AboutWindow.xaml.cs updated with new namespace references, build successful with zero errors
+- ✅ **WP2 Complete** - Created MainWindowTexts (wraps MainWindowResources), CommonTexts (wraps CommonResources), and text ViewModels for all windows: ErrorDialogTexts, CommentInputTexts, ConfirmationDialogTexts, SettingsWindowTexts, DiffDialogTexts, ManageProfilesTexts, ProfilePropertiesTexts, SwitchProfileTexts, ReferenceHistoryTexts, UpdateOptionsTexts, ViewPendingChangesTexts. Updated MainViewModel to expose MainWindowTexts and CommonTexts properties. Updated all ViewModels to use their text ViewModels (CommentInputViewModel, ErrorDialogViewModel, ConfirmationDialogViewModel, UpdateOptionsViewModel, ProfilePropertiesViewModel, ManageProfilesViewModel, ReferenceHistoryViewModel, ViewPendingChangesViewModel, SwitchProfileViewModel). Build successful with zero errors.
+- ⏳ WP3 pending
 
 ### Phase 2 Progress
 - ⏳ Not started - will begin after Phase 1 completion (WP1-3 done)
-
----
-
-## Notes & Decisions
-
-### Phase Separation Strategy
-**Phase 1 (CODE STRUCTURE ONLY):**
-- Create ViewTexts/ folder
-- Move existing text ViewModels (MenuViewModel, AboutViewModel) to `ViewTexts/` folder
-- Create text ViewModels for existing resource files (MainWindowTexts, CommonTexts)
-- Update all ViewModels to access texts through ViewTexts/ ViewModels
-- Update namespaces and references
-- Document all hardcoded strings (no extraction yet)
-- No resource file modifications
-- **End Result:** All UI text access goes through ViewModels in ViewTexts/ folder
-
-**Phase 2 (RESOURCE FILES & EXTRACTION):**
-- Create window-specific resource files (`.resx` + `.de.resx` + `.fr.resx`)
-- Create corresponding text ViewModels in `ViewTexts/` folder
-- Extract hardcoded strings from ViewModels to resource files
-- Update ViewModels to use new text ViewModels
-- Organize and consolidate resources
-- **End Result:** Zero hardcoded strings in ViewModels/Services
-
-This separation ensures:
-- Phase 1 establishes consistent structure (all texts accessed via ViewTexts/)
-- Phase 2 focuses on content extraction and organization
-- Each phase can be reviewed and tested independently
-- Phase 1 is purely structural, zero risk to translations
 
 

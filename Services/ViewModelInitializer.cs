@@ -17,18 +17,15 @@ namespace LoadOrderKeeper.Services
         private readonly Action<string, StatusMessageType> _addStatusMessage;
         private readonly Func<string> _getReadyStatusMessage;
         private readonly Action<AppConfigModel> _updateCoordinators;
-        private readonly Func<Task> _showSettingsDialog;
 
         public ViewModelInitializer(
             Action<string, StatusMessageType> addStatusMessage,
             Func<string> getReadyStatusMessage,
-            Action<AppConfigModel> updateCoordinators,
-            Func<Task> showSettingsDialog)
+            Action<AppConfigModel> updateCoordinators)
         {
             _addStatusMessage = addStatusMessage;
             _getReadyStatusMessage = getReadyStatusMessage;
             _updateCoordinators = updateCoordinators;
-            _showSettingsDialog = showSettingsDialog;
         }
 
         /// <summary>
@@ -75,8 +72,6 @@ namespace LoadOrderKeeper.Services
 
             bool refExists = FileService.DoesReferenceFileExist(config);
 
-            await EnsureValidConfigurationAsync(config);
-
             var referenceResult = await EnsureReferenceFileExistsAsync(config, refExists);
             if (referenceResult == ReferenceInitializationResult.AlreadyExists)
             {
@@ -94,19 +89,6 @@ namespace LoadOrderKeeper.Services
             _ = updateCheckCoordinator.CheckForUpdatesBackgroundAsync();
 
             return new InitializationResult(config, refExists);
-        }
-
-        /// <summary>
-        /// Ensures configuration is valid, prompting for settings if needed.
-        /// </summary>
-        private async Task EnsureValidConfigurationAsync(AppConfigModel config)
-        {
-            if (config.IsValid())
-            {
-                return;
-            }
-
-            await _showSettingsDialog();
         }
 
         /// <summary>

@@ -217,8 +217,7 @@ public class ViewModelInitializer
     public ViewModelInitializer(
         Action<string, StatusMessageType> addStatusMessage,
         Func<string> getReadyStatusMessage,
-        Action<AppConfigModel> updateCoordinators,
-        Func<Task> showSettingsDialog);
+        Action<AppConfigModel> updateCoordinators);
     
     public Task<InitializationResult> LoadInitialStateAsync(
         ConfigurationCoordinator configCoordinator,
@@ -234,7 +233,7 @@ public class InitializationResult
 }
 ```
 
-**Purpose:** Handles MainViewModel startup sequence including configuration loading, validation, profile setup, coordinator initialization, and initial state establishment. Extracted from MainViewModel to improve testability and maintainability.
+**Purpose:** Handles MainViewModel startup sequence including configuration loading, validation, profile setup, coordinator initialization, and initial state establishment. Does not automatically show settings dialog - relies on error banner to guide users when configuration is invalid. Extracted from MainViewModel to improve testability and maintainability.
 
 ---
 

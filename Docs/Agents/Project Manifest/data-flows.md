@@ -16,9 +16,9 @@
 - `FileMonitoringCoordinator.UpdateState()` initializes monitoring with config, reference existence, and validation state.
 - `UpdateCheckCoordinator.CheckForUpdatesBackgroundAsync()` checks for new versions on startup.
 - Ensures default profile files exist through `ProfileService.EnsureDefaultProfileFilesAsync()`.
-- If Profiles folder cannot be created or accessed, error dialog shown with option to open settings.
+- If Profiles folder cannot be created or accessed, error dialog shown.
 - If no reference exists yet but `Plugins.txt` is present, `FileService.CreateReferenceFileAsync()` seeds the active profile reference automatically.
-- **Invalid Configuration Handling**: Application remains open with error banner when configuration is invalid; secondary windows can be opened but show modal overlay preventing operations until configuration is fixed.
+- **Invalid Configuration Handling**: Application remains open with error banner when configuration is invalid. No automatic settings dialog is shown - users click the "Open settings" button in the error banner when ready. Secondary windows can be opened but show modal overlay preventing operations until configuration is fixed.
 
 ---
 

@@ -108,8 +108,7 @@ namespace LoadOrderKeeper.ViewModels
             _initializer = new ViewModelInitializer(
                 AddStatusMessage,
                 GetReadyStatusMessage,
-                UpdateCoordinatorsWithConfig,
-                async () => await ShowSettingsDialogInternalAsync());
+                UpdateCoordinatorsWithConfig);
 
             // Use CoordinatorEventBinder to consolidate property change forwarding
             var binder = new CoordinatorEventBinder(OnPropertyChanged);
@@ -400,9 +399,15 @@ namespace LoadOrderKeeper.ViewModels
             var settingsVm = new SettingsViewModel(Config);
             var window = new SettingsWindow
             {
-                Owner = WpfApplication.Current?.MainWindow,
                 DataContext = settingsVm
             };
+
+            // Safely set Owner if MainWindow is available
+            var mainWindow = WpfApplication.Current?.MainWindow;
+            if (mainWindow != null && mainWindow.IsLoaded)
+            {
+                window.Owner = mainWindow;
+            }
 
             bool? result = window.ShowDialog();
             if (result == true)

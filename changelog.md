@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.7.3 - Bug Fix
+- Fixed: Exception on startup when no configuration exists.
+- Configuration: Removed the automatic opening of the config window ([#27](https://github.com/Mistralys/starfield-load-order-manager/pull/27)).
+
 ## v1.7.2 - Exception Dialog
 - General: Added a global exception dialog to show unhandled exceptions in a user-friendly manner.
 - General: Added logging for unhandled exceptions to aid in debugging.

@@ -22,14 +22,14 @@ namespace LoadOrderKeeper.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class AboutWindowResources {
+    public class ConfirmationDialogResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal AboutWindowResources() {
+        internal ConfirmationDialogResources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace LoadOrderKeeper.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LoadOrderKeeper.Resources.AboutWindowResources", typeof(AboutWindowResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LoadOrderKeeper.Resources.ConfirmationDialogResources", typeof(ConfirmationDialogResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,56 +61,11 @@ namespace LoadOrderKeeper.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Starfield Load Order Keeper.
+        ///   Looks up a localized string similar to Seed.
         /// </summary>
-        public static string ApplicationName {
+        public static string Seed {
             get {
-                return ResourceManager.GetString("ApplicationName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Close.
-        /// </summary>
-        public static string CloseButtonText {
-            get {
-                return ResourceManager.GetString("CloseButtonText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to © 2025-{0} Mistralys.
-        /// </summary>
-        public static string CopyrightFormat {
-            get {
-                return ResourceManager.GetString("CopyrightFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A tool to help manage and maintain your Starfield mods load order once you have started a game..
-        /// </summary>
-        public static string Description {
-            get {
-                return ResourceManager.GetString("Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Homepage.
-        /// </summary>
-        public static string HomepageButtonText {
-            get {
-                return ResourceManager.GetString("HomepageButtonText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Version.
-        /// </summary>
-        public static string VersionLabelText {
-            get {
-                return ResourceManager.GetString("VersionLabelText", resourceCulture);
+                return ResourceManager.GetString("Seed", resourceCulture);
             }
         }
     }

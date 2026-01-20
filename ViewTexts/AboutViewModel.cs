@@ -9,11 +9,11 @@ namespace LoadOrderKeeper.ViewTexts
 {
     public partial class AboutViewModel : ObservableObject
     {
-        public string ApplicationName => LoadOrderKeeper.Resources.AboutWindowResources.ApplicationName;
-        public string Description => LoadOrderKeeper.Resources.AboutWindowResources.Description;
-        public string HomepageButtonText => LoadOrderKeeper.Resources.AboutWindowResources.HomepageButtonText;
-        public string CloseButtonText => LoadOrderKeeper.Resources.AboutWindowResources.CloseButtonText;
-        public string VersionLabelText => LoadOrderKeeper.Resources.AboutWindowResources.VersionLabelText;
+        public string ApplicationName => LoadOrderKeeper.Resources.AboutViewResources.ApplicationName;
+        public string Description => LoadOrderKeeper.Resources.AboutViewResources.Description;
+        public string HomepageButtonText => LoadOrderKeeper.Resources.AboutViewResources.HomepageButtonText;
+        public string CloseButtonText => LoadOrderKeeper.Resources.AboutViewResources.CloseButtonText;
+        public string VersionLabelText => LoadOrderKeeper.Resources.AboutViewResources.VersionLabelText;
         
         public string ApplicationVersion { get; }
         public string Copyright { get; private set; }
@@ -25,13 +25,13 @@ namespace LoadOrderKeeper.ViewTexts
         public AboutViewModel()
         {
             ApplicationVersion = VersionService.GetApplicationVersion();
-            Copyright = string.Format(LoadOrderKeeper.Resources.AboutWindowResources.CopyrightFormat, DateTime.Now.Year);
+            Copyright = string.Format(LoadOrderKeeper.Resources.AboutViewResources.CopyrightFormat, DateTime.Now.Year);
             
             // Debug: Log current culture information
             System.Diagnostics.Debug.WriteLine($"[AboutViewModel] Current UI Culture: {System.Globalization.CultureInfo.CurrentUICulture.Name}");
             System.Diagnostics.Debug.WriteLine($"[AboutViewModel] Current Culture: {System.Globalization.CultureInfo.CurrentCulture.Name}");
             System.Diagnostics.Debug.WriteLine($"[AboutViewModel] LocalizationService Culture: {App.LocalizationService.CurrentCulture.Name}");
-            System.Diagnostics.Debug.WriteLine($"[AboutViewModel] ApplicationName from resources: {LoadOrderKeeper.Resources.AboutWindowResources.ApplicationName}");
+            System.Diagnostics.Debug.WriteLine($"[AboutViewModel] ApplicationName from resources: {LoadOrderKeeper.Resources.AboutViewResources.ApplicationName}");
             
             // Subscribe to culture changes to update FlowDirection
             App.LocalizationService.CultureChanged += OnCultureChanged;
@@ -47,7 +47,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(CloseButtonText));
             OnPropertyChanged(nameof(VersionLabelText));
             // Update copyright with new culture formatting
-            Copyright = string.Format(LoadOrderKeeper.Resources.AboutWindowResources.CopyrightFormat, DateTime.Now.Year);
+            Copyright = string.Format(LoadOrderKeeper.Resources.AboutViewResources.CopyrightFormat, DateTime.Now.Year);
             OnPropertyChanged(nameof(Copyright));
         }
 

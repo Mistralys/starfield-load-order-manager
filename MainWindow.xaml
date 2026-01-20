@@ -6,7 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:LoadOrderKeeper.Converters"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}"
+        Title="{Binding Menu.WindowTitle}"
         Height="451"
         Width="576"
         MinWidth="480"
@@ -25,58 +25,58 @@
         <Menu DockPanel.Dock="Top"
               Background="{DynamicResource MaterialDesignPaper}"
               Foreground="{DynamicResource MaterialDesignBody}">
-            <MenuItem Header="{Binding FileMenuHeader}" d:Header="File">
-                <MenuItem Header="{Binding OpenPluginsMenuText}"
+            <MenuItem Header="{Binding Menu.FileMenuHeader}" d:Header="File">
+                <MenuItem Header="{Binding Menu.OpenPluginsMenuText}"
                           Command="{Binding OpenPluginsFileCommand}" />
-                <MenuItem Header="{Binding OpenReferenceMenuText}"
+                <MenuItem Header="{Binding Menu.OpenReferenceMenuText}"
                           Command="{Binding OpenReferenceFileCommand}" />
                 <Separator />
-                <MenuItem Header="{Binding OpenAppDataFolderMenuText}"
+                <MenuItem Header="{Binding Menu.OpenAppDataFolderMenuText}"
                           Command="{Binding OpenAppDataFolderCommand}" />
-                <MenuItem Header="{Binding OpenGameFolderMenuText}"
+                <MenuItem Header="{Binding Menu.OpenGameFolderMenuText}"
                           Command="{Binding OpenGameFolderCommand}" />
                 <Separator />
-                <MenuItem Header="{Binding ExitMenuText}"
+                <MenuItem Header="{Binding Menu.ExitMenuText}"
                           Command="{Binding ExitApplicationCommand}" />
             </MenuItem>
-            <MenuItem Header="{Binding EditMenuHeader}" d:Header="Edit">
-                <MenuItem Header="{Binding SettingsMenuText}"
+            <MenuItem Header="{Binding Menu.EditMenuHeader}" d:Header="Edit">
+                <MenuItem Header="{Binding Menu.SettingsMenuText}"
                           Command="{Binding OpenSettingsCommand}"
                           Icon="{materialDesign:PackIcon Kind=Settings}" />
             </MenuItem>
-            <MenuItem Header="{Binding ProfileMenuHeader}" d:Header="Profile">
-                <MenuItem Header="{Binding SwitchProfileMenuText}"
+            <MenuItem Header="{Binding Menu.ProfileMenuHeader}" d:Header="Profile">
+                <MenuItem Header="{Binding Menu.SwitchProfileMenuText}"
                           Command="{Binding SwitchProfileCommand}"
                           Icon="{materialDesign:PackIcon Kind=SwapHorizontal}" />
-                <MenuItem Header="{Binding ManageProfilesMenuText}"
+                <MenuItem Header="{Binding Menu.ManageProfilesMenuText}"
                           Command="{Binding ManageProfilesCommand}"
                           Icon="{materialDesign:PackIcon Kind=FolderMultiple}" />
                 <Separator />
-                <MenuItem Header="{Binding ViewPendingChangesMenuText}"
+                <MenuItem Header="{Binding Menu.ViewPendingChangesMenuText}"
                           Command="{Binding ViewPendingChangesCommand}"
                           Icon="{materialDesign:PackIcon Kind=ClipboardTextClock}" />
-                <MenuItem Header="{Binding ReferenceHistoryMenuText}"
+                <MenuItem Header="{Binding Menu.ReferenceHistoryMenuText}"
                           Command="{Binding ShowReferenceHistoryCommand}"
                           Icon="{materialDesign:PackIcon Kind=History}" />
             </MenuItem>
-            <MenuItem Header="{Binding HelpMenuHeader}" d:Header="Help">
-                <MenuItem Header="{Binding CheckForUpdatesMenuText}"
+            <MenuItem Header="{Binding Menu.HelpMenuHeader}" d:Header="Help">
+                <MenuItem Header="{Binding Menu.CheckForUpdatesMenuText}"
                           Command="{Binding CheckForUpdatesCommand}"
                           Icon="{materialDesign:PackIcon Kind=Update}" />
                 <Separator />
-                <MenuItem Header="{Binding AboutMenuText}"
+                <MenuItem Header="{Binding Menu.AboutMenuText}"
                           Command="{Binding ShowAboutCommand}"
                           Icon="{materialDesign:PackIcon Kind=Information}" />
             </MenuItem>
-            <MenuItem Header="{Binding DebugMenuHeader}" d:Header="Debug">
-                <MenuItem Header="{Binding ResetConfigMenuText}"
+            <MenuItem Header="{Binding Menu.DebugMenuHeader}" d:Header="Debug">
+                <MenuItem Header="{Binding Menu.ResetConfigMenuText}"
                           Command="{Binding ResetConfigurationCommand}"
                           Icon="{materialDesign:PackIcon Kind=Refresh}" />
-                <MenuItem Header="{Binding OpenConfigFolderMenuText}"
+                <MenuItem Header="{Binding Menu.OpenConfigFolderMenuText}"
                           Command="{Binding OpenConfigFolderCommand}"
                           Icon="{materialDesign:PackIcon Kind=Folder}" />
                 <Separator />
-                <MenuItem Header="{Binding ThrowTestExceptionMenuText}"
+                <MenuItem Header="{Binding Menu.ThrowTestExceptionMenuText}"
                           Command="{Binding ThrowTestExceptionCommand}"
                           Icon="{materialDesign:PackIcon Kind=AlertCircle}" />
             </MenuItem>
@@ -151,7 +151,7 @@
                           TextWrapping="Wrap" />
 
                 <Button Grid.Column="2"
-                       Content="{Binding DownloadOptionsButtonText}"
+                       Content="{Binding Menu.DownloadOptionsButtonText}"
                        d:Content="Download options..."
                        Command="{Binding OpenDownloadPageCommand}"
                        Style="{StaticResource MaterialDesignOutlinedButton}"
@@ -189,7 +189,7 @@
                     <TextBlock VerticalAlignment="Center"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            d:Text="Switch profile:">
-                           <Run Text="{Binding ActiveProfilePrefixText, Mode=OneWay}" />
+                           <Run Text="{Binding Menu.ActiveProfilePrefixText, Mode=OneWay}" />
                     </TextBlock>
                     <Button VerticalAlignment="Center"
                         Margin="4,0,0,0"
@@ -305,7 +305,7 @@
                         Padding="8"
                         CornerRadius="4">
                     <StackPanel>
-                        <TextBlock Text="{Binding RecentStatusMessagesText}"
+                        <TextBlock Text="{Binding Menu.RecentStatusMessagesText}"
                                    d:Text="Recent Status Messages:"
                                    FontWeight="Bold"
                                    Margin="0,0,0,4"

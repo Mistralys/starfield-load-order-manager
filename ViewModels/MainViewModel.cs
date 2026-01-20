@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Coordinators;
+using LoadOrderKeeper.Helpers;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
 using LoadOrderKeeper.Views;
@@ -23,14 +24,12 @@ namespace LoadOrderKeeper.ViewModels
         private readonly ProfileCoordinator _profileCoordinator;
         private readonly ConfigurationCoordinator _configCoordinator;
         private readonly GameLauncherCoordinator _gameLauncher;
+        private readonly WindowLifecycleService _windowService;
+        private readonly FileOperationsService _fileOperations;
+        private readonly ReferenceManagementService _referenceManager;
+        private readonly ViewModelInitializer _initializer;
         private readonly CancellationTokenSource _shutdownCts = new();
         private bool _disposed;
-
-        // Track non-modal windows to prevent duplicates
-        private ManageProfilesWindow? _manageProfilesWindow;
-        private DiffWindow? _diffWindow;
-        private ReferenceHistoryWindow? _referenceHistoryWindow;
-        private ViewPendingChangesWindow? _viewPendingChangesWindow;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(CreateReferenceCommand))]
@@ -53,39 +52,13 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _fixLoadOrderButtonText = "Sort mods";
 
-        public string PlayButtonText => _gameLauncher.PlayButtonText;
-
-        public string WindowTitle => string.Format(Resources.MainWindowResources.WindowTitleFormat, VersionService.GetApplicationVersion());
-        public string FileMenuHeader => Resources.MainWindowResources.FileMenuHeader;
-        public string OpenPluginsMenuText => Resources.MainWindowResources.OpenPluginsMenuText;
-        public string OpenReferenceMenuText => Resources.MainWindowResources.OpenReferenceMenuText;
-        public string OpenAppDataFolderMenuText => Resources.MainWindowResources.OpenAppDataFolderMenuText;
-        public string OpenGameFolderMenuText => Resources.MainWindowResources.OpenGameFolderMenuText;
-        public string ExitMenuText => Resources.MainWindowResources.ExitMenuText;
-        public string EditMenuHeader => Resources.MainWindowResources.EditMenuHeader;
-        public string SettingsMenuText => Resources.MainWindowResources.SettingsMenuText;
-        public string HelpMenuHeader => Resources.MainWindowResources.HelpMenuHeader;
-        public string CheckForUpdatesMenuText => Resources.MainWindowResources.CheckForUpdatesMenuText;
-        public string AboutMenuText => Resources.MainWindowResources.AboutMenuText;
-        public string DebugMenuHeader => Resources.MainWindowResources.DebugMenuHeader;
-        public string ResetConfigMenuText => Resources.MainWindowResources.ResetConfigMenuText;
-        public string OpenConfigFolderMenuText => Resources.MainWindowResources.OpenConfigFolderMenuText;
-        public string DownloadOptionsButtonText => Resources.MainWindowResources.DownloadOptionsButtonText;
-        public string ThrowTestExceptionMenuText => Resources.MainWindowResources.ThrowTestExceptionMenuText;
-        public string PluginsModifiedWarningText => Resources.MainWindowResources.PluginsModifiedWarningText;
-        public string ActiveProfilePrefixText => Resources.MainWindowResources.ActiveProfilePrefixText;
-        public string ProfileMenuHeader => Resources.MainWindowResources.ProfileMenuHeader;
-        public string SwitchProfileMenuText => Resources.MainWindowResources.SwitchProfileMenuText;
-        public string ManageProfilesMenuText => Resources.MainWindowResources.ManageProfilesMenuText;
-        public string RecentStatusMessagesText => Resources.MainWindowResources.RecentStatusMessagesText;
-        public string ReferenceHistoryMenuText => Resources.MainWindowResources.ReferenceHistoryMenuText;
-        public string ViewPendingChangesMenuText => Resources.MainWindowResources.ViewPendingChangesMenuText;
-        public string ConfigErrorBannerText => Resources.MainWindowResources.ConfigErrorBannerText;
-        public string OpenSettingsButtonText => Resources.MainWindowResources.OpenSettingsButtonText;
-        public string DismissTooltip => Resources.MainWindowResources.DismissTooltip;
-
         [ObservableProperty]
         private string _showChangesButtonText = Resources.MainWindowResources.ShowChangesButtonText;
+
+        // Menu and UI text properties
+        public MenuViewModel Menu { get; } = new();
+
+        public string PlayButtonText => _gameLauncher.PlayButtonText;
 
         // Pass-through properties from FileMonitoringCoordinator
         public bool PluginsFileChangedExternally => _fileMonitor.PluginsFileChangedExternally;
@@ -127,102 +100,72 @@ namespace LoadOrderKeeper.ViewModels
             _profileCoordinator = new ProfileCoordinator();
             _configCoordinator = new ConfigurationCoordinator();
             _gameLauncher = new GameLauncherCoordinator();
+            _windowService = new WindowLifecycleService();
+            _fileOperations = new FileOperationsService();
+            _referenceManager = new ReferenceManagementService(
+                AddStatusMessage,
+                async () => await _windowService.RefreshReferenceHistoryWindowAsync());
+            _initializer = new ViewModelInitializer(
+                AddStatusMessage,
+                GetReadyStatusMessage,
+                UpdateCoordinatorsWithConfig);
 
-            // Wire up property change events for UI bindings
-            _fileMonitor.PropertyChanged += (s, e) =>
-            {
-                switch (e.PropertyName)
-                {
-                    case nameof(FileMonitoringCoordinator.PluginsFileChangedExternally):
-                        OnPropertyChanged(nameof(PluginsFileChangedExternally));
-                        if (_fileMonitor.PluginsFileChangedExternally)
-                        {
-                            _statusCoordinator.AddStatusMessage(PluginsModifiedWarningText, StatusMessageType.Warning);
-                        }
-                        else
-                        {
-                            _statusCoordinator.AddStatusMessage(_statusCoordinator.GetReadyStatusMessage(Config.IsValid()), StatusMessageType.Info);
-                        }
-                        ShowDiffCommand?.NotifyCanExecuteChanged();
-                        break;
-                    case nameof(FileMonitoringCoordinator.SortingRecommendationMessage):
-                        OnPropertyChanged(nameof(SortingRecommendationMessage));
-                        break;
-                    case nameof(FileMonitoringCoordinator.SortingRecommendationActive):
-                        OnPropertyChanged(nameof(SortingRecommendationActive));
-                        break;
-                    case nameof(FileMonitoringCoordinator.ShowSteamWarning):
-                        OnPropertyChanged(nameof(ShowSteamWarning));
-                        OnPropertyChanged(nameof(SteamWarningTooltip));
-                        break;
-                    case nameof(FileMonitoringCoordinator.IsSteamInstalled):
-                        OnPropertyChanged(nameof(IsSteamInstalled));
-                        break;
-                    case nameof(FileMonitoringCoordinator.IsSteamRunning):
-                        OnPropertyChanged(nameof(IsSteamRunning));
-                        break;
-                    case nameof(FileMonitoringCoordinator.ChangeCount):
-                        UpdateChangeCountDisplay(_fileMonitor.ChangeCount);
-                        break;
-                }
-            };
+            // Use CoordinatorEventBinder to consolidate property change forwarding
+            var binder = new CoordinatorEventBinder(OnPropertyChanged);
 
-            // Wire up StatusCoordinator property changes for UI bindings
-            _statusCoordinator.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(StatusCoordinator.StatusMessage))
-                {
-                    OnPropertyChanged(nameof(StatusMessage));
-                }
-                else if (e.PropertyName == nameof(StatusCoordinator.StatusMessageHistory))
-                {
-                    OnPropertyChanged(nameof(StatusMessageHistory));
-                }
-            };
+            // File Monitor property bindings
+            binder.BindPropertiesDirect(_fileMonitor, 
+                nameof(PluginsFileChangedExternally),
+                nameof(SortingRecommendationMessage),
+                nameof(SortingRecommendationActive),
+                nameof(ShowSteamWarning),
+                nameof(SteamWarningTooltip),
+                nameof(IsSteamInstalled),
+                nameof(IsSteamRunning));
 
-            // Wire up UpdateCheckCoordinator property changes for UI bindings
-            _updateCheckCoordinator.PropertyChanged += (s, e) =>
+            // Special handling for PluginsFileChangedExternally with status message
+            binder.BindPropertyWithAction(_fileMonitor, nameof(FileMonitoringCoordinator.PluginsFileChangedExternally), () =>
             {
-                if (e.PropertyName == nameof(UpdateCheckCoordinator.UpdateAvailable))
+                if (_fileMonitor.PluginsFileChangedExternally)
                 {
-                    OnPropertyChanged(nameof(UpdateAvailable));
+                    _statusCoordinator.AddStatusMessage(Menu.PluginsModifiedWarningText, StatusMessageType.Warning);
                 }
-                else if (e.PropertyName == nameof(UpdateCheckCoordinator.UpdateMessage))
+                else
                 {
-                    OnPropertyChanged(nameof(UpdateMessage));
+                    _statusCoordinator.AddStatusMessage(_statusCoordinator.GetReadyStatusMessage(Config.IsValid()), StatusMessageType.Info);
                 }
-                else if (e.PropertyName == nameof(UpdateCheckCoordinator.UpdateInfoBarVisible))
-                {
-                    OnPropertyChanged(nameof(UpdateInfoBarVisible));
-                }
-            };
+                ShowDiffCommand?.NotifyCanExecuteChanged();
+            });
 
-            // Wire up ProfileCoordinator property changes for UI bindings
-            _profileCoordinator.PropertyChanged += (s, e) =>
+            // Special handling for ChangeCount
+            binder.BindPropertyWithAction(_fileMonitor, nameof(FileMonitoringCoordinator.ChangeCount), () =>
             {
-                if (e.PropertyName == nameof(ProfileCoordinator.ActiveProfileLabel))
-                {
-                    OnPropertyChanged(nameof(ActiveProfileLabel));
-                }
-            };
+                UpdateChangeCountDisplay(_fileMonitor.ChangeCount);
+            });
 
-            // Wire up ConfigurationCoordinator property changes for UI bindings
-            _configCoordinator.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(ConfigurationCoordinator.ShowErrorBanner))
-                {
-                    OnPropertyChanged(nameof(ConfigErrorBannerVisible));
-                }
-            };
+            // Status Coordinator property bindings
+            binder.BindPropertiesDirect(_statusCoordinator,
+                nameof(StatusMessage),
+                nameof(StatusMessageHistory));
 
-            // Wire up GameLauncherCoordinator property changes for UI bindings
-            _gameLauncher.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(GameLauncherCoordinator.PlayButtonText))
-                {
-                    OnPropertyChanged(nameof(PlayButtonText));
-                }
-            };
+            // Update Check Coordinator property bindings
+            binder.BindPropertiesDirect(_updateCheckCoordinator,
+                nameof(UpdateAvailable),
+                nameof(UpdateMessage),
+                nameof(UpdateInfoBarVisible));
+
+            // Profile Coordinator property bindings
+            binder.BindPropertiesDirect(_profileCoordinator,
+                nameof(ActiveProfileLabel));
+
+            // Configuration Coordinator property bindings
+            binder.BindProperty(_configCoordinator, 
+                nameof(ConfigurationCoordinator.ShowErrorBanner),
+                nameof(ConfigErrorBannerVisible));
+
+            // Game Launcher Coordinator property bindings
+            binder.BindPropertiesDirect(_gameLauncher,
+                nameof(PlayButtonText));
 
             // Wire up coordinator events
             _fileMonitor.ChangeDetected += OnChangeDetected;
@@ -246,82 +189,22 @@ namespace LoadOrderKeeper.ViewModels
 
         private async Task LoadInitialStateAsync()
         {
-            Config = await SettingsService.LoadSettingsAsync();
-            
-            // Update coordinator configurations
-            _configCoordinator.UpdateConfiguration(Config);
-            _profileCoordinator.UpdateConfiguration(Config);
-            _gameLauncher.UpdateConfiguration(Config);
-            
-            // Validate configuration early, including Profiles folder
-            if (Config.IsValid())
-            {
-                // Ensure Profiles folder exists and is writable
-                try
-                {
-                    ProfileService.EnsureProfilesFolderExists(Config);
-                }
-                catch (IOException ex)
-                {
-                    // Show error message and offer to open settings, but don't force shutdown
-                    ConfirmationDialog.Show(
-                        "Profiles Folder Error",
-                        $"{ex.Message}\n\n{Constants.UserMessages.ProfilesFolderRequired}",
-                        ConfirmationIcon.Error,
-                        ConfirmationButton.OK,
-                        ConfirmationResult.OK,
-                        WpfApplication.Current?.MainWindow);
-                    
-                    // Configuration is now invalid, error banner will appear automatically
-                    // Re-validate configuration to update error state
-                    _configCoordinator.ValidateConfiguration();
-                }
-            }
-            
-            // Ensure default profile exists
-            await ProfileService.EnsureDefaultProfileFilesAsync(Config);
-            
-            RefExists = FileService.DoesReferenceFileExist(Config);
+            var result = await _initializer.LoadInitialStateAsync(
+                _configCoordinator,
+                _profileCoordinator,
+                _fileMonitor,
+                _updateCheckCoordinator);
 
-            await EnsureValidConfigurationAsync();
-
-            var referenceResult = await EnsureReferenceFileExistsAsync();
-            if (referenceResult == ReferenceInitializationResult.AlreadyExists)
-            {
-                AddStatusMessage(GetReadyStatusMessage(), StatusMessageType.Info);
-            }
-
-            // Initialize profile coordinator with config and load active profile
-            _profileCoordinator.UpdateConfiguration(Config);
-            await _profileCoordinator.RefreshActiveProfileAsync();
-
-            // Update file monitor with initial state
+            Config = result.Config;
+            RefExists = result.RefExists;
             UpdateFileMonitorState();
-
-            // Perform immediate initial check to eliminate startup delay
-            // This provides instant feedback on the current state without waiting for the first timer tick
-            _ = _fileMonitor.CheckPluginsFileAsync();
-
-            // Check for updates in the background
-            _ = _updateCheckCoordinator.CheckForUpdatesBackgroundAsync();
         }
 
-        private async Task EnsureValidConfigurationAsync()
+        private void UpdateCoordinatorsWithConfig(AppConfigModel config)
         {
-            if (Config.IsValid())
-            {
-                return;
-            }
-
-            await ShowSettingsDialogInternalAsync();
-
-            // If configuration is still invalid after showing settings, don't shut down
-            // The error banner will be visible and inform the user
-            if (!Config.IsValid())
-            {
-                // Re-validate to ensure error banner is shown
-                _configCoordinator.ValidateConfiguration();
-            }
+            _configCoordinator.UpdateConfiguration(config);
+            _profileCoordinator.UpdateConfiguration(config);
+            _gameLauncher.UpdateConfiguration(config);
         }
 
         [RelayCommand(CanExecute = nameof(CanFixLoadOrder))]
@@ -363,84 +246,14 @@ namespace LoadOrderKeeper.ViewModels
 
             try
             {
-                // If updating an existing reference, archive it first with version history
-                if (RefExists)
+                bool success = await _referenceManager.CreateOrUpdateReferenceAsync(
+                    Config,
+                    RefExists,
+                    WpfApplication.Current?.MainWindow);
+
+                if (success)
                 {
-                    AddStatusMessage("Updating reference file...", StatusMessageType.Info);
-
-                    // Prompt for optional comment
-                    var commentDialog = new CommentInputDialog
-                    {
-                        Owner = WpfApplication.Current?.MainWindow
-                    };
-
-                    bool? commentResult = commentDialog.ShowDialog();
-                    
-                    // If user cancelled, abort the operation
-                    if (commentResult != true)
-                    {
-                        AddStatusMessage("Reference update cancelled.", StatusMessageType.Info);
-                        return;
-                    }
-
-                    string? comment = commentDialog.Comment;
-
-                    // Load pending changes from previous update (what changed LAST time)
-                    var pendingChanges = await ReferenceHistoryService.LoadPendingChangesAsync(Config);
-
-                    // Calculate current changes (what changed THIS time)
-                    var (currentAddedMods, currentRemovedMods) = await FileService.CalculateReferenceChangesAsync(Config);
-
-                    // Archive current reference with PREVIOUS changes (including the previous comment from pending changes)
-                    // This makes the history entry describe what that version accomplished
-                    try
-                    {
-                        await ReferenceHistoryService.ArchiveCurrentReferenceAsync(
-                            Config, 
-                            pendingChanges.AddedMods, 
-                            pendingChanges.RemovedMods);
-                        
-                        // Refresh history window if open
-                        await RefreshReferenceHistoryWindowAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        AddStatusMessage($"Warning: Failed to archive version: {ex.Message}", StatusMessageType.Warning);
-                        // Continue with update even if archiving fails
-                    }
-
-                    // Store CURRENT changes and comment as pending for the NEXT update
-                    var newPendingChanges = PendingChangesModel.Create(comment, currentAddedMods, currentRemovedMods);
-                    try
-                    {
-                        await ReferenceHistoryService.SavePendingChangesAsync(Config, newPendingChanges);
-                    }
-                    catch (Exception ex)
-                    {
-                        AddStatusMessage($"Warning: Failed to save pending changes: {ex.Message}", StatusMessageType.Warning);
-                        // Continue even if saving pending changes fails
-                    }
-                }
-                else
-                {
-                    AddStatusMessage("Creating reference file...", StatusMessageType.Info);
-                    
-                    // First reference creation - no changes to track yet
-                    // Clear any stale pending changes
-                    await ReferenceHistoryService.ClearPendingChangesAsync(Config);
-                }
-
-                // Update/create the reference file
-                await FileService.CreateReferenceFileAsync(Config);
-                RefExists = true;
-
-                if (RefExists)
-                {
-                    AddStatusMessage("Reference file updated successfully!", StatusMessageType.Success);
-                }
-                else
-                {
-                    AddStatusMessage("Reference created successfully! You can now fix the load order.", StatusMessageType.Success);
+                    RefExists = true;
                 }
             }
             catch (Exception ex)
@@ -491,62 +304,62 @@ namespace LoadOrderKeeper.ViewModels
  
         private void OpenPluginsFile()
         {
-            var path = Config.GetPluginsFilePath();
-            if (!File.Exists(path))
+            try
             {
-                ShowError($"Plugins file not found: {path}");
-                return;
+                _fileOperations.OpenPluginsFile(Config);
             }
-
-            LaunchShellTarget(path, "Failed to open Plugins.txt");
+            catch (Exception ex)
+            {
+                ShowError($"Failed to open Plugins.txt: {ex.Message}");
+            }
         }
 
         private void OpenReferenceFile()
         {
-            var path = Config.GetReferenceFilePath();
-            if (!File.Exists(path))
+            try
             {
-                ShowError($"Reference file not found: {path}");
-                return;
+                _fileOperations.OpenReferenceFile(Config);
             }
-
-            LaunchShellTarget(path, "Failed to open reference file");
+            catch (Exception ex)
+            {
+                ShowError($"Failed to open reference file: {ex.Message}");
+            }
         }
 
         private void OpenAppDataFolder()
         {
-            var path = Config.StarfieldAppDataPath;
-            if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+            try
             {
-                ShowError("AppData folder is not configured or does not exist.");
-                return;
+                _fileOperations.OpenAppDataFolder(Config);
             }
-
-            LaunchShellTarget(path, "Failed to open AppData folder");
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
         }
 
         private void OpenGameFolder()
         {
-            var path = Config.StarfieldGamePath;
-            if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+            try
             {
-                ShowError("Game folder is not configured or does not exist.");
-                return;
+                _fileOperations.OpenGameFolder(Config);
             }
-
-            LaunchShellTarget(path, "Failed to open game folder");
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
         }
 
         private void OpenConfigFolder()
         {
-            var path = SettingsService.GetConfigFolderPath();
-            if (!Directory.Exists(path))
+            try
             {
-                ShowError($"Configuration folder not found: {path}");
-                return;
+                _fileOperations.OpenConfigFolder();
             }
-
-            LaunchShellTarget(path, "Failed to open configuration folder");
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
         }
 
         private void PlayGame()
@@ -586,9 +399,15 @@ namespace LoadOrderKeeper.ViewModels
             var settingsVm = new SettingsViewModel(Config);
             var window = new SettingsWindow
             {
-                Owner = WpfApplication.Current?.MainWindow,
                 DataContext = settingsVm
             };
+
+            // Safely set Owner if MainWindow is available
+            var mainWindow = WpfApplication.Current?.MainWindow;
+            if (mainWindow != null && mainWindow.IsLoaded)
+            {
+                window.Owner = mainWindow;
+            }
 
             bool? result = window.ShowDialog();
             if (result == true)
@@ -600,17 +419,12 @@ namespace LoadOrderKeeper.ViewModels
                 _profileCoordinator.UpdateConfiguration(Config);
                 
                 RefExists = FileService.DoesReferenceFileExist(Config);
-                var referenceResult = await EnsureReferenceFileExistsAsync();
-                if (referenceResult == ReferenceInitializationResult.AlreadyExists)
-                {
-                    _statusCoordinator.AddStatusMessage(Config.IsValid()
-                        ? "Configuration updated."
-                        : "Configuration is invalid.", Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
-                }
-                else if (referenceResult == ReferenceInitializationResult.InvalidConfiguration)
-                {
-                    AddStatusMessage("Configuration is invalid.", StatusMessageType.Warning);
-                }
+                
+                // Show appropriate status message
+                _statusCoordinator.AddStatusMessage(Config.IsValid()
+                    ? "Configuration updated."
+                    : "Configuration is invalid.", Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
+                
                 UpdateFileMonitorState();
                 await _fileMonitor.CheckPluginsFileAsync();
                 return true;
@@ -641,7 +455,6 @@ namespace LoadOrderKeeper.ViewModels
                 // Profile was switched, reload state
                 await _profileCoordinator.RefreshActiveProfileAsync();
                 RefExists = FileService.DoesReferenceFileExist(Config);
-                await EnsureReferenceFileExistsAsync();
                 UpdateFileMonitorState();
                 await _fileMonitor.CheckPluginsFileAsync();
                 // Status message is handled by ProfileChanged event
@@ -651,170 +464,46 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private async Task ManageProfilesAsync()
         {
-            // If window is already open, bring it to front
-            if (_manageProfilesWindow != null)
-            {
-                _manageProfilesWindow.Activate();
-                _manageProfilesWindow.Focus();
-                return;
-            }
-
-            var manageVm = new ManageProfilesViewModel(Config, _configCoordinator);
-            _manageProfilesWindow = new ManageProfilesWindow(Config)
-            {
-                Owner = WpfApplication.Current?.MainWindow,
-                DataContext = manageVm
-            };
-
-            // Handle window closed event to clear reference
-            _manageProfilesWindow.Closed += (s, e) => 
-            {
-                _manageProfilesWindow = null;
-            };
-
-            _manageProfilesWindow.Show();
-            
-            // Refresh active profile label in case it was edited (when window is closed)
-            _manageProfilesWindow.Closed += async (s, e) => 
-            {
-                await UpdateActiveProfileLabelAsync();
-            };
+            _windowService.ShowManageProfilesWindow(
+                Config, 
+                _configCoordinator, 
+                WpfApplication.Current?.MainWindow,
+                async () => await UpdateActiveProfileLabelAsync());
         }
 
         [RelayCommand]
         private void ShowReferenceHistory()
         {
-            // If window is already open, bring it to front
-            if (_referenceHistoryWindow != null)
-            {
-                _referenceHistoryWindow.Activate();
-                _referenceHistoryWindow.Focus();
-                return;
-            }
-
-            var historyVm = new ReferenceHistoryViewModel(Config, _configCoordinator);
-            _referenceHistoryWindow = new ReferenceHistoryWindow
-            {
-                Owner = WpfApplication.Current?.MainWindow,
-                DataContext = historyVm
-            };
-
-            // Handle rollback request
-            historyVm.RollbackRequested += async (s, version) =>
-            {
-                await HandleRollbackRequestAsync(version, _referenceHistoryWindow);
-            };
-
-            // Handle window closed event to clear reference
-            _referenceHistoryWindow.Closed += (s, e) => 
-            {
-                _referenceHistoryWindow = null;
-            };
-
-            _referenceHistoryWindow.Show();
+            _windowService.ShowReferenceHistoryWindow(
+                Config, 
+                _configCoordinator, 
+                WpfApplication.Current?.MainWindow,
+                async (s, version) => await HandleRollbackRequestAsync(version, (System.Windows.Window)s!));
         }
 
         [RelayCommand]
         private void ViewPendingChanges()
         {
-            // If window is already open, bring it to front
-            if (_viewPendingChangesWindow != null)
-            {
-                _viewPendingChangesWindow.Activate();
-                _viewPendingChangesWindow.Focus();
-                return;
-            }
-
-            var pendingChangesVm = new ViewPendingChangesViewModel(Config, _configCoordinator);
-            _viewPendingChangesWindow = new ViewPendingChangesWindow
-            {
-                Owner = WpfApplication.Current?.MainWindow,
-                DataContext = pendingChangesVm
-            };
-
-            // Handle window closed event to clear reference
-            _viewPendingChangesWindow.Closed += (s, e) => 
-            {
-                _viewPendingChangesWindow = null;
-            };
-
-            _viewPendingChangesWindow.Show();
+            _windowService.ShowViewPendingChangesWindow(Config, _configCoordinator, WpfApplication.Current?.MainWindow);
         }
 
         private async Task HandleRollbackRequestAsync(ReferenceVersionMetadataModel version, System.Windows.Window parentWindow)
         {
-            // Show confirmation dialog
-            var result = ConfirmationDialog.Show(
-                "Rollback Confirmation",
-                $"Are you sure you want to rollback to version {version.VersionNumber}?\n\n" +
-                $"Date: {version.FormattedTimestamp}\n" +
-                $"Changes: {version.TotalModsChanged}\n" +
-                $"Summary: {version.GetChangeSummary()}\n\n" +
-                $"The current Plugins.txt will be replaced with the list from version {version.VersionNumber}." +
-                "You will then have the opportunity to review the changes before accepting them.",
-                ConfirmationIcon.Question,
-                ConfirmationButton.YesNo,
-                ConfirmationResult.No,
-                parentWindow);
-
-            if (result != ConfirmationResult.Yes)
-            {
-                return;
-            }
-
-            try
-            {
-                // Perform rollback
-                await ReferenceHistoryService.RollbackToVersionAsync(Config, version.VersionNumber);
-                AddStatusMessage($"Rolled back to version {version.VersionNumber}. Accept the changes to confirm.", StatusMessageType.Success);
-
-                // Close history window
-                parentWindow.Close();
-
-                // Trigger change detection to show in DIFF window
-                await _fileMonitor.CheckPluginsFileAsync();
-            }
-            catch (Exception ex)
-            {
-                ConfirmationDialog.Show(
-                    "Rollback Failed",
-                    $"Failed to rollback to version {version.VersionNumber}: {ex.Message}",
-                    ConfirmationIcon.Error,
-                    ConfirmationButton.OK,
-                    ConfirmationResult.OK,
-                    parentWindow);
-            }
+            await _referenceManager.HandleRollbackAsync(
+                Config,
+                version,
+                parentWindow,
+                async () => await _fileMonitor.CheckPluginsFileAsync());
         }
 
         private async Task RefreshReferenceHistoryWindowAsync()
         {
-            if (_referenceHistoryWindow?.DataContext is ReferenceHistoryViewModel historyVm)
-            {
-                await historyVm.RefreshVersionsAsync();
-            }
+            await _windowService.RefreshReferenceHistoryWindowAsync();
         }
 
         private async Task UpdateActiveProfileLabelAsync()
         {
             await _profileCoordinator.RefreshActiveProfileAsync();
-        }
-
-        private void LaunchShellTarget(string target, string failureMessage)
-        {
-            try
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = target,
-                    UseShellExecute = true,
-                    Verb = "open"
-                };
-                Process.Start(psi);
-            }
-            catch (Exception ex)
-            {
-                ShowError($"{failureMessage}: {ex.Message}");
-            }
         }
 
         private void ShowError(string message)
@@ -847,32 +536,9 @@ namespace LoadOrderKeeper.ViewModels
  
         private async Task ShowDiffAsync()
         {
-            // If diff window is already open, bring it to front
-            if (_diffWindow != null)
-            {
-                _diffWindow.Activate();
-                _diffWindow.Focus();
-                return;
-            }
-
             try
             {
-                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
-                
-                var diffViewModel = new DiffDialogViewModel(diffLines, this);
-                _diffWindow = new DiffWindow
-                {
-                    Owner = WpfApplication.Current?.MainWindow,
-                    DataContext = diffViewModel
-                };
-
-                // Handle window closed event to clear reference
-                _diffWindow.Closed += (s, e) => 
-                {
-                    _diffWindow = null;
-                };
-
-                _diffWindow.Show();
+                await _windowService.ShowDiffWindowAsync(Config, this, WpfApplication.Current?.MainWindow);
             }
             catch (Exception ex)
             {
@@ -932,12 +598,10 @@ namespace LoadOrderKeeper.ViewModels
         private async Task DiscardChangesAsync()
         {
             IsBusy = true;
-            AddStatusMessage("Discarding load order changes...", StatusMessageType.Info);
 
             try
             {
-                await FileService.DiscardChangesAsync(Config);
-                AddStatusMessage("Plugins.txt restored from reference.", StatusMessageType.Success);
+                await _referenceManager.DiscardChangesAsync(Config);
             }
             catch (Exception ex)
             {
@@ -960,50 +624,6 @@ namespace LoadOrderKeeper.ViewModels
 
         private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
 
-        private enum ReferenceInitializationResult
-        {
-            AlreadyExists,
-            Created,
-            MissingPluginsFile,
-            InvalidConfiguration,
-            Failed
-        }
-
-        private async Task<ReferenceInitializationResult> EnsureReferenceFileExistsAsync()
-        {
-            if (!Config.IsValid())
-            {
-                return ReferenceInitializationResult.InvalidConfiguration;
-            }
-
-            if (RefExists)
-            {
-                return ReferenceInitializationResult.AlreadyExists;
-            }
-
-            string pluginsPath = Config.GetPluginsFilePath();
-            if (!File.Exists(pluginsPath))
-            {
-                AddStatusMessage($"Plugins.txt not found at {pluginsPath}. Unable to create reference automatically.", StatusMessageType.Warning);
-                return ReferenceInitializationResult.MissingPluginsFile;
-            }
-
-            try
-            {
-                AddStatusMessage("No reference file found. Creating one from current Plugins.txt...", StatusMessageType.Info);
-                await FileService.CreateReferenceFileAsync(Config);
-                RefExists = true;
-                AddStatusMessage("Reference file created automatically from current Plugins.txt.", StatusMessageType.Success);
-                return ReferenceInitializationResult.Created;
-            }
-            catch (Exception ex)
-            {
-                AddStatusMessage($"ERROR: Failed to create reference automatically: {ex.Message}", StatusMessageType.Error);
-                return ReferenceInitializationResult.Failed;
-            }
-        }
-
-        [RelayCommand]
         private void ShowAbout()
         {
             var aboutVm = new AboutViewModel();
@@ -1198,10 +818,7 @@ namespace LoadOrderKeeper.ViewModels
             _shutdownCts?.Dispose();
             
             // Close non-modal windows if open
-            _diffWindow?.Close();
-            _manageProfilesWindow?.Close();
-            _referenceHistoryWindow?.Close();
-            _viewPendingChangesWindow?.Close();
+            _windowService?.CloseAllWindows();
         }
     }
 }

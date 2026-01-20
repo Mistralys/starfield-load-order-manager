@@ -9,9 +9,38 @@
 - All coordinators inherit from `CoordinatorBase` which provides `INotifyPropertyChanged` and `IDisposable`.
 - Coordinators are initialized in `MainViewModel` constructor and disposed in `Dispose()` method.
 - Communication between coordinators and ViewModels is event-driven via `PropertyChanged` and custom events.
-- `MainViewModel` reduced from ~1300 lines to ~900 lines (31% reduction) through coordinator extraction.
+- `MainViewModel` reduced from ~1200 lines to ~460 lines (62% reduction) through two-phase refactoring:
+  - **Phase 1**: Window management, menu properties, event wiring extraction (~400 lines)
+  - **Phase 2**: File operations, reference management, initialization services (~340 lines)
 - Pass-through properties in `MainViewModel` expose coordinator state for UI binding.
+- **CoordinatorEventBinder** helper consolidates property change forwarding with declarative binding methods.
 - Each coordinator has single responsibility: file monitoring, status, updates, profiles, configuration, or game launching.
+
+---
+
+## Service Architecture
+
+### Static Services
+- Stateless utilities for pure functions (FileService, ProfileService, DiffService, etc.)
+- Direct static method calls for operations without side effects
+
+### Instance Services
+- **FileOperationsService**: File/folder opening with shell integration
+- **ReferenceManagementService**: Reference workflow (create, update, discard, rollback)
+- **WindowLifecycleService**: Non-modal window lifecycle management
+- **ViewModelInitializer**: MainViewModel startup sequence coordination
+
+### Service Design Patterns
+- **Callback-based injection**: Services receive `Action<>` and `Func<>` delegates for ViewModel coordination
+- **Result objects**: Services return structured data (e.g., `InitializationResult`) instead of modifying state
+- **Clear boundaries**: Services don't reference ViewModels, avoiding circular dependencies
+
+---
+
+## Helper Classes
+
+- **CoordinatorEventBinder**: Simplifies PropertyChanged forwarding with `BindPropertiesDirect()`, `BindProperty()`, etc.
+- **MenuViewModel**: Consolidates all menu and UI text properties for centralized management
 
 ---
 
@@ -21,7 +50,7 @@
 - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
 - `AppConfigModel.IsValid()` also requires `Plugins.txt` to exist in `StarfieldAppDataPath` (cannot be auto-generated, user must run Starfield at least once).
 - `AppConfigModel.IsValid()` validates Profiles folder creation and writability with test file.
-- **Invalid Configuration Handling**: Application remains open when configuration is invalid; error banner shown in main window with "Open settings" button.
+- **Invalid Configuration Handling**: Application remains open when configuration is invalid; error banner shown in main window with "Open settings" button. No automatic settings dialog is shown during startup—users must explicitly click the error banner button or use the menu when ready to configure paths.
 - **Secondary Window Overlays**: DiffWindow, ManageProfilesWindow, ReferenceHistoryWindow, ViewPendingChangesWindow, and SwitchProfileWindow show `ConfigInvalidOverlay` when configuration becomes invalid.
 - **Overlay Behavior**: Semi-transparent dark overlay blocks all window interaction; automatically disappears when configuration becomes valid again.
 - **State Preservation**: Windows remain open and preserve state during invalid configuration periods; no data loss occurs.

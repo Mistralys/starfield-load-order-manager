@@ -62,6 +62,20 @@ Coordinators handle specific domain logic and state management:
 - `ErrorLoggingService`: exception logging with user privacy protection (path sanitization)
 - `DebugStateService`: application state capture for debugging with sanitized paths
 
+### Instance Services
+
+Instance services support MainViewModel with dependency injection via constructor callbacks:
+
+- `FileOperationsService`: file and folder opening with shell integration (Plugins.txt, reference, folders)
+- `ReferenceManagementService`: reference file creation/update workflow including comment input, archiving, pending changes, and rollback
+- `WindowLifecycleService`: non-modal window management (singleton tracking, activation, cleanup)
+- `ViewModelInitializer`: MainViewModel startup sequence (config loading, validation, profile setup, coordinator initialization)
+
+### Helper Classes
+
+- `CoordinatorEventBinder`: simplifies property change forwarding from coordinators to ViewModels using declarative binding methods
+- `MenuViewModel`: consolidates all menu and UI text properties for centralized management and easier localization
+
 ---
 
 ## Navigation

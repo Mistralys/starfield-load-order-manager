@@ -29,6 +29,8 @@ This manifest is split into logical sections for easier maintenance:
 
 - **Target Framework**: .NET 9
 - **UI Framework**: WPF with MaterialDesign v5
-- **Architecture**: MVVM + Coordinator Pattern
+- **Architecture**: MVVM + Coordinator Pattern + Instance Services
 - **Key Coordinators**: FileMonitoring, Status, UpdateCheck, Profile, Configuration, GameLauncher, WindowManager
-- **Key Services**: Settings, File, Profile, Diff, ReferenceHistory, UpdateCheck, Version, DateTimeFormatting
+- **Static Services**: Settings, File, Profile, Diff, ReferenceHistory, UpdateCheck, Version, DateTimeFormatting, ErrorLogging, DebugState
+- **Instance Services**: FileOperations, ReferenceManagement, WindowLifecycle, ViewModelInitializer
+- **Helper Classes**: CoordinatorEventBinder, MenuViewModel

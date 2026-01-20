@@ -22,29 +22,28 @@ I would like to extend this to all windows, and to have one folder where all the
 
 We will implement this in two phases, with Phase 1 split into Work Packages (WP):
 
-#### Phase 1: Extract Existing Texts - CODE CHANGES ONLY
-Split into 10 Work Packages for manageable, atomic commits:
+#### Phase 1: Foundation Setup - CODE STRUCTURE ONLY
+Split into Work Packages for manageable, atomic commits:
 
-- **WP1:** Foundation Setup - Create ViewTexts folder, move existing text ViewModels
-- **WP2:** Audit All ViewModels - Document all hardcoded strings (no code changes)
-- **WP3:** Simple Dialogs - Extract ErrorDialog, CommentInput, ConfirmationDialog
-- **WP4:** Settings Window - Extract SettingsViewModel
-- **WP5:** Profile Management - Extract ManageProfiles, ProfileProperties, SwitchProfile
-- **WP6:** Main Dialog - Extract DiffDialogViewModel
-- **WP7:** History & Updates - Extract ReferenceHistory, UpdateOptions, ViewPendingChanges
-- **WP8:** MainViewModel Cleanup - Extract remaining MainViewModel strings
-- **WP9:** Services - Extract ReferenceManagementService and other services
-- **WP10:** Final Verification - Build, test, verify language switching
+- **WP1:** Foundation Setup - Create ViewTexts folder, move existing text ViewModels (MenuViewModel, AboutViewModel)
+- **WP2:** Create Text ViewModels for Existing Resources - MainWindow, CommonResources
+- **WP3:** Audit All ViewModels - Document all hardcoded strings (no code changes)
 
-**Goal:** All user-facing strings in code should reference resource files
+**Goal:** All windows have text ViewModels in ViewTexts/ folder, prepare for string extraction
 
-#### Phase 2: Expand and Organize Resources - RESOURCE FILE CHANGES
-- Create window-specific resource files for windows that don't have them yet (`.resx`)
-- Identify shared/reusable strings across windows
-- Expand `CommonResources.resx` with shared strings
-- Create corresponding text ViewModels in `ViewTexts/` folder for new resource files
-- Add translations (.de.resx, .fr.resx) for all new resource files
-- **Goal:** Well-organized, maintainable resource structure
+#### Phase 2: Extract and Organize Resources - RESOURCE FILE CHANGES
+Split into manageable work packages:
+
+- **WP4:** Simple Dialogs - Create resources and extract ErrorDialog, CommentInput, ConfirmationDialog
+- **WP5:** Settings Window - Create resources and extract SettingsViewModel
+- **WP6:** Profile Management - Create resources and extract ManageProfiles, ProfileProperties, SwitchProfile
+- **WP7:** Main Dialog - Create resources and extract DiffDialogViewModel
+- **WP8:** History & Updates - Create resources and extract ReferenceHistory, UpdateOptions, ViewPendingChanges
+- **WP9:** MainViewModel Cleanup - Extract remaining MainViewModel strings
+- **WP10:** Services - Extract ReferenceManagementService and other services
+- **WP11:** Final Verification - Build, test, verify language switching
+
+**Goal:** All user-facing strings extracted to resource files with proper organization
 
 ### Organization Structure
 
@@ -70,8 +69,10 @@ Resources/
 **Text ViewModels** (in new `ViewTexts/` folder):
 ```
 ViewTexts/
-├── MenuViewModel.cs [EXISTS - to be moved from ViewModels/]
-├── AboutViewModel.cs [EXISTS - to be moved from ViewModels/]
+├── MenuViewModel.cs [PHASE 1 - EXISTS, to be moved from ViewModels/]
+├── AboutViewModel.cs [PHASE 1 - EXISTS, to be moved from ViewModels/]
+├── MainWindowTexts.cs [PHASE 1 - to be created for MainWindowResources]
+├── CommonTexts.cs [PHASE 1 - to be created for CommonResources]
 ├── CommentInputTexts.cs [PHASE 2]
 ├── ConfirmationDialogTexts.cs [PHASE 2]
 ├── DiffDialogTexts.cs [PHASE 2]
@@ -107,7 +108,27 @@ ViewTexts/
 
 ---
 
-### WP2: Audit All ViewModels 📋 Documentation Only
+### WP2: Create Text ViewModels for Existing Resources ⚡ Low Risk
+**Goal:** Create text ViewModels for windows that already have resource files
+
+**Tasks:**
+1. Create `MainWindowTexts.cs` in `ViewTexts/` folder
+   - Provide properties for all strings in `MainWindowResources.resx`
+   - Use `INotifyPropertyChanged` pattern like existing text ViewModels
+2. Create `CommonTexts.cs` in `ViewTexts/` folder
+   - Provide properties for all strings in `CommonResources.resx`
+   - Use `INotifyPropertyChanged` pattern like existing text ViewModels
+3. Update MainViewModel and other ViewModels to use new text ViewModels instead of directly accessing resources
+4. Register text ViewModels in DI container if needed
+5. Build and verify no errors
+6. Test language switching with new text ViewModels
+
+**Files Changed:** ~3-5 files (2 new text VMs + updates to consuming ViewModels)
+**Commit Message:** `feat: Create text ViewModels for existing resource files`
+
+---
+
+### WP3: Audit All ViewModels 📋 Documentation Only
 **Goal:** Document all hardcoded strings without making code changes
 
 **Tasks:**
@@ -139,8 +160,10 @@ ViewTexts/
 
 ---
 
-### WP3: Simple Dialogs ⚡ Low Risk
-**Goal:** Extract strings from simple, isolated dialogs
+## Phase 2 Implementation Steps
+
+### WP4: Simple Dialogs ⚡ Low Risk (PHASE 2)
+**Goal:** Create resource files and extract strings from simple, isolated dialogs
 
 **ViewModels:**
 - ErrorDialogViewModel (BugReportUrl, status messages)
@@ -148,18 +171,21 @@ ViewTexts/
 - ConfirmationDialogViewModel (button texts - may already use properties)
 
 **Tasks:**
-1. Add strings to `CommonResources.resx` (buttons) or `MainWindowResources.resx` (messages)
-2. Update each ViewModel to reference resources
-3. Build and test each ViewModel
-4. Document temporary resource location for Phase 2
+1. Create `ErrorDialogResources.resx` with .de.resx and .fr.resx translations
+2. Create `CommentInputResources.resx` with .de.resx and .fr.resx translations
+3. Create `ConfirmationDialogResources.resx` with .de.resx and .fr.resx translations
+4. Create corresponding text ViewModels in `ViewTexts/` folder
+5. Extract hardcoded strings to new resource files
+6. Update ViewModels to use text ViewModels
+7. Build and test each ViewModel
 
-**Files Changed:** ~3-5 files  
+**Files Changed:** ~9-15 files (3 resource files × 3 languages + 3 text VMs + 3 ViewModels)
 **Commit Message:** `feat: Extract strings from simple dialog ViewModels`
 
 ---
 
-### WP4: Settings Window ⚙️ Medium Risk
-**Goal:** Extract strings from SettingsViewModel
+### WP5: Settings Window ⚙️ Medium Risk (PHASE 2)
+**Goal:** Create resource files and extract strings from SettingsViewModel
 
 **Strings to Extract:**
 - Window titles
@@ -169,18 +195,19 @@ ViewTexts/
 - Label texts
 
 **Tasks:**
-1. Add strings to `MainWindowResources.resx` (temporary location)
-2. Update SettingsViewModel to reference resources
-3. Build and test settings window
-4. Document strings for Phase 2 migration
+1. Create `SettingsWindowResources.resx` with .de.resx and .fr.resx translations
+2. Create `SettingsWindowTexts.cs` in `ViewTexts/` folder
+3. Extract hardcoded strings to new resource file
+4. Update SettingsViewModel to use text ViewModel
+5. Build and test settings window
 
-**Files Changed:** ~2-3 files  
+**Files Changed:** ~5 files (1 resource file × 3 languages + 1 text VM + 1 ViewModel)
 **Commit Message:** `feat: Extract strings from SettingsViewModel`
 
 ---
 
-### WP5: Profile Management 👥 Medium Risk
-**Goal:** Extract strings from profile-related ViewModels
+### WP6: Profile Management 👥 Medium Risk (PHASE 2)
+**Goal:** Create resource files and extract strings from profile-related ViewModels
 
 **ViewModels:**
 - ManageProfilesViewModel
@@ -188,18 +215,21 @@ ViewTexts/
 - SwitchProfileViewModel
 
 **Tasks:**
-1. Add strings to `MainWindowResources.resx` (temporary location)
-2. Update each ViewModel to reference resources
-3. Build and test profile management features
-4. Document strings for Phase 2 migration
+1. Create `ManageProfilesResources.resx` with .de.resx and .fr.resx translations
+2. Create `ProfilePropertiesResources.resx` with .de.resx and .fr.resx translations
+3. Create `SwitchProfileResources.resx` with .de.resx and .fr.resx translations
+4. Create corresponding text ViewModels in `ViewTexts/` folder
+5. Extract hardcoded strings to new resource files
+6. Update ViewModels to use text ViewModels
+7. Build and test profile management features
 
-**Files Changed:** ~4-6 files  
+**Files Changed:** ~12-15 files (3 resource files × 3 languages + 3 text VMs + 3 ViewModels)
 **Commit Message:** `feat: Extract strings from profile ViewModels`
 
 ---
 
-### WP6: Main Dialog - DiffDialog ⚠️ High Risk, Complex
-**Goal:** Extract strings from DiffDialogViewModel (30+ strings)
+### WP7: Main Dialog - DiffDialog ⚠️ High Risk, Complex (PHASE 2)
+**Goal:** Create resource files and extract strings from DiffDialogViewModel (30+ strings)
 
 **Strings to Extract:**
 - Window title, descriptions
@@ -210,18 +240,19 @@ ViewTexts/
 - Help messages
 
 **Tasks:**
-1. Add strings to `MainWindowResources.resx` (temporary location)
-2. Update DiffDialogViewModel to reference resources
-3. Thoroughly test diff dialog functionality
-4. Document strings for Phase 2 migration
+1. Create `DiffDialogResources.resx` with .de.resx and .fr.resx translations
+2. Create `DiffDialogTexts.cs` in `ViewTexts/` folder
+3. Extract hardcoded strings to new resource file
+4. Update DiffDialogViewModel to use text ViewModel
+5. Thoroughly test diff dialog functionality
 
-**Files Changed:** ~2-3 files  
+**Files Changed:** ~5 files (1 resource file × 3 languages + 1 text VM + 1 ViewModel)
 **Commit Message:** `feat: Extract strings from DiffDialogViewModel`
 
 ---
 
-### WP7: History & Updates 📜 Medium Risk
-**Goal:** Extract strings from history and update-related ViewModels
+### WP8: History & Updates 📜 Medium Risk (PHASE 2)
+**Goal:** Create resource files and extract strings from history and update-related ViewModels
 
 **ViewModels:**
 - ReferenceHistoryViewModel
@@ -229,31 +260,35 @@ ViewTexts/
 - ViewPendingChangesViewModel
 
 **Tasks:**
-1. Add strings to `MainWindowResources.resx` (temporary location)
-2. Update each ViewModel to reference resources
-3. Build and test history/update features
-4. Document strings for Phase 2 migration
+1. Create `ReferenceHistoryResources.resx` with .de.resx and .fr.resx translations
+2. Create `UpdateOptionsResources.resx` with .de.resx and .fr.resx translations
+3. Create `ViewPendingChangesResources.resx` with .de.resx and .fr.resx translations
+4. Create corresponding text ViewModels in `ViewTexts/` folder
+5. Extract hardcoded strings to new resource files
+6. Update ViewModels to use text ViewModels
+7. Build and test history/update features
 
-**Files Changed:** ~4-6 files  
+**Files Changed:** ~12-15 files (3 resource files × 3 languages + 3 text VMs + 3 ViewModels)
 **Commit Message:** `feat: Extract strings from history and update ViewModels`
 
 ---
 
-### WP8: MainViewModel Cleanup 🧹 Low Risk
+### WP9: MainViewModel Cleanup 🧹 Low Risk (PHASE 2)
 **Goal:** Extract remaining hardcoded strings from MainViewModel
 
 **Tasks:**
 1. Identify any remaining hardcoded strings in MainViewModel
-2. Add strings to `MainWindowResources.resx`
-3. Update MainViewModel to reference resources
-4. Build and test main window functionality
+2. Determine if they should go to `MainWindowResources.resx` or `CommonResources.resx`
+3. Add strings to appropriate resource files (including .de.resx and .fr.resx)
+4. Update MainViewModel to reference resources via existing text ViewModels
+5. Build and test main window functionality
 
-**Files Changed:** ~2-3 files  
+**Files Changed:** ~4 files (resource files + translations + ViewModel)
 **Commit Message:** `feat: Extract remaining strings from MainViewModel`
 
 ---
 
-### WP9: Services 🔧 Medium Risk
+### WP10: Services 🔧 Medium Risk (PHASE 2)
 **Goal:** Extract user-facing strings from services
 
 **Services:**
@@ -262,16 +297,17 @@ ViewTexts/
 
 **Tasks:**
 1. Audit services for user-facing strings
-2. Add strings to `MainWindowResources.resx` or `CommonResources.resx`
-3. Update services to reference resources
-4. Build and test affected functionality
+2. Determine appropriate resource file location (likely `CommonResources.resx` or service-specific)
+3. Add strings to resource files (including .de.resx and .fr.resx)
+4. Update services to reference resources
+5. Build and test affected functionality
 
-**Files Changed:** ~2-4 files  
+**Files Changed:** ~3-6 files (resource files + translations + services)
 **Commit Message:** `feat: Extract strings from services`
 
 ---
 
-### WP10: Final Verification ✅ Testing
+### WP11: Final Verification ✅ Testing (PHASE 2)
 **Goal:** Ensure all changes work correctly
 
 **Tasks:**
@@ -284,28 +320,6 @@ ViewTexts/
 
 **Files Changed:** 1 documentation file  
 **Commit Message:** `docs: Complete Phase 1 - text extraction verification`
-
----
-
-## Phase 2 Implementation Steps
-
-### Step 1: Create Window-Specific Resource Files
-For each window/dialog without a resource file:
-1. Create `.resx` file in `Resources/` folder
-2. Move strings from temporary locations (MainWindowResources) to appropriate resource files
-3. Create `.de.resx` and `.fr.resx` translation files
-4. Create corresponding text ViewModel in `ViewTexts/` folder (e.g., `ErrorDialogTexts.cs`)
-5. Update ViewModels to reference new text ViewModels
-
-### Step 2: Identify and Extract Common Strings
-- Analyze all resource files for duplicates
-- Move common strings to `CommonResources.resx`
-- Update text ViewModels to use common resources
-
-### Step 3: Final Verification
-- Build and test all changes
-- Verify all translations work correctly
-- Update documentation
 
 ---
 
@@ -346,24 +360,30 @@ For each window/dialog without a resource file:
 
 ## Status Tracking
 
-**Current Phase:** Phase 1 - Code-Facing Text Extraction  
+**Current Phase:** Phase 1 - Foundation Setup (Code Structure Only)
 **Current Work Package:** WP1 - Foundation Setup  
-**Overall Progress:** 0/10 Work Packages Complete (0%)
+**Overall Progress:** 0/11 Work Packages Complete (0%)
 
 ### Phase 1 Progress (Work Packages)
 
 | WP | Name | Status | Files | Risk | Notes |
 |----|------|--------|-------|------|-------|
 | WP1 | Foundation Setup | ⏳ Pending | 2-4 | ⚡ Low | Create ViewTexts, move existing |
-| WP2 | Audit ViewModels | ⏳ Pending | 1 | 📋 Docs | Document strings only |
-| WP3 | Simple Dialogs | ⏳ Pending | 3-5 | ⚡ Low | Error, Comment, Confirmation |
-| WP4 | Settings Window | ⏳ Pending | 2-3 | ⚙️ Medium | SettingsViewModel |
-| WP5 | Profile Management | ⏳ Pending | 4-6 | 👥 Medium | 3 profile ViewModels |
-| WP6 | DiffDialog | ⏳ Pending | 2-3 | ⚠️ High | 30+ strings, complex |
-| WP7 | History & Updates | ⏳ Pending | 4-6 | 📜 Medium | 3 ViewModels |
-| WP8 | MainViewModel Cleanup | ⏳ Pending | 2-3 | 🧹 Low | Remaining strings |
-| WP9 | Services | ⏳ Pending | 2-4 | 🔧 Medium | ReferenceManagement, etc. |
-| WP10 | Final Verification | ⏳ Pending | 1 | ✅ Test | Build, test, verify |
+| WP2 | Create Text ViewModels | ⏳ Pending | 3-5 | ⚡ Low | MainWindow, CommonResources |
+| WP3 | Audit ViewModels | ⏳ Pending | 1 | 📋 Docs | Document strings only |
+
+### Phase 2 Progress (Work Packages)
+
+| WP | Name | Status | Files | Risk | Notes |
+|----|------|--------|-------|------|-------|
+| WP4 | Simple Dialogs | ⏳ Pending | 9-15 | ⚡ Low | Error, Comment, Confirmation + resources |
+| WP5 | Settings Window | ⏳ Pending | 5 | ⚙️ Medium | SettingsViewModel + resources |
+| WP6 | Profile Management | ⏳ Pending | 12-15 | 👥 Medium | 3 ViewModels + resources |
+| WP7 | DiffDialog | ⏳ Pending | 5 | ⚠️ High | 30+ strings + resources |
+| WP8 | History & Updates | ⏳ Pending | 12-15 | 📜 Medium | 3 ViewModels + resources |
+| WP9 | MainViewModel Cleanup | ⏳ Pending | 4 | 🧹 Low | Remaining strings to existing resources |
+| WP10 | Services | ⏳ Pending | 3-6 | 🔧 Medium | ReferenceManagement + resources |
+| WP11 | Final Verification | ⏳ Pending | 1 | ✅ Test | Build, test, verify |
 
 ### Completed Work
 
@@ -373,33 +393,39 @@ For each window/dialog without a resource file:
 - ✅ MainWindow partial resource references
 - ✅ Plan document updated with Work Packages
 
+### Phase 1 Progress
+- ⏳ Not started - WP1, WP2, and WP3 pending
+
 ### Phase 2 Progress
-- ⏳ Not started - will begin after Phase 1 completion (all 10 WPs done)
+- ⏳ Not started - will begin after Phase 1 completion (WP1-3 done)
 
 ---
 
 ## Notes & Decisions
 
-### Temporary Resource Location Strategy
-During Phase 1, strings will be temporarily added to existing resource files:
-- **CommonResources.resx** - For truly shared strings (OK, Cancel, Yes, No, Close, etc.)
-- **MainWindowResources.resx** - For window-specific strings as temporary holding location
+### Phase Separation Strategy
+**Phase 1 (CODE STRUCTURE ONLY):**
+- Create ViewTexts/ folder
+- Move existing text ViewModels (MenuViewModel, AboutViewModel) to `ViewTexts/` folder
+- Create text ViewModels for existing resource files (MainWindowTexts, CommonTexts)
+- Update all ViewModels to access texts through ViewTexts/ ViewModels
+- Update namespaces and references
+- Document all hardcoded strings (no extraction yet)
+- No resource file modifications
+- **End Result:** All UI text access goes through ViewModels in ViewTexts/ folder
 
-In Phase 2, these strings will be moved to their proper window-specific resource files.
+**Phase 2 (RESOURCE FILES & EXTRACTION):**
+- Create window-specific resource files (`.resx` + `.de.resx` + `.fr.resx`)
+- Create corresponding text ViewModels in `ViewTexts/` folder
+- Extract hardcoded strings from ViewModels to resource files
+- Update ViewModels to use new text ViewModels
+- Organize and consolidate resources
+- **End Result:** Zero hardcoded strings in ViewModels/Services
 
-### Risk Assessment
-- **Low Risk (⚡)**: Small, isolated changes, easy to test
-- **Medium Risk (⚙️)**: Multiple files, moderate complexity
-- **High Risk (⚠️)**: Many strings, complex logic, requires thorough testing
-- **Documentation (📋)**: No code changes, safe
-
-### Success Criteria
-Phase 1 is complete when:
-- ✅ All 10 Work Packages committed
-- ✅ Zero hardcoded user-facing strings in ViewModels
-- ✅ Zero hardcoded user-facing strings in Services
-- ✅ All builds succeed without errors
-- ✅ Language switching works correctly
-- ✅ All tests pass
+This separation ensures:
+- Phase 1 establishes consistent structure (all texts accessed via ViewTexts/)
+- Phase 2 focuses on content extraction and organization
+- Each phase can be reviewed and tested independently
+- Phase 1 is purely structural, zero risk to translations
 
 

@@ -316,4 +316,83 @@ public static class DebugStateService
 
 ---
 
+## Localization Services
+
+### `LoadOrderKeeper.ViewTexts.LocalizationService`
+
+```csharp
+public sealed class LocalizationService : ObservableObject
+{
+    // Singleton access
+    public static LocalizationService Instance { get; }
+    
+    // Properties
+    public string CurrentCulture { get; }
+    
+    // Events
+    public event EventHandler? CultureChanged;
+    
+    // String retrieval
+    public string GetString(string section, string key);
+    public string GetString(string section, string key, params object[] args);
+    
+    // Culture management
+    public void SetCulture(string cultureName);
+    public void InitializeFromConfig(string preferredLanguage);
+    public void ReloadCurrentCulture();
+    
+    // Testing/maintenance
+    internal void ClearCache();
+    
+    // Private implementation
+    private LocalizationService();
+    private string DetectSystemCulture();
+    private void LoadCulture(string cultureName);
+}
+```
+
+**Purpose:** Singleton service managing JSON-based localization. Provides thread-safe string retrieval with format support, runtime culture switching, automatic system locale detection, and fallback to English for unsupported cultures.
+
+**Key Features:**
+- Thread-safe operations (all methods protected by lock)
+- Automatic culture detection via `CultureInfo.CurrentUICulture`
+- Parent culture mapping (e.g., `fr-CA` ? `fr-FR`)
+- Format string support with safe fallback
+- Event-driven UI updates via `CultureChanged` event
+- Caches translations in memory for performance
+
+**Supported Cultures:**
+- `en-US` (English - default fallback)
+- `de-DE` (German)
+- `fr-FR` (French)
+
+**JSON File Location:** `ViewTexts/Locales/{culture}.json`
+
+**Runtime Path Resolution:** `AppDomain.CurrentDomain.BaseDirectory + "ViewTexts/Locales"`
+
+### `LoadOrderKeeper.Tools.LocalizationJsonNormalizer`
+
+```csharp
+public static class LocalizationJsonNormalizer
+{
+    public static void NormalizeFile(string filePath);
+    public static void NormalizeAllLocales(string localesPath);
+    public static bool ValidateFile(string filePath);
+}
+```
+
+**Purpose:** Utility for normalizing JSON localization files. Reads, deserializes, and re-serializes JSON with proper Unicode encoding and consistent formatting.
+
+**Key Features:**
+- Uses `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` for readable output
+- Ensures consistent UTF-8 encoding
+- Validates JSON structure
+- Safe for accented characters (é, è, à, ê, etc.)
+
+**Console Tool:** `Tools/JsonNormalizer/Program.cs` - Standalone console app for batch normalization
+
+**Usage:** Run after editing any JSON localization files, before committing to version control
+
+---
+
 [<< Back to Index](README.md)

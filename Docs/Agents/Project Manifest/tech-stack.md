@@ -8,6 +8,10 @@
 
 - .NET 9
 - WPF desktop application
+- **Localization**: JSON-based, supports 3 languages (en-US, de-DE, fr-FR)
+  - 189 translatable strings across 17 sections
+  - Automatic system language detection with fallback
+  - Runtime culture switching support
 
 ---
 
@@ -17,7 +21,9 @@
   - `ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`, `RelayCommand`, `AsyncRelayCommand`, `IRelayCommand`, `IAsyncRelayCommand`
 - **MaterialDesignThemes** / **MaterialDesignColors** for dialogs, icons, and card layouts (v5)
 - **Gameloop.Vdf** for parsing Steam library configuration files (Valve Data Format)
-- Standard .NET `System.*` APIs for I/O, processes, collections, and JSON serialization
+- **System.Text.Json** for JSON serialization/deserialization (localization files, configuration, metadata)
+- **System.Text.Encodings.Web** for JSON Unicode handling in localization
+- Standard .NET `System.*` APIs for I/O, processes, collections, and globalization
 
 ---
 
@@ -27,6 +33,9 @@
 
 **ViewModels:**
 - `MainViewModel`, `SettingsViewModel`, `DiffDialogViewModel`, `SwitchProfileViewModel`, `ManageProfilesViewModel`, `ProfilePropertiesViewModel`, `ConfirmationDialogViewModel`, `AboutViewModel`, `UpdateOptionsViewModel`, `ReferenceHistoryViewModel`, `CommentInputViewModel`, `ViewPendingChangesViewModel`, `ErrorDialogViewModel`
+
+**Text ViewModels (Localization):**
+- `MenuViewModel`, `MainWindowTexts`, `AboutViewModel`, `ErrorDialogTexts`, `CommentInputTexts`, `ConfirmationDialogTexts`, `SettingsTexts`, `DiffDialogTexts`, `ManageProfilesTexts`, `ProfilePropertiesTexts`, `SwitchProfileTexts`, `ReferenceHistoryTexts`, `UpdateOptionsTexts`, `ViewPendingChangesTexts`, `CommonTexts`, `StatusCoordinatorTexts`, `FileMonitoringTexts`
 
 **Views:**
 - `MainWindow`, `SettingsWindow`, `DiffWindow`, `SwitchProfileWindow`, `ManageProfilesWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `ReferenceHistoryWindow`, `CommentInputDialog`, `ViewPendingChangesWindow`, `ErrorDialog`
@@ -62,6 +71,19 @@ Coordinators handle specific domain logic and state management:
 - `ErrorLoggingService`: exception logging with user privacy protection (path sanitization)
 - `DebugStateService`: application state capture for debugging with sanitized paths
 
+### Localization Services
+
+- `LocalizationService`: singleton service managing JSON-based translations
+  - Thread-safe string retrieval with culture-specific lookups
+  - Format string support with placeholder replacement
+  - Runtime culture switching with event notification
+  - Automatic system locale detection with parent culture mapping
+  - Fallback to English (en-US) for unsupported cultures
+- `LocalizationJsonNormalizer`: utility for JSON file normalization
+  - Reads, deserializes, and re-serializes JSON with proper encoding
+  - Uses `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` for readable output
+  - Ensures consistent formatting and Unicode character handling
+
 ### Instance Services
 
 Instance services support MainViewModel with dependency injection via constructor callbacks:
@@ -75,6 +97,92 @@ Instance services support MainViewModel with dependency injection via constructo
 
 - `CoordinatorEventBinder`: simplifies property change forwarding from coordinators to ViewModels using declarative binding methods
 - `MenuViewModel`: consolidates all menu and UI text properties for centralized management and easier localization
+
+---
+
+## Localization System
+
+### Architecture
+
+- **JSON-based**: Translations stored in `ViewTexts/Locales/*.json` files
+- **Supported Languages**: English (en-US), German (de-DE), French (fr-FR)
+- **Total Strings**: 189 translatable strings organized into 17 sections
+- **Text ViewModels**: 15 observable ViewModels providing localized strings to UI
+
+### Key Features
+
+1. **Automatic Language Detection**
+   - Detects system culture via `CultureInfo.CurrentUICulture`
+   - Maps parent cultures (e.g., `fr-CA` ? `fr-FR`, `de-AT` ? `de-DE`)
+   - Falls back to English for unsupported languages
+
+2. **Manual Language Override**
+   - `AppConfigModel.PreferredLanguage` setting (default: "auto")
+   - Initialized early in `ViewModelInitializer.LoadInitialStateAsync`
+   - Persists user preference across sessions
+
+3. **Runtime Culture Switching**
+   - `LocalizationService.SetCulture(cultureName)` changes active language
+   - `CultureChanged` event notifies all Text ViewModels
+   - UI updates automatically via `INotifyPropertyChanged`
+
+4. **Format String Support**
+   - Placeholders: `{0}`, `{1}`, etc. for dynamic values
+   - Example: `"Version {0} available!"` ? `"Version 1.5.0 available!"`
+   - Safe fallback if formatting fails
+
+5. **Thread Safety**
+   - All operations protected by `lock` statement
+   - Safe for concurrent access from multiple threads
+
+### JSON File Structure
+
+```json
+{
+  "SectionName": {
+    "StringKey": "Translated value",
+    "FormatKey": "Value with {0} placeholder"
+  }
+}
+```
+
+### Text ViewModel Pattern
+
+All Text ViewModels follow this pattern:
+- Inherit from `ObservableObject`
+- Hold reference to `LocalizationService.Instance`
+- Subscribe to `CultureChanged` event in constructor
+- Expose localized strings as properties via `GetString(section, key)`
+- Call `OnPropertyChanged` for all string properties on culture change
+
+Example:
+```csharp
+public class SomeTexts : ObservableObject
+{
+    private readonly LocalizationService _loc = LocalizationService.Instance;
+    
+    public string SomeProperty => _loc.GetString("Section", "Key");
+    
+    public SomeTexts()
+    {
+        _loc.CultureChanged += (s, e) => OnPropertyChanged(nameof(SomeProperty));
+    }
+}
+```
+
+### Build Configuration
+
+- JSON files configured with `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>`
+- Files copied to `bin/.../ViewTexts/Locales/` maintaining folder structure
+- Runtime path resolution: `AppDomain.CurrentDomain.BaseDirectory + "ViewTexts/Locales"`
+
+### JSON Normalization
+
+- **Tool**: `Tools/JsonNormalizer/` console application
+- **Purpose**: Ensures proper Unicode encoding and consistent formatting
+- **Usage**: `dotnet run --project Tools/JsonNormalizer/JsonNormalizer.csproj`
+- **When**: After editing any JSON localization files, before committing
+- **Effect**: Re-serializes JSON with `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` for readable yet properly encoded output
 
 ---
 

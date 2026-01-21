@@ -96,10 +96,36 @@
   "DiffDialog": {
   },
   "ManageProfiles": {
+    "WindowTitle": "Manage Profiles",
+    "FileMenuText": "File",
+    "AddProfileMenuText": "Add Profile",
+    "EditProfileMenuText": "Edit",
+    "DeleteProfileMenuText": "Delete",
+    "CopyProfileMenuText": "Copy",
+    "AddProfileButtonText": "Add Profile",
+    "CloseButtonText": "Close"
   },
   "ProfileProperties": {
+    "WindowTitleCreate": "Create Profile",
+    "WindowTitleEdit": "Edit Profile",
+    "LabelLabelText": "Label:",
+    "DescriptionLabelText": "Description:",
+    "SaveButtonText": "Save",
+    "CreateButtonText": "Create",
+    "CancelButtonText": "Cancel",
+    "LabelRequiredError": "Label is required.",
+    "LabelTooShortError": "Label must be at least 2 characters.",
+    "LabelTooLongError": "Label must not exceed 30 characters.",
+    "LabelReservedError": "The label 'Default' is reserved.",
+    "LabelDuplicateError": "A profile with this label already exists.",
+    "DescriptionTooLongError": "Description must not exceed 500 characters."
   },
   "SwitchProfile": {
+    "WindowTitle": "Switch Profile",
+    "DescriptionText": "Select a profile to switch to:",
+    "SwitchButtonText": "Switch",
+    "CancelButtonText": "Cancel",
+    "CurrentProfileLabel": "Current Profile"
   },
   "ReferenceHistory": {
   },

@@ -1,38 +1,46 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for ProfilePropertiesWindow with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for ProfilePropertiesWindow.
     /// </summary>
     public partial class ProfilePropertiesTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public ProfilePropertiesTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitleCreate { get; } = "Create Profile";
-        public string WindowTitleEdit { get; } = "Edit Profile";
+        public string WindowTitleCreate => _localization.GetString("ProfileProperties", "WindowTitleCreate");
+        public string WindowTitleEdit => _localization.GetString("ProfileProperties", "WindowTitleEdit");
         
         // Labels
-        public string LabelLabelText { get; } = "Label:";
-        public string DescriptionLabelText { get; } = "Description:";
+        public string LabelLabelText => _localization.GetString("ProfileProperties", "LabelLabelText");
+        public string DescriptionLabelText => _localization.GetString("ProfileProperties", "DescriptionLabelText");
         
         // Buttons
-        public string SaveButtonText { get; } = "Save";
-        public string CreateButtonText { get; } = "Create";
-        public string CancelButtonText { get; } = "Cancel";
+        public string SaveButtonText => _localization.GetString("ProfileProperties", "SaveButtonText");
+        public string CreateButtonText => _localization.GetString("ProfileProperties", "CreateButtonText");
+        public string CancelButtonText => _localization.GetString("ProfileProperties", "CancelButtonText");
         
         // Validation Messages
-        public string LabelRequiredError { get; } = "Label is required.";
-        public string LabelTooShortError { get; } = "Label must be at least 2 characters.";
-        public string LabelTooLongError { get; } = "Label must not exceed 30 characters.";
-        public string LabelReservedError { get; } = "The label 'Default' is reserved.";
-        public string LabelDuplicateError { get; } = "A profile with this label already exists.";
-        public string DescriptionTooLongError { get; } = "Description must not exceed 500 characters.";
-        
+        public string LabelRequiredError => _localization.GetString("ProfileProperties", "LabelRequiredError");
+        public string LabelTooShortError => _localization.GetString("ProfileProperties", "LabelTooShortError");
+        public string LabelTooLongError => _localization.GetString("ProfileProperties", "LabelTooLongError");
+        public string LabelReservedError => _localization.GetString("ProfileProperties", "LabelReservedError");
+        public string LabelDuplicateError => _localization.GetString("ProfileProperties", "LabelDuplicateError");
+        public string DescriptionTooLongError => _localization.GetString("ProfileProperties", "DescriptionTooLongError");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitleCreate));
             OnPropertyChanged(nameof(WindowTitleEdit));
@@ -47,6 +55,14 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(LabelReservedError));
             OnPropertyChanged(nameof(LabelDuplicateError));
             OnPropertyChanged(nameof(DescriptionTooLongError));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

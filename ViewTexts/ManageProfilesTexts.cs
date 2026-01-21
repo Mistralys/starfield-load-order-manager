@@ -1,31 +1,39 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for ManageProfilesWindow with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for ManageProfilesWindow.
     /// </summary>
     public partial class ManageProfilesTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public ManageProfilesTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitle { get; } = "Manage Profiles";
+        public string WindowTitle => _localization.GetString("ManageProfiles", "WindowTitle");
         
         // Menu
-        public string FileMenuText { get; } = "File";
-        public string AddProfileMenuText { get; } = "Add Profile";
-        public string EditProfileMenuText { get; } = "Edit";
-        public string DeleteProfileMenuText { get; } = "Delete";
-        public string CopyProfileMenuText { get; } = "Copy";
+        public string FileMenuText => _localization.GetString("ManageProfiles", "FileMenuText");
+        public string AddProfileMenuText => _localization.GetString("ManageProfiles", "AddProfileMenuText");
+        public string EditProfileMenuText => _localization.GetString("ManageProfiles", "EditProfileMenuText");
+        public string DeleteProfileMenuText => _localization.GetString("ManageProfiles", "DeleteProfileMenuText");
+        public string CopyProfileMenuText => _localization.GetString("ManageProfiles", "CopyProfileMenuText");
         
         // Buttons
-        public string AddProfileButtonText { get; } = "Add Profile";
-        public string CloseButtonText { get; } = "Close";
-        
+        public string AddProfileButtonText => _localization.GetString("ManageProfiles", "AddProfileButtonText");
+        public string CloseButtonText => _localization.GetString("ManageProfiles", "CloseButtonText");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(FileMenuText));
@@ -35,6 +43,14 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(CopyProfileMenuText));
             OnPropertyChanged(nameof(AddProfileButtonText));
             OnPropertyChanged(nameof(CloseButtonText));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

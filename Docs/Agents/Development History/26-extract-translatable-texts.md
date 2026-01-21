@@ -383,11 +383,11 @@ ViewTexts/
 | WP | Name | Status | Files | Risk | Notes |
 |----|------|--------|-------|------|-------|
 | WP4 | Simple Dialogs | ✅ Complete | 9-15 | ⚡ Low | Error, Comment, Confirmation + resources |
-| WP5 | Settings Window | ⏳ Pending | 5 | ⚙️ Medium | SettingsViewModel + resources |
-| WP6 | Profile Management | ⏳ Pending | 12-15 | 👥 Medium | 3 ViewModels + resources |
-| WP7 | DiffDialog | ⏳ Pending | 5 | ⚠️ High | 30+ strings + resources |
-| WP8 | History & Updates | ⏳ Pending | 12-15 | 📜 Medium | 3 ViewModels + resources |
-| WP9 | MainViewModel Cleanup | ⏳ Pending | 4 | 🧹 Low | Remaining strings to existing resources |
+| WP5 | Settings Window | ✅ Complete | 5 | ⚙️ Medium | SettingsViewModel + resources |
+| WP6 | Profile Management | ✅ Complete | 12-15 | 👥 Medium | 3 ViewModels + resources |
+| WP7 | DiffDialog | ✅ Complete | 5 | ⚠️ High | 30+ strings + resources |
+| WP8 | History & Updates | ✅ Complete | 12-15 | 📜 Medium | 3 ViewModels + resources |
+| WP9 | MainViewModel Cleanup | ✅ Complete | 4 | 🧹 Low | Remaining strings to existing resources |
 | WP10 | Services | ⏳ Pending | 3-6 | 🔧 Medium | ReferenceManagement + resources |
 | WP11 | Final Verification | ⏳ Pending | 1 | ✅ Test | Build, test, verify |
 
@@ -411,7 +411,13 @@ ViewTexts/
 - 📄 **Old Plan**: `28-phase2-resource-mapping.md` (resx-based, deprecated)
 - 📄 **New Plan**: `31-phase2-revised-json-plan.md` (JSON-based, active)
 - ✅ **WP4 Complete**: JSON infrastructure created (LocalizationService + 3 JSON files + tests)
+- ✅ **WP5 Complete**: MenuViewModel & AboutViewModel migrated (32 strings)
+- ✅ **WP6 Complete**: MainWindowTexts & CommonTexts migrated (19 strings)
+- ✅ **WP7 Complete**: Simple Dialogs migrated - ErrorDialog, CommentInput, ConfirmationDialog (22 strings)
+- ✅ **WP8 Complete**: SettingsWindowTexts migrated with all validation messages (19 strings)
+- ✅ **WP9 Complete**: Profile Management - ManageProfiles, ProfileProperties, SwitchProfile (26 strings)
+- 📊 **Progress**: 118 strings migrated, 11/17 sections complete (65%)
 - ✅ All 45 .resx files will be DELETED after JSON migration complete
-- ⏳ Ready to begin WP5 (Migrate Menu & About ViewModels)
+- ⏳ Ready to begin WP10 (DiffDialog - 30+ strings, most complex ViewModel)
 
 

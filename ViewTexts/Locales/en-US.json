@@ -167,10 +167,37 @@
     "CurrentProfileLabel": "Current Profile"
   },
   "ReferenceHistory": {
+    "WindowTitle": "Reference File Version History",
+    "FileMenuText": "_File",
+    "ExitMenuText": "E_xit",
+    "EditMenuText": "_Edit",
+    "ClearHistoryMenuText": "Clear the _history...",
+    "RollbackButtonText": "Rollback to selected version...",
+    "DeleteVersionButtonText": "Delete version",
+    "ClearHistoryButtonText": "Clear the history...",
+    "CloseButtonText": "Close",
+    "VersionColumnHeader": "Version",
+    "DateColumnHeader": "Date & Time",
+    "ChangesColumnHeader": "Changes",
+    "SummaryColumnHeader": "Summary",
+    "NoVersionsMessage": "No version history available."
   },
   "UpdateOptions": {
+    "WindowTitleDownload": "Download Update",
+    "WindowTitleOptions": "Download Options",
+    "NexusmodsButtonText": "Open on Nexusmods",
+    "GitHubButtonText": "Open on GitHub",
+    "CancelButtonText": "Cancel"
   },
   "ViewPendingChanges": {
+    "WindowTitle": "Pending Changes",
+    "ExplanationText": "This shows all changes you have made since the last reference update. When you next update the reference file, these changes will be archived.",
+    "CommentLabel": "Comment:",
+    "AddedModsLabel": "Added Mods:",
+    "RemovedModsLabel": "Removed Mods:",
+    "EditCommentButtonText": "Edit comment...",
+    "CloseButtonText": "Close",
+    "NoPendingChangesMessage": "No pending changes."
   },
   "Common": {
     "ButtonOk": "OK",

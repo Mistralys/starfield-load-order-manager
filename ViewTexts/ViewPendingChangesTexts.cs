@@ -1,33 +1,41 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for ViewPendingChangesWindow with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for ViewPendingChangesWindow.
     /// </summary>
     public partial class ViewPendingChangesTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public ViewPendingChangesTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitle { get; } = "Pending Changes";
+        public string WindowTitle => _localization.GetString("ViewPendingChanges", "WindowTitle");
         
         // Labels
-        public string ExplanationText { get; } = "This shows all changes you have made since the last reference update. When you next update the reference file, these changes will be archived.";
-        public string CommentLabel { get; } = "Comment:";
-        public string AddedModsLabel { get; } = "Added Mods:";
-        public string RemovedModsLabel { get; } = "Removed Mods:";
+        public string ExplanationText => _localization.GetString("ViewPendingChanges", "ExplanationText");
+        public string CommentLabel => _localization.GetString("ViewPendingChanges", "CommentLabel");
+        public string AddedModsLabel => _localization.GetString("ViewPendingChanges", "AddedModsLabel");
+        public string RemovedModsLabel => _localization.GetString("ViewPendingChanges", "RemovedModsLabel");
         
         // Buttons
-        public string EditCommentButtonText { get; } = "Edit comment...";
-        public string CloseButtonText { get; } = "Close";
+        public string EditCommentButtonText => _localization.GetString("ViewPendingChanges", "EditCommentButtonText");
+        public string CloseButtonText => _localization.GetString("ViewPendingChanges", "CloseButtonText");
         
         // Messages
-        public string NoPendingChangesMessage { get; } = "No pending changes.";
-        
+        public string NoPendingChangesMessage => _localization.GetString("ViewPendingChanges", "NoPendingChangesMessage");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(ExplanationText));
@@ -37,6 +45,14 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(EditCommentButtonText));
             OnPropertyChanged(nameof(CloseButtonText));
             OnPropertyChanged(nameof(NoPendingChangesMessage));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

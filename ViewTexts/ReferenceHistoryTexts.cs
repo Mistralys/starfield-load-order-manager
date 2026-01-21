@@ -1,41 +1,49 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for ReferenceHistoryWindow with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for ReferenceHistoryWindow.
     /// </summary>
     public partial class ReferenceHistoryTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public ReferenceHistoryTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitle { get; } = "Reference File Version History";
+        public string WindowTitle => _localization.GetString("ReferenceHistory", "WindowTitle");
         
         // Menu
-        public string FileMenuText { get; } = "_File";
-        public string ExitMenuText { get; } = "E_xit";
-        public string EditMenuText { get; } = "_Edit";
-        public string ClearHistoryMenuText { get; } = "Clear the _history...";
+        public string FileMenuText => _localization.GetString("ReferenceHistory", "FileMenuText");
+        public string ExitMenuText => _localization.GetString("ReferenceHistory", "ExitMenuText");
+        public string EditMenuText => _localization.GetString("ReferenceHistory", "EditMenuText");
+        public string ClearHistoryMenuText => _localization.GetString("ReferenceHistory", "ClearHistoryMenuText");
         
         // Buttons
-        public string RollbackButtonText { get; } = "Rollback to selected version...";
-        public string DeleteVersionButtonText { get; } = "Delete version";
-        public string ClearHistoryButtonText { get; } = "Clear the history...";
-        public string CloseButtonText { get; } = "Close";
+        public string RollbackButtonText => _localization.GetString("ReferenceHistory", "RollbackButtonText");
+        public string DeleteVersionButtonText => _localization.GetString("ReferenceHistory", "DeleteVersionButtonText");
+        public string ClearHistoryButtonText => _localization.GetString("ReferenceHistory", "ClearHistoryButtonText");
+        public string CloseButtonText => _localization.GetString("ReferenceHistory", "CloseButtonText");
         
         // Column Headers
-        public string VersionColumnHeader { get; } = "Version";
-        public string DateColumnHeader { get; } = "Date & Time";
-        public string ChangesColumnHeader { get; } = "Changes";
-        public string SummaryColumnHeader { get; } = "Summary";
+        public string VersionColumnHeader => _localization.GetString("ReferenceHistory", "VersionColumnHeader");
+        public string DateColumnHeader => _localization.GetString("ReferenceHistory", "DateColumnHeader");
+        public string ChangesColumnHeader => _localization.GetString("ReferenceHistory", "ChangesColumnHeader");
+        public string SummaryColumnHeader => _localization.GetString("ReferenceHistory", "SummaryColumnHeader");
         
         // Messages
-        public string NoVersionsMessage { get; } = "No version history available.";
-        
+        public string NoVersionsMessage => _localization.GetString("ReferenceHistory", "NoVersionsMessage");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(FileMenuText));
@@ -51,6 +59,14 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(ChangesColumnHeader));
             OnPropertyChanged(nameof(SummaryColumnHeader));
             OnPropertyChanged(nameof(NoVersionsMessage));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

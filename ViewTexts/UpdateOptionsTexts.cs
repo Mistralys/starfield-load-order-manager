@@ -1,32 +1,48 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for UpdateOptionsWindow with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for UpdateOptionsWindow.
     /// </summary>
     public partial class UpdateOptionsTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public UpdateOptionsTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitleDownload { get; } = "Download Update";
-        public string WindowTitleOptions { get; } = "Download Options";
+        public string WindowTitleDownload => _localization.GetString("UpdateOptions", "WindowTitleDownload");
+        public string WindowTitleOptions => _localization.GetString("UpdateOptions", "WindowTitleOptions");
         
         // Buttons
-        public string NexusmodsButtonText { get; } = "Open on Nexusmods";
-        public string GitHubButtonText { get; } = "Open on GitHub";
-        public string CancelButtonText { get; } = "Cancel";
-        
+        public string NexusmodsButtonText => _localization.GetString("UpdateOptions", "NexusmodsButtonText");
+        public string GitHubButtonText => _localization.GetString("UpdateOptions", "GitHubButtonText");
+        public string CancelButtonText => _localization.GetString("UpdateOptions", "CancelButtonText");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitleDownload));
             OnPropertyChanged(nameof(WindowTitleOptions));
             OnPropertyChanged(nameof(NexusmodsButtonText));
             OnPropertyChanged(nameof(GitHubButtonText));
             OnPropertyChanged(nameof(CancelButtonText));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

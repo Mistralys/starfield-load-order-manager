@@ -35,7 +35,8 @@ The application provides automated load order protection and management through:
 13. **Modal Overlay Protection**: Secondary windows remain accessible with invalid configuration; overlay blocks operations until fixed
 14. **Global Exception Handling**: Comprehensive error logging with user-friendly dialogs and privacy protection
 15. **Debug State Export**: Captures application state for troubleshooting (includes sanitized paths for privacy)
-16. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
+16. **Multilingual Support**: Full interface localization in English, German, and French with automatic language detection
+17. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -47,6 +48,7 @@ The application is built as a **WPF .NET 9** desktop application using:
 - **UI Framework**: WPF (Windows Presentation Foundation)
 - **Design**: Material Design v5 theme with dark mode
 - **Architecture**: MVVM pattern using CommunityToolkit.Mvvm with Coordinator pattern
+- **Localization**: JSON-based internationalization supporting English, German, and French
 - **Coordinators**: Modular domain logic handlers for file monitoring, status, updates, profiles, configuration, and game launching
 - **Testing**: xUnit for unit tests
 - **Dialogs**: Custom Material Design confirmation dialogs
@@ -67,6 +69,7 @@ Detailed documentation for each major feature:
 - **[Version Check](Features/version-check.md)** - Automatic update checking system
 - **[Configuration Validation](Features/configuration-validation.md)** - Path validation and error handling
 - **[Exception Handling](Features/exception-handling.md)** - Global error logging and user-friendly error dialogs
+- **[Multilingual Support](Features/multilingual-support.md)** - Full localization in English, German, and French
 
 ### Architecture & Design
 Technical architecture documentation:
@@ -93,6 +96,7 @@ Technical architecture documentation:
 - How the application detects changes >> [Change Detection](Features/change-detection.md)
 - How configuration validation works >> [Configuration Validation](Features/configuration-validation.md)
 - How exceptions are handled >> [Exception Handling](Features/exception-handling.md)
+- How multilingual support works >> [Multilingual Support](Features/multilingual-support.md)
 
 **I want to learn about...**
 - The coordinator pattern >> [Coordinator Pattern](Architecture/coordinator-pattern.md)
@@ -111,6 +115,7 @@ The application maintains semantic versioning:
 - GitHub Actions automatically creates releases when version tags are pushed
 
 **Recent Major Features**:
+- v1.8.0: Complete localization system with English, German, and French translations (189 strings per language)
 - v1.7.1: Invalid configuration handling improvements with graceful recovery and modal overlays
 - v1.7.0: View Pending Changes dialog and comment storage flow fixes
 - v1.6.1: Settings window improvements and debug menu for testing

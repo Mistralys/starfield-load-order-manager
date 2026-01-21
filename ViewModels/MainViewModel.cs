@@ -54,7 +54,7 @@ namespace LoadOrderKeeper.ViewModels
         private string _fixLoadOrderButtonText = "Sort mods";
 
         [ObservableProperty]
-        private string _showChangesButtonText = Resources.MainWindowResources.ShowChangesButtonText;
+        private string _showChangesButtonText = "Manage load order";
 
         // Menu and UI text properties
         public MenuViewModel Menu { get; } = new();
@@ -533,8 +533,8 @@ namespace LoadOrderKeeper.ViewModels
         private void UpdateChangeCountDisplay(int changeCount)
         {
             ShowChangesButtonText = changeCount > 0 
-                ? string.Format(Resources.MainWindowResources.ShowChangesButtonTextWithCount, changeCount)
-                : Resources.MainWindowResources.ShowChangesButtonText;
+                ? string.Format(MainWindowTexts.ShowChangesButtonTextWithCount, changeCount)
+                : MainWindowTexts.ShowChangesButtonText;
         }
  
         private async Task ShowDiffAsync()

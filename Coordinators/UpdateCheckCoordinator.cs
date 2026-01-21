@@ -12,6 +12,7 @@ namespace LoadOrderKeeper.Coordinators
     /// </summary>
     public sealed partial class UpdateCheckCoordinator : CoordinatorBase
     {
+        private readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
         private readonly CancellationTokenSource _shutdownCts = new();
 
         [ObservableProperty]
@@ -35,7 +36,7 @@ namespace LoadOrderKeeper.Coordinators
                 if (result.UpdateAvailable)
                 {
                     UpdateAvailable = true;
-                    UpdateMessage = string.Format(Resources.MainWindowResources.UpdateAvailableFormat, result.LatestVersion);
+                    UpdateMessage = string.Format(_localization.GetString("MainWindow", "UpdateAvailableFormat"), result.LatestVersion);
                     UpdateInfoBarVisible = true;
                 }
             }
@@ -56,7 +57,7 @@ namespace LoadOrderKeeper.Coordinators
             if (result.UpdateAvailable)
             {
                 UpdateAvailable = true;
-                UpdateMessage = string.Format(Resources.MainWindowResources.UpdateAvailableFormat, result.LatestVersion);
+                UpdateMessage = string.Format(_localization.GetString("MainWindow", "UpdateAvailableFormat"), result.LatestVersion);
                 UpdateInfoBarVisible = true;
             }
 
@@ -84,10 +85,10 @@ namespace LoadOrderKeeper.Coordinators
 
             // Extract version using the localized format pattern
             // The format is "Version {0} is available!" where {0} is the version
-            var formatTemplate = Resources.MainWindowResources.UpdateAvailableFormat;
+            var formatTemplate = _localization.GetString("MainWindow", "UpdateAvailableFormat");
             
             // Replace {0} with a regex pattern to match the version
-            var pattern = formatTemplate.Replace("{0}", @"(.+?)");
+            string pattern = formatTemplate.Replace("{0}", @"(.+?)");
             var regex = new System.Text.RegularExpressions.Regex(pattern);
             var match = regex.Match(UpdateMessage);
             

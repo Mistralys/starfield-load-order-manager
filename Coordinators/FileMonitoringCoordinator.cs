@@ -15,6 +15,7 @@ namespace LoadOrderKeeper.Coordinators
     /// </summary>
     public sealed partial class FileMonitoringCoordinator : CoordinatorBase
     {
+        private readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
         private const int PluginCheckIntervalSeconds = 3;
 
         private readonly DispatcherTimer _pluginsMonitorTimer;
@@ -57,7 +58,7 @@ namespace LoadOrderKeeper.Coordinators
         /// Tooltip text for Steam warning. Empty when no warning is active.
         /// </summary>
         public string SteamWarningTooltip => ShowSteamWarning
-            ? "Steam is not running. SFSE requires Steam to be open to function correctly."
+            ? _localization.GetString("FileMonitoring", "SteamWarningTooltip")
             : string.Empty;
 
         #endregion
@@ -297,11 +298,11 @@ namespace LoadOrderKeeper.Coordinators
             {
                 if (hasInsertedMods)
                 {
-                    SortingRecommendationMessage = "IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.";
+                    SortingRecommendationMessage = _localization.GetString("FileMonitoring", "SortingInsertedWarning");
                 }
                 else
                 {
-                    SortingRecommendationMessage = "Sorting recommended: run Fix Load Order before resolving other changes.";
+                    SortingRecommendationMessage = _localization.GetString("FileMonitoring", "SortingRecommended");
                 }
                 SortingRecommendationActive = true;
             }

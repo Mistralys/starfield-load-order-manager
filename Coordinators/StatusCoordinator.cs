@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LoadOrderKeeper.Models;
-using LoadOrderKeeper.Services;
 
 namespace LoadOrderKeeper.Coordinators
 {
@@ -13,6 +12,7 @@ namespace LoadOrderKeeper.Coordinators
     /// </summary>
     public sealed partial class StatusCoordinator : CoordinatorBase
     {
+        private readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
         private const int MaxHistoryCount = 3;
 
         [ObservableProperty]
@@ -28,7 +28,7 @@ namespace LoadOrderKeeper.Coordinators
 
         public override void Initialize()
         {
-            AddStatusMessage("Initializing application...", StatusMessageType.Info);
+            AddStatusMessage(_localization.GetString("StatusCoordinator", "InitializingApplication"), StatusMessageType.Info);
         }
 
         /// <summary>
@@ -64,8 +64,8 @@ namespace LoadOrderKeeper.Coordinators
         public string GetReadyStatusMessage(bool configValid)
         {
             return configValid
-                ? "Ready. Configuration is valid."
-                : "Configuration is required. Please set paths in the Settings window.";
+                ? _localization.GetString("StatusCoordinator", "ReadyConfigValid")
+                : _localization.GetString("StatusCoordinator", "ConfigRequired");
         }
 
         /// <summary>

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.Coordinators
 {
@@ -11,6 +12,7 @@ namespace LoadOrderKeeper.Coordinators
     /// </summary>
     public sealed class GameLauncherCoordinator : CoordinatorBase
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
         private string? _gamePath;
         private string _playButtonText = string.Empty;
         private bool _hasSfseInstalled;
@@ -147,8 +149,8 @@ namespace LoadOrderKeeper.Coordinators
         private void UpdatePlayButtonText()
         {
             PlayButtonText = HasSfseInstalled
-                ? Resources.MainWindowResources.PlayButtonSfse
-                : Resources.MainWindowResources.PlayButtonVanilla;
+                ? _localization.GetString("MainWindow", "PlayButtonSfse")
+                : _localization.GetString("MainWindow", "PlayButtonVanilla");
         }
 
         protected override void OnDisposing()

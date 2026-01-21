@@ -42,7 +42,7 @@
     "HomepageButtonText": "Homepage",
     "CloseButtonText": "Close",
     "VersionLabelText": "Version",
-    "CopyrightFormat": "© 2025-{0} Mistralys"
+    "CopyrightFormat": "\u00A9 2025-{0} Mistralys"
   },
   "ErrorDialog": {
     "WindowTitle": "An unexpected error occurred",
@@ -213,7 +213,13 @@
     "ErrorPrefix": "ERROR: {0}"
   },
   "StatusCoordinator": {
+    "InitializingApplication": "Initializing application...",
+    "ReadyConfigValid": "Ready. Configuration is valid.",
+    "ConfigRequired": "Configuration is required. Please set paths in the Settings window."
   },
   "FileMonitoring": {
+    "SteamWarningTooltip": "Steam is not running. SFSE requires Steam to be open to function correctly.",
+    "SortingInsertedWarning": "IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.",
+    "SortingRecommended": "Sorting recommended: run Fix Load Order before resolving other changes."
   }
 }

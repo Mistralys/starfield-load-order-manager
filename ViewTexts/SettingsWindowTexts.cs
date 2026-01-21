@@ -1,43 +1,52 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for SettingsWindow with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for SettingsWindow.
     /// </summary>
     public partial class SettingsWindowTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public SettingsWindowTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitle { get; } = "Settings";
+        public string WindowTitle => _localization.GetString("Settings", "WindowTitle");
         
         // Labels
-        public string AppDataPathLabel { get; } = "Starfield App Data Path:";
-        public string GamePathLabel { get; } = "Starfield Game Path:";
-        public string DetectedPathsLabel { get; } = "Detected Paths";
+        public string AppDataPathLabel => _localization.GetString("Settings", "AppDataPathLabel");
+        public string GamePathLabel => _localization.GetString("Settings", "GamePathLabel");
+        public string DetectedPathsLabel => _localization.GetString("Settings", "DetectedPathsLabel");
         
         // Buttons
-        public string BrowseButtonText { get; } = "Browse...";
-        public string UseDetectedAppDataButtonText { get; } = "Use Detected Path";
-        public string UseDetectedGamePathButtonText { get; } = "Use Detected Path";
-        public string SaveButtonText { get; } = "Save";
-        public string CancelButtonText { get; } = "Cancel";
+        public string BrowseButtonText => _localization.GetString("Settings", "BrowseButtonText");
+        public string UseDetectedAppDataButtonText => _localization.GetString("Settings", "UseDetectedAppDataButtonText");
+        public string UseDetectedGamePathButtonText => _localization.GetString("Settings", "UseDetectedGamePathButtonText");
+        public string SaveButtonText => _localization.GetString("Settings", "SaveButtonText");
+        public string CancelButtonText => _localization.GetString("Settings", "CancelButtonText");
         
         // Status Messages
-        public string ValidConfigMessage { get; } = "The configured paths are valid.";
-        public string InvalidAppDataMessage { get; } = "The app data path is invalid";
-        public string InvalidGamePathMessage { get; } = "The game path is invalid";
-        public string AppDataNotConfiguredMessage { get; } = "The app data path is not configured";
-        public string GamePathNotConfiguredMessage { get; } = "The game path is not configured";
-        public string GameDataFolderNotFoundMessage { get; } = "The game Data folder was not found";
-        public string PluginsTxtNotFoundMessage { get; } = "Plugins.txt not found in the app data folder";
-        public string ProfilesFolderCannotBeCreatedMessage { get; } = "The Profiles folder cannot be created or accessed";
-        public string BothPathsInvalidMessage { get; } = "Both the game path and app data path are invalid.";
-        
+        public string ValidConfigMessage => _localization.GetString("Settings", "ValidConfigMessage");
+        public string InvalidAppDataMessage => _localization.GetString("Settings", "InvalidAppDataMessage");
+        public string InvalidGamePathMessage => _localization.GetString("Settings", "InvalidGamePathMessage");
+        public string AppDataNotConfiguredMessage => _localization.GetString("Settings", "AppDataNotConfiguredMessage");
+        public string GamePathNotConfiguredMessage => _localization.GetString("Settings", "GamePathNotConfiguredMessage");
+        public string GameDataFolderNotFoundMessage => _localization.GetString("Settings", "GameDataFolderNotFoundMessage");
+        public string PluginsTxtNotFoundMessage => _localization.GetString("Settings", "PluginsTxtNotFoundMessage");
+        public string ProfilesFolderAccessDeniedMessage => _localization.GetString("Settings", "ProfilesFolderAccessDeniedMessage");
+        public string ProfilesFolderCannotBeCreatedMessage => _localization.GetString("Settings", "ProfilesFolderCannotBeCreatedMessage");
+        public string BothPathsInvalidMessage => _localization.GetString("Settings", "BothPathsInvalidMessage");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(AppDataPathLabel));
@@ -55,8 +64,17 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(GamePathNotConfiguredMessage));
             OnPropertyChanged(nameof(GameDataFolderNotFoundMessage));
             OnPropertyChanged(nameof(PluginsTxtNotFoundMessage));
+            OnPropertyChanged(nameof(ProfilesFolderAccessDeniedMessage));
             OnPropertyChanged(nameof(ProfilesFolderCannotBeCreatedMessage));
             OnPropertyChanged(nameof(BothPathsInvalidMessage));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

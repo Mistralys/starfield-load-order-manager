@@ -1,32 +1,40 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LoadOrderKeeper.ViewTexts
 {
     /// <summary>
-    /// Text ViewModel for CommentInputDialog with hardcoded strings.
-    /// Will be connected to resource files in Phase 2.
+    /// Text ViewModel for CommentInputDialog.
     /// </summary>
     public partial class CommentInputTexts : ObservableObject
     {
+        private readonly LocalizationService _localization = LocalizationService.Instance;
+
+        public CommentInputTexts()
+        {
+            // Subscribe to culture changes
+            _localization.CultureChanged += OnCultureChanged;
+        }
+
         // Window
-        public string WindowTitleCreate { get; } = "Update Reference File";
-        public string WindowTitleEdit { get; } = "Edit Comment";
+        public string WindowTitleCreate => _localization.GetString("CommentInput", "WindowTitleCreate");
+        public string WindowTitleEdit => _localization.GetString("CommentInput", "WindowTitleEdit");
         
         // Prompts
-        public string PromptTextCreate { get; } = "You can add an optional comment to describe the changes:";
-        public string PromptTextEdit { get; } = "Edit the comment for this version:";
+        public string PromptTextCreate => _localization.GetString("CommentInput", "PromptTextCreate");
+        public string PromptTextEdit => _localization.GetString("CommentInput", "PromptTextEdit");
         
         // Input
-        public string CommentPlaceholder { get; } = "Enter comment (optional)...";
+        public string CommentPlaceholder => _localization.GetString("CommentInput", "CommentPlaceholder");
         
         // Buttons
-        public string OkButtonText { get; } = "OK";
-        public string CancelButtonText { get; } = "Cancel";
-        
+        public string OkButtonText => _localization.GetString("CommentInput", "OkButtonText");
+        public string CancelButtonText => _localization.GetString("CommentInput", "CancelButtonText");
+
         /// <summary>
-        /// Refreshes all localized properties when culture changes.
+        /// Handles culture changes by refreshing all properties.
         /// </summary>
-        public void RefreshAll()
+        private void OnCultureChanged(object? sender, EventArgs e)
         {
             OnPropertyChanged(nameof(WindowTitleCreate));
             OnPropertyChanged(nameof(WindowTitleEdit));
@@ -35,6 +43,14 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(CommentPlaceholder));
             OnPropertyChanged(nameof(OkButtonText));
             OnPropertyChanged(nameof(CancelButtonText));
+        }
+
+        /// <summary>
+        /// Refreshes all localized properties when culture changes (legacy compatibility).
+        /// </summary>
+        public void RefreshAll()
+        {
+            OnCultureChanged(this, EventArgs.Empty);
         }
     }
 }

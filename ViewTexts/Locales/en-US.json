@@ -42,7 +42,7 @@
     "HomepageButtonText": "Homepage",
     "CloseButtonText": "Close",
     "VersionLabelText": "Version",
-    "CopyrightFormat": "\u00A9 2025-{0} Mistralys"
+    "CopyrightFormat": "© 2025-{0} Mistralys"
   },
   "ErrorDialog": {
     "WindowTitle": "An unexpected error occurred",

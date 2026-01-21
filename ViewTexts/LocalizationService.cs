@@ -46,8 +46,62 @@ namespace LoadOrderKeeper.ViewTexts
             var exeDir = AppDomain.CurrentDomain.BaseDirectory;
             _localesPath = Path.Combine(exeDir, "ViewTexts", "Locales");
             
-            // Load default culture
+            // Detect system culture and load appropriate language
+            var systemCulture = DetectSystemCulture();
+            _currentCulture = systemCulture;
             LoadCulture(_currentCulture);
+        }
+
+        /// <summary>
+        /// Detects the system culture and returns the appropriate supported culture.
+        /// Falls back to "en-US" if system culture is not supported.
+        /// </summary>
+        private string DetectSystemCulture()
+        {
+            try
+            {
+                var currentCulture = CultureInfo.CurrentUICulture;
+                var cultureName = currentCulture.Name; // e.g., "fr-FR", "de-DE"
+                
+                // Check if we have a translation for this culture
+                var culturePath = Path.Combine(_localesPath, $"{cultureName}.json");
+                if (File.Exists(culturePath))
+                {
+                    return cultureName;
+                }
+                
+                // Try parent culture (e.g., "fr" if "fr-FR" not found)
+                if (currentCulture.Parent != null && !string.IsNullOrEmpty(currentCulture.Parent.Name))
+                {
+                    var parentCulture = currentCulture.Parent.Name;
+                    
+                    // Map parent to specific culture we support
+                    var mappedCulture = parentCulture.ToLowerInvariant() switch
+                    {
+                        "fr" => "fr-FR",
+                        "de" => "de-DE",
+                        "en" => "en-US",
+                        _ => null
+                    };
+                    
+                    if (mappedCulture != null)
+                    {
+                        var mappedPath = Path.Combine(_localesPath, $"{mappedCulture}.json");
+                        if (File.Exists(mappedPath))
+                        {
+                            return mappedCulture;
+                        }
+                    }
+                }
+                
+                // Default to English if no match found
+                return "en-US";
+            }
+            catch
+            {
+                // If detection fails, default to English
+                return "en-US";
+            }
         }
 
         /// <summary>
@@ -90,6 +144,30 @@ namespace LoadOrderKeeper.ViewTexts
             {
                 // If format fails, return template with args appended
                 return $"{template} [{string.Join(", ", args)}]";
+            }
+        }
+
+        /// <summary>
+        /// Initializes the localization service with application configuration.
+        /// Should be called early in application startup after config is loaded.
+        /// </summary>
+        /// <param name="preferredLanguage">Preferred language from config ("auto" or specific culture like "fr-FR")</param>
+        public void InitializeFromConfig(string preferredLanguage)
+        {
+            if (string.IsNullOrWhiteSpace(preferredLanguage) || preferredLanguage == "auto")
+            {
+                // Auto-detect already happened in constructor, just ensure it's loaded
+                return;
+            }
+
+            // Apply specific language preference
+            try
+            {
+                SetCulture(preferredLanguage);
+            }
+            catch
+            {
+                // If preferred language fails to load, keep the auto-detected one
             }
         }
 

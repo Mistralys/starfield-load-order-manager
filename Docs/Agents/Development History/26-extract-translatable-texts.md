@@ -366,9 +366,9 @@ ViewTexts/
 
 ## Status Tracking
 
-**Current Phase:** Phase 1 - Foundation Setup (Code Structure Only)
-**Current Work Package:** WP3 - Audit ViewModels  
-**Overall Progress:** 2/11 Work Packages Complete (18%)
+**Current Phase:** Phase 1 - Foundation Setup (Code Structure Only)  
+**Current Work Package:** ✅ Phase 1 Complete  
+**Overall Progress:** 3/11 Work Packages Complete (27%)
 
 ### Phase 1 Progress (Work Packages)
 
@@ -376,13 +376,13 @@ ViewTexts/
 |----|------|--------|-------|------|-------|
 | WP1 | Foundation Setup | ✅ Complete | 4 | ⚡ Low | ViewTexts created, MenuViewModel & AboutViewModel moved |
 | WP2 | Create ALL Text ViewModels | ✅ Complete | 20 | ⚙️ Medium | All text VMs created, ViewModels updated |
-| WP3 | Audit ViewModels | ⏳ Pending | 1 | 📋 Docs | Document strings only |
+| WP3 | Audit ViewModels | ✅ Complete | 1 | 📋 Docs | 64+ hardcoded strings documented |
 
 ### Phase 2 Progress (Work Packages)
 
 | WP | Name | Status | Files | Risk | Notes |
 |----|------|--------|-------|------|-------|
-| WP4 | Simple Dialogs | ⏳ Pending | 9-15 | ⚡ Low | Error, Comment, Confirmation + resources |
+| WP4 | Simple Dialogs | ✅ Complete | 9-15 | ⚡ Low | Error, Comment, Confirmation + resources |
 | WP5 | Settings Window | ⏳ Pending | 5 | ⚙️ Medium | SettingsViewModel + resources |
 | WP6 | Profile Management | ⏳ Pending | 12-15 | 👥 Medium | 3 ViewModels + resources |
 | WP7 | DiffDialog | ⏳ Pending | 5 | ⚠️ High | 30+ strings + resources |
@@ -399,12 +399,19 @@ ViewTexts/
 - ✅ MainWindow partial resource references
 - ✅ Plan document updated with Work Packages
 
-### Phase 1 Progress
-- ✅ **WP1 Complete** - ViewTexts/ folder created, MenuViewModel and AboutViewModel moved from ViewModels/ to ViewTexts/, namespaces updated to LoadOrderKeeper.ViewTexts, MainViewModel and AboutWindow.xaml.cs updated with new namespace references, build successful with zero errors
-- ✅ **WP2 Complete** - Created MainWindowTexts (wraps MainWindowResources), CommonTexts (wraps CommonResources), and text ViewModels for all windows: ErrorDialogTexts, CommentInputTexts, ConfirmationDialogTexts, SettingsWindowTexts, DiffDialogTexts, ManageProfilesTexts, ProfilePropertiesTexts, SwitchProfileTexts, ReferenceHistoryTexts, UpdateOptionsTexts, ViewPendingChangesTexts. Updated MainViewModel to expose MainWindowTexts and CommonTexts properties. Updated all ViewModels to use their text ViewModels (CommentInputViewModel, ErrorDialogViewModel, ConfirmationDialogViewModel, UpdateOptionsViewModel, ProfilePropertiesViewModel, ManageProfilesViewModel, ReferenceHistoryViewModel, ViewPendingChangesViewModel, SwitchProfileViewModel). Build successful with zero errors.
-- ⏳ WP3 pending
+### Phase 1 Progress ✅ **COMPLETE**
+- ✅ **WP1 Complete** - ViewTexts/ folder created, MenuViewModel and AboutViewModel moved from ViewModels/ to ViewTexts/, namespaces updated to `LoadOrderKeeper.ViewTexts`, MainViewModel and AboutWindow.xaml.cs updated with new namespace references, build successful with zero errors
+- ✅ **WP2 Complete** - Created MainWindowTexts (wraps MainWindowResources), CommonTexts (wraps CommonResources), and text ViewModels for all windows: ErrorDialogTexts, CommentInputTexts, ConfirmationDialogTexts, SettingsWindowTexts, DiffDialogTexts, ManageProfilesTexts, ProfilePropertiesTexts, SwitchProfileTexts, ReferenceHistoryTexts, UpdateOptionsTexts, ViewPendingChangesTexts. Updated MainViewModel to expose MainWindowTexts and CommonTexts properties. Updated all ViewModels to use their text ViewModels (CommentInputViewModel, ErrorDialogViewModel, ConfirmationDialogViewModel, UpdateOptionsViewModel, ProfilePropertiesViewModel, ManageProfilesViewModel, ReferenceHistoryViewModel, ViewPendingChangesViewModel, SwitchProfileViewModel). Fixed XAML bindings in MainWindow for configuration error banner. Build successful with zero errors.
+- ✅ **WP3 Complete** - Comprehensive audit completed. Created audit report documenting 64+ remaining hardcoded strings across SettingsViewModel (9), DiffDialogViewModel (25+), MainViewModel (10+), StatusCoordinator (3), and FileMonitoringCoordinator (3). All services and helpers verified clean. Report saved to `27-phase1-audit-report.md`.
+
+**Phase 1 Summary**: Foundation established with 13 text ViewModels created, pattern proven, 64+ strings documented for Phase 2 extraction.
 
 ### Phase 2 Progress
-- ⏳ Not started - will begin after Phase 1 completion (WP1-3 done)
+- ⚠️ **REVISED**: Switched from .resx to JSON-based localization (see `31-phase2-revised-json-plan.md`)
+- 📄 **Old Plan**: `28-phase2-resource-mapping.md` (resx-based, deprecated)
+- 📄 **New Plan**: `31-phase2-revised-json-plan.md` (JSON-based, active)
+- ✅ **WP4 Complete**: JSON infrastructure created (LocalizationService + 3 JSON files + tests)
+- ✅ All 45 .resx files will be DELETED after JSON migration complete
+- ⏳ Ready to begin WP5 (Migrate Menu & About ViewModels)
 
 

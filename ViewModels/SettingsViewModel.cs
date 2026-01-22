@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels
 {
@@ -25,10 +27,18 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private bool _statusBannerIsError = true;
 
+        [ObservableProperty]
+        private string _selectedLanguage = "auto";
+
+        [ObservableProperty]
+        private bool _languageChanged;
+
         public string DetectedAppDataPath { get; }
         public string DetectedGamePath { get; }
         public bool HasDetectedAppDataPath => !string.IsNullOrWhiteSpace(DetectedAppDataPath);
         public bool HasDetectedGamePath => !string.IsNullOrWhiteSpace(DetectedGamePath);
+        
+        public List<LanguageOption> AvailableLanguages { get; }
 
         public event EventHandler? BrowseAppDataRequested;
         public event EventHandler? BrowseGamePathRequested;
@@ -49,8 +59,40 @@ namespace LoadOrderKeeper.ViewModels
                 StarfieldGamePath = initialConfig.StarfieldGamePath;
             }
 
+            // Initialize language selection
+            SelectedLanguage = initialConfig.PreferredLanguage ?? "auto";
+            AvailableLanguages = BuildLanguageList();
+
             // Initial validation
             ValidateConfiguration();
+        }
+
+        private List<LanguageOption> BuildLanguageList()
+        {
+            var locService = ViewTexts.LocalizationService.Instance;
+            var settingsTexts = new SettingsWindowTexts();
+            
+            var languages = new List<LanguageOption>
+            {
+                new LanguageOption("auto", settingsTexts.LanguageAutomatic)
+            };
+
+            // Get available cultures from the localization service
+            var availableCultures = locService.GetAvailableCultures();
+            
+            foreach (var culture in availableCultures)
+            {
+                // Read display name from locale file (100% dynamic)
+                var displayName = locService.GetLocaleName(culture);
+                languages.Add(new LanguageOption(culture, displayName));
+            }
+
+            return languages;
+        }
+
+        partial void OnSelectedLanguageChanged(string value)
+        {
+            LanguageChanged = true;
         }
 
         [RelayCommand]
@@ -112,7 +154,8 @@ namespace LoadOrderKeeper.ViewModels
             return new AppConfigModel
             {
                 StarfieldAppDataPath = StarfieldAppDataPath,
-                StarfieldGamePath = StarfieldGamePath
+                StarfieldGamePath = StarfieldGamePath,
+                PreferredLanguage = SelectedLanguage
             };
         }
 

@@ -42,6 +42,11 @@ namespace LoadOrderKeeper.ViewTexts
         public string ProfilesFolderAccessDeniedMessage => _localization.GetString("Settings", "ProfilesFolderAccessDeniedMessage");
         public string ProfilesFolderCannotBeCreatedMessage => _localization.GetString("Settings", "ProfilesFolderCannotBeCreatedMessage");
         public string BothPathsInvalidMessage => _localization.GetString("Settings", "BothPathsInvalidMessage");
+        
+        // Language
+        public string LanguageLabel => _localization.GetString("Settings", "LanguageLabel");
+        public string LanguageAutomatic => _localization.GetString("Settings", "LanguageAutomatic");
+        public string LanguageRestartRequired => _localization.GetString("Settings", "LanguageRestartRequired");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -51,6 +56,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(AppDataPathLabel));
             OnPropertyChanged(nameof(GamePathLabel));
+            OnPropertyChanged(nameof(LanguageLabel));
             OnPropertyChanged(nameof(DetectedPathsLabel));
             OnPropertyChanged(nameof(BrowseButtonText));
             OnPropertyChanged(nameof(UseDetectedAppDataButtonText));
@@ -67,6 +73,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(ProfilesFolderAccessDeniedMessage));
             OnPropertyChanged(nameof(ProfilesFolderCannotBeCreatedMessage));
             OnPropertyChanged(nameof(BothPathsInvalidMessage));
+            OnPropertyChanged(nameof(LanguageAutomatic));
+            OnPropertyChanged(nameof(LanguageRestartRequired));
         }
 
         /// <summary>

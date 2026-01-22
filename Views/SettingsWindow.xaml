@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Load Order Keeper Settings"
-        Height="394"
+        Height="500"
         Width="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -83,12 +83,16 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
+            <!-- AppData Path -->
             <TextBlock Grid.Row="0"
                        Grid.Column="0"
                        Grid.ColumnSpan="2"
@@ -140,6 +144,7 @@
                            Style="{StaticResource InverseBooleanToVisibilityStyle}" />
             </StackPanel>
 
+            <!-- Game Path -->
             <TextBlock Grid.Row="3"
                        Grid.Column="0"
                        Grid.ColumnSpan="2"
@@ -190,7 +195,57 @@
                            Style="{StaticResource InverseBooleanToVisibilityStyle}" />
             </StackPanel>
 
-            <StackPanel Grid.Row="6"
+            <!-- Language Selection -->
+            <TextBlock Grid.Row="6"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Margin="0,8,0,4"
+                       Text="{Binding Texts.LanguageLabel}"
+                       d:Text="Language:"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <ComboBox Grid.Row="7"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="2"
+                      Margin="0,0,0,8"
+                      ItemsSource="{Binding AvailableLanguages}"
+                      SelectedValue="{Binding SelectedLanguage}"
+                      DisplayMemberPath="DisplayName"
+                      SelectedValuePath="Code"
+                      materialDesign:HintAssist.Hint="{Binding Texts.LanguageLabel}"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}" />
+
+            <!-- Language Change Warning -->
+            <Border Grid.Row="8"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Background="{DynamicResource MaterialDesign.Brush.Warning}"
+                    Visibility="{Binding LanguageChanged, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Padding="12"
+                    CornerRadius="4"
+                    Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Grid.Column="0"
+                                            Kind="Information"
+                                            Width="20"
+                                            Height="20"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,8,0"
+                                            Foreground="{DynamicResource MaterialDesignPaper}" />
+                    <TextBlock Grid.Column="1"
+                              Text="{Binding Texts.LanguageRestartRequired}"
+                              d:Text="Language changes will take effect after restarting the application."
+                              Foreground="{DynamicResource MaterialDesignPaper}"
+                              TextWrapping="Wrap"
+                              VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Save Button -->
+            <StackPanel Grid.Row="9"
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
                         Orientation="Horizontal"

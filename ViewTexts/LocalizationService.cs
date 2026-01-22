@@ -75,18 +75,10 @@ namespace LoadOrderKeeper.ViewTexts
                 {
                     var parentCulture = currentCulture.Parent.Name;
                     
-                    // Map parent to specific culture we support
-                    var mappedCulture = parentCulture.ToLowerInvariant() switch
-                    {
-                        "fr" => "fr-FR",
-                        "de" => "de-DE",
-                        "en" => "en-US",
-                        "es" => "es-ES",
-                        "it" => "it-IT",
-                        _ => null
-                    };
+                    // Build parent culture map dynamically from locale files
+                    var parentMap = BuildParentCultureMap();
                     
-                    if (mappedCulture != null)
+                    if (parentMap.TryGetValue(parentCulture, out var mappedCulture))
                     {
                         var mappedPath = Path.Combine(_localesPath, $"{mappedCulture}.json");
                         if (File.Exists(mappedPath))
@@ -268,6 +260,117 @@ namespace LoadOrderKeeper.ViewTexts
             {
                 throw new InvalidOperationException($"Failed to parse localization file: {filePath}", ex);
             }
+        }
+
+        /// <summary>
+        /// Gets the list of available cultures that the application supports.
+        /// </summary>
+        /// <returns>A list of culture codes (e.g., "en-US", "de-DE", "fr-FR", "es-ES", "it-IT")</returns>
+        public IReadOnlyList<string> GetAvailableCultures()
+        {
+            lock (_lock)
+            {
+                var cultures = new List<string>();
+                
+                if (!Directory.Exists(_localesPath))
+                {
+                    return cultures;
+                }
+                
+                // Find all .json files in the locales directory
+                var jsonFiles = Directory.GetFiles(_localesPath, "*.json");
+                
+                foreach (var file in jsonFiles)
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(file);
+                    // Validate that it's a culture code format (e.g., en-US, de-DE)
+                    if (!string.IsNullOrWhiteSpace(fileName) && fileName.Contains("-"))
+                    {
+                        cultures.Add(fileName);
+                    }
+                }
+                
+                // Sort alphabetically
+                cultures.Sort(StringComparer.Ordinal);
+                
+                return cultures;
+            }
+        }
+
+        /// <summary>
+        /// Gets the native name for a specific culture from its locale file.
+        /// </summary>
+        /// <param name="cultureName">Culture code (e.g., "en-US", "de-DE")</param>
+        /// <returns>Native name (e.g., "English", "Deutsch") or culture code if not found</returns>
+        public string GetLocaleName(string cultureName)
+        {
+            var filePath = Path.Combine(_localesPath, $"{cultureName}.json");
+            
+            if (!File.Exists(filePath))
+            {
+                return cultureName; // Fallback to culture code
+            }
+            
+            try
+            {
+                var json = File.ReadAllText(filePath);
+                var root = JsonDocument.Parse(json).RootElement;
+                
+                if (root.TryGetProperty("LocaleName", out var localeNameElement))
+                {
+                    return localeNameElement.GetString() ?? cultureName;
+                }
+                
+                return cultureName; // No LocaleName property found
+            }
+            catch
+            {
+                return cultureName; // Error reading file
+            }
+        }
+
+        /// <summary>
+        /// Builds a map of parent cultures to specific locale files by reading all locale files.
+        /// </summary>
+        /// <returns>Dictionary mapping parent culture codes (e.g., "fr") to specific cultures (e.g., "fr-FR")</returns>
+        private Dictionary<string, string> BuildParentCultureMap()
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            
+            if (!Directory.Exists(_localesPath))
+            {
+                return map;
+            }
+            
+            var jsonFiles = Directory.GetFiles(_localesPath, "*.json");
+            
+            foreach (var file in jsonFiles)
+            {
+                try
+                {
+                    var cultureName = Path.GetFileNameWithoutExtension(file);
+                    var json = File.ReadAllText(file);
+                    var root = JsonDocument.Parse(json).RootElement;
+                    
+                    if (root.TryGetProperty("ParentCulture", out var parentElement))
+                    {
+                        var parentCulture = parentElement.GetString();
+                        if (!string.IsNullOrWhiteSpace(parentCulture))
+                        {
+                            // Map parent culture to this specific culture
+                            // e.g., "fr" -> "fr-FR", "de" -> "de-DE"
+                            map[parentCulture] = cultureName;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Skip files that can't be parsed
+                    continue;
+                }
+            }
+            
+            return map;
         }
 
         /// <summary>

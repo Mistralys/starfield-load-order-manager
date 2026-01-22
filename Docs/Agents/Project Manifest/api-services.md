@@ -341,6 +341,10 @@ public sealed class LocalizationService : ObservableObject
     public void InitializeFromConfig(string preferredLanguage);
     public void ReloadCurrentCulture();
     
+    // Culture discovery (zero-hardcoding architecture)
+    public IReadOnlyList<string> GetAvailableCultures();
+    public string GetLocaleName(string cultureName);
+    
     // Testing/maintenance
     internal void ClearCache();
     
@@ -348,29 +352,93 @@ public sealed class LocalizationService : ObservableObject
     private LocalizationService();
     private string DetectSystemCulture();
     private void LoadCulture(string cultureName);
+    private Dictionary<string, string> BuildParentCultureMap();
 }
 ```
 
-**Purpose:** Singleton service managing JSON-based localization. Provides thread-safe string retrieval with format support, runtime culture switching, automatic system locale detection, and fallback to English for unsupported cultures.
+**Purpose:** Singleton service managing JSON-based localization with **zero-hardcoding architecture**. Provides thread-safe string retrieval with format support, runtime culture switching, automatic system locale detection, dynamic locale discovery, and fallback to English for unsupported cultures.
 
 **Key Features:**
+- **Zero-Hardcoding Design**: New languages require only JSON file, no code changes
+- **Dynamic Discovery**: Scans file system for available locales automatically
+- **Metadata from JSON**: Reads `LocaleName` and `ParentCulture` from locale files
 - Thread-safe operations (all methods protected by lock)
 - Automatic culture detection via `CultureInfo.CurrentUICulture`
-- Parent culture mapping (e.g., `fr-CA` ? `fr-FR`)
+- Dynamic parent culture mapping (e.g., `fr-CA` ? `fr-FR`)
 - Format string support with safe fallback
 - Event-driven UI updates via `CultureChanged` event
 - Caches translations in memory for performance
 
 **Supported Cultures:**
 - `en-US` (English - default fallback)
-- `de-DE` (German)
-- `fr-FR` (French)
-- `es-ES` (Spanish)
-- `it-IT` (Italian)
+- `de-DE` (German - Deutsch)
+- `fr-FR` (French - Français)
+- `es-ES` (Spanish - Español)
+- `it-IT` (Italian - Italiano)
+
+**Adding New Languages:**
+To add a new language (e.g., Portuguese):
+1. Create `pt-BR.json` with required metadata at root level:
+   ```json
+   {
+     "LocaleName": "Português (Brasil)",
+     "ParentCulture": "pt",
+     "MainWindow": { ... }
+   }
+   ```
+2. No code changes needed - language appears in dropdown automatically
+
+**JSON File Structure:**
+- **Root-level metadata** (strings, skipped by LoadCulture):
+  - `LocaleName`: Native language name for dropdown display
+  - `ParentCulture`: Two-letter ISO 639-1 code for auto-detection
+- **Translation sections** (objects, processed by LoadCulture):
+  - `MainWindow`, `Menu`, `Settings`, `ErrorDialog`, etc.
 
 **JSON File Location:** `ViewTexts/Locales/{culture}.json`
 
 **Runtime Path Resolution:** `AppDomain.CurrentDomain.BaseDirectory + "ViewTexts/Locales"`
+
+**Public Methods:**
+`GetAvailableCultures()`:
+- Scans `Locales` folder for all `*.json` files
+- Returns culture codes (e.g., `["de-DE", "en-US", "es-ES", "fr-FR", "it-IT"]`)
+- Sorted alphabetically
+- Used by `SettingsViewModel` to populate language dropdown
+
+`GetLocaleName(string cultureName)`:
+- Reads `LocaleName` property from specified locale file
+- Returns native language name (e.g., "Deutsch", "Français")
+- Falls back to culture code if file not found or property missing
+- Used by `SettingsViewModel.BuildLanguageList()` for dropdown display
+
+`InitializeFromConfig(string preferredLanguage)`:
+- Called by `ViewModelInitializer` on application startup
+- Applies user's saved language preference from `config.json`
+- Value `"auto"` triggers automatic system locale detection
+- Specific culture codes (e.g., `"de-DE"`) override auto-detection
+
+**Private Methods:**
+`DetectSystemCulture()`:
+- Reads `CultureInfo.CurrentUICulture` from system
+- Checks for exact culture match (e.g., `fr-FR`)
+- Falls back to parent culture mapping if exact match not found
+- Uses `BuildParentCultureMap()` for dynamic parent lookup
+- Returns `"en-US"` if no supported culture found
+
+`BuildParentCultureMap()`:
+- Scans all locale files in `Locales` folder
+- Reads `ParentCulture` property from each file
+- Builds dictionary mapping parent codes to specific cultures
+- Example: `{"en": "en-US", "de": "de-DE", "fr": "fr-FR", ...}`
+- Enables automatic detection without hardcoded mappings
+
+`LoadCulture(string cultureName)`:
+- Loads translations from JSON file for specified culture
+- Skips root-level properties that aren't objects (LocaleName, ParentCulture)
+- Processes only translation sections (MainWindow, Settings, etc.)
+- Falls back to `en-US.json` if specified culture file not found
+- Merges translations into cache for fallback support
 
 ### `LoadOrderKeeper.Tools.LocalizationJsonNormalizer`
 
@@ -390,6 +458,7 @@ public static class LocalizationJsonNormalizer
 - Ensures consistent UTF-8 encoding
 - Validates JSON structure
 - Safe for accented characters (é, è, à, ê, etc.)
+- Preserves root-level metadata (LocaleName, ParentCulture)
 
 **Console Tool:** `Tools/JsonNormalizer/Program.cs` - Standalone console app for batch normalization
 

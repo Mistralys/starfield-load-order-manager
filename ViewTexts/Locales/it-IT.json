@@ -7,7 +7,7 @@
     "DismissTooltip": "Ignora",
     "PlayButtonSfse": "Gioca (SFSE)",
     "PlayButtonVanilla": "Gioca (Vanilla)",
-    "UpdateAvailableFormat": "La versione {0} Ë disponibile!"
+    "UpdateAvailableFormat": "La versione {0} √® disponibile!"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -34,7 +34,7 @@
     "DownloadOptionsButtonText": "Opzioni di download...",
     "ActiveProfilePrefixText": "Profilo attivo: ",
     "RecentStatusMessagesText": "Messaggi di stato recenti:",
-    "PluginsModifiedWarningText": "Plugins.txt Ë stato modificato al di fuori di Load Order Keeper."
+    "PluginsModifiedWarningText": "Plugins.txt √® stato modificato al di fuori di Load Order Keeper."
   },
   "About": {
     "ApplicationName": "Starfield Load Order Keeper",
@@ -42,11 +42,11 @@
     "HomepageButtonText": "Pagina principale",
     "CloseButtonText": "Chiudi",
     "VersionLabelText": "Versione",
-    "CopyrightFormat": "© 2025-{0} Mistralys"
+    "CopyrightFormat": "¬© 2025-{0} Mistralys"
   },
   "ErrorDialog": {
-    "WindowTitle": "Si Ë verificato un errore imprevisto",
-    "ErrorHeaderText": "Si Ë verificato un errore imprevisto",
+    "WindowTitle": "Si √® verificato un errore imprevisto",
+    "ErrorHeaderText": "Si √® verificato un errore imprevisto",
     "OpenLogFolderButtonText": "Apri cartella log",
     "OpenLogFolderTooltip": "Apre la cartella contenente il file error.log",
     "ReportBugButtonText": "Segnala bug",
@@ -69,7 +69,7 @@
   "ConfirmationDialog": {
     "OkButtonText": "OK",
     "CancelButtonText": "Annulla",
-    "YesButtonText": "SÏ",
+    "YesButtonText": "S√¨",
     "NoButtonText": "No"
   },
   "Settings": {
@@ -83,14 +83,14 @@
     "SaveButtonText": "Salva",
     "CancelButtonText": "Annulla",
     "ValidConfigMessage": "I percorsi configurati sono validi.",
-    "InvalidAppDataMessage": "Il percorso dei dati dell'applicazione non Ë valido",
-    "InvalidGamePathMessage": "Il percorso del gioco non Ë valido",
-    "AppDataNotConfiguredMessage": "Il percorso dei dati dell'applicazione non Ë configurato",
-    "GamePathNotConfiguredMessage": "Il percorso del gioco non Ë configurato",
-    "GameDataFolderNotFoundMessage": "La cartella Data del gioco non Ë stata trovata",
+    "InvalidAppDataMessage": "Il percorso dei dati dell'applicazione non √® valido",
+    "InvalidGamePathMessage": "Il percorso del gioco non √® valido",
+    "AppDataNotConfiguredMessage": "Il percorso dei dati dell'applicazione non √® configurato",
+    "GamePathNotConfiguredMessage": "Il percorso del gioco non √® configurato",
+    "GameDataFolderNotFoundMessage": "La cartella Data del gioco non √® stata trovata",
     "PluginsTxtNotFoundMessage": "Plugins.txt non trovato nella cartella dati dell'applicazione",
     "ProfilesFolderAccessDeniedMessage": "Accesso negato durante la creazione della cartella Profiles",
-    "ProfilesFolderCannotBeCreatedMessage": "La cartella Profiles non puÚ essere creata o accessibile",
+    "ProfilesFolderCannotBeCreatedMessage": "La cartella Profiles non pu√≤ essere creata o accessibile",
     "BothPathsInvalidMessage": "Sia il percorso del gioco che il percorso dei dati dell'applicazione non sono validi."
   },
   "DiffDialog": {
@@ -107,29 +107,29 @@
     "MovedText": "Spostato",
     "ReplacedText": "Sostituito",
     "NoDifferencesMessage": "Nessuna differenza rilevata.",
-    "MultipleChangesHelp": "Ci sono molte modifiche nell'elenco, incluse sostituzioni e rimozioni. Questo puÚ confondere il rilevamento delle modifiche - Se hai effettuato queste modifiche, si consiglia di accettare le modifiche. Altrimenti, considera di scartare le modifiche.",
+    "MultipleChangesHelp": "Ci sono molte modifiche nell'elenco, incluse sostituzioni e rimozioni. Questo pu√≤ confondere il rilevamento delle modifiche - Se hai effettuato queste modifiche, si consiglia di accettare le modifiche. Altrimenti, considera di scartare le modifiche.",
     "DifferencesLoadedStatus": "Differenze caricate.",
     "NoNewDifferencesStatus": "Nessuna nuova differenza rilevata",
     "FailedToRefreshError": "Impossibile aggiornare le differenze:",
     "NoDifferencesToDiscardStatus": "Nessuna differenza da scartare.",
     "CannotDiscardNowStatus": "Impossibile scartare le modifiche ora.",
     "ConfirmDiscardTitle": "Conferma scarto modifiche",
-    "ConfirmDiscardMessage": "Stai per scartare tutte le modifiche e ripristinare Plugins.txt dal file di riferimento.\n\nQuesta azione non puÚ essere annullata. Sei sicuro di voler continuare?",
+    "ConfirmDiscardMessage": "Stai per scartare tutte le modifiche e ripristinare Plugins.txt dal file di riferimento.\n\nQuesta azione non pu√≤ essere annullata. Sei sicuro di voler continuare?",
     "DiscardCancelledStatus": "Scarto modifiche annullato.",
     "ReEnabledModStatus": "{0} riattivato",
-    "ModAlreadyEnabledStatus": "{0} Ë gi‡ attivo.",
+    "ModAlreadyEnabledStatus": "{0} √® gi√† attivo.",
     "FailedToReEnableError": "Impossibile riattivare {0}:",
     "RemovedModStatus": "{0} rimosso",
-    "ModAlreadyRemovedStatus": "{0} Ë gi‡ rimosso.",
+    "ModAlreadyRemovedStatus": "{0} √® gi√† rimosso.",
     "FailedToRemoveError": "Impossibile rimuovere {0}:",
     "ReplacedModStatus": "{0} sostituito con {1}",
-    "ModNoLongerPendingStatus": "{0} non Ë pi˘ in sospeso.",
+    "ModNoLongerPendingStatus": "{0} non √® pi√π in sospeso.",
     "FailedToReplaceError": "Impossibile sostituire {0}:",
     "ConfirmUpdateTitle": "Conferma aggiornamento riferimento",
-    "ConfirmUpdateMessage": "Stai per aggiornare il file di riferimento con il Plugins.txt attuale.\n\nQuesto segner‡ le modifiche attuali come accettate e creer‡ una nuova versione nella cronologia.\n\nSei sicuro di voler continuare?",
+    "ConfirmUpdateMessage": "Stai per aggiornare il file di riferimento con il Plugins.txt attuale.\n\nQuesto segner√† le modifiche attuali come accettate e creer√† una nuova versione nella cronologia.\n\nSei sicuro di voler continuare?",
     "ReferenceUpdateCancelledStatus": "Aggiornamento riferimento annullato.",
     "DebugStateCopiedTitle": "Stato di debug copiato",
-    "DebugStateCopiedMessage": "Lo stato di debug Ë stato copiato correttamente negli appunti in formato JSON.\n\nOra puoi incollare queste informazioni per condividerle con gli sviluppatori per la risoluzione dei problemi.",
+    "DebugStateCopiedMessage": "Lo stato di debug √® stato copiato correttamente negli appunti in formato JSON.\n\nOra puoi incollare queste informazioni per condividerle con gli sviluppatori per la risoluzione dei problemi.",
     "DebugStateCopiedStatus": "Stato di debug copiato negli appunti.",
     "CopyFailedTitle": "Copia non riuscita",
     "FailedToCopyError": "Impossibile copiare lo stato di debug negli appunti"
@@ -152,11 +152,11 @@
     "SaveButtonText": "Salva",
     "CreateButtonText": "Crea",
     "CancelButtonText": "Annulla",
-    "LabelRequiredError": "L'etichetta Ë obbligatoria.",
+    "LabelRequiredError": "L'etichetta √® obbligatoria.",
     "LabelTooShortError": "L'etichetta deve contenere almeno 2 caratteri.",
     "LabelTooLongError": "L'etichetta non deve superare i 30 caratteri.",
-    "LabelReservedError": "L'etichetta 'Default' Ë riservata.",
-    "LabelDuplicateError": "Esiste gi‡ un profilo con questa etichetta.",
+    "LabelReservedError": "L'etichetta 'Default' √® riservata.",
+    "LabelDuplicateError": "Esiste gi√† un profilo con questa etichetta.",
     "DescriptionTooLongError": "La descrizione non deve superare i 500 caratteri."
   },
   "SwitchProfile": {
@@ -202,23 +202,23 @@
   "Common": {
     "ButtonOk": "OK",
     "ButtonCancel": "Annulla",
-    "ButtonYes": "SÏ",
+    "ButtonYes": "S√¨",
     "ButtonNo": "No",
     "ButtonSave": "Salva",
     "ButtonClose": "Chiudi",
-    "ConfigInvalidGuidance": "\n\nLa causa probabile Ë che la configurazione attuale non Ë valida. Si prega di consultare il messaggio di errore nella finestra principale per risolvere il problema.",
-    "ProfilesFolderRequired": "L'applicazione richiede una cartella 'Profiles' nel percorso dati dell'applicazione configurato per memorizzare i dati del profilo. Questa cartella non puÚ essere creata o accessibile. Si prega di verificare i permessi della cartella o selezionare un percorso dati dell'applicazione diverso nelle impostazioni.",
+    "ConfigInvalidGuidance": "\n\nLa causa probabile √® che la configurazione attuale non √® valida. Si prega di consultare il messaggio di errore nella finestra principale per risolvere il problema.",
+    "ProfilesFolderRequired": "L'applicazione richiede una cartella 'Profiles' nel percorso dati dell'applicazione configurato per memorizzare i dati del profilo. Questa cartella non pu√≤ essere creata o accessibile. Si prega di verificare i permessi della cartella o selezionare un percorso dati dell'applicazione diverso nelle impostazioni.",
     "ProfilesFolderAccessDenied": "Accesso negato durante la creazione della cartella Profiles. Potrebbero essere necessari i permessi di amministratore o scegliere una posizione diversa.",
-    "PluginsTxtRequired": "Il file Plugins.txt non Ë stato trovato nel percorso dati dell'applicazione configurato. Questo file Ë necessario per il funzionamento dell'applicazione. Assicurati di aver eseguito Starfield almeno una volta per generare questo file, o seleziona la cartella dati dell'applicazione corretta nelle impostazioni.",
+    "PluginsTxtRequired": "Il file Plugins.txt non √® stato trovato nel percorso dati dell'applicazione configurato. Questo file √® necessario per il funzionamento dell'applicazione. Assicurati di aver eseguito Starfield almeno una volta per generare questo file, o seleziona la cartella dati dell'applicazione corretta nelle impostazioni.",
     "ErrorPrefix": "ERRORE: {0}"
   },
   "StatusCoordinator": {
     "InitializingApplication": "Inizializzazione applicazione...",
-    "ReadyConfigValid": "Pronto. La configurazione Ë valida.",
-    "ConfigRequired": "» richiesta la configurazione. Si prega di impostare i percorsi nella finestra Impostazioni."
+    "ReadyConfigValid": "Pronto. La configurazione √® valida.",
+    "ConfigRequired": "√à richiesta la configurazione. Si prega di impostare i percorsi nella finestra Impostazioni."
   },
   "FileMonitoring": {
-    "SteamWarningTooltip": "Steam non Ë in esecuzione. SFSE richiede che Steam sia aperto per funzionare correttamente.",
+    "SteamWarningTooltip": "Steam non √® in esecuzione. SFSE richiede che Steam sia aperto per funzionare correttamente.",
     "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
     "SortingRecommended": "Ordinamento consigliato: esegui Fix Load Order prima di risolvere altre modifiche."
   }

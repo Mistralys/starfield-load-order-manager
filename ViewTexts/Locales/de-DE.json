@@ -1,4 +1,6 @@
 {
+  "LocaleName": "Deutsch",
+  "ParentCulture": "de",
   "MainWindow": {
     "ConfigErrorBannerText": "Pfadkonfigurationsfehler, bitte überprüfen Sie die konfigurierten Pfade.",
     "OpenSettingsButtonText": "Einstellungen öffnen",
@@ -76,6 +78,7 @@
     "WindowTitle": "Einstellungen",
     "AppDataPathLabel": "Starfield App Data Pfad:",
     "GamePathLabel": "Starfield Spielpfad:",
+    "LanguageLabel": "Sprache:",
     "DetectedPathsLabel": "Erkannte Pfade",
     "BrowseButtonText": "Durchsuchen...",
     "UseDetectedAppDataButtonText": "Erkannten Pfad verwenden",
@@ -91,7 +94,9 @@
     "PluginsTxtNotFoundMessage": "Plugins.txt im App-Datenordner nicht gefunden",
     "ProfilesFolderAccessDeniedMessage": "Zugriff verweigert beim Erstellen des Profilordners",
     "ProfilesFolderCannotBeCreatedMessage": "Der Profilordner kann nicht erstellt oder aufgerufen werden",
-    "BothPathsInvalidMessage": "Sowohl der Spielpfad als auch der App-Datenpfad sind ungültig."
+    "BothPathsInvalidMessage": "Sowohl der Spielpfad als auch der App-Datenpfad sind ungültig.",
+    "LanguageAutomatic": "Automatisch",
+    "LanguageRestartRequired": "Sprachänderungen werden nach einem Neustart der Anwendung wirksam."
   },
   "DiffDialog": {
     "WindowTitle": "Ladereihenfolge-Änderungen",

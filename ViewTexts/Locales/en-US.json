@@ -1,4 +1,6 @@
 {
+  "LocaleName": "English",
+  "ParentCulture": "en",
   "MainWindow": {
     "ConfigErrorBannerText": "Path configuration error, please review the configured paths.",
     "OpenSettingsButtonText": "Open settings",
@@ -76,6 +78,7 @@
     "WindowTitle": "Settings",
     "AppDataPathLabel": "Starfield App Data Path:",
     "GamePathLabel": "Starfield Game Path:",
+    "LanguageLabel": "Language:",
     "DetectedPathsLabel": "Detected Paths",
     "BrowseButtonText": "Browse...",
     "UseDetectedAppDataButtonText": "Use Detected Path",
@@ -91,7 +94,9 @@
     "PluginsTxtNotFoundMessage": "Plugins.txt not found in the app data folder",
     "ProfilesFolderAccessDeniedMessage": "Access denied when creating the Profiles folder",
     "ProfilesFolderCannotBeCreatedMessage": "The Profiles folder cannot be created or accessed",
-    "BothPathsInvalidMessage": "Both the game path and app data path are invalid."
+    "BothPathsInvalidMessage": "Both the game path and app data path are invalid.",
+    "LanguageAutomatic": "Automatic",
+    "LanguageRestartRequired": "Language changes will take effect after restarting the application."
   },
   "DiffDialog": {
     "WindowTitle": "Load Order Changes",

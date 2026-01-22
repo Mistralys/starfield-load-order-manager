@@ -1,4 +1,6 @@
 {
+  "LocaleName": "Italiano",
+  "ParentCulture": "it",
   "MainWindow": {
     "ConfigErrorBannerText": "Errore di configurazione del percorso, si prega di controllare i percorsi configurati.",
     "OpenSettingsButtonText": "Apri impostazioni",
@@ -76,6 +78,7 @@
     "WindowTitle": "Impostazioni",
     "AppDataPathLabel": "Percorso dati applicazione Starfield:",
     "GamePathLabel": "Percorso gioco Starfield:",
+    "LanguageLabel": "Lingua:",
     "DetectedPathsLabel": "Percorsi rilevati",
     "BrowseButtonText": "Sfoglia...",
     "UseDetectedAppDataButtonText": "Usa percorso rilevato",
@@ -91,7 +94,9 @@
     "PluginsTxtNotFoundMessage": "Plugins.txt non trovato nella cartella dati dell'applicazione",
     "ProfilesFolderAccessDeniedMessage": "Accesso negato durante la creazione della cartella Profiles",
     "ProfilesFolderCannotBeCreatedMessage": "La cartella Profiles non può essere creata o accessibile",
-    "BothPathsInvalidMessage": "Sia il percorso del gioco che il percorso dei dati dell'applicazione non sono validi."
+    "BothPathsInvalidMessage": "Sia il percorso del gioco che il percorso dei dati dell'applicazione non sono validi.",
+    "LanguageAutomatic": "Automatico",
+    "LanguageRestartRequired": "Le modifiche alla lingua avranno effetto dopo il riavvio dell'applicazione."
   },
   "DiffDialog": {
     "WindowTitle": "Modifiche all'ordine di caricamento",

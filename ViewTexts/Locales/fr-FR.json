@@ -1,4 +1,6 @@
 {
+  "LocaleName": "Français",
+  "ParentCulture": "fr",
   "MainWindow": {
     "ConfigErrorBannerText": "Erreur de configuration du chemin, veuillez vérifier les chemins configurés.",
     "OpenSettingsButtonText": "Ouvrir les paramètres",
@@ -74,8 +76,9 @@
   },
   "Settings": {
     "WindowTitle": "Paramètres",
-    "AppDataPathLabel": "Chemin App Data de Starfield :",
+    "AppDataPathLabel": "Chemin des données d'application Starfield :",
     "GamePathLabel": "Chemin du jeu Starfield :",
+    "LanguageLabel": "Langue :",
     "DetectedPathsLabel": "Chemins détectés",
     "BrowseButtonText": "Parcourir...",
     "UseDetectedAppDataButtonText": "Utiliser le chemin détecté",
@@ -83,15 +86,17 @@
     "SaveButtonText": "Enregistrer",
     "CancelButtonText": "Annuler",
     "ValidConfigMessage": "Les chemins configurés sont valides.",
-    "InvalidAppDataMessage": "Le chemin des données d'application est invalide",
-    "InvalidGamePathMessage": "Le chemin du jeu est invalide",
+    "InvalidAppDataMessage": "Le chemin des données d'application n'est pas valide",
+    "InvalidGamePathMessage": "Le chemin du jeu n'est pas valide",
     "AppDataNotConfiguredMessage": "Le chemin des données d'application n'est pas configuré",
     "GamePathNotConfiguredMessage": "Le chemin du jeu n'est pas configuré",
     "GameDataFolderNotFoundMessage": "Le dossier Data du jeu n'a pas été trouvé",
     "PluginsTxtNotFoundMessage": "Plugins.txt introuvable dans le dossier des données d'application",
     "ProfilesFolderAccessDeniedMessage": "Accès refusé lors de la création du dossier Profiles",
     "ProfilesFolderCannotBeCreatedMessage": "Le dossier Profiles ne peut pas être créé ou accessible",
-    "BothPathsInvalidMessage": "Le chemin du jeu et le chemin des données d'application sont tous deux invalides."
+    "BothPathsInvalidMessage": "Le chemin du jeu et le chemin des données d'application sont tous deux non valides.",
+    "LanguageAutomatic": "Automatique",
+    "LanguageRestartRequired": "Les modifications de langue prendront effet après le redémarrage de l'application."
   },
   "DiffDialog": {
     "WindowTitle": "Modifications de l'ordre de chargement",

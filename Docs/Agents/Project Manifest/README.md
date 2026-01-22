@@ -30,7 +30,7 @@ This manifest is split into logical sections for easier maintenance:
 - **Target Framework**: .NET 9
 - **UI Framework**: WPF with MaterialDesign v5
 - **Architecture**: MVVM + Coordinator Pattern + Instance Services
-- **Localization**: JSON-based, 3 languages (en-US, de-DE, fr-FR), 189 strings
+- **Localization**: JSON-based, 5 languages (en-US, de-DE, fr-FR, es-ES, it-IT), 189 strings
 - **Key Coordinators**: FileMonitoring, Status, UpdateCheck, Profile, Configuration, GameLauncher, WindowManager
 - **Static Services**: Settings, File, Profile, Diff, ReferenceHistory, UpdateCheck, Version, DateTimeFormatting, ErrorLogging, DebugState
 - **Instance Services**: FileOperations, ReferenceManagement, WindowLifecycle, ViewModelInitializer

@@ -365,6 +365,8 @@ public sealed class LocalizationService : ObservableObject
 - `en-US` (English - default fallback)
 - `de-DE` (German)
 - `fr-FR` (French)
+- `es-ES` (Spanish)
+- `it-IT` (Italian)
 
 **JSON File Location:** `ViewTexts/Locales/{culture}.json`
 

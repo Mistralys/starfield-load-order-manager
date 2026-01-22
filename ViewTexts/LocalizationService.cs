@@ -81,6 +81,8 @@ namespace LoadOrderKeeper.ViewTexts
                         "fr" => "fr-FR",
                         "de" => "de-DE",
                         "en" => "en-US",
+                        "es" => "es-ES",
+                        "it" => "it-IT",
                         _ => null
                     };
                     

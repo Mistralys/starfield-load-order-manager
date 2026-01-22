@@ -227,6 +227,13 @@ namespace LoadOrderKeeper.ViewTexts
                 {
                     var sectionName = section.Name;
                     
+                    // Skip root-level metadata properties (LocaleName, ParentCulture, etc.)
+                    // These are strings, not objects with nested translations
+                    if (section.Value.ValueKind != JsonValueKind.Object)
+                    {
+                        continue;
+                    }
+                    
                     foreach (var entry in section.Value.EnumerateObject())
                     {
                         var key = entry.Name;

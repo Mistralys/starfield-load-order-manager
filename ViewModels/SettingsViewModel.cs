@@ -95,7 +95,10 @@ namespace LoadOrderKeeper.ViewModels
 
         partial void OnSelectedLanguageChanged(string value)
         {
-            LanguageChanged = true;
+            // Check if the selected language differs from the session start culture
+            // SessionStartCulture is set once when the app starts and persists for the entire session
+            var locService = ViewTexts.LocalizationService.Instance;
+            LanguageChanged = value != locService.SessionStartCulture;
         }
 
         [RelayCommand]

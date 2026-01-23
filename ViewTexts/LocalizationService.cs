@@ -19,6 +19,7 @@ namespace LoadOrderKeeper.ViewTexts
         private readonly object _lock = new object();
         private Dictionary<string, Dictionary<string, string>> _translations = new();
         private string _currentCulture = "en-US";
+        private string? _sessionStartCulture; // Culture that was active when app started
         private readonly string _localesPath;
 
         /// <summary>
@@ -39,6 +40,12 @@ namespace LoadOrderKeeper.ViewTexts
             get => _currentCulture;
             private set => SetProperty(ref _currentCulture, value);
         }
+        
+        /// <summary>
+        /// Gets the culture that was active when the application session started.
+        /// This is set once during initialization and remains constant for the session.
+        /// </summary>
+        public string SessionStartCulture => _sessionStartCulture ?? _currentCulture;
 
         private LocalizationService()
         {
@@ -49,6 +56,7 @@ namespace LoadOrderKeeper.ViewTexts
             // Detect system culture and load appropriate language
             var systemCulture = DetectSystemCulture();
             _currentCulture = systemCulture;
+            _sessionStartCulture = systemCulture; // Set session start culture
             LoadCulture(_currentCulture);
         }
 
@@ -151,6 +159,11 @@ namespace LoadOrderKeeper.ViewTexts
             if (string.IsNullOrWhiteSpace(preferredLanguage) || preferredLanguage == "auto")
             {
                 // Auto-detect already happened in constructor, just ensure it's loaded
+                // Set session start culture if not already set
+                if (_sessionStartCulture == null)
+                {
+                    _sessionStartCulture = _currentCulture;
+                }
                 return;
             }
 
@@ -158,10 +171,21 @@ namespace LoadOrderKeeper.ViewTexts
             try
             {
                 SetCulture(preferredLanguage);
+                
+                // Set session start culture if not already set
+                if (_sessionStartCulture == null)
+                {
+                    _sessionStartCulture = preferredLanguage;
+                }
             }
             catch
             {
                 // If preferred language fails to load, keep the auto-detected one
+                // Set session start culture to fallback
+                if (_sessionStartCulture == null)
+                {
+                    _sessionStartCulture = _currentCulture;
+                }
             }
         }
 

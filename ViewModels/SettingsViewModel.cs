@@ -39,6 +39,9 @@ namespace LoadOrderKeeper.ViewModels
         public bool HasDetectedGamePath => !string.IsNullOrWhiteSpace(DetectedGamePath);
         
         public List<LanguageOption> AvailableLanguages { get; }
+        
+        // Localized texts for UI bindings
+        public SettingsWindowTexts Texts { get; } = new();
 
         public event EventHandler? BrowseAppDataRequested;
         public event EventHandler? BrowseGamePathRequested;

@@ -243,11 +243,11 @@
                                             Height="20"
                                             VerticalAlignment="Center"
                                             Margin="0,0,8,0"
-                                            Foreground="{DynamicResource MaterialDesignPaper}" />
+                                            Foreground="{DynamicResource MaterialDesignBodyLight}" />
                     <TextBlock Grid.Column="1"
                               Text="{Binding Texts.LanguageRestartRequired}"
                               d:Text="Language changes will take effect after restarting the application."
-                              Foreground="{DynamicResource MaterialDesignPaper}"
+                              Foreground="{DynamicResource MaterialDesignBodyLight}"
                               TextWrapping="Wrap"
                               VerticalAlignment="Center" />
                 </Grid>

@@ -143,7 +143,13 @@
     "RemoveModMenuText": "Supprimer le mod",
     "CopyDebugStateMenuText": "Copier l'état de débogage",
     "FixLoadOrderButtonText": "Corriger l'ordre",
-    "SortingInsertedWarning": "IMPORTANT : Des mods ont été insérés au milieu de l'ordre de chargement. Triez d'abord la liste pour les déplacer à la fin avant d'effectuer d'autres modifications."
+    "SortingInsertedWarning": "IMPORTANT : Des mods ont été insérés au milieu de l'ordre de chargement. Triez d'abord la liste pour les déplacer à la fin avant d'effectuer d'autres modifications.",
+    "ReplacedText_Description": "{0} remplacé par {1} à la ligne {2}",
+    "RemovedText_Description": "#{0}: {1} supprimé de l'ordre de chargement",
+    "InsertedText_Action": "inséré dans",
+    "AddedText_Action": "ajouté à",
+    "ModChangeText_Description": "#{0}: {1} {2} l'ordre de chargement",
+    "MovedText_Description": "{0} déplacé de #{1} vers #{2}"
   },
   "ManageProfiles": {
     "WindowTitle": "Gérer les profils",
@@ -198,7 +204,9 @@
     "WindowTitleOptions": "Options de téléchargement",
     "NexusmodsButtonText": "Ouvrir sur Nexusmods",
     "GitHubButtonText": "Ouvrir sur GitHub",
-    "CancelButtonText": "Annuler"
+    "CancelButtonText": "Annuler",
+    "MessageUpdateAvailable": "Une nouvelle version est disponible !\n\nVersion actuelle : {0}\nDernière version : {1}\n\nChoisissez votre source de téléchargement préférée :",
+    "MessageCheckFailed": "Impossible de vérifier les mises à jour automatiquement.\n\nVersion actuelle : {0}\n\nVous pouvez vérifier manuellement les mises à jour à ces emplacements :"
   },
   "ViewPendingChanges": {
     "WindowTitle": "Modifications en attente",
@@ -232,5 +240,10 @@
     "SteamWarningTooltip": "Steam n'est pas en cours d'exécution. SFSE nécessite que Steam soit ouvert pour fonctionner correctement.",
     "SortingInsertedWarning": "IMPORTANT : Des mods ont été insérés au milieu de l'ordre de chargement. Triez d'abord la liste pour les déplacer à la fin avant d'effectuer d'autres modifications.",
     "SortingRecommended": "Tri recommandé : exécutez Corriger l'ordre de chargement avant de résoudre d'autres modifications."
+  },
+  "ConfigInvalidOverlay": {
+    "Title": "Configuration requise",
+    "MessageLine1": "Veuillez corriger la configuration dans les paramètres de la fenêtre principale.",
+    "MessageLine2": "Cette fenêtre deviendra utilisable lorsque la configuration sera valide."
   }
 }

@@ -40,7 +40,7 @@
   },
   "About": {
     "ApplicationName": "Starfield Load Order Keeper",
-    "Description": "Uno strumento per aiutare a gestire e mantenere l'ordine di caricamento delle tue mod di Starfield una volta iniziato un gioco.",
+    "Description": "Uno strumento per aiutare a gestire e mantenere l'ordine di carreggiamento delle tue mod di Starfield una volta iniziato un gioco.",
     "HomepageButtonText": "Pagina principale",
     "CloseButtonText": "Chiudi",
     "VersionLabelText": "Versione",
@@ -143,7 +143,13 @@
     "RemoveModMenuText": "Rimuovi mod",
     "CopyDebugStateMenuText": "Copia stato di debug",
     "FixLoadOrderButtonText": "Correggi ordine",
-    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche."
+    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
+    "ReplacedText_Description": "{0} sostituito con {1} alla riga {2}",
+    "RemovedText_Description": "#{0}: {1} rimosso dall'ordine di caricamento",
+    "InsertedText_Action": "inserito in",
+    "AddedText_Action": "aggiunto a",
+    "ModChangeText_Description": "#{0}: {1} {2} l'ordine di caricamento",
+    "MovedText_Description": "{0} spostato da #{1} a #{2}"
   },
   "ManageProfiles": {
     "WindowTitle": "Gestisci profili",
@@ -198,7 +204,9 @@
     "WindowTitleOptions": "Opzioni di download",
     "NexusmodsButtonText": "Apri su Nexusmods",
     "GitHubButtonText": "Apri su GitHub",
-    "CancelButtonText": "Annulla"
+    "CancelButtonText": "Annulla",
+    "MessageUpdateAvailable": "È disponibile una nuova versione!\n\nVersione attuale: {0}\nUltima versione: {1}\n\nScegli la tua fonte di download preferita:",
+    "MessageCheckFailed": "Impossibile verificare gli aggiornamenti automaticamente.\n\nVersione attuale: {0}\n\nPuoi verificare manualmente gli aggiornamenti in queste posizioni:"
   },
   "ViewPendingChanges": {
     "WindowTitle": "Modifiche in sospeso",
@@ -232,5 +240,10 @@
     "SteamWarningTooltip": "Steam non è in esecuzione. SFSE richiede che Steam sia aperto per funzionare correttamente.",
     "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
     "SortingRecommended": "Ordinamento consigliato: esegui Fix Load Order prima di risolvere altre modifiche."
+  },
+  "ConfigInvalidOverlay": {
+    "Title": "Configurazione richiesta",
+    "MessageLine1": "Correggere la configurazione nelle impostazioni della finestra principale.",
+    "MessageLine2": "Questa finestra diventerà utilizzabile quando la configurazione sarà valida."
   }
 }

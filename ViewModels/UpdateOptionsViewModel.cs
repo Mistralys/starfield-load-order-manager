@@ -29,12 +29,12 @@ public partial class UpdateOptionsViewModel : ObservableObject
         if (string.IsNullOrEmpty(latestVersion) || latestVersion == "Unknown")
         {
             WindowTitle = _texts.WindowTitleOptions;
-            MessageText = $"Unable to check for updates automatically.\n\nCurrent version: {currentVersion}\n\nYou can check for updates manually at these locations:";
+            MessageText = string.Format(_texts.MessageCheckFailed, currentVersion);
         }
         else
         {
             WindowTitle = _texts.WindowTitleDownload;
-            MessageText = $"A new version is available!\n\nCurrent version: {currentVersion}\nLatest version: {latestVersion}\n\nChoose your preferred download source:";
+            MessageText = string.Format(_texts.MessageUpdateAvailable, currentVersion, latestVersion);
         }
     }
 

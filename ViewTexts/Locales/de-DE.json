@@ -143,7 +143,13 @@
     "RemoveModMenuText": "Mod entfernen",
     "CopyDebugStateMenuText": "Debug-Status kopieren",
     "FixLoadOrderButtonText": "Ladereihenfolge korrigieren",
-    "SortingInsertedWarning": "WICHTIG: Mods wurden in die Mitte der Ladereihenfolge eingefügt. Sortieren Sie die Liste zuerst, um sie ans Ende zu verschieben, bevor Sie andere Änderungen vornehmen."
+    "SortingInsertedWarning": "WICHTIG: Mods wurden in die Mitte der Ladereihenfolge eingefügt. Sortieren Sie die Liste zuerst, um sie ans Ende zu verschieben, bevor Sie andere Änderungen vornehmen.",
+    "ReplacedText_Description": "{0} durch {1} in Zeile {2} ersetzt",
+    "RemovedText_Description": "#{0}: {1} aus der Ladereihenfolge entfernt",
+    "InsertedText_Action": "eingefügt in",
+    "AddedText_Action": "hinzugefügt zu",
+    "ModChangeText_Description": "#{0}: {1} {2} Ladereihenfolge",
+    "MovedText_Description": "{0} von #{1} nach #{2} verschoben"
   },
   "ManageProfiles": {
     "WindowTitle": "Profile verwalten",
@@ -198,7 +204,9 @@
     "WindowTitleOptions": "Download-Optionen",
     "NexusmodsButtonText": "Auf Nexusmods öffnen",
     "GitHubButtonText": "Auf GitHub öffnen",
-    "CancelButtonText": "Abbrechen"
+    "CancelButtonText": "Abbrechen",
+    "MessageUpdateAvailable": "Eine neue Version ist verfügbar!\n\nAktuelle Version: {0}\nNeueste Version: {1}\n\nWählen Sie Ihre bevorzugte Download-Quelle:",
+    "MessageCheckFailed": "Automatische Update-Prüfung nicht möglich.\n\nAktuelle Version: {0}\n\nSie können manuell nach Updates an diesen Orten suchen:"
   },
   "ViewPendingChanges": {
     "WindowTitle": "Ausstehende Änderungen",
@@ -232,5 +240,10 @@
     "SteamWarningTooltip": "Steam läuft nicht. SFSE benötigt Steam, um korrekt zu funktionieren.",
     "SortingInsertedWarning": "WICHTIG: Mods wurden in die Mitte der Ladereihenfolge eingefügt. Sortieren Sie die Liste zuerst, um sie ans Ende zu verschieben, bevor Sie andere Änderungen vornehmen.",
     "SortingRecommended": "Sortierung empfohlen: Führen Sie 'Ladereihenfolge korrigieren' aus, bevor Sie andere Änderungen vornehmen."
+  },
+  "ConfigInvalidOverlay": {
+    "Title": "Konfiguration erforderlich",
+    "MessageLine1": "Bitte beheben Sie die Konfiguration in den Einstellungen des Hauptfensters.",
+    "MessageLine2": "Dieses Fenster wird verwendbar, sobald die Konfiguration gültig ist."
   }
 }

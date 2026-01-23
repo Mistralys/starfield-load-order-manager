@@ -113,6 +113,9 @@ namespace LoadOrderKeeper.ViewModels
                 GetReadyStatusMessage,
                 UpdateCoordinatorsWithConfig);
 
+            // Initialize localized button text
+            ShowChangesButtonText = MainWindowTexts.ShowChangesButtonText;
+
             // Use CoordinatorEventBinder to consolidate property change forwarding
             var binder = new CoordinatorEventBinder(OnPropertyChanged);
 

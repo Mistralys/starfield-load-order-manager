@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.8.0 - Language Selection
+- Configuration: The app language can be changed in the settings.
+- General: Added support for multiple languages. Uses the system language by default ([#10](https://github.com/Mistralys/starfield-load-order-manager/issues/10)).
+- General: Added translations: German, French, Spanish, Italian.
+
 ## v1.7.3 - Bug Fix
 - Fixed: Exception on startup when no configuration exists.
 - Configuration: Removed the automatic opening of the config window ([#27](https://github.com/Mistralys/starfield-load-order-manager/pull/27)).

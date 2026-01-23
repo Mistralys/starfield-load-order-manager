@@ -1,6 +1,7 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels
 {
@@ -32,6 +33,8 @@ namespace LoadOrderKeeper.ViewModels
 
     public partial class ConfirmationDialogViewModel : ObservableObject
     {
+        private readonly ConfirmationDialogTexts _texts = new();
+
         [ObservableProperty]
         private string _title = string.Empty;
 
@@ -74,10 +77,10 @@ namespace LoadOrderKeeper.ViewModels
         public bool ShowYesButton => Buttons == ConfirmationButton.YesNo || Buttons == ConfirmationButton.YesNoCancel;
         public bool ShowNoButton => Buttons == ConfirmationButton.YesNo || Buttons == ConfirmationButton.YesNoCancel;
 
-        public string OKButtonText { get; } = "OK";
-        public string CancelButtonText { get; } = "Cancel";
-        public string YesButtonText { get; } = "Yes";
-        public string NoButtonText { get; } = "No";
+        public string OKButtonText => _texts.OkButtonText;
+        public string CancelButtonText => _texts.CancelButtonText;
+        public string YesButtonText => _texts.YesButtonText;
+        public string NoButtonText => _texts.NoButtonText;
 
         public event EventHandler? DialogResultChanged;
 

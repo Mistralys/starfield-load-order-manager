@@ -1,38 +1,41 @@
+using LoadOrderKeeper.ViewTexts;
+
 namespace LoadOrderKeeper.Constants
 {
     /// <summary>
     /// Centralized user-facing messages for consistent communication and easy localization.
+    /// This class now serves as a facade over the LocalizationService.
     /// </summary>
     public static class UserMessages
     {
+        private static readonly LocalizationService _localization = LocalizationService.Instance;
+
         /// <summary>
         /// Guidance message to append to error messages when configuration is invalid.
         /// Directs the user to check the main window for the configuration error banner.
         /// </summary>
-        public const string ConfigInvalidGuidance = 
-            "\n\nThe likely cause is that the current configuration is invalid. Please refer to the error message in the main window to fix this.";
+        public static string ConfigInvalidGuidance => _localization.GetString("Common", "ConfigInvalidGuidance");
         
         /// <summary>
         /// Error message when the Profiles folder cannot be created or accessed.
         /// Provides actionable guidance to the user.
         /// </summary>
-        public const string ProfilesFolderRequired = 
-            "The application requires a 'Profiles' folder in your configured app data path to store profile data. " +
-            "This folder could not be created or accessed. Please check folder permissions or select a different app data path in settings.";
+        public static string ProfilesFolderRequired => _localization.GetString("Common", "ProfilesFolderRequired");
         
         /// <summary>
         /// Error message specifically for access denied errors on the Profiles folder.
         /// </summary>
-        public const string ProfilesFolderAccessDenied = 
-            "Access denied when creating the Profiles folder. You may need administrator rights or to choose a different location.";
+        public static string ProfilesFolderAccessDenied => _localization.GetString("Common", "ProfilesFolderAccessDenied");
         
         /// <summary>
         /// Error message when Plugins.txt is not found in the app data folder.
         /// Directs the user to run Starfield to generate the file.
         /// </summary>
-        public const string PluginsTxtRequired = 
-            "The Plugins.txt file was not found in the configured app data path. " +
-            "This file is required for the application to function. " +
-            "Please ensure you have run Starfield at least once to generate this file, or select the correct app data folder in settings.";
+        public static string PluginsTxtRequired => _localization.GetString("Common", "PluginsTxtRequired");
+        
+        /// <summary>
+        /// Format string for error messages. {0} is the error details.
+        /// </summary>
+        public static string ErrorPrefix => _localization.GetString("Common", "ErrorPrefix");
     }
 }

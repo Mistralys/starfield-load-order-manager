@@ -30,7 +30,110 @@ This manifest is split into logical sections for easier maintenance:
 - **Target Framework**: .NET 9
 - **UI Framework**: WPF with MaterialDesign v5
 - **Architecture**: MVVM + Coordinator Pattern + Instance Services
+- **Localization**: JSON-based with zero-hardcoding architecture
+  - **Supported Languages**: 5 (English, German, French, Spanish, Italian)
+  - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT
+  - **Total Strings**: 189 translated strings per locale
+  - **User-Selectable**: Language preference dropdown in Settings
+  - **Auto-Detection**: Automatic system locale detection
+  - **Extensibility**: New languages require only JSON file (no code changes)
 - **Key Coordinators**: FileMonitoring, Status, UpdateCheck, Profile, Configuration, GameLauncher, WindowManager
 - **Static Services**: Settings, File, Profile, Diff, ReferenceHistory, UpdateCheck, Version, DateTimeFormatting, ErrorLogging, DebugState
 - **Instance Services**: FileOperations, ReferenceManagement, WindowLifecycle, ViewModelInitializer
-- **Helper Classes**: CoordinatorEventBinder, MenuViewModel
+- **Localization Services**: LocalizationService (singleton), LocalizationJsonNormalizer
+- **Helper Classes**: CoordinatorEventBinder, MenuViewModel, LanguageOption
+- **Text ViewModels**: 15 ViewModels providing localized strings for UI
+
+---
+
+## Localization Architecture
+
+### Zero-Hardcoding Design
+
+The localization system uses a **zero-hardcoding architecture** where adding a new language requires **only a JSON file**:
+
+```json
+{
+  "LocaleName": "Português (Brasil)",
+  "ParentCulture": "pt",
+  "MainWindow": { "key": "translated value" },
+  "Settings": { "key": "translated value" }
+}
+```
+
+No C# code changes, no compilation, no hardcoded mappings. The system automatically:
+- Discovers new locale files via file system scanning
+- Reads display names from `LocaleName` property
+- Maps parent cultures via `ParentCulture` property
+- Populates language dropdown dynamically
+- Supports automatic system locale detection
+
+### Locale File Structure
+
+Each locale file (`en-US.json`, `de-DE.json`, etc.) contains:
+
+**Root-level metadata** (used by LocalizationService):
+- `LocaleName`: Native language name (e.g., "Deutsch", "Français")
+- `ParentCulture`: Two-letter ISO 639-1 code (e.g., "de", "fr")
+
+**Translation sections** (used by ViewModels):
+- `MainWindow`: Main window strings
+- `Menu`: Menu and status bar strings
+- `Settings`: Settings window strings
+- `ErrorDialog`: Error dialog strings
+- `About`: About window strings
+- `DiffDialog`: Load order changes dialog strings
+- `ManageProfiles`: Profile management window strings
+- `ProfileProperties`: Profile creation/editing strings
+- `SwitchProfile`: Profile switching dialog strings
+- `ReferenceHistory`: Reference version history strings
+- `UpdateOptions`: Update download options strings
+- `ViewPendingChanges`: Pending changes window strings
+- `CommentInput`: Comment input dialog strings
+- `ConfirmationDialog`: Generic confirmation dialog strings
+- `Common`: Shared strings across dialogs
+- `StatusCoordinator`: Status message strings
+- `FileMonitoring`: File monitoring warning strings
+
+### Language Preference System
+
+**User-facing features**:
+- Language dropdown in Settings window (6 options: Automatic + 5 languages)
+- Automatic system locale detection (when set to "Automatic")
+- Persistence across application restarts
+- Restart notification banner when language changes
+
+**Configuration**:
+- Stored in `config.json` as `PreferredLanguage` property
+- Values: `"auto"` (default), `"en-US"`, `"de-DE"`, `"fr-FR"`, `"es-ES"`, `"it-IT"`
+- Applied on application startup via `ViewModelInitializer`
+
+**Implementation details**:
+- `LocalizationService.GetLocaleName()`: Reads native name from JSON
+- `LocalizationService.BuildParentCultureMap()`: Scans all files for parent mappings
+- `LocalizationService.DetectSystemCulture()`: Uses dynamic parent mapping
+- `SettingsViewModel.BuildLanguageList()`: Dynamically populates dropdown
+- `LanguageOption` model: Holds `Code` and `DisplayName` for dropdown
+
+---
+
+## Adding a New Language
+
+To add a new language (e.g., Portuguese):
+
+1. **Copy** `en-US.json` to `pt-BR.json`
+2. **Set metadata**:
+   ```json
+   {
+     "LocaleName": "Português (Brasil)",
+     "ParentCulture": "pt",
+     ...
+   }
+   ```
+3. **Translate** all string values
+4. **Build** application (to include content file)
+5. **Done** - Language appears in dropdown automatically
+
+**No code changes required. No compilation needed for translations.**
+
+---

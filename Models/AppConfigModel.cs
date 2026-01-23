@@ -7,6 +7,11 @@ namespace LoadOrderKeeper.Models
         public string StarfieldAppDataPath { get; set; } = string.Empty;
         public string StarfieldGamePath { get; set; } = string.Empty;
         public string? ActiveProfileId { get; set; } = "default";
+        
+        /// <summary>
+        /// Preferred UI language. Use "auto" to detect system locale, or a specific culture code (e.g., "en-US", "fr-FR").
+        /// </summary>
+        public string PreferredLanguage { get; set; } = "auto";
 
         public bool IsValid()
         {

@@ -5,8 +5,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Load Order Keeper Settings"
-        Height="394"
+        Title="{Binding Texts.WindowTitle}"
+        d:Title="Load Order Keeper Settings"
+        SizeToContent="Height"
         Width="640"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -83,17 +84,22 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
+            <!-- AppData Path -->
             <TextBlock Grid.Row="0"
                        Grid.Column="0"
                        Grid.ColumnSpan="2"
                        Margin="0,0,0,4"
-                       Text="Starfield AppData Path:"
+                       Text="{Binding Texts.AppDataPathLabel}"
+                       d:Text="Starfield AppData Path:"
                        Foreground="{DynamicResource MaterialDesignBodyLight}" />
             <TextBox x:Name="AppDataPathTextBox"
                      Grid.Row="1"
@@ -102,12 +108,13 @@
                      MinWidth="360"
                      Text="{Binding StarfieldAppDataPath, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                     materialDesign:HintAssist.Hint="Starfield AppData Path"
+                     materialDesign:HintAssist.Hint="{Binding Texts.AppDataPathLabel}"
                      Foreground="{DynamicResource MaterialDesignBodyLight}" />
             <Button Grid.Row="1"
                     Grid.Column="1"
-                    Content="Browse..."
-                    Width="90"
+                    Content="{Binding Texts.BrowseButtonText}"
+                    d:Content="Browse..."
+                    MinWidth="90"
                     Margin="0,0,0,8"
                     Command="{Binding BrowseAppDataCommand}"
                     Style="{StaticResource MaterialDesignRaisedButton}" />
@@ -117,7 +124,8 @@
                         Grid.ColumnSpan="2"
                         Orientation="Horizontal"
                         Margin="0,0,0,8">
-                <TextBlock Text="Detected: "
+                <TextBlock Text="{Binding Texts.DetectedPathsLabel}"
+                           d:Text="Detected: "
                            FontSize="11"
                            Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 <Button Style="{StaticResource MaterialDesignFlatButton}"
@@ -140,11 +148,13 @@
                            Style="{StaticResource InverseBooleanToVisibilityStyle}" />
             </StackPanel>
 
+            <!-- Game Path -->
             <TextBlock Grid.Row="3"
                        Grid.Column="0"
                        Grid.ColumnSpan="2"
                        Margin="0,8,0,4"
-                       Text="Starfield Game Path:"
+                       Text="{Binding Texts.GamePathLabel}"
+                       d:Text="Starfield Game Path:"
                        Foreground="{DynamicResource MaterialDesignBodyLight}" />
             <TextBox x:Name="GamePathTextBox"
                      Grid.Row="4"
@@ -152,12 +162,13 @@
                      Margin="0,0,8,8"
                      Text="{Binding StarfieldGamePath, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                     materialDesign:HintAssist.Hint="Starfield Game Path"
+                     materialDesign:HintAssist.Hint="{Binding Texts.GamePathLabel}"
                      Foreground="{DynamicResource MaterialDesignBodyLight}" />
             <Button Grid.Row="4"
                     Grid.Column="1"
-                    Content="Browse..."
-                    Width="90"
+                    Content="{Binding Texts.BrowseButtonText}"
+                    d:Content="Browse..."
+                    MinWidth="90"
                     Margin="0,0,0,8"
                     Command="{Binding BrowseGamePathCommand}"
                     Style="{StaticResource MaterialDesignRaisedButton}" />
@@ -167,7 +178,8 @@
                         Grid.ColumnSpan="2"
                         Orientation="Horizontal"
                         Margin="0,0,0,8">
-                <TextBlock Text="Detected: "
+                <TextBlock Text="{Binding Texts.DetectedPathsLabel}"
+                           d:Text="Detected: "
                            FontSize="11"
                            Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 <Button Style="{StaticResource MaterialDesignFlatButton}"
@@ -190,13 +202,66 @@
                            Style="{StaticResource InverseBooleanToVisibilityStyle}" />
             </StackPanel>
 
-            <StackPanel Grid.Row="6"
+            <!-- Language Selection -->
+            <TextBlock Grid.Row="6"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Margin="0,8,0,4"
+                       Text="{Binding Texts.LanguageLabel}"
+                       d:Text="Language:"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <ComboBox Grid.Row="7"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="2"
+                      Margin="0,0,0,8"
+                      ItemsSource="{Binding AvailableLanguages}"
+                      SelectedValue="{Binding SelectedLanguage}"
+                      DisplayMemberPath="DisplayName"
+                      SelectedValuePath="Code"
+                      materialDesign:HintAssist.Hint="{Binding Texts.LanguageLabel}"
+                      d:Text="English"
+                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}" />
+
+            <!-- Language Change Warning -->
+            <Border Grid.Row="8"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Background="{DynamicResource MaterialDesign.Brush.Warning}"
+                    Visibility="{Binding LanguageChanged, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Padding="12"
+                    CornerRadius="4"
+                    Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Grid.Column="0"
+                                            Kind="Information"
+                                            Width="20"
+                                            Height="20"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,8,0"
+                                            Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                    <TextBlock Grid.Column="1"
+                              Text="{Binding Texts.LanguageRestartRequired}"
+                              d:Text="Language changes will take effect after restarting the application."
+                              Foreground="{DynamicResource MaterialDesignBodyLight}"
+                              TextWrapping="Wrap"
+                              VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Save Button -->
+            <StackPanel Grid.Row="9"
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
                         Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Margin="0,12,0,0">
-                <Button Content="Save"
+                <Button Content="{Binding Texts.SaveButtonText}"
+                        d:Content="Save"
                         Width="100"
                         Command="{Binding SaveSettingsCommand}"
                         Style="{StaticResource MaterialDesignRaisedButton}" />

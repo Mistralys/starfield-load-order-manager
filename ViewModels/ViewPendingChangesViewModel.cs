@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 using LoadOrderKeeper.Views;
 using WpfApplication = System.Windows.Application;
 
@@ -17,6 +18,7 @@ namespace LoadOrderKeeper.ViewModels
     /// </summary>
     public partial class ViewPendingChangesViewModel : ObservableObject
     {
+        private readonly ViewPendingChangesTexts _texts = new();
         private readonly AppConfigModel _config;
         private readonly ConfigurationCoordinator? _configCoordinator;
 
@@ -57,14 +59,14 @@ namespace LoadOrderKeeper.ViewModels
 
         public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
 
-        public string WindowTitle { get; } = "Pending Changes";
-        public string ExplanationText { get; } = "This shows all changes you have made since the last reference update. When you next update the reference file, these changes will be archived.";
-        public string CommentLabel { get; } = "Comment:";
-        public string AddedModsLabel { get; } = "Added Mods:";
-        public string RemovedModsLabel { get; } = "Removed Mods:";
-        public string EditCommentButtonText { get; } = "Edit comment...";
-        public string CloseButtonText { get; } = "Close";
-        public string NoPendingChangesMessage { get; } = "No pending changes.";
+        public string WindowTitle => _texts.WindowTitle;
+        public string ExplanationText => _texts.ExplanationText;
+        public string CommentLabel => _texts.CommentLabel;
+        public string AddedModsLabel => _texts.AddedModsLabel;
+        public string RemovedModsLabel => _texts.RemovedModsLabel;
+        public string EditCommentButtonText => _texts.EditCommentButtonText;
+        public string CloseButtonText => _texts.CloseButtonText;
+        public string NoPendingChangesMessage => _texts.NoPendingChangesMessage;
 
         public event EventHandler? CloseRequested;
 

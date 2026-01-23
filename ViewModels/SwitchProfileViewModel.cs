@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels;
 
@@ -13,6 +14,7 @@ namespace LoadOrderKeeper.ViewModels;
 /// </summary>
 public partial class SwitchProfileViewModel : ObservableObject
 {
+    private readonly SwitchProfileTexts _texts = new();
     private readonly AppConfigModel _config;
     private readonly ConfigurationCoordinator? _configCoordinator;
     private readonly string _activeProfileId;
@@ -36,7 +38,7 @@ public partial class SwitchProfileViewModel : ObservableObject
 
     public event EventHandler<ProfileModel>? ProfileSelected;
 
-    public string WindowTitle => "Switch Profile";
+    public string WindowTitle => _texts.WindowTitle;
 
     public SwitchProfileViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
     {

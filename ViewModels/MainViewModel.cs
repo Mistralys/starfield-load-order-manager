@@ -8,6 +8,7 @@ using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Helpers;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 using LoadOrderKeeper.Views;
 using WpfApplication = System.Windows.Application;
 using WpfMessageBox = System.Windows.MessageBox;
@@ -57,6 +58,8 @@ namespace LoadOrderKeeper.ViewModels
 
         // Menu and UI text properties
         public MenuViewModel Menu { get; } = new();
+        public MainWindowTexts MainWindowTexts { get; } = new();
+        public CommonTexts CommonTexts { get; } = new();
 
         public string PlayButtonText => _gameLauncher.PlayButtonText;
 
@@ -109,6 +112,9 @@ namespace LoadOrderKeeper.ViewModels
                 AddStatusMessage,
                 GetReadyStatusMessage,
                 UpdateCoordinatorsWithConfig);
+
+            // Initialize localized button text
+            ShowChangesButtonText = MainWindowTexts.ShowChangesButtonText;
 
             // Use CoordinatorEventBinder to consolidate property change forwarding
             var binder = new CoordinatorEventBinder(OnPropertyChanged);
@@ -530,8 +536,8 @@ namespace LoadOrderKeeper.ViewModels
         private void UpdateChangeCountDisplay(int changeCount)
         {
             ShowChangesButtonText = changeCount > 0 
-                ? $"Manage load order ({changeCount} changes)"
-                : "Manage load order";
+                ? string.Format(MainWindowTexts.ShowChangesButtonTextWithCount, changeCount)
+                : MainWindowTexts.ShowChangesButtonText;
         }
  
         private async Task ShowDiffAsync()
@@ -624,6 +630,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private bool CanDiscardChanges() => Config.IsValid() && RefExists && !IsBusy;
 
+        [RelayCommand]
         private void ShowAbout()
         {
             var aboutVm = new AboutViewModel();

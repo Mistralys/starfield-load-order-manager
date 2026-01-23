@@ -12,6 +12,7 @@ namespace LoadOrderKeeper.Coordinators
     /// </summary>
     public sealed partial class UpdateCheckCoordinator : CoordinatorBase
     {
+        private readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
         private readonly CancellationTokenSource _shutdownCts = new();
 
         [ObservableProperty]
@@ -35,7 +36,7 @@ namespace LoadOrderKeeper.Coordinators
                 if (result.UpdateAvailable)
                 {
                     UpdateAvailable = true;
-                    UpdateMessage = $"Version {result.LatestVersion} is available!";
+                    UpdateMessage = string.Format(_localization.GetString("MainWindow", "UpdateAvailableFormat"), result.LatestVersion);
                     UpdateInfoBarVisible = true;
                 }
             }
@@ -56,7 +57,7 @@ namespace LoadOrderKeeper.Coordinators
             if (result.UpdateAvailable)
             {
                 UpdateAvailable = true;
-                UpdateMessage = $"Version {result.LatestVersion} is available!";
+                UpdateMessage = string.Format(_localization.GetString("MainWindow", "UpdateAvailableFormat"), result.LatestVersion);
                 UpdateInfoBarVisible = true;
             }
 
@@ -82,8 +83,21 @@ namespace LoadOrderKeeper.Coordinators
                 return null;
             }
 
-            // Extract version from "Version X.X.X is available!" message
-            return UpdateMessage.Replace("Version ", "").Replace(" is available!", "").Trim();
+            // Extract version using the localized format pattern
+            // The format is "Version {0} is available!" where {0} is the version
+            var formatTemplate = _localization.GetString("MainWindow", "UpdateAvailableFormat");
+            
+            // Replace {0} with a regex pattern to match the version
+            string pattern = formatTemplate.Replace("{0}", @"(.+?)");
+            var regex = new System.Text.RegularExpressions.Regex(pattern);
+            var match = regex.Match(UpdateMessage);
+            
+            if (match.Success && match.Groups.Count > 1)
+            {
+                return match.Groups[1].Value.Trim();
+            }
+
+            return null;
         }
 
         protected override void OnDisposing()

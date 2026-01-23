@@ -2,16 +2,19 @@ using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels;
 
 public partial class UpdateOptionsViewModel : ObservableObject
 {
+    private readonly UpdateOptionsTexts _texts = new();
+
     public string WindowTitle { get; }
     public string MessageText { get; }
-    public string NexusmodsButtonText { get; } = "Open on Nexusmods";
-    public string GitHubButtonText { get; } = "Open on GitHub";
-    public string CancelButtonText { get; } = "Cancel";
+    public string NexusmodsButtonText => _texts.NexusmodsButtonText;
+    public string GitHubButtonText => _texts.GitHubButtonText;
+    public string CancelButtonText => _texts.CancelButtonText;
     
     public string NexusmodsUrl { get; }
     public string GitHubUrl { get; }
@@ -25,12 +28,12 @@ public partial class UpdateOptionsViewModel : ObservableObject
 
         if (string.IsNullOrEmpty(latestVersion) || latestVersion == "Unknown")
         {
-            WindowTitle = "Download Options";
+            WindowTitle = _texts.WindowTitleOptions;
             MessageText = $"Unable to check for updates automatically.\n\nCurrent version: {currentVersion}\n\nYou can check for updates manually at these locations:";
         }
         else
         {
-            WindowTitle = "Download Update";
+            WindowTitle = _texts.WindowTitleDownload;
             MessageText = $"A new version is available!\n\nCurrent version: {currentVersion}\nLatest version: {latestVersion}\n\nChoose your preferred download source:";
         }
     }

@@ -39,6 +39,9 @@ namespace LoadOrderKeeper.Services
         {
             var config = await SettingsService.LoadSettingsAsync();
 
+            // Initialize localization with preferred language from config
+            ViewTexts.LocalizationService.Instance.InitializeFromConfig(config.PreferredLanguage);
+
             // Update coordinator configurations
             _updateCoordinators(config);
 

@@ -44,6 +44,19 @@
     <Content Include="Docs\Design\Favicon\icon.ico" />
   </ItemGroup>
 
+  <!-- Localization JSON files - Copy to output directory -->
+  <ItemGroup>
+    <None Update="ViewTexts\Locales\en-US.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ViewTexts\Locales\de-DE.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ViewTexts\Locales\fr-FR.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="LICENSE">
       <Pack>True</Pack>

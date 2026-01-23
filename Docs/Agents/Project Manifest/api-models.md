@@ -40,12 +40,20 @@ public class AppConfigModel
     public string StarfieldAppDataPath { get; set; }
     public string StarfieldGamePath { get; set; }
     public string? ActiveProfileId { get; set; }
+    public string PreferredLanguage { get; set; } // Default: "auto"
 
     public bool IsValid();
     public string GetPluginsFilePath();
     public string GetReferenceFilePath();
 }
 ```
+
+**Language Preference**:
+- `PreferredLanguage`: User's language choice
+  - Default value: `"auto"` (automatic system locale detection)
+  - Specific cultures: `"en-US"`, `"de-DE"`, `"fr-FR"`, `"es-ES"`, `"it-IT"`
+  - Applied on application startup via `ViewModelInitializer`
+  - Persisted across application restarts
 
 ### `LoadOrderKeeper.Models.ProfileModel`
 
@@ -255,6 +263,45 @@ public sealed record UpdateCheckResult(
     string CurrentVersion,
     string? LatestVersion,
     string? DownloadUrl);
+```
+
+---
+
+## UI Helper Models
+
+### `LoadOrderKeeper.ViewModels.LanguageOption`
+
+```csharp
+public class LanguageOption
+{
+    public string Code { get; set; }
+    public string DisplayName { get; set; }
+
+    public LanguageOption(string code, string displayName);
+}
+```
+
+**Purpose**: Model for language selection dropdown in Settings window.
+
+**Usage**:
+- `Code`: Culture code (e.g., `"auto"`, `"en-US"`, `"de-DE"`)
+- `DisplayName`: Native language name (e.g., `"Automatic"`, `"English"`, `"Deutsch"`)
+- Bound to ComboBox via:
+  - `ItemsSource="{Binding AvailableLanguages}"`
+  - `SelectedValuePath="Code"`
+  - `DisplayMemberPath="DisplayName"`
+
+**Example**:
+```csharp
+var languages = new List<LanguageOption>
+{
+    new LanguageOption("auto", "Automatic"),
+    new LanguageOption("en-US", "English"),
+    new LanguageOption("de-DE", "Deutsch"),
+    new LanguageOption("fr-FR", "Français"),
+    new LanguageOption("es-ES", "Español"),
+    new LanguageOption("it-IT", "Italiano")
+};
 ```
 
 ---

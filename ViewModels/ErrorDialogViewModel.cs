@@ -4,6 +4,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels
 {
@@ -12,7 +13,7 @@ namespace LoadOrderKeeper.ViewModels
     /// </summary>
     public partial class ErrorDialogViewModel : ObservableObject
     {
-        private const string BugReportUrl = "https://github.com/Mistralys/starfield-load-order-manager/issues";
+        private readonly ErrorDialogTexts _texts = new();
 
         [ObservableProperty]
         private string _errorMessage = string.Empty;
@@ -65,7 +66,7 @@ namespace LoadOrderKeeper.ViewModels
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = BugReportUrl,
+                    FileName = _texts.BugReportUrl,
                     UseShellExecute = true
                 });
             }

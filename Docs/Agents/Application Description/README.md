@@ -35,7 +35,9 @@ The application provides automated load order protection and management through:
 13. **Modal Overlay Protection**: Secondary windows remain accessible with invalid configuration; overlay blocks operations until fixed
 14. **Global Exception Handling**: Comprehensive error logging with user-friendly dialogs and privacy protection
 15. **Debug State Export**: Captures application state for troubleshooting (includes sanitized paths for privacy)
-16. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
+16. **Language Preference**: User-selectable interface language with automatic system locale detection
+17. **Multilingual Support**: Full interface localization in 5 languages with zero-hardcoding extensibility
+18. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -47,6 +49,11 @@ The application is built as a **WPF .NET 9** desktop application using:
 - **UI Framework**: WPF (Windows Presentation Foundation)
 - **Design**: Material Design v5 theme with dark mode
 - **Architecture**: MVVM pattern using CommunityToolkit.Mvvm with Coordinator pattern
+- **Localization**: JSON-based internationalization with zero-hardcoding architecture
+  - **Supported Languages**: English, German, French, Spanish, Italian (189+ strings per language)
+  - **Auto-Detection**: Automatic system locale detection with fallback to English
+  - **User Choice**: Language preference dropdown in Settings window
+  - **Extensibility**: New languages require only JSON file, no code changes
 - **Coordinators**: Modular domain logic handlers for file monitoring, status, updates, profiles, configuration, and game launching
 - **Testing**: xUnit for unit tests
 - **Dialogs**: Custom Material Design confirmation dialogs
@@ -67,6 +74,7 @@ Detailed documentation for each major feature:
 - **[Version Check](Features/version-check.md)** - Automatic update checking system
 - **[Configuration Validation](Features/configuration-validation.md)** - Path validation and error handling
 - **[Exception Handling](Features/exception-handling.md)** - Global error logging and user-friendly error dialogs
+- **[Multilingual Support](Features/multilingual-support.md)** - Language preference and localization system
 
 ### Architecture & Design
 Technical architecture documentation:
@@ -82,6 +90,41 @@ Technical architecture documentation:
 
 ---
 
+## Multilingual Support
+
+The application features a comprehensive localization system with:
+
+### Supported Languages
+- ???? **English** (en-US) - Default
+- ???? **German** (de-DE) - Deutsch
+- ???? **French** (fr-FR) - Français
+- ???? **Spanish** (es-ES) - Español
+- ???? **Italian** (it-IT) - Italiano
+
+### User Features
+- **Language Selector**: Dropdown in Settings window with native language names
+- **Automatic Detection**: Detects system locale and applies matching language automatically
+- **Persistence**: Language preference saved and restored across application restarts
+- **Restart Notification**: Clear warning that restart is required for language changes
+
+### Technical Highlights
+- **Zero-Hardcoding Architecture**: New languages require only a JSON file, no code changes
+- **Dynamic Discovery**: Application automatically finds and loads available locales
+- **Metadata from JSON**: Language names and parent culture codes stored in locale files
+- **Community-Friendly**: Translators can contribute without programming knowledge
+- **189+ Strings Per Language**: Complete translation of all UI elements
+
+### Adding New Languages
+Contributors can add new languages by:
+1. Creating a new JSON file in `ViewTexts/Locales/` (e.g., `pt-BR.json`)
+2. Adding metadata: `LocaleName` (native name) and `ParentCulture` (ISO code)
+3. Translating all string keys
+4. Submitting a pull request (no code review needed for translations)
+
+See **[Multilingual Support](Features/multilingual-support.md)** for complete documentation.
+
+---
+
 ## Quick Navigation
 
 ### By Use Case
@@ -93,6 +136,9 @@ Technical architecture documentation:
 - How the application detects changes >> [Change Detection](Features/change-detection.md)
 - How configuration validation works >> [Configuration Validation](Features/configuration-validation.md)
 - How exceptions are handled >> [Exception Handling](Features/exception-handling.md)
+- How multilingual support works >> [Multilingual Support](Features/multilingual-support.md)
+- How to change the interface language >> [Multilingual Support](Features/multilingual-support.md#user-interface)
+- How to contribute a translation >> [Multilingual Support](Features/multilingual-support.md#contributing-translations)
 
 **I want to learn about...**
 - The coordinator pattern >> [Coordinator Pattern](Architecture/coordinator-pattern.md)
@@ -111,6 +157,8 @@ The application maintains semantic versioning:
 - GitHub Actions automatically creates releases when version tags are pushed
 
 **Recent Major Features**:
+- v1.9.0: Language preference UI with zero-hardcoding architecture; 5 supported languages
+- v1.8.0: Complete localization system with English, German, and French translations (189 strings per language)
 - v1.7.1: Invalid configuration handling improvements with graceful recovery and modal overlays
 - v1.7.0: View Pending Changes dialog and comment storage flow fixes
 - v1.6.1: Settings window improvements and debug menu for testing

@@ -137,7 +137,13 @@
     "DebugStateCopiedMessage": "调试状态已成功以 JSON 格式复制到您的剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
     "DebugStateCopiedStatus": "调试状态已复制到剪贴板。",
     "CopyFailedTitle": "复制失败",
-    "FailedToCopyError": "将调试状态复制到剪贴板失败"
+    "FailedToCopyError": "将调试状态复制到剪贴板失败",
+    "ReEnableModMenuText": "重新启用模组",
+    "ReplaceWithMenuText": "替换为...",
+    "RemoveModMenuText": "移除模组",
+    "CopyDebugStateMenuText": "复制调试状态",
+    "FixLoadOrderButtonText": "修复加载顺序",
+    "SortingInsertedWarning": "重要: 模组被插入到加载顺序的中间。在进行其他更改之前,请先对列表排序以将它们移到末尾。"
   },
   "ManageProfiles": {
     "WindowTitle": "管理配置文件",

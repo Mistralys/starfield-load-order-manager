@@ -137,7 +137,13 @@
     "DebugStateCopiedMessage": "The debug state has been successfully copied to your clipboard in JSON format.\n\nYou can now paste this information to share with developers for troubleshooting.",
     "DebugStateCopiedStatus": "Debug state copied to clipboard.",
     "CopyFailedTitle": "Copy Failed",
-    "FailedToCopyError": "Failed to copy debug state to clipboard"
+    "FailedToCopyError": "Failed to copy debug state to clipboard",
+    "ReEnableModMenuText": "Re-enable mod",
+    "ReplaceWithMenuText": "Replace with...",
+    "RemoveModMenuText": "Remove mod",
+    "CopyDebugStateMenuText": "Copy Debug State",
+    "FixLoadOrderButtonText": "Fix Load Order",
+    "SortingInsertedWarning": "IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes."
   },
   "ManageProfiles": {
     "WindowTitle": "Manage Profiles",

@@ -11,7 +11,7 @@
         Title="{Binding Title}"
         d:Title="Diff Window"
         Height="494"
-        Width="682"
+        Width="810"
         MinWidth="480"
         MinHeight="360"
         WindowStartupLocation="CenterOwner"

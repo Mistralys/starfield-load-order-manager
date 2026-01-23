@@ -137,7 +137,13 @@
     "DebugStateCopiedMessage": "Der Debug-Status wurde erfolgreich im JSON-Format in Ihre Zwischenablage kopiert.\n\nSie können diese Informationen nun einfügen, um sie mit Entwicklern zur Fehlerbehebung zu teilen.",
     "DebugStateCopiedStatus": "Debug-Status in Zwischenablage kopiert.",
     "CopyFailedTitle": "Kopieren fehlgeschlagen",
-    "FailedToCopyError": "Kopieren des Debug-Status in Zwischenablage fehlgeschlagen"
+    "FailedToCopyError": "Kopieren des Debug-Status in Zwischenablage fehlgeschlagen",
+    "ReEnableModMenuText": "Mod reaktivieren",
+    "ReplaceWithMenuText": "Ersetzen mit...",
+    "RemoveModMenuText": "Mod entfernen",
+    "CopyDebugStateMenuText": "Debug-Status kopieren",
+    "FixLoadOrderButtonText": "Ladereihenfolge korrigieren",
+    "SortingInsertedWarning": "WICHTIG: Mods wurden in die Mitte der Ladereihenfolge eingefügt. Sortieren Sie die Liste zuerst, um sie ans Ende zu verschieben, bevor Sie andere Änderungen vornehmen."
   },
   "ManageProfiles": {
     "WindowTitle": "Profile verwalten",

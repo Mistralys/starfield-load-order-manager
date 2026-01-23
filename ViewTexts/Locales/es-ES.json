@@ -137,7 +137,13 @@
     "DebugStateCopiedMessage": "El estado de depuración se ha copiado correctamente en tu portapapeles en formato JSON.\n\nAhora puedes pegar esta información para compartirla con los desarrolladores para solucionar problemas.",
     "DebugStateCopiedStatus": "Estado de depuración copiado al portapapeles.",
     "CopyFailedTitle": "Error al copiar",
-    "FailedToCopyError": "Error al copiar el estado de depuración al portapapeles"
+    "FailedToCopyError": "Error al copiar el estado de depuración al portapapeles",
+    "ReEnableModMenuText": "Reactivar mod",
+    "ReplaceWithMenuText": "Reemplazar con...",
+    "RemoveModMenuText": "Eliminar mod",
+    "CopyDebugStateMenuText": "Copiar estado de depuración",
+    "FixLoadOrderButtonText": "Corregir orden",
+    "SortingInsertedWarning": "IMPORTANTE: Los mods se insertaron en medio del orden de carga. Ordena la lista primero para moverlos al final antes de realizar otros cambios."
   },
   "ManageProfiles": {
     "WindowTitle": "Gestionar perfiles",

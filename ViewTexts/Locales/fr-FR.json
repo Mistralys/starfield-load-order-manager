@@ -137,7 +137,13 @@
     "DebugStateCopiedMessage": "L'état de débogage a été copié avec succès dans votre presse-papiers au format JSON.\n\nVous pouvez maintenant coller ces informations pour les partager avec les développeurs pour le dépannage.",
     "DebugStateCopiedStatus": "État de débogage copié dans le presse-papiers.",
     "CopyFailedTitle": "Échec de la copie",
-    "FailedToCopyError": "Échec de la copie de l'état de débogage dans le presse-papiers"
+    "FailedToCopyError": "Échec de la copie de l'état de débogage dans le presse-papiers",
+    "ReEnableModMenuText": "Réactiver le mod",
+    "ReplaceWithMenuText": "Remplacer par...",
+    "RemoveModMenuText": "Supprimer le mod",
+    "CopyDebugStateMenuText": "Copier l'état de débogage",
+    "FixLoadOrderButtonText": "Corriger l'ordre",
+    "SortingInsertedWarning": "IMPORTANT : Des mods ont été insérés au milieu de l'ordre de chargement. Triez d'abord la liste pour les déplacer à la fin avant d'effectuer d'autres modifications."
   },
   "ManageProfiles": {
     "WindowTitle": "Gérer les profils",

@@ -31,8 +31,8 @@ This manifest is split into logical sections for easier maintenance:
 - **UI Framework**: WPF with MaterialDesign v5
 - **Architecture**: MVVM + Coordinator Pattern + Instance Services
 - **Localization**: JSON-based with zero-hardcoding architecture
-  - **Supported Languages**: 6 (English, German, French, Spanish, Italian, Simplified Chinese)
-  - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT, zh-CN
+  - **Supported Languages**: 7 (English, German, French, Spanish, Italian, Simplified Chinese, Japanese)
+  - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT, zh-CN, ja-JP
   - **Total Strings**: 189 translated strings per locale
   - **User-Selectable**: Language preference dropdown in Settings
   - **Auto-Detection**: Automatic system locale detection
@@ -98,14 +98,14 @@ Each locale file (`en-US.json`, `de-DE.json`, etc.) contains:
 ### Language Preference System
 
 **User-facing features**:
-- Language dropdown in Settings window (7 options: Automatic + 6 languages)
+- Language dropdown in Settings window (8 options: Automatic + 7 languages)
 - Automatic system locale detection (when set to "Automatic")
 - Persistence across application restarts
 - Restart notification banner when language changes
 
 **Configuration**:
 - Stored in `config.json` as `PreferredLanguage` property
-- Values: `"auto"` (default), `"en-US"`, `"de-DE"`, `"fr-FR"`, `"es-ES"`, `"it-IT"`, `"zh-CN"`
+- Values: `"auto"` (default), `"en-US"`, `"de-DE"`, `"fr-FR"`, `"es-ES"`, `"it-IT"`, `"zh-CN"`, `"ja-JP"`
 - Applied on application startup via `ViewModelInitializer`
 
 **Implementation details**:

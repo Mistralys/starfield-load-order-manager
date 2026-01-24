@@ -1,4 +1,4 @@
-# Starfield Load Order Keeper - Application Description
+﻿# Starfield Load Order Keeper - Application Description
 
 ## Overview
 
@@ -12,7 +12,7 @@ The game Starfield uses a line-based text file called `Plugins.txt` in which eac
 
 Changing the load order in the middle of a save game can cause all manner of issues. Internal object references depend on the load order. For example, this means that if you are wearing a spacesuit that is added by a mod and that mod's position in the load order changes, you will lose that spacesuit.
 
-The problem is that the game itself, as well as mod manager tools, tend to change the order around�hence the need for a small application to observe and fix these changes.
+The problem is that the game itself, as well as mod manager tools, tend to change the order around—hence the need for a small application to observe and fix these changes.
 
 ---
 
@@ -36,7 +36,7 @@ The application provides automated load order protection and management through:
 14. **Global Exception Handling**: Comprehensive error logging with user-friendly dialogs and privacy protection
 15. **Debug State Export**: Captures application state for troubleshooting (includes sanitized paths for privacy)
 16. **Language Preference**: User-selectable interface language with automatic system locale detection
-17. **Multilingual Support**: Full interface localization in 5 languages with zero-hardcoding extensibility
+17. **Multilingual Support**: Full interface localization in 7 languages with zero-hardcoding extensibility
 18. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
@@ -50,7 +50,7 @@ The application is built as a **WPF .NET 9** desktop application using:
 - **Design**: Material Design v5 theme with dark mode
 - **Architecture**: MVVM pattern using CommunityToolkit.Mvvm with Coordinator pattern
 - **Localization**: JSON-based internationalization with zero-hardcoding architecture
-  - **Supported Languages**: English, German, French, Spanish, Italian (189+ strings per language)
+  - **Supported Languages**: English, German, French, Spanish, Italian, Simplified Chinese, Japanese (189+ strings per language)
   - **Auto-Detection**: Automatic system locale detection with fallback to English
   - **User Choice**: Language preference dropdown in Settings window
   - **Extensibility**: New languages require only JSON file, no code changes
@@ -95,11 +95,13 @@ Technical architecture documentation:
 The application features a comprehensive localization system with:
 
 ### Supported Languages
-- ???? **English** (en-US) - Default
-- ???? **German** (de-DE) - Deutsch
-- ???? **French** (fr-FR) - Fran�ais
-- ???? **Spanish** (es-ES) - Espa�ol
-- ???? **Italian** (it-IT) - Italiano
+- 🇺🇸 **English** (en-US) - Default
+- 🇩🇪 **German** (de-DE) - Deutsch
+- 🇫🇷 **French** (fr-FR) - Français
+- 🇪🇸 **Spanish** (es-ES) - Español
+- 🇮🇹 **Italian** (it-IT) - Italiano
+- 🇨🇳 **Simplified Chinese** (zh-CN) - 简体中文
+- 🇯🇵 **Japanese** (ja-JP) - 日本語
 
 ### User Features
 - **Language Selector**: Dropdown in Settings window with native language names
@@ -157,8 +159,8 @@ The application maintains semantic versioning:
 - GitHub Actions automatically creates releases when version tags are pushed
 
 **Recent Major Features**:
-- v1.9.0: Language preference UI with zero-hardcoding architecture; 5 supported languages
-- v1.8.0: Complete localization system with English, German, and French translations (189 strings per language)
+- v1.8.1: Language preference UI with zero-hardcoding architecture; 7 supported languages (English, German, French, Spanish, Italian, Simplified Chinese, Japanese)
+- v1.8.0: Complete localization system with English, German, French, Spanish, and Italian translations (189 strings per language)
 - v1.7.1: Invalid configuration handling improvements with graceful recovery and modal overlays
 - v1.7.0: View Pending Changes dialog and comment storage flow fixes
 - v1.6.1: Settings window improvements and debug menu for testing

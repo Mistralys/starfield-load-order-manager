@@ -237,6 +237,7 @@
     "ErrorPrefix": "ERREUR : {0}"
   },
   "StatusCoordinator": {
+    "InitializingApplication": "Initialisation de l'application...",
     "ReadyConfigValid": "Prêt. La configuration est valide.",
     "ConfigRequired": "Configuration requise. Veuillez définir les chemins dans la fenître Paramètres."
   },

@@ -3,7 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:controls="clr-namespace:LoadOrderKeeper.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:LoadOrderKeeper.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:ManageProfilesViewModel, IsDesignTimeCreatable=False}"
         Title="{Binding WindowTitle}"
+        d:Title="Manage Profiles"
         Height="500"
         Width="600"
         WindowStartupLocation="CenterOwner"
@@ -25,10 +31,15 @@
         <Menu Grid.Row="0"
               Background="{DynamicResource MaterialDesignPaper}"
               Foreground="{DynamicResource MaterialDesignBody}">
-            <MenuItem Header="{Binding FileMenuText}">
+            <MenuItem Header="{Binding FileMenuText}" d:Header="File">
                 <MenuItem Header="{Binding AddProfileMenuText}"
+                          d:Header="Add Profile"
                           Command="{Binding AddProfileCommand}"
                           Icon="{materialDesign:PackIcon Kind=Plus}" />
+                <Separator />
+                <MenuItem Header="{Binding ExitMenuText}"
+                          d:Header="E_xit"
+                          Command="{Binding CloseCommand}" />
             </MenuItem>
         </Menu>
 
@@ -37,6 +48,7 @@
                   x:Name="ProfileDataGrid"
                   Style="{StaticResource EnhancedMaterialDesignDataGrid}"
                   ItemsSource="{Binding Profiles}"
+                  d:ItemsSource="{d:SampleData ItemCount=5}"
                   SelectedItem="{Binding SelectedProfile}"
                   Margin="16,8,16,8"
                   Background="{DynamicResource MaterialDesignPaper}">
@@ -44,12 +56,24 @@
                 <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource EnhancedMaterialDesignDataGridColumnHeader}" />
             </DataGrid.ColumnHeaderStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Label" 
-                                    Width="200" 
-                                    Binding="{Binding Label}" />
-                <DataGridTextColumn Header="Description" 
-                                    Width="*" 
-                                    Binding="{Binding Description}" />
+                <DataGridTextColumn Width="200" 
+                                    Binding="{Binding Label}">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.LabelColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Label" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                </DataGridTextColumn>
+                <DataGridTextColumn Width="*" 
+                                    Binding="{Binding Description}">
+                    <DataGridTextColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DataContext.DescriptionColumnHeader, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                       d:Text="Description" />
+                        </DataTemplate>
+                    </DataGridTextColumn.HeaderTemplate>
+                </DataGridTextColumn>
             </DataGrid.Columns>
             <DataGrid.Resources>
                 <ContextMenu x:Key="RowContextMenu" DataContext="{Binding DataContext, Source={x:Reference ProfileDataGrid}}">
@@ -80,6 +104,7 @@
         <ProgressBar Grid.Row="2"
                      IsIndeterminate="True"
                      Height="4"
+                     d:Visibility="Collapsed"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
         <!-- Bottom Buttons -->
@@ -88,18 +113,21 @@
                     HorizontalAlignment="Center"
                     Margin="16">
             <Button Content="{Binding AddProfileButtonText}"
-                    Width="120"
+                    d:Content="Add Profile"
+                    MinWidth="120"
                     Margin="0,0,8,0"
                     Command="{Binding AddProfileCommand}"
                     Style="{StaticResource MaterialDesignRaisedButton}" />
             <Button Content="{Binding CloseButtonText}"
-                    Width="120"
+                    d:Content="Close"
+                    MinWidth="120"
                     Command="{Binding CloseCommand}"
                     Style="{StaticResource MaterialDesignOutlinedButton}" />
         </StackPanel>
         
         <!-- Configuration Invalid Overlay -->
         <controls:ConfigInvalidOverlay Grid.RowSpan="4"
+                                      d:Visibility="Collapsed"
                                       Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>

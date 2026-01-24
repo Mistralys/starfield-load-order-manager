@@ -8,7 +8,7 @@
 
 - .NET 9
 - WPF desktop application
-- **Localization**: JSON-based, supports 3 languages (en-US, de-DE, fr-FR)
+- **Localization**: JSON-based, supports 6 languages (en-US, de-DE, fr-FR, es-ES, it-IT, zh-CN)
   - 189 translatable strings across 17 sections
   - Automatic system language detection with fallback
   - Runtime culture switching support
@@ -105,7 +105,7 @@ Instance services support MainViewModel with dependency injection via constructo
 ### Architecture
 
 - **JSON-based**: Translations stored in `ViewTexts/Locales/*.json` files
-- **Supported Languages**: English (en-US), German (de-DE), French (fr-FR)
+- **Supported Languages**: English (en-US), German (de-DE), French (fr-FR), Spanish (es-ES), Italian (it-IT), Simplified Chinese (zh-CN)
 - **Total Strings**: 189 translatable strings organized into 17 sections
 - **Text ViewModels**: 15 observable ViewModels providing localized strings to UI
 
@@ -176,13 +176,21 @@ public class SomeTexts : ObservableObject
 - Files copied to `bin/.../ViewTexts/Locales/` maintaining folder structure
 - Runtime path resolution: `AppDomain.CurrentDomain.BaseDirectory + "ViewTexts/Locales"`
 
-### JSON Normalization
+**CRITICAL**: When adding a new locale file (e.g., `zh-CN.json`):
+1. Add the file to the `ViewTexts/Locales/` directory
+2. **MUST** configure build action in `.csproj`:
+   ```xml
+   <ItemGroup>
+     <Content Include="ViewTexts\Locales\zh-CN.json">
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+   </ItemGroup>
+   ```
+3. Without this configuration, the file will NOT be copied to output directory
+4. Result: Language will not appear in dropdown even though code supports it
+5. Verify after build: Check `bin/Debug/net9.0-windows/ViewTexts/Locales/` for new file
 
-- **Tool**: `Tools/JsonNormalizer/` console application
-- **Purpose**: Ensures proper Unicode encoding and consistent formatting
-- **Usage**: `dotnet run --project Tools/JsonNormalizer/JsonNormalizer.csproj`
-- **When**: After editing any JSON localization files, before committing
-- **Effect**: Re-serializes JSON with `JavaScriptEncoder.UnsafeRelaxedJsonEscaping` for readable yet properly encoded output
+**Existing configured locales**: en-US.json, de-DE.json, fr-FR.json, es-ES.json, it-IT.json, zh-CN.json
 
 ---
 

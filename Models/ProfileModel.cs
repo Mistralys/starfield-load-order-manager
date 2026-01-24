@@ -45,9 +45,11 @@ public sealed class ProfileModel
     /// <summary>
     /// Creates the default profile instance.
     /// </summary>
-    public static ProfileModel CreateDefault()
+    /// <param name="label">Localized label for the default profile.</param>
+    /// <param name="description">Localized description for the default profile.</param>
+    public static ProfileModel CreateDefault(string label = "Default", string description = "The default profile is always available.")
     {
-        return new ProfileModel("default", "Default", "The default profile is always available.");
+        return new ProfileModel("default", label, description);
     }
 
     

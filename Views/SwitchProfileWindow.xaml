@@ -5,7 +5,13 @@
         xmlns:models="clr-namespace:LoadOrderKeeper.Models"
         xmlns:converters="clr-namespace:LoadOrderKeeper.Converters"
         xmlns:controls="clr-namespace:LoadOrderKeeper.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:LoadOrderKeeper.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodels:SwitchProfileViewModel, IsDesignTimeCreatable=False}"
         Title="{Binding WindowTitle}"
+        d:Title="Switch Profile"
         Height="500"
         Width="600"
         WindowStartupLocation="CenterOwner"
@@ -46,7 +52,8 @@
 
         <!-- Header -->
         <TextBlock Grid.Row="0"
-                   Text="Select a profile to switch to:"
+                   Text="{Binding DescriptionText}"
+                   d:Text="Select a profile to switch to:"
                    FontSize="16"
                    Margin="16,16,16,8"
                    Foreground="{DynamicResource MaterialDesignBody}" />
@@ -55,7 +62,8 @@
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       Margin="8">
-            <ItemsControl ItemsSource="{Binding Profiles}">
+            <ItemsControl ItemsSource="{Binding Profiles}"
+                          d:ItemsSource="{d:SampleData ItemCount=3}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:ProfileModel}">
                         <Border Style="{StaticResource ProfileCardStyle}"
@@ -69,10 +77,12 @@
 
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="{Binding Label}"
+                                               d:Text="Profile Name"
                                                FontSize="18"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource MaterialDesignBody}" />
                                     <TextBlock Text="{Binding Description}"
+                                               d:Text="This is a sample profile description that shows how the text will appear in the designer view."
                                                FontSize="14"
                                                Margin="0,4,0,0"
                                                TextWrapping="Wrap"
@@ -100,7 +110,8 @@
                                                          Height="32"
                                                          VerticalAlignment="Center"
                                                          Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                                                         x:Name="ActiveIcon">
+                                                         x:Name="ActiveIcon"
+                                                         d:Visibility="Visible">
                                     <materialDesign:PackIcon.Visibility>
                                         <MultiBinding Converter="{StaticResource ActiveProfileVisibilityConverter}">
                                             <Binding Path="Id" />
@@ -119,10 +130,12 @@
         <ProgressBar Grid.Row="2"
                      IsIndeterminate="True"
                      Height="4"
+                     d:Visibility="Collapsed"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
         
         <!-- Configuration Invalid Overlay -->
         <controls:ConfigInvalidOverlay Grid.RowSpan="3"
+                                      d:Visibility="Collapsed"
                                       Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>

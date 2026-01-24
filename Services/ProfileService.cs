@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.Services;
 
@@ -24,8 +25,11 @@ public static class ProfileService
     {
         var profiles = new List<ProfileModel>();
         
-        // Always include the default profile first
-        profiles.Add(ProfileModel.CreateDefault());
+        // Always include the default profile first with localized strings
+        var localization = ViewTexts.LocalizationService.Instance;
+        var defaultLabel = localization.GetString("ManageProfiles", "DefaultProfileLabel");
+        var defaultDescription = localization.GetString("ManageProfiles", "DefaultProfileDescription");
+        profiles.Add(ProfileModel.CreateDefault(defaultLabel, defaultDescription));
 
         if (!config.IsValid())
         {

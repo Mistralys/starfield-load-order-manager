@@ -32,7 +32,8 @@
                                         Foreground="{DynamicResource MaterialDesign.Brush.Error}" />
                 
                 <!-- Title -->
-                <TextBlock Text="Configuration Required"
+                <TextBlock Text="{Binding Texts.Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          d:Text="Configuration Required"
                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                           Foreground="{DynamicResource MaterialDesignBody}"
                           TextAlignment="Center"
@@ -45,9 +46,9 @@
                           Foreground="{DynamicResource MaterialDesignBody}"
                           LineHeight="22"
                           Margin="0,0,0,16">
-                    <Run Text="Please fix the configuration in the main window's settings." />
+                    <Run Text="{Binding Texts.MessageLine1, Mode=OneWay, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                     <LineBreak />
-                    <Run Text="This window will become usable when the configuration is valid." 
+                    <Run Text="{Binding Texts.MessageLine2, Mode=OneWay, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                          Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 </TextBlock>
             </StackPanel>

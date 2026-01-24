@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.ViewTexts;
 
 namespace LoadOrderKeeper.ViewModels
 {
@@ -46,6 +47,10 @@ namespace LoadOrderKeeper.ViewModels
 
         public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
 
+        // Add localization texts
+        public DiffDialogTexts Texts { get; } = new();
+        public MenuViewModel Menu => _mainViewModel.Menu;
+
         public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
@@ -71,14 +76,14 @@ namespace LoadOrderKeeper.ViewModels
             
             UpdateDiffState();
             _lastDiffSignature = BuildSignature(DiffLines);
-            DiffStatusMessage = "Differences loaded.";
+            DiffStatusMessage = Texts.DifferencesLoadedStatus;
         }
 
         public ObservableCollection<DiffLineModel> DiffLines { get; }
 
-        public string Title => "Detected Changes";
+        public string Title => Texts.WindowTitle;
 
-        public string Description => "Review differences between Plugins.txt and the reference file.";
+        public string Description => Texts.DescriptionText;
 
         public string UpdateReferenceButtonText
         {
@@ -86,42 +91,42 @@ namespace LoadOrderKeeper.ViewModels
             {
                 // Add ellipsis if confirmation dialog will be shown
                 bool needsConfirmation = DiffLines.Any(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Inserted);
-                string baseText = _mainViewModel.ReferenceButtonText;
+                string baseText = Texts.AcceptChangesButtonText;
                 return needsConfirmation ? $"{baseText}..." : baseText;
             }
         }
 
-        public string FixLoadOrderButtonText => _mainViewModel.FixLoadOrderButtonText;
+        public string FixLoadOrderButtonText => Texts.FixLoadOrderButtonText;
 
-        public string DiscardChangesButtonText { get; } = "Discard all changes..." ;
+        public string DiscardChangesButtonText => Texts.DiscardChangesButtonText;
 
-        public string CloseButtonText { get; } = "Close";
+        public string CloseButtonText => Texts.CloseButtonText;
 
-        public string NoDifferencesMessage { get; } = "No differences detected.";
+        public string NoDifferencesMessage => Texts.NoDifferencesMessage;
 
-        public string ReEnableModMenuText { get; } = "Re-enable mod";
+        public string ReEnableModMenuText => Texts.ReEnableModMenuText;
 
-        public string ReplaceWithMenuText { get; } = "Replace with..." ;
+        public string ReplaceWithMenuText => Texts.ReplaceWithMenuText;
 
-        public string RemoveModMenuText { get; } = "Remove mod";
+        public string RemoveModMenuText => Texts.RemoveModMenuText;
 
-        public string FileMenuHeader { get; } = "_File";
+        public string FileMenuHeader => Menu.FileMenuHeader;
         
-        public string OpenPluginsMenuText => _mainViewModel.Menu.OpenPluginsMenuText;
+        public string OpenPluginsMenuText => Menu.OpenPluginsMenuText;
         
-        public string OpenReferenceMenuText => _mainViewModel.Menu.OpenReferenceMenuText;
+        public string OpenReferenceMenuText => Menu.OpenReferenceMenuText;
         
-        public string OpenAppDataFolderMenuText => _mainViewModel.Menu.OpenAppDataFolderMenuText;
+        public string OpenAppDataFolderMenuText => Menu.OpenAppDataFolderMenuText;
         
-        public string OpenGameFolderMenuText => _mainViewModel.Menu.OpenGameFolderMenuText;
+        public string OpenGameFolderMenuText => Menu.OpenGameFolderMenuText;
 
-        public string ExitMenuText { get; } = "E_xit";
+        public string ExitMenuText => Menu.ExitMenuText;
 
-        public string EditMenuHeader { get; } = "_Edit";
+        public string EditMenuHeader => Menu.EditMenuHeader;
 
-        public string HelpMenuHeader { get; } = "_Help";
+        public string HelpMenuHeader => Menu.HelpMenuHeader;
 
-        public string CopyDebugStateMenuText { get; } = "Copy Debug State";
+        public string CopyDebugStateMenuText => Texts.CopyDebugStateMenuText;
         
         public IRelayCommand OpenPluginsFileCommand => _mainViewModel.OpenPluginsFileCommand;
         
@@ -137,12 +142,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public bool ShowMultipleReplacementsHelp => HasMultipleReplacementsOrRemovals;
 
-        public string MultipleReplacementsHelpMessage => 
-            "There are a lot of changes in the list, including replacements and removals." +
-            " "+
-            "This can confuse the change detection - If you made these edits, it is recommended to accept the changes." + 
-            " "+
-            "Otherwise, consider discarding the changes.";
+        public string MultipleReplacementsHelpMessage => Texts.MultipleChangesHelp;
 
         private bool HasMultipleReplacementsOrRemovals => 
             DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Replaced) > 1;
@@ -220,10 +220,6 @@ namespace LoadOrderKeeper.ViewModels
             if (e.PropertyName == nameof(MainViewModel.ReferenceButtonText))
             {
                 OnPropertyChanged(nameof(UpdateReferenceButtonText));
-            }
-            else if (e.PropertyName == nameof(MainViewModel.FixLoadOrderButtonText))
-            {
-                OnPropertyChanged(nameof(FixLoadOrderButtonText));
             }
             else if (e.PropertyName == nameof(MainViewModel.SortingRecommendationMessage) ||
                      e.PropertyName == nameof(MainViewModel.SortingRecommendationActive))
@@ -337,20 +333,19 @@ namespace LoadOrderKeeper.ViewModels
                 {
                     ReplaceDiffLines(latestLines);
                     _lastDiffSignature = newSignature;
-                    string prefix = string.IsNullOrWhiteSpace(reason) ? "Differences updated" : reason;
-                    DiffStatusMessage = $"{prefix} at {DateTime.Now:T}.";
+                    DiffStatusMessage = reason ?? Texts.DifferencesLoadedStatus;
                     RequestScroll();
                 }
                 else
                 {
-                    DiffStatusMessage = $"No new differences detected ({DateTime.Now:T}).";
+                    DiffStatusMessage = Texts.NoNewDifferencesStatus;
                 }
 
                 return signatureChanged;
             }
             catch (Exception ex)
             {
-                DiffStatusMessage = $"Failed to refresh differences: {ex.Message}";
+                DiffStatusMessage = Texts.FailedToRefreshError + " " + ex.Message;
                 return false;
             }
             finally
@@ -364,52 +359,28 @@ namespace LoadOrderKeeper.ViewModels
         {
             if (!HasDifferences)
             {
-                DiffStatusMessage = "No differences to discard.";
+                DiffStatusMessage = Texts.NoDifferencesToDiscardStatus;
                 return;
             }
 
             var discardCommand = _mainViewModel.DiscardChangesCommand;
             if (discardCommand is null || !discardCommand.CanExecute(null))
             {
-                DiffStatusMessage = "Cannot discard changes right now.";
+                DiffStatusMessage = Texts.CannotDiscardNowStatus;
                 return;
             }
 
-            // Build confirmation message
-            int totalChanges = DiffLines.Count(line => line.ChangeType != DiffChangeType.Unchanged);
-            var messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine("You are about to discard all changes and restore Plugins.txt from the reference file.");
-            messageBuilder.AppendLine();
-            messageBuilder.AppendLine($"This will discard {totalChanges} change(s):");
-            
-            var removedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed);
-            var addedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Added);
-            var insertedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Inserted);
-            var movedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Moved);
-            var replacedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Replaced);
-            
-            if (removedCount > 0) messageBuilder.AppendLine($"  • {removedCount} removed mod(s) will be restored");
-            if (addedCount > 0) messageBuilder.AppendLine($"  • {addedCount} added mod(s) will be removed");
-            if (insertedCount > 0) messageBuilder.AppendLine($"  • {insertedCount} inserted mod(s) will be removed");
-            if (movedCount > 0) messageBuilder.AppendLine($"  • {movedCount} moved mod(s) will be restored to original positions");
-            if (replacedCount > 0) messageBuilder.AppendLine($"  • {replacedCount} replaced mod(s) will be restored");
-            
-            messageBuilder.AppendLine();
-            messageBuilder.AppendLine("This action cannot be undone.");
-            messageBuilder.AppendLine();
-            messageBuilder.AppendLine("Do you want to continue?");
-
             // Request confirmation from the view
             var eventArgs = new ConfirmationRequestedEventArgs(
-                "Confirm Discard Changes", 
-                messageBuilder.ToString(),
+                Texts.ConfirmDiscardTitle, 
+                Texts.ConfirmDiscardMessage,
                 ConfirmationIcon.Warning,
                 ConfirmationButton.YesNo);
             ConfirmationRequested?.Invoke(this, eventArgs);
 
             if (eventArgs.Result != ConfirmationResult.Yes)
             {
-                DiffStatusMessage = "Discard changes cancelled.";
+                DiffStatusMessage = Texts.DiscardCancelledStatus;
                 return;
             }
 
@@ -429,16 +400,17 @@ namespace LoadOrderKeeper.ViewModels
                 bool changed = await FileService.ReEnableModAsync(_mainViewModel.Config, line.FileName);
                 if (changed)
                 {
-                    await RefreshDiffAsync($"Re-enabled {line.FileName}");
+                    DiffStatusMessage = string.Format(Texts.ReEnabledModStatus, line.FileName);
+                    await RefreshDiffAsync(DiffStatusMessage);
                 }
                 else
                 {
-                    DiffStatusMessage = $"{line.FileName} is already enabled.";
+                    DiffStatusMessage = string.Format(Texts.ModAlreadyEnabledStatus, line.FileName);
                 }
             }
             catch (Exception ex)
             {
-                DiffStatusMessage = $"Failed to re-enable {line.FileName}: {ex.Message}";
+                DiffStatusMessage = string.Format(Texts.FailedToReEnableError, line.FileName) + " " + ex.Message;
             }
         }
 
@@ -454,16 +426,17 @@ namespace LoadOrderKeeper.ViewModels
                 bool changed = await FileService.RemoveNewModAsync(_mainViewModel.Config, line.FileName);
                 if (changed)
                 {
-                    await RefreshDiffAsync($"Removed {line.FileName}");
+                    DiffStatusMessage = string.Format(Texts.RemovedModStatus, line.FileName);
+                    await RefreshDiffAsync(DiffStatusMessage);
                 }
                 else
                 {
-                    DiffStatusMessage = $"{line.FileName} is already removed.";
+                    DiffStatusMessage = string.Format(Texts.ModAlreadyRemovedStatus, line.FileName);
                 }
             }
             catch (Exception ex)
             {
-                DiffStatusMessage = $"Failed to remove {line.FileName}: {ex.Message}";
+                DiffStatusMessage = string.Format(Texts.FailedToRemoveError, line.FileName) + " " + ex.Message;
             }
         }
 
@@ -485,16 +458,17 @@ namespace LoadOrderKeeper.ViewModels
                 bool changed = await FileService.ReplaceModWithNewAsync(_mainViewModel.Config, removed.FileName, replacement.FileName);
                 if (changed)
                 {
-                    await RefreshDiffAsync($"Replaced {removed.FileName} with {replacement.FileName}");
+                    DiffStatusMessage = string.Format(Texts.ReplacedModStatus, removed.FileName, replacement.FileName);
+                    await RefreshDiffAsync(DiffStatusMessage);
                 }
                 else
                 {
-                    DiffStatusMessage = $"{replacement.FileName} is no longer pending.";
+                    DiffStatusMessage = string.Format(Texts.ModNoLongerPendingStatus, replacement.FileName);
                 }
             }
             catch (Exception ex)
             {
-                DiffStatusMessage = $"Failed to replace {removed.FileName}: {ex.Message}";
+                DiffStatusMessage = string.Format(Texts.FailedToReplaceError, removed.FileName) + " " + ex.Message;
             }
         }
 
@@ -514,44 +488,17 @@ namespace LoadOrderKeeper.ViewModels
 
             if (hasRemovedMods || hasInsertedMods)
             {
-                // Calculate total affected mods (removed + inserted + their dependent changes)
-                int totalAffectedMods = removedMods.Count + insertedMods.Count;
-                totalAffectedMods += removedMods.Sum(mod => mod.DependentChanges.Count);
-                totalAffectedMods += insertedMods.Sum(mod => mod.DependentChanges.Count);
-
-                // Build confirmation message
-                var messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine("You are about to update the reference file with the following changes:");
-                messageBuilder.AppendLine();
-
-                if (hasRemovedMods)
-                {
-                    messageBuilder.AppendLine($"• {removedMods.Count} mod(s) have been removed.");
-                }
-
-                if (hasInsertedMods)
-                {
-                    messageBuilder.AppendLine($"• {insertedMods.Count} mod(s) have been inserted.");
-                }
-
-                messageBuilder.AppendLine();
-                messageBuilder.AppendLine($"This affects a total of {totalAffectedMods} mod(s).");
-                messageBuilder.AppendLine();
-                messageBuilder.AppendLine("These changes will become the new reference state.");
-                messageBuilder.AppendLine();
-                messageBuilder.AppendLine("Do you want to continue?");
-
                 // Request confirmation from the view
                 var eventArgs = new ConfirmationRequestedEventArgs(
-                    "Confirm Reference Update",
-                    messageBuilder.ToString(),
+                    Texts.ConfirmUpdateTitle,
+                    Texts.ConfirmUpdateMessage,
                     ConfirmationIcon.Warning,
                     ConfirmationButton.YesNo);
                 ConfirmationRequested?.Invoke(this, eventArgs);
 
                 if (eventArgs.Result != ConfirmationResult.Yes)
                 {
-                    DiffStatusMessage = "Reference update cancelled.";
+                    DiffStatusMessage = Texts.ReferenceUpdateCancelledStatus;
                     return;
                 }
             }
@@ -577,26 +524,25 @@ namespace LoadOrderKeeper.ViewModels
 
                 // Show success message
                 var eventArgs = new ConfirmationRequestedEventArgs(
-                    "Debug State Copied",
-                    "The debug state has been successfully copied to your clipboard in JSON format.\n\n" +
-                    "You can now paste this information to share with developers for troubleshooting.",
+                    Texts.DebugStateCopiedTitle,
+                    Texts.DebugStateCopiedMessage,
                     ConfirmationIcon.Information,
                     ConfirmationButton.OK);
                 ConfirmationRequested?.Invoke(this, eventArgs);
 
-                DiffStatusMessage = "Debug state copied to clipboard.";
+                DiffStatusMessage = Texts.DebugStateCopiedStatus;
             }
             catch (Exception ex)
             {
                 // Show error message
                 var eventArgs = new ConfirmationRequestedEventArgs(
-                    "Copy Failed",
-                    $"Failed to copy debug state to clipboard:\n\n{ex.Message}",
+                    Texts.CopyFailedTitle,
+                    string.Format(Texts.FailedToCopyError) + "\n\n" + ex.Message,
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK);
                 ConfirmationRequested?.Invoke(this, eventArgs);
 
-                DiffStatusMessage = $"Failed to copy debug state: {ex.Message}";
+                DiffStatusMessage = string.Format(Texts.FailedToCopyError) + " " + ex.Message;
             }
         }
 

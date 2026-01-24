@@ -18,7 +18,7 @@
     "OpenReferenceMenuText": "_Referenzdatei öffnen",
     "OpenAppDataFolderMenuText": "_AppData-Ordner öffnen",
     "OpenGameFolderMenuText": "_Spielordner öffnen",
-    "ExitMenuText": "_Beenden",
+    "ExitMenuText": "_Schließen",
     "EditMenuHeader": "_Bearbeiten",
     "SettingsMenuText": "_Einstellungen...",
     "ProfileMenuHeader": "_Profil",
@@ -53,7 +53,7 @@
     "OpenLogFolderTooltip": "öffnet den Ordner, der die error.log-Datei enthält",
     "ReportBugButtonText": "Fehler melden",
     "ReportBugTooltip": "öffnet die GitHub-Problemseite, um diesen Fehler zu melden",
-    "ExitButtonText": "Beenden",
+    "ExitButtonText": "Schließen",
     "ExitTooltip": "Anwendung beenden (empfohlen)",
     "IgnoreButtonText": "Ignorieren (Unsicher)",
     "IgnoreTooltip": "Weiter ausführen - Anwendung könnte sich in einem instabilen Zustand befinden",
@@ -137,17 +137,34 @@
     "DebugStateCopiedMessage": "Der Debug-Status wurde erfolgreich im JSON-Format in Ihre Zwischenablage kopiert.\n\nSie können diese Informationen nun einfügen, um sie mit Entwicklern zur Fehlerbehebung zu teilen.",
     "DebugStateCopiedStatus": "Debug-Status in Zwischenablage kopiert.",
     "CopyFailedTitle": "Kopieren fehlgeschlagen",
-    "FailedToCopyError": "Kopieren des Debug-Status in Zwischenablage fehlgeschlagen"
+    "FailedToCopyError": "Kopieren des Debug-Status in Zwischenablage fehlgeschlagen",
+    "ReEnableModMenuText": "Mod reaktivieren",
+    "ReplaceWithMenuText": "Ersetzen mit...",
+    "RemoveModMenuText": "Mod entfernen",
+    "CopyDebugStateMenuText": "Debug-Status kopieren",
+    "FixLoadOrderButtonText": "Ladereihenfolge korrigieren",
+    "SortingInsertedWarning": "WICHTIG: Mods wurden in die Mitte der Ladereihenfolge eingefügt. Sortieren Sie die Liste zuerst, um sie ans Ende zu verschieben, bevor Sie andere Änderungen vornehmen.",
+    "ReplacedText_Description": "{0} durch {1} in Zeile {2} ersetzt",
+    "RemovedText_Description": "#{0}: {1} aus der Ladereihenfolge entfernt",
+    "InsertedText_Action": "eingefügt in",
+    "AddedText_Action": "hinzugefügt zu",
+    "ModChangeText_Description": "#{0}: {1} {2} Ladereihenfolge",
+    "MovedText_Description": "{0} von #{1} nach #{2} verschoben"
   },
   "ManageProfiles": {
     "WindowTitle": "Profile verwalten",
-    "FileMenuText": "Datei",
+    "FileMenuText": "_Datei",
     "AddProfileMenuText": "Profil hinzufügen",
+    "ExitMenuText": "_Schließen",
     "EditProfileMenuText": "Bearbeiten",
     "DeleteProfileMenuText": "Löschen",
     "CopyProfileMenuText": "Kopieren",
     "AddProfileButtonText": "Profil hinzufügen",
-    "CloseButtonText": "Schließen"
+    "CloseButtonText": "Schließen",
+    "LabelColumnHeader": "Bezeichnung",
+    "DescriptionColumnHeader": "Beschreibung",
+    "DefaultProfileLabel": "Standard",
+    "DefaultProfileDescription": "Das Standardprofil ist immer verfügbar."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Profil erstellen",
@@ -174,7 +191,7 @@
   "ReferenceHistory": {
     "WindowTitle": "Referenzdatei-Versionsverlauf",
     "FileMenuText": "_Datei",
-    "ExitMenuText": "_Beenden",
+    "ExitMenuText": "_Schließen",
     "EditMenuText": "_Bearbeiten",
     "ClearHistoryMenuText": "Verlauf _löschen...",
     "RollbackButtonText": "Auf ausgewählte Version zurücksetzen...",
@@ -192,7 +209,9 @@
     "WindowTitleOptions": "Download-Optionen",
     "NexusmodsButtonText": "Auf Nexusmods öffnen",
     "GitHubButtonText": "Auf GitHub öffnen",
-    "CancelButtonText": "Abbrechen"
+    "CancelButtonText": "Abbrechen",
+    "MessageUpdateAvailable": "Eine neue Version ist verfügbar!\n\nAktuelle Version: {0}\nNeueste Version: {1}\n\nWählen Sie Ihre bevorzugte Download-Quelle:",
+    "MessageCheckFailed": "Automatische Update-Prüfung nicht möglich.\n\nAktuelle Version: {0}\n\nSie können manuell nach Updates an diesen Orten suchen:"
   },
   "ViewPendingChanges": {
     "WindowTitle": "Ausstehende Änderungen",
@@ -226,5 +245,10 @@
     "SteamWarningTooltip": "Steam läuft nicht. SFSE benötigt Steam, um korrekt zu funktionieren.",
     "SortingInsertedWarning": "WICHTIG: Mods wurden in die Mitte der Ladereihenfolge eingefügt. Sortieren Sie die Liste zuerst, um sie ans Ende zu verschieben, bevor Sie andere Änderungen vornehmen.",
     "SortingRecommended": "Sortierung empfohlen: Führen Sie 'Ladereihenfolge korrigieren' aus, bevor Sie andere Änderungen vornehmen."
+  },
+  "ConfigInvalidOverlay": {
+    "Title": "Konfiguration erforderlich",
+    "MessageLine1": "Bitte beheben Sie die Konfiguration in den Einstellungen des Hauptfensters.",
+    "MessageLine2": "Dieses Fenster wird verwendbar, sobald die Konfiguration gültig ist."
   }
 }

@@ -5,6 +5,8 @@ namespace LoadOrderKeeper.Services
 {
     public static class DiffService
     {
+        private static readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
+
         public static async Task<IReadOnlyList<DiffLineModel>> GetPluginsDiffAsync(AppConfigModel config)
         {
             if (config is null)
@@ -48,13 +50,12 @@ namespace LoadOrderKeeper.Services
                 if (replacements.TryGetValue(diff, out var replacement))
                 {
                     int? lineNumber = diff.ReferenceNumber ?? replacement.CurrentNumber;
-                    string lineDescription = lineNumber is int number ? $"line {number}" : "the load order";
-                    string text = $"{displayName} replaced by {replacement.FileName} in {lineDescription}";
+                    string text = _localization.GetString("DiffDialog", "ReplacedText_Description", displayName, replacement.FileName, lineNumber ?? 0);
                     result.Add(new DiffLineModel(displayName, text, DiffChangeType.Replaced, diff.ReferenceNumber, replacement.CurrentNumber, replacement.FileName));
                 }
                 else if (diff.IsRemoved)
                 {
-                    string text = $"#{diff.ReferenceNumber}: {displayName} removed from load order";
+                    string text = _localization.GetString("DiffDialog", "RemovedText_Description", diff.ReferenceNumber ?? 0, displayName);
                     result.Add(new DiffLineModel(displayName, text, DiffChangeType.Removed, diff.ReferenceNumber, diff.CurrentNumber));
                 }
                 else if (diff.IsNew)
@@ -66,12 +67,15 @@ namespace LoadOrderKeeper.Services
 
                     bool isInserted = diff.CurrentNumber.HasValue && diff.CurrentNumber.Value <= maxReferenceNumber;
                     DiffChangeType changeType = isInserted ? DiffChangeType.Inserted : DiffChangeType.Added;
-                    string text = $"#{diff.CurrentNumber}: {displayName} {(isInserted ? "inserted into" : "added to")} load order";
+                    string actionText = isInserted 
+                        ? _localization.GetString("DiffDialog", "InsertedText_Action")
+                        : _localization.GetString("DiffDialog", "AddedText_Action");
+                    string text = _localization.GetString("DiffDialog", "ModChangeText_Description", diff.CurrentNumber ?? 0, displayName, actionText);
                     result.Add(new DiffLineModel(displayName, text, changeType, diff.ReferenceNumber, diff.CurrentNumber));
                 }
                 else if (diff.IsMoved)
                 {
-                    string text = $"{displayName} moved from #{diff.ReferenceNumber} to #{diff.CurrentNumber}";
+                    string text = _localization.GetString("DiffDialog", "MovedText_Description", displayName, diff.ReferenceNumber ?? 0, diff.CurrentNumber ?? 0);
                     result.Add(new DiffLineModel(displayName, text, DiffChangeType.Moved, diff.ReferenceNumber, diff.CurrentNumber));
                 }
             }

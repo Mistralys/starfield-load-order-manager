@@ -11,7 +11,7 @@
         Title="{Binding Title}"
         d:Title="Diff Window"
         Height="494"
-        Width="682"
+        Width="810"
         MinWidth="480"
         MinHeight="360"
         WindowStartupLocation="CenterOwner"
@@ -418,7 +418,8 @@
         </DockPanel>
         
         <!-- Configuration Invalid Overlay -->
-        <controls:ConfigInvalidOverlay Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+        <controls:ConfigInvalidOverlay d:Visibility="Collapsed"
+                                      Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>
 </Window>

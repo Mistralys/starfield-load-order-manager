@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="{Binding Menu.WindowTitle}"
         Height="451"
-        Width="576"
+        Width="685"
         MinWidth="480"
         MinHeight="280"
         Style="{StaticResource MaterialDesignDefaultWindowStyle}"

@@ -74,6 +74,14 @@ namespace LoadOrderKeeper.ViewTexts
         public string DebugStateCopiedStatus => _localization.GetString("DiffDialog", "DebugStateCopiedStatus");
         public string CopyFailedTitle => _localization.GetString("DiffDialog", "CopyFailedTitle");
         public string FailedToCopyError => _localization.GetString("DiffDialog", "FailedToCopyError");
+        
+        // Context Menu
+        public string ReEnableModMenuText => _localization.GetString("DiffDialog", "ReEnableModMenuText");
+        public string ReplaceWithMenuText => _localization.GetString("DiffDialog", "ReplaceWithMenuText");
+        public string RemoveModMenuText => _localization.GetString("DiffDialog", "RemoveModMenuText");
+        public string CopyDebugStateMenuText => _localization.GetString("DiffDialog", "CopyDebugStateMenuText");
+        public string FixLoadOrderButtonText => _localization.GetString("DiffDialog", "FixLoadOrderButtonText");
+        public string SortingInsertedWarning => _localization.GetString("DiffDialog", "SortingInsertedWarning");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -119,6 +127,12 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(DebugStateCopiedStatus));
             OnPropertyChanged(nameof(CopyFailedTitle));
             OnPropertyChanged(nameof(FailedToCopyError));
+            OnPropertyChanged(nameof(ReEnableModMenuText));
+            OnPropertyChanged(nameof(ReplaceWithMenuText));
+            OnPropertyChanged(nameof(RemoveModMenuText));
+            OnPropertyChanged(nameof(CopyDebugStateMenuText));
+            OnPropertyChanged(nameof(FixLoadOrderButtonText));
+            OnPropertyChanged(nameof(SortingInsertedWarning));
         }
 
         /// <summary>

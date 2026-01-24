@@ -51,7 +51,7 @@ namespace LoadOrderKeeper.ViewModels
         private string _referenceButtonText = "Create Reference";
 
         [ObservableProperty]
-        private string _fixLoadOrderButtonText = "Sort mods";
+        private string _fixLoadOrderButtonText = string.Empty;
 
         [ObservableProperty]
         private string _showChangesButtonText = "Manage load order";
@@ -115,6 +115,7 @@ namespace LoadOrderKeeper.ViewModels
 
             // Initialize localized button text
             ShowChangesButtonText = MainWindowTexts.ShowChangesButtonText;
+            FixLoadOrderButtonText = new DiffDialogTexts().FixLoadOrderButtonText;
 
             // Use CoordinatorEventBinder to consolidate property change forwarding
             var binder = new CoordinatorEventBinder(OnPropertyChanged);

@@ -24,6 +24,10 @@ namespace LoadOrderKeeper.ViewTexts
         public string NexusmodsButtonText => _localization.GetString("UpdateOptions", "NexusmodsButtonText");
         public string GitHubButtonText => _localization.GetString("UpdateOptions", "GitHubButtonText");
         public string CancelButtonText => _localization.GetString("UpdateOptions", "CancelButtonText");
+        
+        // Messages
+        public string MessageUpdateAvailable => _localization.GetString("UpdateOptions", "MessageUpdateAvailable");
+        public string MessageCheckFailed => _localization.GetString("UpdateOptions", "MessageCheckFailed");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -35,6 +39,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(NexusmodsButtonText));
             OnPropertyChanged(nameof(GitHubButtonText));
             OnPropertyChanged(nameof(CancelButtonText));
+            OnPropertyChanged(nameof(MessageUpdateAvailable));
+            OnPropertyChanged(nameof(MessageCheckFailed));
         }
 
         /// <summary>

@@ -31,8 +31,8 @@ This manifest is split into logical sections for easier maintenance:
 - **UI Framework**: WPF with MaterialDesign v5
 - **Architecture**: MVVM + Coordinator Pattern + Instance Services
 - **Localization**: JSON-based with zero-hardcoding architecture
-  - **Supported Languages**: 5 (English, German, French, Spanish, Italian)
-  - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT
+  - **Supported Languages**: 8 (English, German, French, Spanish, Italian, Simplified Chinese, Japanese, Portuguese)
+  - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT, zh-CN, ja-JP, pt-BR
   - **Total Strings**: 189 translated strings per locale
   - **User-Selectable**: Language preference dropdown in Settings
   - **Auto-Detection**: Automatic system locale detection
@@ -98,14 +98,14 @@ Each locale file (`en-US.json`, `de-DE.json`, etc.) contains:
 ### Language Preference System
 
 **User-facing features**:
-- Language dropdown in Settings window (6 options: Automatic + 5 languages)
+- Language dropdown in Settings window (9 options: Automatic + 8 languages)
 - Automatic system locale detection (when set to "Automatic")
 - Persistence across application restarts
 - Restart notification banner when language changes
 
 **Configuration**:
 - Stored in `config.json` as `PreferredLanguage` property
-- Values: `"auto"` (default), `"en-US"`, `"de-DE"`, `"fr-FR"`, `"es-ES"`, `"it-IT"`
+- Values: `"auto"` (default), `"en-US"`, `"de-DE"`, `"fr-FR"`, `"es-ES"`, `"it-IT"`, `"zh-CN"`, `"ja-JP"`, `"pt-BR"`
 - Applied on application startup via `ViewModelInitializer`
 
 **Implementation details**:
@@ -131,9 +131,18 @@ To add a new language (e.g., Portuguese):
    }
    ```
 3. **Translate** all string values
-4. **Build** application (to include content file)
-5. **Done** - Language appears in dropdown automatically
+4. **Configure build action** in `.csproj` (**CRITICAL - DO NOT SKIP**):
+   ```xml
+   <ItemGroup>
+     <Content Include="ViewTexts\Locales\pt-BR.json">
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+   </ItemGroup>
+   ```
+5. **Build** application (to include content file)
+6. **Verify**: Check `bin/.../ViewTexts/Locales/pt-BR.json` exists after build
+7. **Done** - Language appears in dropdown automatically
 
 **No code changes required. No compilation needed for translations.**
 
----
+**?? Common Mistake**: Forgetting step 4 means the file won't be copied during build and the language won't appear in the dropdown, even though all code supports it.

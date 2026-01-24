@@ -52,10 +52,13 @@ public partial class ManageProfilesViewModel : ObservableObject
     public string AddProfileButtonText => _texts.AddProfileButtonText;
     public string FileMenuText => _texts.FileMenuText;
     public string AddProfileMenuText => _texts.AddProfileMenuText;
+    public string ExitMenuText => _texts.ExitMenuText;
     public string EditProfileMenuText => _texts.EditProfileMenuText;
     public string DeleteProfileMenuText => _texts.DeleteProfileMenuText;
     public string CopyProfileMenuText => _texts.CopyProfileMenuText;
     public string CloseButtonText => _texts.CloseButtonText;
+    public string LabelColumnHeader => _texts.LabelColumnHeader;
+    public string DescriptionColumnHeader => _texts.DescriptionColumnHeader;
 
     public ManageProfilesViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
     {

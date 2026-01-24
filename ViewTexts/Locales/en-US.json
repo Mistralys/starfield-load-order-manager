@@ -137,17 +137,34 @@
     "DebugStateCopiedMessage": "The debug state has been successfully copied to your clipboard in JSON format.\n\nYou can now paste this information to share with developers for troubleshooting.",
     "DebugStateCopiedStatus": "Debug state copied to clipboard.",
     "CopyFailedTitle": "Copy Failed",
-    "FailedToCopyError": "Failed to copy debug state to clipboard"
+    "FailedToCopyError": "Failed to copy debug state to clipboard",
+    "ReEnableModMenuText": "Re-enable mod",
+    "ReplaceWithMenuText": "Replace with...",
+    "RemoveModMenuText": "Remove mod",
+    "CopyDebugStateMenuText": "Copy Debug State",
+    "FixLoadOrderButtonText": "Fix Load Order",
+    "SortingInsertedWarning": "IMPORTANT: Mods were inserted into the middle of the load order. Sort the list first to move them to the end before making other changes.",
+    "ReplacedText_Description": "{0} replaced by {1} in line {2}",
+    "RemovedText_Description": "#{0}: {1} removed from load order",
+    "InsertedText_Action": "inserted into",
+    "AddedText_Action": "added to",
+    "ModChangeText_Description": "#{0}: {1} {2} load order",
+    "MovedText_Description": "{0} moved from #{1} to #{2}"
   },
   "ManageProfiles": {
     "WindowTitle": "Manage Profiles",
-    "FileMenuText": "File",
+    "FileMenuText": "_File",
     "AddProfileMenuText": "Add Profile",
+    "ExitMenuText": "E_xit",
     "EditProfileMenuText": "Edit",
     "DeleteProfileMenuText": "Delete",
     "CopyProfileMenuText": "Copy",
     "AddProfileButtonText": "Add Profile",
-    "CloseButtonText": "Close"
+    "CloseButtonText": "Close",
+    "LabelColumnHeader": "Label",
+    "DescriptionColumnHeader": "Description",
+    "DefaultProfileLabel": "Default",
+    "DefaultProfileDescription": "The default profile is always available."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Create Profile",
@@ -192,7 +209,9 @@
     "WindowTitleOptions": "Download Options",
     "NexusmodsButtonText": "Open on Nexusmods",
     "GitHubButtonText": "Open on GitHub",
-    "CancelButtonText": "Cancel"
+    "CancelButtonText": "Cancel",
+    "MessageUpdateAvailable": "A new version is available!\n\nCurrent version: {0}\nLatest version: {1}\n\nChoose your preferred download source:",
+    "MessageCheckFailed": "Unable to check for updates automatically.\n\nCurrent version: {0}\n\nYou can check for updates manually at these locations:"
   },
   "ViewPendingChanges": {
     "WindowTitle": "Pending Changes",
@@ -224,7 +243,12 @@
   },
   "FileMonitoring": {
     "SteamWarningTooltip": "Steam is not running. SFSE requires Steam to be open to function correctly.",
-    "SortingInsertedWarning": "IMPORTANT: Mods were inserted in the middle of the load order. Sort the list first to move them to the end before making other changes.",
+    "SortingInsertedWarning": "IMPORTANT: Mods were inserted into the middle of the load order. Sort the list first to move them to the end before making other changes.",
     "SortingRecommended": "Sorting recommended: run Fix Load Order before resolving other changes."
+  },
+  "ConfigInvalidOverlay": {
+    "Title": "Configuration Required",
+    "MessageLine1": "Please fix the configuration in the main window's settings.",
+    "MessageLine2": "This window will become usable when the configuration is valid."
   }
 }

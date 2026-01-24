@@ -137,17 +137,34 @@
     "DebugStateCopiedMessage": "El estado de depuración se ha copiado correctamente en tu portapapeles en formato JSON.\n\nAhora puedes pegar esta información para compartirla con los desarrolladores para solucionar problemas.",
     "DebugStateCopiedStatus": "Estado de depuración copiado al portapapeles.",
     "CopyFailedTitle": "Error al copiar",
-    "FailedToCopyError": "Error al copiar el estado de depuración al portapapeles"
+    "FailedToCopyError": "Error al copiar el estado de depuración al portapapeles",
+    "ReEnableModMenuText": "Reactivar mod",
+    "ReplaceWithMenuText": "Reemplazar con...",
+    "RemoveModMenuText": "Eliminar mod",
+    "CopyDebugStateMenuText": "Copiar estado de depuración",
+    "FixLoadOrderButtonText": "Corregir orden de carga",
+    "SortingInsertedWarning": "IMPORTANTE: Los mods se insertaron en medio del orden de carga. Ordena la lista primero para moverlos al final antes de realizar otros cambios.",
+    "ReplacedText_Description": "{0} reemplazado con {1} en la línea {2}",
+    "RemovedText_Description": "#{0}: {1} eliminado del orden de carga",
+    "InsertedText_Action": "insertado en",
+    "AddedText_Action": "añadido a",
+    "ModChangeText_Description": "#{0}: {1} {2} el orden de carga",
+    "MovedText_Description": "{0} movido de #{1} a #{2}"
   },
   "ManageProfiles": {
     "WindowTitle": "Gestionar perfiles",
-    "FileMenuText": "Archivo",
-    "AddProfileMenuText": "Añadir perfil",
+    "FileMenuText": "_Archivo",
+    "AddProfileMenuText": "Agregar perfil",
+    "ExitMenuText": "_Salir",
     "EditProfileMenuText": "Editar",
     "DeleteProfileMenuText": "Eliminar",
     "CopyProfileMenuText": "Copiar",
-    "AddProfileButtonText": "Añadir perfil",
-    "CloseButtonText": "Cerrar"
+    "AddProfileButtonText": "Agregar perfil",
+    "CloseButtonText": "Cerrar",
+    "LabelColumnHeader": "Etiqueta",
+    "DescriptionColumnHeader": "Descripción",
+    "DefaultProfileLabel": "Predeterminado",
+    "DefaultProfileDescription": "El perfil predeterminado siempre está disponible."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Crear perfil",
@@ -192,7 +209,9 @@
     "WindowTitleOptions": "Opciones de descarga",
     "NexusmodsButtonText": "Abrir en Nexusmods",
     "GitHubButtonText": "Abrir en GitHub",
-    "CancelButtonText": "Cancelar"
+    "CancelButtonText": "Cancelar",
+    "MessageUpdateAvailable": "¡Una nueva versión está disponible!\n\nVersión actual: {0}\nÚltima versión: {1}\n\nElige tu fuente de descarga preferida:",
+    "MessageCheckFailed": "No se puede verificar actualizaciones automáticamente.\n\nVersión actual: {0}\n\nPuedes verificar actualizaciones manualmente en estas ubicaciones:"
   },
   "ViewPendingChanges": {
     "WindowTitle": "Cambios pendientes",
@@ -226,5 +245,10 @@
     "SteamWarningTooltip": "Steam no está ejecutándose. SFSE requiere que Steam esté abierto para funcionar correctamente.",
     "SortingInsertedWarning": "IMPORTANTE: Los mods se insertaron en medio del orden de carga. Ordena la lista primero para moverlos al final antes de realizar otros cambios.",
     "SortingRecommended": "Se recomienda ordenar: ejecuta Fix Load Order antes de resolver otros cambios."
+  },
+  "ConfigInvalidOverlay": {
+    "Title": "Configuración requerida",
+    "MessageLine1": "Por favor, corrija la configuración en los ajustes de la ventana principal.",
+    "MessageLine2": "Esta ventana será utilizable cuando la configuración sea válida."
   }
 }

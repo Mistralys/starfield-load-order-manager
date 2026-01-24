@@ -162,7 +162,9 @@
     "AddProfileButtonText": "Profil hinzufügen",
     "CloseButtonText": "Schließen",
     "LabelColumnHeader": "Bezeichnung",
-    "DescriptionColumnHeader": "Beschreibung"
+    "DescriptionColumnHeader": "Beschreibung",
+    "DefaultProfileLabel": "Standard",
+    "DefaultProfileDescription": "Das Standardprofil ist immer verfügbar."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Profil erstellen",

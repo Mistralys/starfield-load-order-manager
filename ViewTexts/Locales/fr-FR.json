@@ -162,7 +162,9 @@
     "AddProfileButtonText": "Ajouter un profil",
     "CloseButtonText": "Fermer",
     "LabelColumnHeader": "Libellé",
-    "DescriptionColumnHeader": "Description"
+    "DescriptionColumnHeader": "Description",
+    "DefaultProfileLabel": "Par défaut",
+    "DefaultProfileDescription": "Le profil par défaut est toujours disponible."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Créer un profil",
@@ -181,7 +183,7 @@
   },
   "SwitchProfile": {
     "WindowTitle": "Changer de profil",
-    "DescriptionText": "S�lectionnez un profil vers lequel basculer :",
+    "DescriptionText": "Sélectionnez un profil vers lequel basculer :",
     "SwitchButtonText": "Changer",
     "CancelButtonText": "Annuler",
     "CurrentProfileLabel": "Profil actuel"
@@ -235,7 +237,6 @@
     "ErrorPrefix": "ERREUR : {0}"
   },
   "StatusCoordinator": {
-    "InitializingApplication": "Initialisation de l'application...",
     "ReadyConfigValid": "Prêt. La configuration est valide.",
     "ConfigRequired": "Configuration requise. Veuillez définir les chemins dans la fenître Paramètres."
   },

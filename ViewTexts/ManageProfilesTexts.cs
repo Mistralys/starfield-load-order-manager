@@ -34,6 +34,10 @@ namespace LoadOrderKeeper.ViewTexts
         // Column Headers
         public string LabelColumnHeader => _localization.GetString("ManageProfiles", "LabelColumnHeader");
         public string DescriptionColumnHeader => _localization.GetString("ManageProfiles", "DescriptionColumnHeader");
+        
+        // Default Profile
+        public string DefaultProfileLabel => _localization.GetString("ManageProfiles", "DefaultProfileLabel");
+        public string DefaultProfileDescription => _localization.GetString("ManageProfiles", "DefaultProfileDescription");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -51,6 +55,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(CloseButtonText));
             OnPropertyChanged(nameof(LabelColumnHeader));
             OnPropertyChanged(nameof(DescriptionColumnHeader));
+            OnPropertyChanged(nameof(DefaultProfileLabel));
+            OnPropertyChanged(nameof(DefaultProfileDescription));
         }
 
         /// <summary>

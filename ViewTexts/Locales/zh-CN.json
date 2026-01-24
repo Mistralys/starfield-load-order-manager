@@ -162,7 +162,9 @@
     "AddProfileButtonText": "添加配置文件",
     "CloseButtonText": "关闭",
     "LabelColumnHeader": "标签",
-    "DescriptionColumnHeader": "描述"
+    "DescriptionColumnHeader": "描述",
+    "DefaultProfileLabel": "默认",
+    "DefaultProfileDescription": "默认配置文件始终可用。"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "创建配置文件",

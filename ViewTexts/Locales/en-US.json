@@ -162,7 +162,9 @@
     "AddProfileButtonText": "Add Profile",
     "CloseButtonText": "Close",
     "LabelColumnHeader": "Label",
-    "DescriptionColumnHeader": "Description"
+    "DescriptionColumnHeader": "Description",
+    "DefaultProfileLabel": "Default",
+    "DefaultProfileDescription": "The default profile is always available."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Create Profile",

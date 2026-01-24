@@ -162,7 +162,9 @@
     "AddProfileButtonText": "Aggiungi profilo",
     "CloseButtonText": "Chiudi",
     "LabelColumnHeader": "Etichetta",
-    "DescriptionColumnHeader": "Descrizione"
+    "DescriptionColumnHeader": "Descrizione",
+    "DefaultProfileLabel": "Predefinito",
+    "DefaultProfileDescription": "Il profilo predefinito è sempre disponibile."
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Crea profilo",

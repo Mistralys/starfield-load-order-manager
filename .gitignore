@@ -418,3 +418,6 @@ FodyWeavers.xsd
 *.msp
 README.bbcode
 Docs/Design/nexus-features.jpg
+
+# Generated merged documentation files
+Tools/*-Complete.md

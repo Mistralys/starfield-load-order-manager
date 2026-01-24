@@ -22,6 +22,7 @@ namespace LoadOrderKeeper.ViewTexts
         // Menu
         public string FileMenuText => _localization.GetString("ManageProfiles", "FileMenuText");
         public string AddProfileMenuText => _localization.GetString("ManageProfiles", "AddProfileMenuText");
+        public string ExitMenuText => _localization.GetString("ManageProfiles", "ExitMenuText");
         public string EditProfileMenuText => _localization.GetString("ManageProfiles", "EditProfileMenuText");
         public string DeleteProfileMenuText => _localization.GetString("ManageProfiles", "DeleteProfileMenuText");
         public string CopyProfileMenuText => _localization.GetString("ManageProfiles", "CopyProfileMenuText");
@@ -29,6 +30,10 @@ namespace LoadOrderKeeper.ViewTexts
         // Buttons
         public string AddProfileButtonText => _localization.GetString("ManageProfiles", "AddProfileButtonText");
         public string CloseButtonText => _localization.GetString("ManageProfiles", "CloseButtonText");
+        
+        // Column Headers
+        public string LabelColumnHeader => _localization.GetString("ManageProfiles", "LabelColumnHeader");
+        public string DescriptionColumnHeader => _localization.GetString("ManageProfiles", "DescriptionColumnHeader");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -38,11 +43,14 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(FileMenuText));
             OnPropertyChanged(nameof(AddProfileMenuText));
+            OnPropertyChanged(nameof(ExitMenuText));
             OnPropertyChanged(nameof(EditProfileMenuText));
             OnPropertyChanged(nameof(DeleteProfileMenuText));
             OnPropertyChanged(nameof(CopyProfileMenuText));
             OnPropertyChanged(nameof(AddProfileButtonText));
             OnPropertyChanged(nameof(CloseButtonText));
+            OnPropertyChanged(nameof(LabelColumnHeader));
+            OnPropertyChanged(nameof(DescriptionColumnHeader));
         }
 
         /// <summary>

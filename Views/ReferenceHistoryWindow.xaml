@@ -202,6 +202,7 @@
         
         <!-- Configuration Invalid Overlay -->
         <controls:ConfigInvalidOverlay Grid.RowSpan="4"
+                                      d:Visibility="Collapsed"
                                       Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>

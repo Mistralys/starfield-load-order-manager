@@ -418,7 +418,8 @@
         </DockPanel>
         
         <!-- Configuration Invalid Overlay -->
-        <controls:ConfigInvalidOverlay Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
+        <controls:ConfigInvalidOverlay d:Visibility="Collapsed"
+                                      Visibility="{Binding ShowOverlay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                       Panel.ZIndex="1000" />
     </Grid>
 </Window>

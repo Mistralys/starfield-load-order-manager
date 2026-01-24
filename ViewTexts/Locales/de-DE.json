@@ -18,7 +18,7 @@
     "OpenReferenceMenuText": "_Referenzdatei öffnen",
     "OpenAppDataFolderMenuText": "_AppData-Ordner öffnen",
     "OpenGameFolderMenuText": "_Spielordner öffnen",
-    "ExitMenuText": "_Beenden",
+    "ExitMenuText": "_Schließen",
     "EditMenuHeader": "_Bearbeiten",
     "SettingsMenuText": "_Einstellungen...",
     "ProfileMenuHeader": "_Profil",
@@ -53,7 +53,7 @@
     "OpenLogFolderTooltip": "öffnet den Ordner, der die error.log-Datei enthält",
     "ReportBugButtonText": "Fehler melden",
     "ReportBugTooltip": "öffnet die GitHub-Problemseite, um diesen Fehler zu melden",
-    "ExitButtonText": "Beenden",
+    "ExitButtonText": "Schließen",
     "ExitTooltip": "Anwendung beenden (empfohlen)",
     "IgnoreButtonText": "Ignorieren (Unsicher)",
     "IgnoreTooltip": "Weiter ausführen - Anwendung könnte sich in einem instabilen Zustand befinden",
@@ -153,13 +153,16 @@
   },
   "ManageProfiles": {
     "WindowTitle": "Profile verwalten",
-    "FileMenuText": "Datei",
+    "FileMenuText": "_Datei",
     "AddProfileMenuText": "Profil hinzufügen",
+    "ExitMenuText": "_Schließen",
     "EditProfileMenuText": "Bearbeiten",
     "DeleteProfileMenuText": "Löschen",
     "CopyProfileMenuText": "Kopieren",
     "AddProfileButtonText": "Profil hinzufügen",
-    "CloseButtonText": "Schließen"
+    "CloseButtonText": "Schließen",
+    "LabelColumnHeader": "Bezeichnung",
+    "DescriptionColumnHeader": "Beschreibung"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Profil erstellen",
@@ -186,7 +189,7 @@
   "ReferenceHistory": {
     "WindowTitle": "Referenzdatei-Versionsverlauf",
     "FileMenuText": "_Datei",
-    "ExitMenuText": "_Beenden",
+    "ExitMenuText": "_Schließen",
     "EditMenuText": "_Bearbeiten",
     "ClearHistoryMenuText": "Verlauf _löschen...",
     "RollbackButtonText": "Auf ausgewählte Version zurücksetzen...",

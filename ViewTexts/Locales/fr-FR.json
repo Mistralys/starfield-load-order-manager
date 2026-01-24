@@ -153,13 +153,16 @@
   },
   "ManageProfiles": {
     "WindowTitle": "Gérer les profils",
-    "FileMenuText": "Fichier",
+    "FileMenuText": "_Fichier",
     "AddProfileMenuText": "Ajouter un profil",
+    "ExitMenuText": "_Quitter",
     "EditProfileMenuText": "Modifier",
     "DeleteProfileMenuText": "Supprimer",
     "CopyProfileMenuText": "Copier",
     "AddProfileButtonText": "Ajouter un profil",
-    "CloseButtonText": "Fermer"
+    "CloseButtonText": "Fermer",
+    "LabelColumnHeader": "Libellé",
+    "DescriptionColumnHeader": "Description"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Créer un profil",

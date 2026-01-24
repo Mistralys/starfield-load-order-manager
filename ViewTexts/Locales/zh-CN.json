@@ -153,13 +153,16 @@
   },
   "ManageProfiles": {
     "WindowTitle": "管理配置文件",
-    "FileMenuText": "文件",
+    "FileMenuText": "文件(_F)",
     "AddProfileMenuText": "添加配置文件",
+    "ExitMenuText": "退出(_X)",
     "EditProfileMenuText": "编辑",
     "DeleteProfileMenuText": "删除",
     "CopyProfileMenuText": "复制",
     "AddProfileButtonText": "添加配置文件",
-    "CloseButtonText": "关闭"
+    "CloseButtonText": "关闭",
+    "LabelColumnHeader": "标签",
+    "DescriptionColumnHeader": "描述"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "创建配置文件",

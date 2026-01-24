@@ -5,7 +5,7 @@
     "ConfigErrorBannerText": "Errore di configurazione del percorso, si prega di controllare i percorsi configurati.",
     "OpenSettingsButtonText": "Apri impostazioni",
     "ShowChangesButtonText": "Gestisci ordine di caricamento",
-    "ShowChangesButtonTextWithCount": "Gestisci ordine di caricamento ({0} modifiche)",
+    "ShowChangesButtonTextWithCount": "Gestisci ordine di carreggiamento ({0} modifiche)",
     "DismissTooltip": "Ignora",
     "PlayButtonSfse": "Gioca (SFSE)",
     "PlayButtonVanilla": "Gioca (Vanilla)",
@@ -153,13 +153,16 @@
   },
   "ManageProfiles": {
     "WindowTitle": "Gestisci profili",
-    "FileMenuText": "File",
+    "FileMenuText": "_File",
     "AddProfileMenuText": "Aggiungi profilo",
+    "ExitMenuText": "_Esci",
     "EditProfileMenuText": "Modifica",
     "DeleteProfileMenuText": "Elimina",
     "CopyProfileMenuText": "Copia",
     "AddProfileButtonText": "Aggiungi profilo",
-    "CloseButtonText": "Chiudi"
+    "CloseButtonText": "Chiudi",
+    "LabelColumnHeader": "Etichetta",
+    "DescriptionColumnHeader": "Descrizione"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Crea profilo",

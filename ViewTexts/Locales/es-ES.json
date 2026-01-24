@@ -153,13 +153,16 @@
   },
   "ManageProfiles": {
     "WindowTitle": "Gestionar perfiles",
-    "FileMenuText": "Archivo",
-    "AddProfileMenuText": "Añadir perfil",
+    "FileMenuText": "_Archivo",
+    "AddProfileMenuText": "Agregar perfil",
+    "ExitMenuText": "_Salir",
     "EditProfileMenuText": "Editar",
     "DeleteProfileMenuText": "Eliminar",
     "CopyProfileMenuText": "Copiar",
-    "AddProfileButtonText": "Añadir perfil",
-    "CloseButtonText": "Cerrar"
+    "AddProfileButtonText": "Agregar perfil",
+    "CloseButtonText": "Cerrar",
+    "LabelColumnHeader": "Etiqueta",
+    "DescriptionColumnHeader": "Descripción"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Crear perfil",

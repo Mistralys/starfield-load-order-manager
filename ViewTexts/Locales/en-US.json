@@ -153,13 +153,16 @@
   },
   "ManageProfiles": {
     "WindowTitle": "Manage Profiles",
-    "FileMenuText": "File",
+    "FileMenuText": "_File",
     "AddProfileMenuText": "Add Profile",
+    "ExitMenuText": "E_xit",
     "EditProfileMenuText": "Edit",
     "DeleteProfileMenuText": "Delete",
     "CopyProfileMenuText": "Copy",
     "AddProfileButtonText": "Add Profile",
-    "CloseButtonText": "Close"
+    "CloseButtonText": "Close",
+    "LabelColumnHeader": "Label",
+    "DescriptionColumnHeader": "Description"
   },
   "ProfileProperties": {
     "WindowTitleCreate": "Create Profile",

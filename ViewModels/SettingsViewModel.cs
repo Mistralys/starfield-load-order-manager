@@ -180,11 +180,11 @@ namespace LoadOrderKeeper.ViewModels
             {
                 if (string.IsNullOrWhiteSpace(StarfieldAppDataPath))
                 {
-                    errors.Add("The app data path is not configured");
+                    errors.Add(Texts.AppDataNotConfiguredMessage);
                 }
                 else
                 {
-                    errors.Add("The app data path is invalid");
+                    errors.Add(Texts.InvalidAppDataMessage);
                 }
             }
 
@@ -198,16 +198,16 @@ namespace LoadOrderKeeper.ViewModels
             {
                 if (string.IsNullOrWhiteSpace(StarfieldGamePath))
                 {
-                    errors.Add("The game path is not configured");
+                    errors.Add(Texts.GamePathNotConfiguredMessage);
                 }
                 else
                 {
-                    errors.Add("The game path is invalid");
+                    errors.Add(Texts.InvalidGamePathMessage);
                 }
             }
             else if (!dataFolderValid)
             {
-                errors.Add("The game Data folder was not found");
+                errors.Add(Texts.GameDataFolderNotFoundMessage);
             }
 
             // Check Plugins.txt if AppData path is valid
@@ -216,7 +216,7 @@ namespace LoadOrderKeeper.ViewModels
                 var pluginsPath = Path.Combine(StarfieldAppDataPath, "Plugins.txt");
                 if (!File.Exists(pluginsPath))
                 {
-                    errors.Add("Plugins.txt not found in the app data folder");
+                    errors.Add(Texts.PluginsTxtNotFoundMessage);
                 }
             }
 
@@ -238,11 +238,11 @@ namespace LoadOrderKeeper.ViewModels
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    errors.Add("Access denied when creating the Profiles folder");
+                    errors.Add(Texts.ProfilesFolderAccessDeniedMessage);
                 }
                 catch
                 {
-                    errors.Add("The Profiles folder cannot be created or accessed");
+                    errors.Add(Texts.ProfilesFolderCannotBeCreatedMessage);
                 }
             }
 
@@ -257,9 +257,9 @@ namespace LoadOrderKeeper.ViewModels
                 {
                     StatusBannerMessage = errors[0] + ".";
                 }
-                else if (errors.Count == 2 && errors.Contains("The app data path is invalid") && errors.Contains("The game path is invalid"))
+                else if (errors.Count == 2 && errors.Contains(Texts.InvalidAppDataMessage) && errors.Contains(Texts.InvalidGamePathMessage))
                 {
-                    StatusBannerMessage = "Both the game path and app data path are invalid.";
+                    StatusBannerMessage = Texts.BothPathsInvalidMessage;
                 }
                 else
                 {
@@ -269,7 +269,7 @@ namespace LoadOrderKeeper.ViewModels
             else
             {
                 StatusBannerIsError = false;
-                StatusBannerMessage = "The configured paths are valid.";
+                StatusBannerMessage = Texts.ValidConfigMessage;
             }
         }
     }

@@ -39,6 +39,7 @@ public partial class SwitchProfileViewModel : ObservableObject
     public event EventHandler<ProfileModel>? ProfileSelected;
 
     public string WindowTitle => _texts.WindowTitle;
+    public string DescriptionText => _texts.DescriptionText;
 
     public SwitchProfileViewModel(AppConfigModel config, ConfigurationCoordinator? configCoordinator = null)
     {

@@ -47,6 +47,14 @@ namespace LoadOrderKeeper.ViewTexts
         public string LanguageLabel => _localization.GetString("Settings", "LanguageLabel");
         public string LanguageAutomatic => _localization.GetString("Settings", "LanguageAutomatic");
         public string LanguageRestartRequired => _localization.GetString("Settings", "LanguageRestartRequired");
+        
+        // Custom Editor
+        public string CustomEditorPathLabel => _localization.GetString("Settings", "CustomEditorPathLabel");
+        public string CustomEditorPathHint => _localization.GetString("Settings", "CustomEditorPathHint");
+        public string CustomEditorPathInfo => _localization.GetString("Settings", "CustomEditorPathInfo");
+        public string CustomEditorBrowseTitle => _localization.GetString("Settings", "CustomEditorBrowseTitle");
+        public string CustomEditorInvalidPathError => _localization.GetString("Settings", "CustomEditorInvalidPathError");
+        public string CustomEditorNotFoundError => _localization.GetString("Settings", "CustomEditorNotFoundError");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -75,6 +83,12 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(BothPathsInvalidMessage));
             OnPropertyChanged(nameof(LanguageAutomatic));
             OnPropertyChanged(nameof(LanguageRestartRequired));
+            OnPropertyChanged(nameof(CustomEditorPathLabel));
+            OnPropertyChanged(nameof(CustomEditorPathHint));
+            OnPropertyChanged(nameof(CustomEditorPathInfo));
+            OnPropertyChanged(nameof(CustomEditorBrowseTitle));
+            OnPropertyChanged(nameof(CustomEditorInvalidPathError));
+            OnPropertyChanged(nameof(CustomEditorNotFoundError));
         }
 
         /// <summary>

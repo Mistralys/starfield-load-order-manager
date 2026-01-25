@@ -31,6 +31,10 @@ namespace LoadOrderKeeper.ViewTexts
         public string PluginsTxtRequired => _localization.GetString("Common", "PluginsTxtRequired");
         public string ProfilesFolderAccessDenied => _localization.GetString("Common", "ProfilesFolderAccessDenied");
         public string ProfilesFolderRequired => _localization.GetString("Common", "ProfilesFolderRequired");
+        
+        // Custom Editor Messages
+        public string CustomEditorLaunchFailed => _localization.GetString("Common", "CustomEditorLaunchFailed");
+        public string CustomEditorNotFound => _localization.GetString("Common", "CustomEditorNotFound");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -48,6 +52,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(PluginsTxtRequired));
             OnPropertyChanged(nameof(ProfilesFolderAccessDenied));
             OnPropertyChanged(nameof(ProfilesFolderRequired));
+            OnPropertyChanged(nameof(CustomEditorLaunchFailed));
+            OnPropertyChanged(nameof(CustomEditorNotFound));
         }
 
         /// <summary>

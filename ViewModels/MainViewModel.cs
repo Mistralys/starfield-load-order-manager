@@ -313,7 +313,17 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                _fileOperations.OpenPluginsFile(Config);
+                bool success = _fileOperations.OpenPluginsFile(Config);
+                
+                if (!success && !string.IsNullOrWhiteSpace(Config.CustomEditorPath))
+                {
+                    // Custom editor failed, show warning and inform about fallback
+                    var errorMsg = File.Exists(Config.CustomEditorPath)
+                        ? CommonTexts.CustomEditorLaunchFailed
+                        : CommonTexts.CustomEditorNotFound;
+                    
+                    AddStatusMessage(errorMsg, StatusMessageType.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -325,7 +335,17 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                _fileOperations.OpenReferenceFile(Config);
+                bool success = _fileOperations.OpenReferenceFile(Config);
+                
+                if (!success && !string.IsNullOrWhiteSpace(Config.CustomEditorPath))
+                {
+                    // Custom editor failed, show warning and inform about fallback
+                    var errorMsg = File.Exists(Config.CustomEditorPath)
+                        ? CommonTexts.CustomEditorLaunchFailed
+                        : CommonTexts.CustomEditorNotFound;
+                    
+                    AddStatusMessage(errorMsg, StatusMessageType.Warning);
+                }
             }
             catch (Exception ex)
             {

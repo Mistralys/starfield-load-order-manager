@@ -13,7 +13,7 @@ namespace LoadOrderKeeper.Services
         /// <summary>
         /// Opens the Plugins.txt file in the default text editor.
         /// </summary>
-        public void OpenPluginsFile(AppConfigModel config)
+        public bool OpenPluginsFile(AppConfigModel config)
         {
             var path = config.GetPluginsFilePath();
             if (!File.Exists(path))
@@ -21,13 +21,13 @@ namespace LoadOrderKeeper.Services
                 throw new FileNotFoundException($"Plugins file not found: {path}");
             }
 
-            LaunchShellTarget(path);
+            return LaunchFileWithEditor(path, config.CustomEditorPath);
         }
 
         /// <summary>
         /// Opens the reference file in the default text editor.
         /// </summary>
-        public void OpenReferenceFile(AppConfigModel config)
+        public bool OpenReferenceFile(AppConfigModel config)
         {
             var path = config.GetReferenceFilePath();
             if (!File.Exists(path))
@@ -35,7 +35,7 @@ namespace LoadOrderKeeper.Services
                 throw new FileNotFoundException($"Reference file not found: {path}");
             }
 
-            LaunchShellTarget(path);
+            return LaunchFileWithEditor(path, config.CustomEditorPath);
         }
 
         /// <summary>
@@ -78,6 +78,46 @@ namespace LoadOrderKeeper.Services
             }
 
             LaunchShellTarget(path);
+        }
+
+        /// <summary>
+        /// Opens a file with custom editor if specified, otherwise uses system default.
+        /// </summary>
+        /// <param name="filePath">Path to file to open</param>
+        /// <param name="customEditorPath">Optional custom editor executable path</param>
+        /// <returns>True if launched successfully, false if fallback to default was needed</returns>
+        private bool LaunchFileWithEditor(string filePath, string? customEditorPath)
+        {
+            // If custom editor specified, try to use it
+            if (!string.IsNullOrWhiteSpace(customEditorPath))
+            {
+                if (File.Exists(customEditorPath))
+                {
+                    try
+                    {
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = customEditorPath,
+                            Arguments = $"\"{filePath}\"",
+                            UseShellExecute = false
+                        };
+                        Process.Start(psi);
+                        return true;
+                    }
+                    catch
+                    {
+                        // Custom editor failed, fall through to default behavior
+                    }
+                }
+                
+                // Custom editor not found or failed, use default editor
+                LaunchShellTarget(filePath);
+                return false;
+            }
+
+            // Use system default editor
+            LaunchShellTarget(filePath);
+            return true;
         }
 
         /// <summary>

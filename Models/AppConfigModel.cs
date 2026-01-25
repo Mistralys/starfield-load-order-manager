@@ -12,6 +12,12 @@ namespace LoadOrderKeeper.Models
         /// Preferred UI language. Use "auto" to detect system locale, or a specific culture code (e.g., "en-US", "fr-FR").
         /// </summary>
         public string PreferredLanguage { get; set; } = "auto";
+        
+        /// <summary>
+        /// Optional path to custom text editor executable.
+        /// If empty or null, system default editor is used.
+        /// </summary>
+        public string? CustomEditorPath { get; set; }
 
         public bool IsValid()
         {

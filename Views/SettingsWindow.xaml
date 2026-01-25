@@ -87,6 +87,9 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -253,8 +256,44 @@
                 </Grid>
             </Border>
 
+            <!-- Custom Editor Path -->
+            <TextBlock Grid.Row="9"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Margin="0,8,0,4"
+                       Text="{Binding Texts.CustomEditorPathLabel}"
+                       d:Text="Custom Text Editor (Optional):"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <TextBox x:Name="CustomEditorPathTextBox"
+                     Grid.Row="10"
+                     Grid.Column="0"
+                     Margin="0,0,8,8"
+                     Text="{Binding CustomEditorPath, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     materialDesign:HintAssist.Hint="{Binding Texts.CustomEditorPathHint}"
+                     Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <Button Grid.Row="10"
+                    Grid.Column="1"
+                    Content="{Binding Texts.BrowseButtonText}"
+                    d:Content="Browse..."
+                    MinWidth="90"
+                    Margin="0,0,0,8"
+                    Command="{Binding BrowseCustomEditorCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+
+            <!-- Info text -->
+            <TextBlock Grid.Row="11"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Margin="0,0,0,8"
+                       Text="{Binding Texts.CustomEditorPathInfo}"
+                       d:Text="Leave empty to use Windows default text editor."
+                       FontSize="11"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                       TextWrapping="Wrap" />
+
             <!-- Save Button -->
-            <StackPanel Grid.Row="9"
+            <StackPanel Grid.Row="12"
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
                         Orientation="Horizontal"

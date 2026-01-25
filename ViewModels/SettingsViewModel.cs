@@ -33,6 +33,9 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private bool _languageChanged;
 
+        [ObservableProperty]
+        private string _customEditorPath = string.Empty;
+
         public string DetectedAppDataPath { get; }
         public string DetectedGamePath { get; }
         public bool HasDetectedAppDataPath => !string.IsNullOrWhiteSpace(DetectedAppDataPath);
@@ -45,6 +48,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public event EventHandler? BrowseAppDataRequested;
         public event EventHandler? BrowseGamePathRequested;
+        public event EventHandler? BrowseCustomEditorRequested;
         public event EventHandler? SaveRequested;
 
         public SettingsViewModel(AppConfigModel initialConfig)
@@ -61,6 +65,9 @@ namespace LoadOrderKeeper.ViewModels
             {
                 StarfieldGamePath = initialConfig.StarfieldGamePath;
             }
+
+            // Initialize custom editor path
+            CustomEditorPath = initialConfig.CustomEditorPath ?? string.Empty;
 
             // Initialize language selection
             SelectedLanguage = initialConfig.PreferredLanguage ?? "auto";
@@ -114,6 +121,12 @@ namespace LoadOrderKeeper.ViewModels
         }
 
         [RelayCommand]
+        private void BrowseCustomEditor()
+        {
+            BrowseCustomEditorRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        [RelayCommand]
         private void SaveSettings()
         {
             SaveRequested?.Invoke(this, EventArgs.Empty);
@@ -155,13 +168,22 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
+        public void UpdateCustomEditorPath(string selectedPath)
+        {
+            if (!string.IsNullOrWhiteSpace(selectedPath))
+            {
+                CustomEditorPath = selectedPath;
+            }
+        }
+
         public AppConfigModel GetConfig()
         {
             return new AppConfigModel
             {
                 StarfieldAppDataPath = StarfieldAppDataPath,
                 StarfieldGamePath = StarfieldGamePath,
-                PreferredLanguage = SelectedLanguage
+                PreferredLanguage = SelectedLanguage,
+                CustomEditorPath = string.IsNullOrWhiteSpace(CustomEditorPath) ? null : CustomEditorPath
             };
         }
 
@@ -243,6 +265,19 @@ namespace LoadOrderKeeper.ViewModels
                 catch
                 {
                     errors.Add(Texts.ProfilesFolderCannotBeCreatedMessage);
+                }
+            }
+
+            // Validate custom editor path if provided
+            if (!string.IsNullOrWhiteSpace(CustomEditorPath))
+            {
+                if (!File.Exists(CustomEditorPath))
+                {
+                    errors.Add(Texts.CustomEditorNotFoundError);
+                }
+                else if (!CustomEditorPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    errors.Add(Texts.CustomEditorInvalidPathError);
                 }
             }
 

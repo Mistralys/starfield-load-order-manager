@@ -96,7 +96,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "Profilesフォルダを作成またはアクセスできません",
     "BothPathsInvalidMessage": "ゲームパスとAppDataパスの両方が無効です。",
     "LanguageAutomatic": "自動",
-    "LanguageRestartRequired": "言語の変更はアプリケーションの再起動後に有効になります。"
+    "LanguageRestartRequired": "言語の変更はアプリケーションの再起動後に有効になります。",
+    "CustomEditorPathLabel": "カスタムテキストエディタ（オプション）",
+    "CustomEditorPathHint": "例：C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "空白のままにすると、Windowsのデフォルトのテキストエディタを使用します。",
+    "CustomEditorBrowseTitle": "テキストエディタの実行ファイルを選択",
+    "CustomEditorInvalidPathError": "指定されたテキストエディタのパスが無効です",
+    "CustomEditorNotFoundError": "指定されたテキストエディタの実行ファイルが見つかりませんでした"
   },
   "DiffDialog": {
     "WindowTitle": "ロードオーダーの変更",
@@ -234,7 +240,9 @@
     "ProfilesFolderRequired": "アプリケーションは、プロファイルデータを保存するために、設定されたAppDataパスに「Profiles」フォルダが必要です。このフォルダを作成またはアクセスできませんでした。フォルダの権限を確認するか、設定で別のAppDataパスを選択してください。",
     "ProfilesFolderAccessDenied": "Profilesフォルダの作成時にアクセスが拒否されました。管理者権限が必要か、別の場所を選択する必要があります。",
     "PluginsTxtRequired": "設定されたAppDataパスにPlugins.txtファイルが見つかりませんでした。このファイルはアプリケーションの動作に必要です。このファイルを生成するために少なくとも一度Starfieldを実行したことを確認するか、設定で正しいAppDataフォルダを選択してください。",
-    "ErrorPrefix": "エラー：{0}"
+    "ErrorPrefix": "エラー：{0}",
+    "CustomEditorLaunchFailed": "カスタムテキストエディタの起動に失敗しました。システムのデフォルトで開きます。",
+    "CustomEditorNotFound": "カスタムテキストエディタが見つかりませんでした。システムのデフォルトで開きます。"
   },
   "StatusCoordinator": {
     "InitializingApplication": "アプリケーションを初期化しています...",

@@ -96,7 +96,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "无法创建或访问 Profiles 文件夹",
     "BothPathsInvalidMessage": "游戏路径和应用数据路径都无效。",
     "LanguageAutomatic": "自动",
-    "LanguageRestartRequired": "语言更改将在重启应用程序后生效。"
+    "LanguageRestartRequired": "语言更改将在重新启动应用程序后生效。",
+    "CustomEditorPathLabel": "自定义文本编辑器（可选）",
+    "CustomEditorPathHint": "例如：C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "留空以使用 Windows 默认文本编辑器。",
+    "CustomEditorBrowseTitle": "选择文本编辑器可执行文件",
+    "CustomEditorInvalidPathError": "指定的文本编辑器路径无效",
+    "CustomEditorNotFoundError": "未找到指定的文本编辑器可执行文件"
   },
   "DiffDialog": {
     "WindowTitle": "加载顺序更改",
@@ -234,7 +240,9 @@
     "ProfilesFolderRequired": "应用程序需要在已配置的应用数据路径中创建 'Profiles' 文件夹来存储配置文件数据。无法创建或访问此文件夹。请检查文件夹权限或在设置中选择不同的应用数据路径。",
     "ProfilesFolderAccessDenied": "创建 Profiles 文件夹时访问被拒绝。您可能需要管理员权限或选择不同的位置。",
     "PluginsTxtRequired": "在已配置的应用数据路径中未找到 Plugins.txt 文件。应用程序需要此文件才能运行。请确保您至少运行过一次 Starfield 以生成此文件,或在设置中选择正确的应用数据文件夹。",
-    "ErrorPrefix": "错误: {0}"
+    "ErrorPrefix": "错误：{0}",
+    "CustomEditorLaunchFailed": "无法启动自定义文本编辑器。使用系统默认编辑器打开。",
+    "CustomEditorNotFound": "未找到自定义文本编辑器。使用系统默认编辑器打开。"
   },
   "StatusCoordinator": {
     "InitializingApplication": "正在初始化应用程序...",

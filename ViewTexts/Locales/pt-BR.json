@@ -96,7 +96,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "A pasta Profiles não pode ser criada ou acessada",
     "BothPathsInvalidMessage": "Tanto o caminho do jogo quanto o caminho AppData são inválidos.",
     "LanguageAutomatic": "Automático",
-    "LanguageRestartRequired": "As alterações de idioma entrarão em vigor após reiniciar a aplicação."
+    "LanguageRestartRequired": "As alterações de idioma entrarão em vigor após reiniciar o aplicativo.",
+    "CustomEditorPathLabel": "Editor de texto personalizado (opcional)",
+    "CustomEditorPathHint": "ex: C:\\Arquivos de Programas\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Deixe em branco para usar o editor de texto padrão do Windows.",
+    "CustomEditorBrowseTitle": "Selecionar executável do editor de texto",
+    "CustomEditorInvalidPathError": "O caminho do editor de texto especificado é inválido",
+    "CustomEditorNotFoundError": "O executável do editor de texto especificado não foi encontrado"
   },
   "DiffDialog": {
     "WindowTitle": "Alterações na Ordem de Carregamento",
@@ -234,7 +240,9 @@
     "ProfilesFolderRequired": "A aplicação requer uma pasta 'Profiles' no seu caminho AppData configurado para armazenar dados de perfil. Esta pasta não pôde ser criada ou acessada. Por favor, verifique as permissões da pasta ou selecione um caminho AppData diferente nas configurações.",
     "ProfilesFolderAccessDenied": "Acesso negado ao criar a pasta Profiles. Você pode precisar de direitos de administrador ou escolher um local diferente.",
     "PluginsTxtRequired": "O arquivo Plugins.txt não foi encontrado no caminho AppData configurado. Este arquivo é necessário para o funcionamento da aplicação. Por favor, certifique-se de ter executado o Starfield pelo menos uma vez para gerar este arquivo, ou selecione a pasta AppData correta nas configurações.",
-    "ErrorPrefix": "ERRO: {0}"
+    "ErrorPrefix": "ERRO: {0}",
+    "CustomEditorLaunchFailed": "Falha ao iniciar o editor de texto personalizado. Abrindo com o padrão do sistema.",
+    "CustomEditorNotFound": "Editor de texto personalizado não encontrado. Abrindo com o padrão do sistema."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Inicializando aplicação...",

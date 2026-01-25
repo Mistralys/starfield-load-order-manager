@@ -96,7 +96,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "Der Profilordner kann nicht erstellt oder aufgerufen werden",
     "BothPathsInvalidMessage": "Sowohl der Spielpfad als auch der App-Datenpfad sind ungültig.",
     "LanguageAutomatic": "Automatisch",
-    "LanguageRestartRequired": "Sprachänderungen werden nach einem Neustart der Anwendung wirksam."
+    "LanguageRestartRequired": "Sprachänderungen werden nach einem Neustart der Anwendung wirksam.",
+    "CustomEditorPathLabel": "Benutzerdefinierter Texteditor (Optional)",
+    "CustomEditorPathHint": "z.B. C:\\Programme\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Leer lassen, um den Windows-Standard-Texteditor zu verwenden.",
+    "CustomEditorBrowseTitle": "Texteditor-Programm auswählen",
+    "CustomEditorInvalidPathError": "Der angegebene Texteditor-Pfad ist ungültig",
+    "CustomEditorNotFoundError": "Die angegebene Texteditor-Anwendung wurde nicht gefunden"
   },
   "DiffDialog": {
     "WindowTitle": "Ladereihenfolge-Änderungen",
@@ -234,7 +240,9 @@
     "ProfilesFolderRequired": "Die Anwendung benötigt einen 'Profiles'-Ordner in Ihrem konfigurierten App-Datenpfad zum Speichern von Profildaten. Dieser Ordner konnte nicht erstellt oder aufgerufen werden. Bitte überprüfen Sie die Ordnerberechtigungen oder wählen Sie einen anderen App-Datenpfad in den Einstellungen.",
     "ProfilesFolderAccessDenied": "Zugriff verweigert beim Erstellen des Profilordners. Möglicherweise benötigen Sie Administratorrechte oder müssen einen anderen Speicherort wählen.",
     "PluginsTxtRequired": "Die Plugins.txt-Datei wurde im konfigurierten App-Datenpfad nicht gefunden. Diese Datei ist für die Funktion der Anwendung erforderlich. Bitte stellen Sie sicher, dass Sie Starfield mindestens einmal ausgeführt haben, um diese Datei zu generieren, oder wählen Sie den richtigen App-Datenordner in den Einstellungen.",
-    "ErrorPrefix": "FEHLER: {0}"
+    "ErrorPrefix": "FEHLER: {0}",
+    "CustomEditorLaunchFailed": "Der benutzerdefinierte Texteditor konnte nicht gestartet werden. Öffnen mit Systemstandard.",
+    "CustomEditorNotFound": "Benutzerdefinierter Texteditor nicht gefunden. Öffnen mit Systemstandard."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Anwendung wird initialisiert...",

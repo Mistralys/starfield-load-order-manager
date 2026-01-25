@@ -96,7 +96,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "Le dossier Profiles ne peut pas être créé ou accessible",
     "BothPathsInvalidMessage": "Le chemin du jeu et le chemin des données d'application sont tous deux non valides.",
     "LanguageAutomatic": "Automatique",
-    "LanguageRestartRequired": "Les modifications de langue prendront effet après le redémarrage de l'application."
+    "LanguageRestartRequired": "Les modifications de langue prendront effet après le redémarrage de l'application.",
+    "CustomEditorPathLabel": "Éditeur de texte personnalisé (optionnel)",
+    "CustomEditorPathHint": "ex: C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Laisser vide pour utiliser l'éditeur de texte par défaut de Windows.",
+    "CustomEditorBrowseTitle": "Sélectionner l'exécutable de l'éditeur de texte",
+    "CustomEditorInvalidPathError": "Le chemin de l'éditeur de texte spécifié est invalide",
+    "CustomEditorNotFoundError": "L'exécutable de l'éditeur de texte spécifié n'a pas été trouvé"
   },
   "DiffDialog": {
     "WindowTitle": "Modifications de l'ordre de chargement",
@@ -234,7 +240,9 @@
     "ProfilesFolderRequired": "L'application nécessite un dossier 'Profiles' dans votre chemin de données d'application configuré pour stocker les données de profil. Ce dossier n'a pas pu être créé ou accessible. Veuillez vérifier les autorisations du dossier ou sélectionner un autre chemin de données d'application dans les paramètres.",
     "ProfilesFolderAccessDenied": "Accès refusé lors de la création du dossier Profiles. Vous pourriez avoir besoin de droits administrateur ou de choisir un emplacement différent.",
     "PluginsTxtRequired": "Le fichier Plugins.txt n'a pas été trouvé dans le chemin de données d'application configuré. Ce fichier est requis pour le fonctionnement de l'application. Veuillez vous assurer que vous avez exécuté Starfield au moins une fois pour générer ce fichier, ou sélectionner le bon dossier de données d'application dans les paramètres.",
-    "ErrorPrefix": "ERREUR : {0}"
+    "ErrorPrefix": "ERREUR : {0}",
+    "CustomEditorLaunchFailed": "Échec du lancement de l'éditeur de texte personnalisé. Ouverture avec l'éditeur par défaut du système.",
+    "CustomEditorNotFound": "Éditeur de texte personnalisé introuvable. Ouverture avec l'éditeur par défaut du système."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Initialisation de l'application...",

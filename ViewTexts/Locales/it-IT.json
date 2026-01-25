@@ -96,10 +96,16 @@
     "ProfilesFolderCannotBeCreatedMessage": "La cartella Profiles non può essere creata o accessibile",
     "BothPathsInvalidMessage": "Sia il percorso del gioco che il percorso dei dati dell'applicazione non sono validi.",
     "LanguageAutomatic": "Automatico",
-    "LanguageRestartRequired": "Le modifiche alla lingua avranno effetto dopo il riavvio dell'applicazione."
+    "LanguageRestartRequired": "Le modifiche alla lingua verranno applicate dopo il riavvio dell'applicazione.",
+    "CustomEditorPathLabel": "Editor di testo personalizzato (opzionale)",
+    "CustomEditorPathHint": "es: C:\\Programmi\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Lasciare vuoto per utilizzare l'editor di testo predefinito di Windows.",
+    "CustomEditorBrowseTitle": "Seleziona eseguibile dell'editor di testo",
+    "CustomEditorInvalidPathError": "Il percorso dell'editor di testo specificato non è valido",
+    "CustomEditorNotFoundError": "L'eseguibile dell'editor di testo specificato non è stato trovato"
   },
   "DiffDialog": {
-    "WindowTitle": "Modifiche all'ordine di caricamento",
+    "WindowTitle": "Modifiche all'ordine di carreggiamento",
     "DescriptionText": "Sono state rilevate le seguenti modifiche tra il tuo ordine di caricamento attuale e il riferimento:",
     "AcceptChangesButtonText": "Accetta modifiche",
     "DiscardChangesButtonText": "Scarta modifiche",
@@ -234,7 +240,9 @@
     "ProfilesFolderRequired": "L'applicazione richiede una cartella 'Profiles' nel percorso dati dell'applicazione configurato per memorizzare i dati del profilo. Questa cartella non può essere creata o accessibile. Si prega di verificare i permessi della cartella o selezionare un percorso dati dell'applicazione diverso nelle impostazioni.",
     "ProfilesFolderAccessDenied": "Accesso negato durante la creazione della cartella Profiles. Potrebbero essere necessari i permessi di amministratore o scegliere una posizione diversa.",
     "PluginsTxtRequired": "Il file Plugins.txt non è stato trovato nel percorso dati dell'applicazione configurato. Questo file è necessario per il funzionamento dell'applicazione. Assicurati di aver eseguito Starfield almeno una volta per generare questo file, o seleziona la cartella dati dell'applicazione corretta nelle impostazioni.",
-    "ErrorPrefix": "ERRORE: {0}"
+    "ErrorPrefix": "ERRORE: {0}",
+    "CustomEditorLaunchFailed": "Impossibile avviare l'editor di testo personalizzato. Apertura con l'editor predefinito del sistema.",
+    "CustomEditorNotFound": "Editor di testo personalizzato non trovato. Apertura con l'editor predefinito del sistema."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Inizializzazione applicazione...",

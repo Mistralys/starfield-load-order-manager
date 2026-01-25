@@ -96,7 +96,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "The Profiles folder cannot be created or accessed",
     "BothPathsInvalidMessage": "Both the game path and app data path are invalid.",
     "LanguageAutomatic": "Automatic",
-    "LanguageRestartRequired": "Language changes will take effect after restarting the application."
+    "LanguageRestartRequired": "Language changes will take effect after restarting the application.",
+    "CustomEditorPathLabel": "Custom Text Editor (Optional)",
+    "CustomEditorPathHint": "e.g., C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Leave empty to use Windows default text editor.",
+    "CustomEditorBrowseTitle": "Select Text Editor Executable",
+    "CustomEditorInvalidPathError": "The specified text editor path is invalid",
+    "CustomEditorNotFoundError": "The specified text editor executable was not found"
   },
   "DiffDialog": {
     "WindowTitle": "Load Order Changes",
@@ -231,10 +237,12 @@
     "ButtonSave": "Save",
     "ButtonClose": "Close",
     "ConfigInvalidGuidance": "\n\nThe likely cause is that the current configuration is invalid. Please refer to the error message in the main window to fix this.",
-    "ProfilesFolderRequired": "The application requires a 'Profiles' folder in your configured app data path to store profile data. This folder could not be created or accessed. Please check folder permissions or select a different app data path in settings.",
-    "ProfilesFolderAccessDenied": "Access denied when creating the Profiles folder. You may need administrator rights or to choose a different location.",
-    "PluginsTxtRequired": "The Plugins.txt file was not found in the configured app data path. This file is required for the application to function. Please ensure you have run Starfield at least once to generate this file, or select the correct app data folder in settings.",
-    "ErrorPrefix": "ERROR: {0}"
+    "ProfilesFolderRequired": "The application requires a 'Profiles' folder in your configured app data path to store profile data. This folder could not be created or accessed. Please check folder permissions or select a different app data path in Settings.",
+    "ProfilesFolderAccessDenied": "Access denied when creating the Profiles folder. You may need administrator privileges or to choose a different location.",
+    "PluginsTxtRequired": "The Plugins.txt file was not found in the configured app data path. This file is required for the application to function. Please ensure you have run Starfield at least once to generate this file, or select the correct app data folder in Settings.",
+    "ErrorPrefix": "ERROR: {0}",
+    "CustomEditorLaunchFailed": "Failed to launch custom text editor. Opening with system default.",
+    "CustomEditorNotFound": "Custom text editor not found. Opening with system default."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Initializing application...",

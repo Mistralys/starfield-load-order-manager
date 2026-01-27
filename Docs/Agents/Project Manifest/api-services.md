@@ -306,13 +306,40 @@ public static class DebugStateService
 {
     public static Task<string> CaptureDebugStateAsync(
         AppConfigModel config, 
-        IReadOnlyList<DiffLineModel> changeList);
+        IReadOnlyList<DiffLineModel> changeList,
+        StatusCoordinator? statusCoordinator = null);
     
     // Private implementation details
     private static string SanitizePath(string path);
     private static Task<List<string>> ReadFileContentsAsync(string filePath);
 }
 ```
+
+**Purpose:** Captures complete application state snapshot for troubleshooting and debugging. Serializes data to prettified JSON format with user privacy protection.
+
+**Debug State Contents:**
+- **ApplicationVersion**: Current semantic version
+- **Configuration**: App data path, game path, active profile ID (paths sanitized)
+- **Steam**: Installation and running status
+- **TotalChangesDetected**: Count of detected differences
+- **PluginsTxtContents**: Complete Plugins.txt file as line array
+- **ReferenceContents**: Complete reference file as line array
+- **ChangeList**: Full diff with all detected modifications
+- **StatusMessages**: Complete internal log of all status messages from session start (via `StatusCoordinator.GetAllMessages()`)
+
+**Privacy & Security:**
+- All file paths sanitized automatically (`%USERPROFILE%` placeholder replaces user profile paths)
+- User-specific information removed before export
+- Safe for sharing with developers for troubleshooting
+
+**Access Points:**
+- Debug menu "Copy Debug State" command (main window and diff window)
+- Global exception handling (included in error.log)
+
+**JSON Formatting:**
+- Prettified with indentation for readability
+- Uses `System.Text.Json` with `WriteIndented = true`
+- Ignores reference cycles for safety
 
 ---
 

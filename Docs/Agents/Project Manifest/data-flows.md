@@ -170,10 +170,14 @@
 
 ## Status History
 
-- `StatusCoordinator` maintains `StatusMessageHistory` (ObservableCollection) with last 3 status messages.
+- `StatusCoordinator` maintains two separate status message collections:
+  - **Display History** (`StatusMessageHistory`): Rolling window of last 3 status messages for UI display
+  - **Internal Log** (`_allMessages`): Unlimited internal storage of all messages logged during the session
 - Each status message has a timestamp and type (Info, Success, Warning, Error).
 - `MainViewModel` calls `StatusCoordinator.AddStatusMessage()` for all status updates.
-- Displayed in main window UI via pass-through properties for quick reference of recent operations.
+- Display history shown in main window UI via pass-through properties for quick reference of recent operations.
+- Complete internal log accessible via `StatusCoordinator.GetAllMessages()` for debugging purposes.
+- Full status history included in application state exports via `DebugStateService.CaptureDebugStateAsync()`.
 
 ---
 
@@ -247,6 +251,46 @@
 - `MainViewModel.PlayGame()` calls `GameLauncherCoordinator.LaunchGame()`.
 - Returns success/failure; `MainViewModel` shows error if launch fails.
 - Automatically selects correct executable (SFSE loader or vanilla) based on detection.
+
+---
+
+## Global Exception Handling
+
+- Comprehensive unhandled exception capturing via `App.xaml.cs`:
+  - **UI thread**: `Application.DispatcherUnhandledException`
+  - **Non-UI threads**: `AppDomain.CurrentDomain.UnhandledException`
+  - **Async tasks**: `TaskScheduler.UnobservedTaskException`
+- All exceptions logged to `error.log` in application data folder with:
+  - Timestamp and exception details (type, message, stack trace)
+  - Full application state via `DebugStateService` (configuration, file contents, change list)
+  - User privacy protection: all paths sanitized (replace user profile with `%USERPROFILE%`)
+- `ErrorDialog` displayed after logging completes with user actions:
+  - **Open Log Folder**: Opens app data folder in File Explorer
+  - **Report Bug**: Opens GitHub issues page in browser
+  - **Exit**: Immediately shuts down application (recommended)
+  - **Ignore (Unsafe)**: Closes dialog and continues running (warning style)
+- Log file reset on each application startup to keep logs focused on current session
+- Test exception menu item in Debug menu for validation (`ThrowTestExceptionCommand`)
+
+---
+
+## Debug State Export
+
+- `DebugStateService.CaptureDebugStateAsync()` provides comprehensive application state snapshot for troubleshooting.
+- Accessible via Debug menu's "Copy Debug State" command in both main window and diff window.
+- Exports complete JSON snapshot including:
+  - **Application Version**: Current semantic version
+  - **Configuration**: App data path, game path, active profile ID (all paths sanitized)
+  - **Steam State**: Installation status and running status
+  - **Total Changes**: Count of detected differences
+  - **File Contents**: Complete `Plugins.txt` and reference file contents
+  - **Change List**: Full diff with all detected modifications
+  - **Status Messages**: Complete internal log of all status messages from session start
+- All file paths sanitized automatically (`%USERPROFILE%` placeholder for user profile paths).
+- JSON output prettified for readability with indentation.
+- `StatusCoordinator.GetAllMessages()` provides chronological history of all logged messages.
+- Status messages include timestamp, message text, and type (Info, Success, Warning, Error).
+- Enables users to share complete diagnostic information with developers without exposing sensitive data.
 
 ---
 

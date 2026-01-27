@@ -146,3 +146,20 @@ To add a new language (e.g., Portuguese):
 **No code changes required. No compilation needed for translations.**
 
 **?? Common Mistake**: Forgetting step 4 means the file won't be copied during build and the language won't appear in the dropdown, even though all code supports it.
+
+----------
+
+## Services Overview
+
+### Static Services
+
+- `SettingsService`: configuration persistence and default path discovery (includes Steam library detection)
+- `FileService`: plugins/reference file operations plus diff helpers
+- `DiffService`: diff line construction for the UI
+- `ProfileService`: profile discovery, CRUD, switching, and file scaffolding
+- `VersionService`: centralized application version retrieval
+- `UpdateCheckService`: GitHub API integration for version checking with caching
+- `ReferenceHistoryService`: version history management, archiving, rollback, and pending changes tracking
+- `DateTimeFormattingService`: user-friendly date/time formatting utilities
+- `ErrorLoggingService`: exception logging with user privacy protection (path sanitization)
+- `DebugStateService`: application state capture for debugging with sanitized paths and full status message history

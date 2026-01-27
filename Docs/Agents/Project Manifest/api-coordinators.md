@@ -74,9 +74,19 @@ public sealed class StatusCoordinator : CoordinatorBase
     
     // Methods
     public void AddStatusMessage(string message, StatusMessageType type = StatusMessageType.Info);
-    public string GetReadyStatusMessage(bool configIsValid);
+    public IReadOnlyList<StatusMessageModel> GetAllMessages();
+    public string GetReadyStatusMessage(bool configValid);
+    public void ClearHistory();
 }
 ```
+
+**Internal Logging Behavior:**
+- Maintains two separate collections:
+  - **Display History** (`StatusMessageHistory`): Rolling window of last 3 messages for UI display (most recent first)
+  - **Internal Log** (`_allMessages`): Unlimited storage of all messages logged during the session (chronological order)
+- `AddStatusMessage()` stores messages in both collections
+- `GetAllMessages()` returns read-only view of complete internal log for debugging purposes
+- Used by `DebugStateService` to include full status history in application state exports
 
 ### `LoadOrderKeeper.Coordinators.UpdateCheckCoordinator`
 

@@ -259,5 +259,30 @@
     "Title": "Konfiguration erforderlich",
     "MessageLine1": "Bitte beheben Sie die Konfiguration in den Einstellungen des Hauptfensters.",
     "MessageLine2": "Dieses Fenster wird verwendbar, sobald die Konfiguration gültig ist."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Ladereihenfolge wird korrigiert...",
+    "FixAppliedSuccess": "Ladereihenfolge erfolgreich angewendet und korrigiert!",
+    "ConfigUpdated": "Konfiguration aktualisiert.",
+    "ConfigInvalid": "Konfiguration ist ungültig.",
+    "DebugStateCopied": "Debug-Status in Zwischenablage kopiert.",
+    "ConfigReset": "Konfiguration wurde auf leere Werte zurückgesetzt.",
+    "ProfileSwitchedFormat": "Zu Profil '{0}' gewechselt."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt nicht gefunden unter {0}. Referenz kann nicht automatisch erstellt werden.",
+    "NoReferenceCreating": "Keine Referenzdatei gefunden. Erstelle eine aus der aktuellen Plugins.txt...",
+    "ReferenceCreatedAuto": "Referenzdatei automatisch aus der aktuellen Plugins.txt erstellt.",
+    "FailedToCreateReferenceFormat": "FEHLER: Automatische Erstellung der Referenz fehlgeschlagen: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Referenzdatei wird aktualisiert...",
+    "UpdateCancelled": "Referenzaktualisierung abgebrochen.",
+    "ReferenceUpdatedSuccess": "Referenzdatei erfolgreich aktualisiert!",
+    "CreatingReference": "Referenzdatei wird erstellt...",
+    "ReferenceCreatedSuccess": "Referenz erfolgreich erstellt! Sie können jetzt die Ladereihenfolge korrigieren.",
+    "DiscardingChanges": "Ladereihenfolge-Änderungen werden verworfen...",
+    "ChangesDiscarded": "Plugins.txt aus Referenz wiederhergestellt.",
+    "RolledBackFormat": "Auf Version {0} zurückgesetzt. Akzeptieren Sie die Änderungen zur Bestätigung."
   }
 }

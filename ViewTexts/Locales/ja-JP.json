@@ -258,6 +258,31 @@
   "ConfigInvalidOverlay": {
     "Title": "設定が必要です",
     "MessageLine1": "メインウィンドウの設定で設定を修正してください。",
-    "MessageLine2": "設定が有効になると、このウィンドウは使用可能になります。"
+    "MessageLine2": "設定が有効になると、このウィンドウが使用可能になります。"
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "読み込み順序の修正を適用しています...",
+    "FixAppliedSuccess": "読み込み順序が正常に適用され、修正されました！",
+    "ConfigUpdated": "設定が更新されました。",
+    "ConfigInvalid": "設定が無効です。",
+    "DebugStateCopied": "デバッグ状態がクリップボードにコピーされました。",
+    "ConfigReset": "設定が空の値にリセットされました。",
+    "ProfileSwitchedFormat": "プロファイル '{0}' に切り替えました。"
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "{0} に Plugins.txt が見つかりません。自動的に参照を作成できません。",
+    "NoReferenceCreating": "参照ファイルが見つかりません。現在の Plugins.txt から作成しています...",
+    "ReferenceCreatedAuto": "現在の Plugins.txt から参照ファイルが自動的に作成されました。",
+    "FailedToCreateReferenceFormat": "エラー：参照の自動作成に失敗しました：{0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "参照ファイルを更新しています...",
+    "UpdateCancelled": "参照の更新がキャンセルされました。",
+    "ReferenceUpdatedSuccess": "参照ファイルが正常に更新されました！",
+    "CreatingReference": "参照ファイルを作成しています...",
+    "ReferenceCreatedSuccess": "参照が正常に作成されました！読み込み順序を修正できるようになりました。",
+    "DiscardingChanges": "読み込み順序の変更を破棄しています...",
+    "ChangesDiscarded": "Plugins.txt が参照から復元されました。",
+    "RolledBackFormat": "バージョン {0} にロールバックしました。変更を受け入れて確認してください。"
   }
 }

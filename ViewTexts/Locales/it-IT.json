@@ -252,12 +252,37 @@
   },
   "FileMonitoring": {
     "SteamWarningTooltip": "Steam non è in esecuzione. SFSE richiede che Steam sia aperto per funzionare correttamente.",
-    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
+    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di carreggiamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
     "SortingRecommended": "Ordinamento consigliato: esegui Fix Load Order prima di risolvere altre modifiche."
   },
   "ConfigInvalidOverlay": {
     "Title": "Configurazione richiesta",
     "MessageLine1": "Correggere la configurazione nelle impostazioni della finestra principale.",
     "MessageLine2": "Questa finestra diventerà utilizzabile quando la configurazione sarà valida."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Applicazione della correzione dell'ordine di caricamento...",
+    "FixAppliedSuccess": "Ordine di caricamento applicato e corretto con successo!",
+    "ConfigUpdated": "Configurazione aggiornata.",
+    "ConfigInvalid": "La configurazione non è valida.",
+    "DebugStateCopied": "Stato di debug copiato negli appunti.",
+    "ConfigReset": "La configurazione è stata ripristinata ai valori vuoti.",
+    "ProfileSwitchedFormat": "Passato al profilo '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt non trovato in {0}. Impossibile creare automaticamente il riferimento.",
+    "NoReferenceCreating": "Nessun file di riferimento trovato. Creazione da Plugins.txt corrente...",
+    "ReferenceCreatedAuto": "File di riferimento creato automaticamente da Plugins.txt corrente.",
+    "FailedToCreateReferenceFormat": "ERRORE: Impossibile creare automaticamente il riferimento: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Aggiornamento del file di riferimento...",
+    "UpdateCancelled": "Aggiornamento del riferimento annullato.",
+    "ReferenceUpdatedSuccess": "File di riferimento aggiornato con successo!",
+    "CreatingReference": "Creazione del file di riferimento...",
+    "ReferenceCreatedSuccess": "Riferimento creato con successo! Ora puoi correggere l'ordine di caricamento.",
+    "DiscardingChanges": "Scarto delle modifiche all'ordine di caricamento...",
+    "ChangesDiscarded": "Plugins.txt ripristinato dal riferimento.",
+    "RolledBackFormat": "Ripristinato alla versione {0}. Accettare le modifiche per confermare."
   }
 }

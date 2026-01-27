@@ -13,6 +13,7 @@ namespace LoadOrderKeeper.Services
     {
         private readonly Action<string, StatusMessageType> _addStatusMessage;
         private readonly Func<Task> _refreshHistoryWindow;
+        private readonly ViewTexts.ReferenceManagementStatusTexts _statusTexts = new();
 
         public ReferenceManagementService(
             Action<string, StatusMessageType> addStatusMessage,
@@ -47,7 +48,7 @@ namespace LoadOrderKeeper.Services
         /// </summary>
         private async Task<bool> UpdateExistingReferenceAsync(AppConfigModel config, Window? owner)
         {
-            _addStatusMessage("Updating reference file...", StatusMessageType.Info);
+            _addStatusMessage(_statusTexts.UpdatingReference, StatusMessageType.Info);
 
             // Prompt for optional comment
             var commentDialog = new CommentInputDialog
@@ -60,7 +61,7 @@ namespace LoadOrderKeeper.Services
             // If user cancelled, abort the operation
             if (commentResult != true)
             {
-                _addStatusMessage("Reference update cancelled.", StatusMessageType.Info);
+                _addStatusMessage(_statusTexts.UpdateCancelled, StatusMessageType.Info);
                 return false;
             }
 
@@ -104,7 +105,7 @@ namespace LoadOrderKeeper.Services
 
             // Update the reference file
             await FileService.CreateReferenceFileAsync(config);
-            _addStatusMessage("Reference file updated successfully!", StatusMessageType.Success);
+            _addStatusMessage(_statusTexts.ReferenceUpdatedSuccess, StatusMessageType.Success);
 
             return true;
         }
@@ -114,7 +115,7 @@ namespace LoadOrderKeeper.Services
         /// </summary>
         private async Task<bool> CreateNewReferenceAsync(AppConfigModel config)
         {
-            _addStatusMessage("Creating reference file...", StatusMessageType.Info);
+            _addStatusMessage(_statusTexts.CreatingReference, StatusMessageType.Info);
 
             // First reference creation - no changes to track yet
             // Clear any stale pending changes
@@ -122,7 +123,7 @@ namespace LoadOrderKeeper.Services
 
             // Create the reference file
             await FileService.CreateReferenceFileAsync(config);
-            _addStatusMessage("Reference created successfully! You can now fix the load order.", StatusMessageType.Success);
+            _addStatusMessage(_statusTexts.ReferenceCreatedSuccess, StatusMessageType.Success);
 
             return true;
         }
@@ -133,10 +134,10 @@ namespace LoadOrderKeeper.Services
         /// <param name="config">The application configuration.</param>
         public async Task DiscardChangesAsync(AppConfigModel config)
         {
-            _addStatusMessage("Discarding load order changes...", StatusMessageType.Info);
+            _addStatusMessage(_statusTexts.DiscardingChanges, StatusMessageType.Info);
 
             await FileService.DiscardChangesAsync(config);
-            _addStatusMessage("Plugins.txt restored from reference.", StatusMessageType.Success);
+            _addStatusMessage(_statusTexts.ChangesDiscarded, StatusMessageType.Success);
         }
 
         /// <summary>
@@ -175,7 +176,7 @@ namespace LoadOrderKeeper.Services
             {
                 // Perform rollback
                 await ReferenceHistoryService.RollbackToVersionAsync(config, version.VersionNumber);
-                _addStatusMessage($"Rolled back to version {version.VersionNumber}. Accept the changes to confirm.", StatusMessageType.Success);
+                _addStatusMessage(string.Format(_statusTexts.RolledBackFormat, version.VersionNumber), StatusMessageType.Success);
 
                 // Close history window
                 parentWindow.Close();

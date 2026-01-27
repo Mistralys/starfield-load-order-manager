@@ -256,8 +256,33 @@
     "SortingRecommended": "Ordenação recomendada: execute Corrigir Ordem de Carregamento antes de resolver outras alterações."
   },
   "ConfigInvalidOverlay": {
-    "Title": "Configuração Necessária",
-    "MessageLine1": "Por favor, corrija a configuração nas configurações da janela principal.",
-    "MessageLine2": "Esta janela ficará utilizável quando a configuração estiver válida."
+    "Title": "Configuração necessária",
+    "MessageLine1": "Por favor, corrija a configuração nas definições da janela principal.",
+    "MessageLine2": "Esta janela ficará utilizável quando a configuração for válida."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Aplicando correção da ordem de carregamento...",
+    "FixAppliedSuccess": "Ordem de carregamento aplicada e corrigida com sucesso!",
+    "ConfigUpdated": "Configuração atualizada.",
+    "ConfigInvalid": "A configuração é inválida.",
+    "DebugStateCopied": "Estado de depuração copiado para a área de transferência.",
+    "ConfigReset": "A configuração foi redefinida para valores vazios.",
+    "ProfileSwitchedFormat": "Alternado para o perfil '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt não encontrado em {0}. Não é possível criar a referência automaticamente.",
+    "NoReferenceCreating": "Nenhum arquivo de referência encontrado. Criando um a partir do Plugins.txt atual...",
+    "ReferenceCreatedAuto": "Arquivo de referência criado automaticamente a partir do Plugins.txt atual.",
+    "FailedToCreateReferenceFormat": "ERRO: Falha ao criar referência automaticamente: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Atualizando arquivo de referência...",
+    "UpdateCancelled": "Atualização de referência cancelada.",
+    "ReferenceUpdatedSuccess": "Arquivo de referência atualizado com sucesso!",
+    "CreatingReference": "Criando arquivo de referência...",
+    "ReferenceCreatedSuccess": "Referência criada com sucesso! Agora você pode corrigir a ordem de carregamento.",
+    "DiscardingChanges": "Descartando alterações da ordem de carregamento...",
+    "ChangesDiscarded": "Plugins.txt restaurado a partir da referência.",
+    "RolledBackFormat": "Revertido para a versão {0}. Aceite as alterações para confirmar."
   }
 }

@@ -259,5 +259,36 @@
     "Title": "Configuración requerida",
     "MessageLine1": "Por favor, corrija la configuración en los ajustes de la ventana principal.",
     "MessageLine2": "Esta ventana será utilizable cuando la configuración sea válida."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Aplicando corrección del orden de carga...",
+    "FixAppliedSuccess": "¡Orden de carga aplicado y corregido con éxito!",
+    "ConfigUpdated": "Configuración actualizada.",
+    "ConfigInvalid": "La configuración no es válida.",
+    "DebugStateCopied": "Estado de depuración copiado al portapapeles.",
+    "ConfigReset": "La configuración se ha restablecido a valores vacíos.",
+    "ProfileSwitchedFormat": "Cambiado al perfil '{0}'.",
+    "CreatingReference": "Creando archivo de referencia...",
+    "ReferenceUpdatedSuccess": "¡Archivo de referencia actualizado con éxito!",
+    "ReferenceCreatedSuccess": "¡Referencia creada con éxito! Ahora puede corregir el orden de carga.",
+    "DiscardingChanges": "Descartando cambios del orden de carga...",
+    "ChangesDiscarded": "Plugins.txt restaurado desde la referencia.",
+    "RolledBackFormat": "Revertido a la versión {0}. Acepte los cambios para confirmar.",
+    "UpdatingReference": "Actualizando archivo de referencia...",
+    "UpdateCancelled": "Actualización de referencia cancelada.",
+    "FailedToCreateReferenceFormat": "ERROR: Fallo al crear la referencia automáticamente: {0}",
+    "PluginsTxtNotFoundFormat": "Plugins.txt no encontrado en {0}. No se puede crear la referencia automáticamente.",
+    "NoReferenceCreating": "No se encontró archivo de referencia. Creando uno desde el Plugins.txt actual...",
+    "ReferenceCreatedAuto": "Archivo de referencia creado automáticamente desde el Plugins.txt actual."
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Actualizando archivo de referencia...",
+    "UpdateCancelled": "Actualización de referencia cancelada.",
+    "ReferenceUpdatedSuccess": "¡Archivo de referencia actualizado con éxito!",
+    "CreatingReference": "Creando archivo de referencia...",
+    "ReferenceCreatedSuccess": "¡Referencia creada con éxito! Ahora puede corregir el orden de carga.",
+    "DiscardingChanges": "Descartando cambios del orden de carga...",
+    "ChangesDiscarded": "Plugins.txt restaurado desde la referencia.",
+    "RolledBackFormat": "Revertido a la versión {0}. Acepte los cambios para confirmar."
   }
 }

@@ -60,6 +60,7 @@ namespace LoadOrderKeeper.ViewModels
         public MenuViewModel Menu { get; } = new();
         public MainWindowTexts MainWindowTexts { get; } = new();
         public CommonTexts CommonTexts { get; } = new();
+        private readonly MainWindowStatusTexts _statusTexts = new();
 
         public string PlayButtonText => _gameLauncher.PlayButtonText;
 
@@ -111,7 +112,7 @@ namespace LoadOrderKeeper.ViewModels
                 async () => await _windowService.RefreshReferenceHistoryWindowAsync());
             _initializer = new ViewModelInitializer(
                 AddStatusMessage,
-                GetReadyStatusMessage,
+                (configValid) => _statusCoordinator.GetReadyStatusMessage(configValid),
                 UpdateCoordinatorsWithConfig);
 
             // Initialize localized button text
@@ -220,12 +221,12 @@ namespace LoadOrderKeeper.ViewModels
         private async Task FixLoadOrderAsync()
         {
             IsBusy = true;
-            AddStatusMessage("Applying load order fix...", StatusMessageType.Info);
+            AddStatusMessage(_statusTexts.ApplyingFix, StatusMessageType.Info);
 
             try
             {
                 await FileService.ApplyLoadOrderAsync(Config);
-                AddStatusMessage("Load order successfully applied and fixed!", StatusMessageType.Success);
+                AddStatusMessage(_statusTexts.FixAppliedSuccess, StatusMessageType.Success);
             }
             catch (Exception ex)
             {
@@ -451,8 +452,8 @@ namespace LoadOrderKeeper.ViewModels
                 
                 // Show appropriate status message
                 _statusCoordinator.AddStatusMessage(Config.IsValid()
-                    ? "Configuration updated."
-                    : "Configuration is invalid.", Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
+                    ? _statusTexts.ConfigUpdated
+                    : _statusTexts.ConfigInvalid, Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
                 
                 UpdateFileMonitorState();
                 await _fileMonitor.CheckPluginsFileAsync();
@@ -600,7 +601,7 @@ namespace LoadOrderKeeper.ViewModels
                     ConfirmationResult.OK,
                     WpfApplication.Current?.MainWindow);
 
-                AddStatusMessage("Debug state copied to clipboard.", StatusMessageType.Success);
+                AddStatusMessage(_statusTexts.DebugStateCopied, StatusMessageType.Success);
             }
             catch (Exception ex)
             {
@@ -634,7 +635,7 @@ namespace LoadOrderKeeper.ViewModels
         private void OnProfileChanged(object? sender, Coordinators.Events.ProfileChangedEventArgs e)
         {
             // Profile changed - update status message
-            AddStatusMessage($"Switched to profile '{e.NewProfile.Label}'.", StatusMessageType.Success);
+            AddStatusMessage(string.Format(_statusTexts.ProfileSwitchedFormat, e.NewProfile.Label), StatusMessageType.Success);
         }
 
         private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
@@ -845,7 +846,7 @@ namespace LoadOrderKeeper.ViewModels
                 // Update file monitor state
                 UpdateFileMonitorState();
 
-                AddStatusMessage("Configuration has been reset to empty values.", StatusMessageType.Success);
+                AddStatusMessage(_statusTexts.ConfigReset, StatusMessageType.Success);
             }
             catch (Exception ex)
             {

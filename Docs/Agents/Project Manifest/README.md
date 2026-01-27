@@ -94,6 +94,9 @@ Each locale file (`en-US.json`, `de-DE.json`, etc.) contains:
 - `Common`: Shared strings across dialogs
 - `StatusCoordinator`: Status message strings
 - `FileMonitoring`: File monitoring warning strings
+- `MainWindowStatus`: Main window status message strings
+- `ViewModelInitializerStatus`: Application initialization status strings
+- `ReferenceManagementStatus`: Reference file management status strings
 
 ### Language Preference System
 

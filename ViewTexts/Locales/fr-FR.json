@@ -259,5 +259,30 @@
     "Title": "Configuration requise",
     "MessageLine1": "Veuillez corriger la configuration dans les paramètres de la fenêtre principale.",
     "MessageLine2": "Cette fenêtre deviendra utilisable lorsque la configuration sera valide."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Application de la correction de l'ordre de chargement...",
+    "FixAppliedSuccess": "Ordre de chargement appliqué et corrigé avec succès !",
+    "ConfigUpdated": "Configuration mise à jour.",
+    "ConfigInvalid": "La configuration est invalide.",
+    "DebugStateCopied": "État de débogage copié dans le presse-papiers.",
+    "ConfigReset": "La configuration a été réinitialisée aux valeurs vides.",
+    "ProfileSwitchedFormat": "Basculé vers le profil '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt introuvable à {0}. Impossible de créer automatiquement la référence.",
+    "NoReferenceCreating": "Aucun fichier de référence trouvé. Création à partir du Plugins.txt actuel...",
+    "ReferenceCreatedAuto": "Fichier de référence créé automatiquement à partir du Plugins.txt actuel.",
+    "FailedToCreateReferenceFormat": "ERREUR : Échec de la création automatique de la référence : {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Mise à jour du fichier de référence...",
+    "UpdateCancelled": "Mise à jour de la référence annulée.",
+    "ReferenceUpdatedSuccess": "Fichier de référence mis à jour avec succès !",
+    "CreatingReference": "Création du fichier de référence...",
+    "ReferenceCreatedSuccess": "Référence créée avec succès ! Vous pouvez maintenant corriger l'ordre de chargement.",
+    "DiscardingChanges": "Abandon des modifications de l'ordre de chargement...",
+    "ChangesDiscarded": "Plugins.txt restauré depuis la référence.",
+    "RolledBackFormat": "Revenu à la version {0}. Acceptez les modifications pour confirmer."
   }
 }

@@ -259,5 +259,30 @@
     "Title": "Configuration Required",
     "MessageLine1": "Please fix the configuration in the main window's settings.",
     "MessageLine2": "This window will become usable when the configuration is valid."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Applying load order fix...",
+    "FixAppliedSuccess": "Load order successfully applied and fixed!",
+    "ConfigUpdated": "Configuration updated.",
+    "ConfigInvalid": "Configuration is invalid.",
+    "DebugStateCopied": "Debug state copied to clipboard.",
+    "ConfigReset": "Configuration has been reset to empty values.",
+    "ProfileSwitchedFormat": "Switched to profile '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt not found at {0}. Unable to create reference automatically.",
+    "NoReferenceCreating": "No reference file found. Creating one from current Plugins.txt...",
+    "ReferenceCreatedAuto": "Reference file created automatically from current Plugins.txt.",
+    "FailedToCreateReferenceFormat": "ERROR: Failed to create reference automatically: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Updating reference file...",
+    "UpdateCancelled": "Reference update cancelled.",
+    "ReferenceUpdatedSuccess": "Reference file updated successfully!",
+    "CreatingReference": "Creating reference file...",
+    "ReferenceCreatedSuccess": "Reference created successfully! You can now fix the load order.",
+    "DiscardingChanges": "Discarding load order changes...",
+    "ChangesDiscarded": "Plugins.txt restored from reference.",
+    "RolledBackFormat": "Rolled back to version {0}. Accept the changes to confirm."
   }
 }

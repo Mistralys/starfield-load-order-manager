@@ -258,6 +258,31 @@
   "ConfigInvalidOverlay": {
     "Title": "需要配置",
     "MessageLine1": "请在主窗口的设置中修复配置。",
-    "MessageLine2": "当配置有效时,此窗口将变为可用。"
+    "MessageLine2": "当配置有效时，此窗口将可用。"
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "正在应用加载顺序修复...",
+    "FixAppliedSuccess": "加载顺序已成功应用和修复！",
+    "ConfigUpdated": "配置已更新。",
+    "ConfigInvalid": "配置无效。",
+    "DebugStateCopied": "调试状态已复制到剪贴板。",
+    "ConfigReset": "配置已重置为空值。",
+    "ProfileSwitchedFormat": "已切换到配置文件 '{0}'。"
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "在 {0} 未找到 Plugins.txt。无法自动创建参考。",
+    "NoReferenceCreating": "未找到参考文件。正在从当前 Plugins.txt 创建...",
+    "ReferenceCreatedAuto": "参考文件已从当前 Plugins.txt 自动创建。",
+    "FailedToCreateReferenceFormat": "错误：自动创建参考失败：{0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "正在更新参考文件...",
+    "UpdateCancelled": "参考更新已取消。",
+    "ReferenceUpdatedSuccess": "参考文件已成功更新！",
+    "CreatingReference": "正在创建参考文件...",
+    "ReferenceCreatedSuccess": "参考创建成功！现在可以修复加载顺序。",
+    "DiscardingChanges": "正在放弃加载顺序更改...",
+    "ChangesDiscarded": "Plugins.txt 已从参考恢复。",
+    "RolledBackFormat": "已回滚到版本 {0}。接受更改以确认。"
   }
 }

@@ -9,7 +9,11 @@
     "DismissTooltip": "Descartar",
     "PlayButtonSfse": "Jugar (SFSE)",
     "PlayButtonVanilla": "Jugar (Vanilla)",
-    "UpdateAvailableFormat": "¡La versión {0} está disponible!"
+    "UpdateAvailableFormat": "¡La versión {0} está disponible!",
+    "DebugStateCopiedTitle": "Estado de depuración copiado",
+    "DebugStateCopiedMessage": "El estado de depuración se ha copiado correctamente en tu portapapeles en formato JSON.\n\nAhora puedes pegar esta información para compartirla con los desarrolladores para solucionar problemas.",
+    "DebugStateCopyFailedTitle": "Error al copiar",
+    "DebugStateCopyFailedMessageFormat": "Error al copiar el estado de depuración: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",

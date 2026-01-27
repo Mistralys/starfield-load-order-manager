@@ -2,14 +2,18 @@
   "LocaleName": "日本語",
   "ParentCulture": "ja",
   "MainWindow": {
-    "ConfigErrorBannerText": "パス設定エラーです。設定されたパスを確認してください。",
+    "ConfigErrorBannerText": "パス構成エラー。構成されたパスを確認してください。",
     "OpenSettingsButtonText": "設定を開く",
-    "ShowChangesButtonText": "ロードオーダーの管理",
-    "ShowChangesButtonTextWithCount": "ロードオーダーの管理（{0}件の変更）",
+    "ShowChangesButtonText": "ロード順序を管理",
+    "ShowChangesButtonTextWithCount": "ロード順序を管理 ({0} 件の変更)",
     "DismissTooltip": "閉じる",
-    "PlayButtonSfse": "プレイ（SFSE）",
-    "PlayButtonVanilla": "プレイ（バニラ）",
-    "UpdateAvailableFormat": "バージョン{0}が利用可能です！"
+    "PlayButtonSfse": "プレイ (SFSE)",
+    "PlayButtonVanilla": "プレイ (Vanilla)",
+    "UpdateAvailableFormat": "バージョン {0} が利用可能です！",
+    "DebugStateCopiedTitle": "デバッグ状態をコピー済み",
+    "DebugStateCopiedMessage": "デバッグ状態がJSON形式でクリップボードに正常にコピーされました。\n\nこの情報を開発者と共有してトラブルシューティングに役立てることができます。",
+    "DebugStateCopyFailedTitle": "コピー失敗",
+    "DebugStateCopyFailedMessageFormat": "デバッグ状態のコピーに失敗しました：{0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",

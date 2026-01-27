@@ -2,14 +2,18 @@
   "LocaleName": "简体中文",
   "ParentCulture": "zh",
   "MainWindow": {
-    "ConfigErrorBannerText": "路径配置错误,请检查已配置的路径。",
+    "ConfigErrorBannerText": "路径配置错误，请检查配置的路径。",
     "OpenSettingsButtonText": "打开设置",
     "ShowChangesButtonText": "管理加载顺序",
-    "ShowChangesButtonTextWithCount": "管理加载顺序 ({0} 项更改)",
+    "ShowChangesButtonTextWithCount": "管理加载顺序（{0}项更改）",
     "DismissTooltip": "关闭",
-    "PlayButtonSfse": "启动游戏 (SFSE)",
-    "PlayButtonVanilla": "启动游戏 (原版)",
-    "UpdateAvailableFormat": "版本 {0} 已发布!"
+    "PlayButtonSfse": "开始游戏 (SFSE)",
+    "PlayButtonVanilla": "开始游戏 (原版)",
+    "UpdateAvailableFormat": "版本 {0} 已可用！",
+    "DebugStateCopiedTitle": "调试状态已复制",
+    "DebugStateCopiedMessage": "调试状态已成功以JSON格式复制到剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
+    "DebugStateCopyFailedTitle": "复制失败",
+    "DebugStateCopyFailedMessageFormat": "复制调试状态失败：{0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -141,7 +145,7 @@
     "ConfirmUpdateMessage": "您即将使用当前的 Plugins.txt 更新参考文件。\n\n这将把当前更改标记为已接受,并在历史记录中创建新版本。\n\n您确定要继续吗?",
     "ReferenceUpdateCancelledStatus": "参考更新已取消。",
     "DebugStateCopiedTitle": "调试状态已复制",
-    "DebugStateCopiedMessage": "调试状态已成功以 JSON 格式复制到您的剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
+    "DebugStateCopiedMessage": "调试状态已成功以JSON格式复制到剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
     "DebugStateCopiedStatus": "调试状态已复制到剪贴板。",
     "CopyFailedTitle": "复制失败",
     "FailedToCopyError": "将调试状态复制到剪贴板失败",

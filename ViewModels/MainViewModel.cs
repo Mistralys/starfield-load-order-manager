@@ -578,13 +578,23 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                // Capture current state
-                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                // Capture current state - use empty list if GetPluginsDiffAsync fails
+                IReadOnlyList<DiffLineModel> diffLines;
+                try
+                {
+                    diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                }
+                catch
+                {
+                    // If diff service fails (e.g., due to invalid paths), use empty list
+                    diffLines = new List<DiffLineModel>();
+                }
                 
-                // Capture debug state using the service
+                // Capture debug state using the service - always succeeds even with invalid config
                 string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
                     Config,
                     diffLines,
+                    _configCoordinator,
                     _statusCoordinator);
 
                 // Copy to clipboard
@@ -592,8 +602,8 @@ namespace LoadOrderKeeper.ViewModels
 
                 // Show success message
                 ConfirmationDialog.Show(
-                    "Debug State Copied",
-                    "The debug state has been copied to the clipboard in JSON format.",
+                    MainWindowTexts.DebugStateCopiedTitle,
+                    MainWindowTexts.DebugStateCopiedMessage,
                     ConfirmationIcon.Information,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,
@@ -605,8 +615,8 @@ namespace LoadOrderKeeper.ViewModels
             {
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 ConfirmationDialog.Show(
-                    "Error",
-                    $"Failed to copy debug state: {ex.Message}",
+                    MainWindowTexts.DebugStateCopyFailedTitle,
+                    string.Format(MainWindowTexts.DebugStateCopyFailedMessageFormat, ex.Message),
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,

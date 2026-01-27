@@ -9,7 +9,11 @@
     "DismissTooltip": "Schließen",
     "PlayButtonSfse": "Spielen (SFSE)",
     "PlayButtonVanilla": "Spielen (Vanilla)",
-    "UpdateAvailableFormat": "Version {0} ist verfügbar!"
+    "UpdateAvailableFormat": "Version {0} ist verfügbar!",
+    "DebugStateCopiedTitle": "Debug-Status kopiert",
+    "DebugStateCopiedMessage": "Der Debug-Status wurde erfolgreich im JSON-Format in Ihre Zwischenablage kopiert.\n\nSie können diese Informationen nun einfügen, um sie mit Entwicklern zur Fehlerbehebung zu teilen.",
+    "DebugStateCopyFailedTitle": "Kopieren fehlgeschlagen",
+    "DebugStateCopyFailedMessageFormat": "Kopieren des Debug-Status fehlgeschlagen: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",

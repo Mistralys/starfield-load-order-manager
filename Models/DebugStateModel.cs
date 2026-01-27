@@ -21,6 +21,8 @@ namespace LoadOrderKeeper.Models
             public string AppDataPath { get; set; } = string.Empty;
             public string GamePath { get; set; } = string.Empty;
             public string? ActiveProfileId { get; set; }
+            public bool IsValid { get; set; }
+            public string? ValidationError { get; set; }
         }
 
         public sealed class SteamState

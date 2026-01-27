@@ -9,7 +9,11 @@
     "DismissTooltip": "Fermer",
     "PlayButtonSfse": "Jouer (SFSE)",
     "PlayButtonVanilla": "Jouer (Vanilla)",
-    "UpdateAvailableFormat": "La version {0} est disponible !"
+    "UpdateAvailableFormat": "La version {0} est disponible !",
+    "DebugStateCopiedTitle": "État de débogage copié",
+    "DebugStateCopiedMessage": "L'état de débogage a été copié avec succès dans votre presse-papiers au format JSON.\n\nVous pouvez maintenant coller ces informations pour les partager avec les développeurs à des fins de dépannage.",
+    "DebugStateCopyFailedTitle": "Échec de la copie",
+    "DebugStateCopyFailedMessageFormat": "Échec de la copie de l'état de débogage : {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",

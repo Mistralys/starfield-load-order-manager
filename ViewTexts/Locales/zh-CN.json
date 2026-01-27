@@ -33,6 +33,7 @@
     "ResetConfigMenuText": "重置配置(用于测试)(_R)...",
     "OpenConfigFolderMenuText": "打开配置文件夹(_C)",
     "ThrowTestExceptionMenuText": "抛出测试异常(_T)",
+    "CopyDebugStateMenuText": "复制调试状态(_D)",
     "DownloadOptionsButtonText": "下载选项...",
     "ActiveProfilePrefixText": "当前配置文件: ",
     "RecentStatusMessagesText": "最近的状态消息:",

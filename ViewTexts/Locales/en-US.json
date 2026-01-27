@@ -33,6 +33,7 @@
     "ResetConfigMenuText": "_Reset Configuration (for testing)...",
     "OpenConfigFolderMenuText": "Open _Configuration Folder",
     "ThrowTestExceptionMenuText": "_Throw Test Exception",
+    "CopyDebugStateMenuText": "Copy _Debug State",
     "DownloadOptionsButtonText": "Download options...",
     "ActiveProfilePrefixText": "Active Profile: ",
     "RecentStatusMessagesText": "Recent Status Messages:",

@@ -33,6 +33,7 @@
     "ResetConfigMenuText": "_Restablecer configuración (para pruebas)...",
     "OpenConfigFolderMenuText": "Abrir carpeta de _configuración",
     "ThrowTestExceptionMenuText": "_Lanzar excepción de prueba",
+    "CopyDebugStateMenuText": "Copiar estado de _depuración",
     "DownloadOptionsButtonText": "Opciones de descarga...",
     "ActiveProfilePrefixText": "Perfil activo: ",
     "RecentStatusMessagesText": "Mensajes de estado recientes:",

@@ -420,4 +420,116 @@ public sealed class StatusCoordinatorTests : IDisposable
     }
 
     #endregion
+
+    #region GetAllMessages Tests
+
+    [Fact]
+    public void GetAllMessages_ReturnsAllLoggedMessages()
+    {
+        // Arrange - Add 5 messages (more than MaxHistoryCount of 3)
+        _coordinator.AddStatusMessage("Message 1", StatusMessageType.Info);
+        _coordinator.AddStatusMessage("Message 2", StatusMessageType.Success);
+        _coordinator.AddStatusMessage("Message 3", StatusMessageType.Warning);
+        _coordinator.AddStatusMessage("Message 4", StatusMessageType.Error);
+        _coordinator.AddStatusMessage("Message 5", StatusMessageType.Info);
+
+        // Act
+        var allMessages = _coordinator.GetAllMessages();
+
+        // Assert - Should contain all 6 messages (5 added + 1 initial from Initialize)
+        Assert.Equal(6, allMessages.Count);
+        Assert.Equal("Message 1", allMessages[1].Message);
+        Assert.Equal("Message 2", allMessages[2].Message);
+        Assert.Equal("Message 3", allMessages[3].Message);
+        Assert.Equal("Message 4", allMessages[4].Message);
+        Assert.Equal("Message 5", allMessages[5].Message);
+    }
+
+    [Fact]
+    public void GetAllMessages_ReturnsMessagesInChronologicalOrder()
+    {
+        // Arrange
+        _coordinator.AddStatusMessage("First", StatusMessageType.Info);
+        _coordinator.AddStatusMessage("Second", StatusMessageType.Info);
+        _coordinator.AddStatusMessage("Third", StatusMessageType.Info);
+
+        // Act
+        var allMessages = _coordinator.GetAllMessages();
+
+        // Assert - Messages should be in order they were added (oldest first)
+        Assert.Equal("First", allMessages[1].Message);
+        Assert.Equal("Second", allMessages[2].Message);
+        Assert.Equal("Third", allMessages[3].Message);
+    }
+
+    [Fact]
+    public void GetAllMessages_DoesNotAffectStatusMessageHistory()
+    {
+        // Arrange - Add 5 messages
+        _coordinator.AddStatusMessage("Message 1");
+        _coordinator.AddStatusMessage("Message 2");
+        _coordinator.AddStatusMessage("Message 3");
+        _coordinator.AddStatusMessage("Message 4");
+        _coordinator.AddStatusMessage("Message 5");
+
+        // Act
+        var allMessages = _coordinator.GetAllMessages();
+
+        // Assert - StatusMessageHistory should still only contain last 3 messages
+        Assert.Equal(3, _coordinator.StatusMessageHistory.Count);
+        Assert.Equal("Message 5", _coordinator.StatusMessageHistory[0].Message); // Most recent first
+        Assert.Equal("Message 4", _coordinator.StatusMessageHistory[1].Message);
+        Assert.Equal("Message 3", _coordinator.StatusMessageHistory[2].Message);
+        
+        // But GetAllMessages should have all 6 (5 added + 1 initial)
+        Assert.Equal(6, allMessages.Count);
+    }
+
+    [Fact]
+    public void GetAllMessages_PreservesMessageTypes()
+    {
+        // Arrange
+        _coordinator.AddStatusMessage("Info message", StatusMessageType.Info);
+        _coordinator.AddStatusMessage("Success message", StatusMessageType.Success);
+        _coordinator.AddStatusMessage("Warning message", StatusMessageType.Warning);
+        _coordinator.AddStatusMessage("Error message", StatusMessageType.Error);
+
+        // Act
+        var allMessages = _coordinator.GetAllMessages();
+
+        // Assert
+        Assert.Equal(StatusMessageType.Info, allMessages[1].Type);
+        Assert.Equal(StatusMessageType.Success, allMessages[2].Type);
+        Assert.Equal(StatusMessageType.Warning, allMessages[3].Type);
+        Assert.Equal(StatusMessageType.Error, allMessages[4].Type);
+    }
+
+    [Fact]
+    public void GetAllMessages_AfterDisposal_ThrowsObjectDisposedException()
+    {
+        // Arrange
+        _coordinator.Dispose();
+
+        // Act & Assert
+        Assert.Throws<ObjectDisposedException>(() => _coordinator.GetAllMessages());
+    }
+
+    [Fact]
+    public void ClearHistory_ClearsBothDisplayAndInternalLog()
+    {
+        // Arrange - Add multiple messages
+        _coordinator.AddStatusMessage("Message 1");
+        _coordinator.AddStatusMessage("Message 2");
+        _coordinator.AddStatusMessage("Message 3");
+        _coordinator.AddStatusMessage("Message 4");
+
+        // Act
+        _coordinator.ClearHistory();
+
+        // Assert
+        Assert.Empty(_coordinator.StatusMessageHistory);
+        Assert.Empty(_coordinator.GetAllMessages());
+    }
+
+    #endregion
 }

@@ -14,6 +14,7 @@ namespace LoadOrderKeeper.Models
         public List<string> PluginsTxtContents { get; set; } = new();
         public List<string> ReferenceContents { get; set; } = new();
         public List<DiffLineModel> ChangeList { get; set; } = new();
+        public List<StatusMessageModel> StatusMessages { get; set; } = new();
 
         public sealed class ConfigurationState
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -8,12 +9,14 @@ namespace LoadOrderKeeper.Coordinators
 {
     /// <summary>
     /// Coordinates status message history and management.
-    /// Maintains a rolling history of the last N status messages.
+    /// Maintains a rolling history of the last N status messages for display,
+    /// while storing all messages internally for debugging and logging purposes.
     /// </summary>
     public sealed partial class StatusCoordinator : CoordinatorBase
     {
         private readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
         private const int MaxHistoryCount = 3;
+        private readonly List<StatusMessageModel> _allMessages = new();
 
         [ObservableProperty]
         private string _statusMessage = "Initializing...";
@@ -34,6 +37,7 @@ namespace LoadOrderKeeper.Coordinators
         /// <summary>
         /// Adds a new status message to the history.
         /// Automatically manages history size and updates current status.
+        /// The message is stored both in the rolling display history and the complete internal log.
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="type">The message type (Info, Success, Warning, Error).</param>
@@ -43,10 +47,13 @@ namespace LoadOrderKeeper.Coordinators
 
             var statusEntry = new StatusMessageModel(message, DateTime.Now, type);
             
-            // Add to beginning of collection (most recent first)
+            // Store in complete internal log (unlimited)
+            _allMessages.Add(statusEntry);
+            
+            // Add to beginning of rolling display collection (most recent first)
             StatusMessageHistory.Insert(0, statusEntry);
             
-            // Keep only the last MaxHistoryCount messages
+            // Keep only the last MaxHistoryCount messages in display history
             while (StatusMessageHistory.Count > MaxHistoryCount)
             {
                 StatusMessageHistory.RemoveAt(StatusMessageHistory.Count - 1);
@@ -54,6 +61,17 @@ namespace LoadOrderKeeper.Coordinators
 
             // Update the current status message
             StatusMessage = message;
+        }
+
+        /// <summary>
+        /// Gets all status messages that have been logged during this session.
+        /// Messages are returned in chronological order (oldest first).
+        /// </summary>
+        /// <returns>Read-only list of all logged status messages.</returns>
+        public IReadOnlyList<StatusMessageModel> GetAllMessages()
+        {
+            ThrowIfDisposed();
+            return _allMessages.AsReadOnly();
         }
 
         /// <summary>
@@ -69,17 +87,19 @@ namespace LoadOrderKeeper.Coordinators
         }
 
         /// <summary>
-        /// Clears all status history.
+        /// Clears all status history (both display and internal log).
         /// </summary>
         public void ClearHistory()
         {
             ThrowIfDisposed();
             StatusMessageHistory.Clear();
+            _allMessages.Clear();
         }
 
         protected override void OnDisposing()
         {
             StatusMessageHistory.Clear();
+            _allMessages.Clear();
         }
     }
 }

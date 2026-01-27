@@ -579,13 +579,14 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                // Get current diff lines from file monitoring
+                // Capture current state
                 var diffLines = await DiffService.GetPluginsDiffAsync(Config);
                 
                 // Capture debug state using the service
                 string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
-                    Config, 
-                    diffLines.ToList());
+                    Config,
+                    diffLines,
+                    _statusCoordinator);
 
                 // Copy to clipboard
                 System.Windows.Clipboard.SetText(debugStateJson);

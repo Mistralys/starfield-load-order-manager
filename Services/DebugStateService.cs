@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
 
 namespace LoadOrderKeeper.Services
@@ -27,7 +28,8 @@ namespace LoadOrderKeeper.Services
         /// </summary>
         public static async Task<string> CaptureDebugStateAsync(
             AppConfigModel config,
-            IReadOnlyList<DiffLineModel> changeList)
+            IReadOnlyList<DiffLineModel> changeList,
+            StatusCoordinator? statusCoordinator = null)
         {
             var debugState = new DebugStateModel
             {
@@ -46,7 +48,8 @@ namespace LoadOrderKeeper.Services
                 TotalChangesDetected = changeList.Count,
                 PluginsTxtContents = await ReadFileContentsAsync(config.GetPluginsFilePath()),
                 ReferenceContents = await ReadFileContentsAsync(config.GetReferenceFilePath()),
-                ChangeList = changeList.ToList()
+                ChangeList = changeList.ToList(),
+                StatusMessages = statusCoordinator?.GetAllMessages().ToList() ?? new List<StatusMessageModel>()
             };
 
             return JsonSerializer.Serialize(debugState, JsonOptions);

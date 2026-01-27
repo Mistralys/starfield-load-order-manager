@@ -105,42 +105,41 @@ public sealed class StatusCoordinatorTests : IDisposable
     }
 
     [Fact]
-    public void AddStatusMessage_RespectsMaxHistoryCount()
+    public void AddStatusMessage_AllowsUnlimitedHistory()
     {
         // Arrange
         _coordinator.ClearHistory();
 
-        // Act - Add more than max history count (3)
-        _coordinator.AddStatusMessage("Message 1", StatusMessageType.Info);
-        _coordinator.AddStatusMessage("Message 2", StatusMessageType.Info);
-        _coordinator.AddStatusMessage("Message 3", StatusMessageType.Info);
-        _coordinator.AddStatusMessage("Message 4", StatusMessageType.Info);
+        // Act - Add many messages
+        for (int i = 1; i <= 10; i++)
+        {
+            _coordinator.AddStatusMessage($"Message {i}", StatusMessageType.Info);
+        }
 
-        // Assert
-        Assert.Equal(3, _coordinator.StatusMessageHistory.Count);
-        Assert.Equal("Message 4", _coordinator.StatusMessageHistory[0].Message);
-        Assert.Equal("Message 3", _coordinator.StatusMessageHistory[1].Message);
-        Assert.Equal("Message 2", _coordinator.StatusMessageHistory[2].Message);
-        // Message 1 should be removed
+        // Assert - All messages should be preserved
+        Assert.Equal(10, _coordinator.StatusMessageHistory.Count);
+        Assert.Equal("Message 10", _coordinator.StatusMessageHistory[0].Message);
+        Assert.Equal("Message 9", _coordinator.StatusMessageHistory[1].Message);
+        Assert.Equal("Message 1", _coordinator.StatusMessageHistory[9].Message);
     }
 
     [Fact]
-    public void AddStatusMessage_RemovesOldestEntry()
+    public void AddStatusMessage_MaintainsAllMessagesInDisplayHistory()
     {
         // Arrange
         _coordinator.ClearHistory();
-        _coordinator.AddStatusMessage("Old 1", StatusMessageType.Info);
-        _coordinator.AddStatusMessage("Old 2", StatusMessageType.Info);
-        _coordinator.AddStatusMessage("Old 3", StatusMessageType.Info);
+        var messages = new[] { "First", "Second", "Third", "Fourth", "Fifth" };
 
-        // Act - Add fourth message, should remove "Old 1"
-        _coordinator.AddStatusMessage("New", StatusMessageType.Info);
+        // Act
+        foreach (var message in messages)
+        {
+            _coordinator.AddStatusMessage(message, StatusMessageType.Info);
+        }
 
-        // Assert
-        Assert.DoesNotContain(_coordinator.StatusMessageHistory, m => m.Message == "Old 1");
-        Assert.Contains(_coordinator.StatusMessageHistory, m => m.Message == "New");
-        Assert.Contains(_coordinator.StatusMessageHistory, m => m.Message == "Old 3");
-        Assert.Contains(_coordinator.StatusMessageHistory, m => m.Message == "Old 2");
+        // Assert - All messages should be in display history
+        Assert.Equal(5, _coordinator.StatusMessageHistory.Count);
+        Assert.Equal("Fifth", _coordinator.StatusMessageHistory[0].Message);
+        Assert.Equal("First", _coordinator.StatusMessageHistory[4].Message);
     }
 
     [Fact]
@@ -349,22 +348,6 @@ public sealed class StatusCoordinatorTests : IDisposable
         Assert.Equal("First", _coordinator.StatusMessageHistory[2].Message);
     }
 
-    [Fact]
-    public void StatusMessageHistory_NeverExceedsMaxCount()
-    {
-        // Arrange
-        _coordinator.ClearHistory();
-
-        // Act - Add 10 messages
-        for (int i = 0; i < 10; i++)
-        {
-            _coordinator.AddStatusMessage($"Message {i}", StatusMessageType.Info);
-        }
-
-        // Assert
-        Assert.True(_coordinator.StatusMessageHistory.Count <= 3);
-    }
-
     #endregion
 
     #region Disposal Tests
@@ -475,14 +458,16 @@ public sealed class StatusCoordinatorTests : IDisposable
         // Act
         var allMessages = _coordinator.GetAllMessages();
 
-        // Assert - StatusMessageHistory should still only contain last 3 messages
-        Assert.Equal(3, _coordinator.StatusMessageHistory.Count);
+        // Assert - StatusMessageHistory should contain all messages (now unlimited)
+        Assert.Equal(6, _coordinator.StatusMessageHistory.Count); // 5 added + 1 initial
         Assert.Equal("Message 5", _coordinator.StatusMessageHistory[0].Message); // Most recent first
         Assert.Equal("Message 4", _coordinator.StatusMessageHistory[1].Message);
         Assert.Equal("Message 3", _coordinator.StatusMessageHistory[2].Message);
         
-        // But GetAllMessages should have all 6 (5 added + 1 initial)
+        // GetAllMessages should also have all 6 (5 added + 1 initial) in chronological order
         Assert.Equal(6, allMessages.Count);
+        Assert.Equal("Initializing application...", allMessages[0].Message);
+        Assert.Equal("Message 1", allMessages[1].Message);
     }
 
     [Fact]

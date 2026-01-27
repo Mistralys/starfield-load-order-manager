@@ -315,40 +315,44 @@
                                    Foreground="{DynamicResource MaterialDesignBodyLight}"
                                    Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource CountToVisibilityConverter}}" />
 
-                        <ItemsControl ItemsSource="{Binding StatusMessageHistory}"
+                        <ScrollViewer MaxHeight="100"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       Margin="0,0,0,8"
                                       Visibility="{Binding StatusMessageHistory.Count, Converter={StaticResource CountToVisibilityConverter}}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Padding="4,2"
-                                            Margin="0,1"
-                                            CornerRadius="2">
-                                        <TextBlock Text="{Binding DisplayText}"
-                                                   TextWrapping="Wrap"
-                                                   FontSize="11">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Type}" Value="Success">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Type}" Value="Error">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Error}" />
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Type}" Value="Warning">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Type}" Value="Info">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            <ItemsControl ItemsSource="{Binding StatusMessageHistory}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="4,2"
+                                                Margin="0,1"
+                                                CornerRadius="2">
+                                            <TextBlock Text="{Binding DisplayText}"
+                                                       TextWrapping="Wrap"
+                                                       FontSize="11">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Type}" Value="Success">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Type}" Value="Error">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Error}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Type}" Value="Warning">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Tertiary}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Type}" Value="Info">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
 
                         <!-- Current status message for backwards compatibility -->
                         <TextBlock TextWrapping="Wrap"

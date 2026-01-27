@@ -17,8 +17,6 @@ namespace LoadOrderKeeper.ViewModels
 {
     public partial class MainViewModel : ObservableObject, IDisposable
     {
-        private const int MaxStatusHistoryCount = 3;
-        
         private readonly FileMonitoringCoordinator _fileMonitor;
         private readonly StatusCoordinator _statusCoordinator;
         private readonly UpdateCheckCoordinator _updateCheckCoordinator;

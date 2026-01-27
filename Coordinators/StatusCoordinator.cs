@@ -9,13 +9,12 @@ namespace LoadOrderKeeper.Coordinators
 {
     /// <summary>
     /// Coordinates status message history and management.
-    /// Maintains a rolling history of the last N status messages for display,
+    /// Maintains a rolling history of status messages for display,
     /// while storing all messages internally for debugging and logging purposes.
     /// </summary>
     public sealed partial class StatusCoordinator : CoordinatorBase
     {
         private readonly ViewTexts.LocalizationService _localization = ViewTexts.LocalizationService.Instance;
-        private const int MaxHistoryCount = 3;
         private readonly List<StatusMessageModel> _allMessages = new();
 
         [ObservableProperty]
@@ -36,8 +35,8 @@ namespace LoadOrderKeeper.Coordinators
 
         /// <summary>
         /// Adds a new status message to the history.
-        /// Automatically manages history size and updates current status.
-        /// The message is stored both in the rolling display history and the complete internal log.
+        /// Automatically updates current status and maintains complete message history.
+        /// The message is stored both in the display history and the complete internal log.
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="type">The message type (Info, Success, Warning, Error).</param>
@@ -50,14 +49,8 @@ namespace LoadOrderKeeper.Coordinators
             // Store in complete internal log (unlimited)
             _allMessages.Add(statusEntry);
             
-            // Add to beginning of rolling display collection (most recent first)
+            // Add to beginning of display collection (most recent first)
             StatusMessageHistory.Insert(0, statusEntry);
-            
-            // Keep only the last MaxHistoryCount messages in display history
-            while (StatusMessageHistory.Count > MaxHistoryCount)
-            {
-                StatusMessageHistory.RemoveAt(StatusMessageHistory.Count - 1);
-            }
 
             // Update the current status message
             StatusMessage = message;

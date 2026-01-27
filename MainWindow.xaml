@@ -79,7 +79,6 @@
                 <MenuItem Header="{Binding Menu.CopyDebugStateMenuText}"
                           Command="{Binding CopyDebugStateCommand}"
                           Icon="{materialDesign:PackIcon Kind=ContentCopy}" />
-                <Separator />
                 <MenuItem Header="{Binding Menu.ThrowTestExceptionMenuText}"
                           Command="{Binding ThrowTestExceptionCommand}"
                           Icon="{materialDesign:PackIcon Kind=AlertCircle}" />

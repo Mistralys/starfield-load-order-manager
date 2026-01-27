@@ -36,6 +36,8 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private string _customEditorPath = string.Empty;
 
+        private readonly string? _activeProfileId;
+
         public string DetectedAppDataPath { get; }
         public string DetectedGamePath { get; }
         public bool HasDetectedAppDataPath => !string.IsNullOrWhiteSpace(DetectedAppDataPath);
@@ -55,6 +57,9 @@ namespace LoadOrderKeeper.ViewModels
         {
             DetectedAppDataPath = SettingsService.TryGetDefaultAppDataPath();
             DetectedGamePath = SettingsService.TryGetDefaultSteamPath();
+
+            // Preserve the active profile ID from the initial config
+            _activeProfileId = initialConfig.ActiveProfileId;
 
             if (!string.IsNullOrWhiteSpace(initialConfig.StarfieldAppDataPath))
             {
@@ -183,7 +188,8 @@ namespace LoadOrderKeeper.ViewModels
                 StarfieldAppDataPath = StarfieldAppDataPath,
                 StarfieldGamePath = StarfieldGamePath,
                 PreferredLanguage = SelectedLanguage,
-                CustomEditorPath = string.IsNullOrWhiteSpace(CustomEditorPath) ? null : CustomEditorPath
+                CustomEditorPath = string.IsNullOrWhiteSpace(CustomEditorPath) ? null : CustomEditorPath,
+                ActiveProfileId = _activeProfileId
             };
         }
 

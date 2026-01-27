@@ -62,7 +62,6 @@ namespace LoadOrderKeeper.ViewModels
             RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(RemoveNewModAsync);
             ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(ReplaceRemovedModAsync);
             ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
-            CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
             _mainViewModel.PropertyChanged += OnMainViewModelPropertyChanged;
             
             // Subscribe to configuration validation changes
@@ -124,17 +123,7 @@ namespace LoadOrderKeeper.ViewModels
 
         public string EditMenuHeader => Menu.EditMenuHeader;
 
-        public string HelpMenuHeader => Menu.HelpMenuHeader;
-
-        public string CopyDebugStateMenuText => Texts.CopyDebugStateMenuText;
-        
         public IRelayCommand OpenPluginsFileCommand => _mainViewModel.OpenPluginsFileCommand;
-        
-        public IRelayCommand OpenReferenceFileCommand => _mainViewModel.OpenReferenceFileCommand;
-        
-        public IRelayCommand OpenAppDataFolderCommand => _mainViewModel.OpenAppDataFolderCommand;
-        
-        public IRelayCommand OpenGameFolderCommand => _mainViewModel.OpenGameFolderCommand;
 
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
@@ -164,8 +153,6 @@ namespace LoadOrderKeeper.ViewModels
         public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
 
         public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
-
-        public IAsyncRelayCommand CopyDebugStateCommand { get; }
 
         public event EventHandler? CloseRequested;
         public event EventHandler? ScrollRequested;
@@ -507,42 +494,6 @@ namespace LoadOrderKeeper.ViewModels
             if (_mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false)
             {
                 await _mainViewModel.CreateReferenceCommand.ExecuteAsync(null);
-            }
-        }
-
-        private async Task CopyDebugStateAsync()
-        {
-            try
-            {
-                // Capture debug state using the service
-                string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
-                    _mainViewModel.Config, 
-                    DiffLines.ToList());
-
-                // Copy to clipboard
-                System.Windows.Clipboard.SetText(debugStateJson);
-
-                // Show success message
-                var eventArgs = new ConfirmationRequestedEventArgs(
-                    Texts.DebugStateCopiedTitle,
-                    Texts.DebugStateCopiedMessage,
-                    ConfirmationIcon.Information,
-                    ConfirmationButton.OK);
-                ConfirmationRequested?.Invoke(this, eventArgs);
-
-                DiffStatusMessage = Texts.DebugStateCopiedStatus;
-            }
-            catch (Exception ex)
-            {
-                // Show error message
-                var eventArgs = new ConfirmationRequestedEventArgs(
-                    Texts.CopyFailedTitle,
-                    string.Format(Texts.FailedToCopyError) + "\n\n" + ex.Message,
-                    ConfirmationIcon.Error,
-                    ConfirmationButton.OK);
-                ConfirmationRequested?.Invoke(this, eventArgs);
-
-                DiffStatusMessage = string.Format(Texts.FailedToCopyError) + " " + ex.Message;
             }
         }
 

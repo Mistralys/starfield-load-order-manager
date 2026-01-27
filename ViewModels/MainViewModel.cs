@@ -94,6 +94,7 @@ namespace LoadOrderKeeper.ViewModels
         public IRelayCommand OpenConfigFolderCommand { get; }
         public IRelayCommand PlayGameCommand { get; }
         public IAsyncRelayCommand ShowDiffCommand { get; }
+        public IAsyncRelayCommand CopyDebugStateCommand { get; }
 
         public MainViewModel()
         {
@@ -188,6 +189,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenConfigFolderCommand = new RelayCommand(OpenConfigFolder);
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
             ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync);
+            CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
 
             // Initialize status history with the initial message (handled by StatusCoordinator.Initialize())
 
@@ -570,6 +572,45 @@ namespace LoadOrderKeeper.ViewModels
             catch (Exception ex)
             {
                 ShowError($"Failed to display changes: {ex.Message}");
+            }
+        }
+
+        private async Task CopyDebugStateAsync()
+        {
+            try
+            {
+                // Get current diff lines from file monitoring
+                var diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                
+                // Capture debug state using the service
+                string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
+                    Config, 
+                    diffLines.ToList());
+
+                // Copy to clipboard
+                System.Windows.Clipboard.SetText(debugStateJson);
+
+                // Show success message
+                ConfirmationDialog.Show(
+                    "Debug State Copied",
+                    "The debug state has been copied to the clipboard in JSON format.",
+                    ConfirmationIcon.Information,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
+
+                AddStatusMessage("Debug state copied to clipboard.", StatusMessageType.Success);
+            }
+            catch (Exception ex)
+            {
+                AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
+                ConfirmationDialog.Show(
+                    "Error",
+                    $"Failed to copy debug state: {ex.Message}",
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
             }
         }
 

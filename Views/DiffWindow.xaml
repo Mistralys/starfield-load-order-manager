@@ -61,11 +61,6 @@
                               Command="{Binding DiscardChangesCommand}"
                               IsEnabled="{Binding HasDifferences}" />
                 </MenuItem>
-                <MenuItem Header="{Binding HelpMenuHeader}" d:Header="_Help">
-                    <MenuItem Header="{Binding CopyDebugStateMenuText}"
-                              d:Header="Copy Debug State"
-                              Command="{Binding CopyDebugStateCommand}" />
-                </MenuItem>
             </Menu>
             
             <Grid>

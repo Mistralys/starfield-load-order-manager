@@ -50,6 +50,7 @@ namespace LoadOrderKeeper.ViewTexts
         public string ResetConfigMenuText => _localization.GetString("Menu", "ResetConfigMenuText");
         public string OpenConfigFolderMenuText => _localization.GetString("Menu", "OpenConfigFolderMenuText");
         public string ThrowTestExceptionMenuText => _localization.GetString("Menu", "ThrowTestExceptionMenuText");
+        public string CopyDebugStateMenuText => _localization.GetString("Menu", "CopyDebugStateMenuText");
 
         // Button Text
         public string DownloadOptionsButtonText => _localization.GetString("Menu", "DownloadOptionsButtonText");
@@ -87,6 +88,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(ResetConfigMenuText));
             OnPropertyChanged(nameof(OpenConfigFolderMenuText));
             OnPropertyChanged(nameof(ThrowTestExceptionMenuText));
+            OnPropertyChanged(nameof(CopyDebugStateMenuText));
             OnPropertyChanged(nameof(DownloadOptionsButtonText));
             OnPropertyChanged(nameof(ActiveProfilePrefixText));
             OnPropertyChanged(nameof(RecentStatusMessagesText));

@@ -59,6 +59,7 @@ namespace LoadOrderKeeper.ViewModels
         public MainWindowTexts MainWindowTexts { get; } = new();
         public CommonTexts CommonTexts { get; } = new();
         private readonly MainWindowStatusTexts _statusTexts = new();
+        private readonly ErrorDialogTexts _errorTexts = new();
 
         public string PlayButtonText => _gameLauncher.PlayButtonText;
 
@@ -865,7 +866,7 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private void ThrowTestException()
         {
-            throw new InvalidOperationException("This is a test exception to verify the error dialog and logging functionality. Check the error.log file in your application data folder.");
+            throw new InvalidOperationException(_errorTexts.TestExceptionMessage);
         }
 
         public void Dispose()

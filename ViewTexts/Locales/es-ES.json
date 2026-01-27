@@ -52,9 +52,9 @@
     "CopyrightFormat": "© 2025-{0} Mistralys"
   },
   "ErrorDialog": {
-    "WindowTitle": "Ha ocurrido un error inesperado",
-    "ErrorHeaderText": "Ha ocurrido un error inesperado",
-    "OpenLogFolderButtonText": "Abrir carpeta de registro",
+    "WindowTitle": "Se ha producido un error inesperado",
+    "ErrorHeaderText": "Se ha producido un error inesperado",
+    "OpenLogFolderButtonText": "Abrir carpeta de registros",
     "OpenLogFolderTooltip": "Abre la carpeta que contiene el archivo error.log",
     "ReportBugButtonText": "Reportar error",
     "ReportBugTooltip": "Abre la página de problemas de GitHub para reportar este error",
@@ -62,7 +62,8 @@
     "ExitTooltip": "Salir de la aplicación (recomendado)",
     "IgnoreButtonText": "Ignorar (Inseguro)",
     "IgnoreTooltip": "Continuar ejecutando - la aplicación puede estar en un estado inestable",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Esta es una excepción de prueba para verificar el diálogo de error y la funcionalidad de registro. Verifique el archivo error.log en su carpeta de datos de aplicación."
   },
   "CommentInput": {
     "WindowTitleCreate": "Actualizar archivo de referencia",

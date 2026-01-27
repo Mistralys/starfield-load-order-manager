@@ -61,8 +61,9 @@
     "ExitButtonText": "Esci",
     "ExitTooltip": "Esci dall'applicazione (consigliato)",
     "IgnoreButtonText": "Ignora (Non sicuro)",
-    "IgnoreTooltip": "Continua l'esecuzione - l'applicazione potrebbe essere in uno stato instabile",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "IgnoreTooltip": "Continua l'esecuzione - l'applicazione potrebbe trovarsi in uno stato instabile",
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Questa è un'eccezione di test per verificare la finestra di dialogo degli errori e la funzionalità di registrazione. Controllare il file error.log nella cartella dei dati dell'applicazione."
   },
   "CommentInput": {
     "WindowTitleCreate": "Aggiorna file di riferimento",
@@ -285,7 +286,7 @@
     "ReferenceUpdatedSuccess": "File di riferimento aggiornato con successo!",
     "CreatingReference": "Creazione del file di riferimento...",
     "ReferenceCreatedSuccess": "Riferimento creato con successo! Ora puoi correggere l'ordine di caricamento.",
-    "DiscardingChanges": "Scarto delle modifiche all'ordine di caricamento...",
+    "DiscardingChanges": "Scarto delle modifiche all'ordine di carreggiamento...",
     "ChangesDiscarded": "Plugins.txt ripristinato dal riferimento.",
     "RolledBackFormat": "Ripristinato alla versione {0}. Accettare le modifiche per confermare."
   }

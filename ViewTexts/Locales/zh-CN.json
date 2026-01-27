@@ -59,10 +59,11 @@
     "ReportBugButtonText": "报告错误",
     "ReportBugTooltip": "打开 GitHub 问题页面以报告此错误",
     "ExitButtonText": "退出",
-    "ExitTooltip": "退出应用程序(推荐)",
-    "IgnoreButtonText": "忽略(不安全)",
+    "ExitTooltip": "退出应用程序（推荐）",
+    "IgnoreButtonText": "忽略（不安全）",
     "IgnoreTooltip": "继续运行 - 应用程序可能处于不稳定状态",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "这是一个测试异常，用于验证错误对话框和日志记录功能。请检查应用程序数据文件夹中的 error.log 文件。"
   },
   "CommentInput": {
     "WindowTitleCreate": "更新参考文件",

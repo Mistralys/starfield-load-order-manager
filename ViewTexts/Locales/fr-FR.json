@@ -54,15 +54,16 @@
   "ErrorDialog": {
     "WindowTitle": "Une erreur inattendue s'est produite",
     "ErrorHeaderText": "Une erreur inattendue s'est produite",
-    "OpenLogFolderButtonText": "Ouvrir le dossier de journal",
+    "OpenLogFolderButtonText": "Ouvrir le dossier des journaux",
     "OpenLogFolderTooltip": "Ouvre le dossier contenant le fichier error.log",
     "ReportBugButtonText": "Signaler un bug",
     "ReportBugTooltip": "Ouvre la page des problèmes GitHub pour signaler cette erreur",
     "ExitButtonText": "Quitter",
     "ExitTooltip": "Quitter l'application (recommandé)",
-    "IgnoreButtonText": "Ignorer (Dangereux)",
+    "IgnoreButtonText": "Ignorer (Non sûr)",
     "IgnoreTooltip": "Continuer l'exécution - l'application peut être dans un état instable",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Ceci est une exception de test pour vérifier la boîte de dialogue d'erreur et la fonctionnalité de journalisation. Vérifiez le fichier error.log dans votre dossier de données d'application."
   },
   "CommentInput": {
     "WindowTitleCreate": "Mettre à jour le fichier de référence",

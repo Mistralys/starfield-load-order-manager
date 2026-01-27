@@ -62,7 +62,8 @@
     "ExitTooltip": "Anwendung beenden (empfohlen)",
     "IgnoreButtonText": "Ignorieren (Unsicher)",
     "IgnoreTooltip": "Weiter ausführen - Anwendung könnte sich in einem instabilen Zustand befinden",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Dies ist eine Testausnahme zur Überprüfung der Fehlerdialog- und Protokollierungsfunktionalität. Überprüfen Sie die error.log-Datei in Ihrem Anwendungsdatenordner."
   },
   "CommentInput": {
     "WindowTitleCreate": "Referenzdatei aktualisieren",

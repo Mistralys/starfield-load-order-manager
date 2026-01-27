@@ -62,7 +62,8 @@
     "ExitTooltip": "Exit the application (recommended)",
     "IgnoreButtonText": "Ignore (Unsafe)",
     "IgnoreTooltip": "Continue running - application may be in an unstable state",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "This is a test exception to verify the error dialog and logging functionality. Check the error.log file in your application data folder."
   },
   "CommentInput": {
     "WindowTitleCreate": "Update Reference File",

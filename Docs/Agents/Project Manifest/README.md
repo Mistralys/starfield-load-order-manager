@@ -1,4 +1,4 @@
-# Project Manifest � Starfield Load Order Keeper
+﻿# Project Manifest – Starfield Load Order Keeper
 
 > Source-of-truth overview for future AI agents. Do not infer behavior beyond what is documented here.
 
@@ -54,7 +54,7 @@ The localization system uses a **zero-hardcoding architecture** where adding a n
 
 ```json
 {
-  "LocaleName": "Portugu�s (Brasil)",
+  "LocaleName": "Português (Brasil)",
   "ParentCulture": "pt",
   "MainWindow": { "key": "translated value" },
   "Settings": { "key": "translated value" }
@@ -68,12 +68,53 @@ No C# code changes, no compilation, no hardcoded mappings. The system automatica
 - Populates language dropdown dynamically
 - Supports automatic system locale detection
 
+### Chinese and Japanese Translation Guidelines
+
+**Critical formatting rules for Asian language translations** (zh-CN, ja-JP):
+
+1. **Menu Hotkeys Placement**
+   - Place hotkeys at the **end** of menu items using the format `(_X)`
+   - Example (Chinese): `"FileMenuHeader": "文件(_F)"`
+   - Example (Japanese): `"FileMenuHeader": "ファイル(_F)"`
+   - **Do NOT** place space before hotkey parentheses in menu items
+
+2. **Aki Spacing (空き)**
+   - **Always maintain spacing** between English words/numbers and Asian characters
+   - Correct: `版本 {0}` or `JSON 形式`
+   - Incorrect: `版本{0}` or `JSON形式`
+   - This improves scannability and follows modern UI typography standards
+
+3. **Quotation Marks**
+   - Use **Chinese quotes** `" "` (zh-CN) when referring to folder names or UI labels
+   - Use **Japanese quotes** `「 」` (ja-JP) when referring to folder names or UI labels
+   - Example (Chinese): `"Profiles" 文件夹`
+   - Example (Japanese): `「Profiles」フォルダ`
+
+4. **Punctuation**
+   - Use **full-width punctuation** for all descriptive text
+   - Chinese: `， 。 ： （ ）` instead of `, . : ( )`
+   - Japanese: Already uses full-width by default
+   - Example (Chinese): `列表中有很多更改，包括替换和移除。`
+   - Maintains visual consistency with Asian character blocks
+
+5. **Technical Terms**
+   - Keep technical proper nouns (SFSE, Vanilla, GitHub, etc.) in English
+   - Surround with full-width parentheses when needed
+   - Example (Japanese): `プレイ（SFSE）`
+   - Example (Chinese): `开始游戏（SFSE）`
+
+**Typography Anti-Patterns to Avoid**:
+- ❌ Western punctuation in Chinese text: `列表中有很多更改, 包括替换和移除.`
+- ❌ Missing spacing: `版本{0}` or `JSON格式`
+- ❌ Western quotes: `'Profiles' 文件夹` (use `"Profiles"` instead)
+- ❌ Space before hotkey: `文件 (_F)` (use `文件(_F)` instead)
+
 ### Locale File Structure
 
 Each locale file (`en-US.json`, `de-DE.json`, etc.) contains:
 
 **Root-level metadata** (used by LocalizationService):
-- `LocaleName`: Native language name (e.g., "Deutsch", "Fran�ais")
+- `LocaleName`: Native language name (e.g., "Deutsch", "Français")
 - `ParentCulture`: Two-letter ISO 639-1 code (e.g., "de", "fr")
 
 **Translation sections** (used by ViewModels):
@@ -128,7 +169,7 @@ To add a new language (e.g., Portuguese):
 2. **Set metadata**:
    ```json
    {
-     "LocaleName": "Portugu�s (Brasil)",
+     "LocaleName": "Português (Brasil)",
      "ParentCulture": "pt",
      ...
    }

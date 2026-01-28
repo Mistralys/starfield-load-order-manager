@@ -1,6 +1,7 @@
 # Changelog
 
-## v1.8.2 - Bug Fixes
+## v1.9.0 - External Editor
+- General: Added a setting to choose an external text editor for opening files.
 - Profiles: Fixed an issue where opening the settings would revert back to the default profile.
 - Debug: Status messages are now stored interrnally and added to the debug output.
 - Translation: Translated all status messages that were still in english.

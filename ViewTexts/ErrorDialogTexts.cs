@@ -32,6 +32,9 @@ namespace LoadOrderKeeper.ViewTexts
         
         // Constants
         public string BugReportUrl => _localization.GetString("ErrorDialog", "BugReportUrl");
+        
+        // Test Exception
+        public string TestExceptionMessage => _localization.GetString("ErrorDialog", "TestExceptionMessage");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -49,6 +52,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(IgnoreButtonText));
             OnPropertyChanged(nameof(IgnoreTooltip));
             OnPropertyChanged(nameof(BugReportUrl));
+            OnPropertyChanged(nameof(TestExceptionMessage));
         }
 
         /// <summary>

@@ -37,7 +37,8 @@ The application provides automated load order protection and management through:
 15. **Debug State Export**: Captures application state for troubleshooting (includes sanitized paths for privacy)
 16. **Language Preference**: User-selectable interface language with automatic system locale detection
 17. **Multilingual Support**: Full interface localization in 8 languages with zero-hardcoding extensibility
-18. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
+18. **Scrollable Status History**: Complete session status message history with scrollable view showing timestamped messages
+19. **Modular Architecture**: Coordinator pattern ensures maintainability and testability
 
 ---
 
@@ -75,6 +76,7 @@ Detailed documentation for each major feature:
 - **[Configuration Validation](Features/configuration-validation.md)** - Path validation and error handling
 - **[Exception Handling](Features/exception-handling.md)** - Global error logging and user-friendly error dialogs
 - **[Multilingual Support](Features/multilingual-support.md)** - Language preference and localization system
+- **[Status Message History](Features/status-message-history.md)** - Scrollable status history with unlimited session messages
 
 ### Architecture & Design
 Technical architecture documentation:
@@ -137,11 +139,12 @@ See **[Multilingual Support](Features/multilingual-support.md)** for complete do
 - How to manage multiple characters >> [Profile System](Features/profile-system.md)
 - How version history works >> [Reference History](Features/reference-history.md)
 - How the application detects changes >> [Change Detection](Features/change-detection.md)
-- How configuration validation works >> [Configuration Validation](Features/configuration-validation.md)
+- How configuration validation works >> [Configuration Validation](Features/configuracion-validator.md)
 - How exceptions are handled >> [Exception Handling](Features/exception-handling.md)
 - How multilingual support works >> [Multilingual Support](Features/multilingual-support.md)
 - How to change the interface language >> [Multilingual Support](Features/multilingual-support.md#user-interface)
 - How to contribute a translation >> [Multilingual Support](Features/multilingual-support.md#contributing-translations)
+- How status message history works >> [Status Message History](Features/status-message-history.md)
 
 **I want to learn about...**
 - The coordinator pattern >> [Coordinator Pattern](Architecture/coordinator-pattern.md)
@@ -160,6 +163,7 @@ The application maintains semantic versioning:
 - GitHub Actions automatically creates releases when version tags are pushed
 
 **Recent Major Features**:
+- v1.8.2: Scrollable status message history with unlimited session storage (replaces 3-message limit)
 - v1.8.1: Language preference UI with zero-hardcoding architecture; 8 supported languages (English, German, French, Spanish, Italian, Simplified Chinese, Japanese, Portuguese)
 - v1.8.0: Complete localization system with English, German, French, Spanish, and Italian translations (189 strings per language)
 - v1.7.1: Invalid configuration handling improvements with graceful recovery and modal overlays

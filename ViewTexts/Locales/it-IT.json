@@ -2,14 +2,18 @@
   "LocaleName": "Italiano",
   "ParentCulture": "it",
   "MainWindow": {
-    "ConfigErrorBannerText": "Errore di configurazione del percorso, si prega di controllare i percorsi configurati.",
+    "ConfigErrorBannerText": "Errore di configurazione del percorso, verificare i percorsi configurati.",
     "OpenSettingsButtonText": "Apri impostazioni",
     "ShowChangesButtonText": "Gestisci ordine di caricamento",
-    "ShowChangesButtonTextWithCount": "Gestisci ordine di carreggiamento ({0} modifiche)",
-    "DismissTooltip": "Ignora",
+    "ShowChangesButtonTextWithCount": "Gestisci ordine di caricamento ({0} modifiche)",
+    "DismissTooltip": "Chiudi",
     "PlayButtonSfse": "Gioca (SFSE)",
     "PlayButtonVanilla": "Gioca (Vanilla)",
-    "UpdateAvailableFormat": "La versione {0} è disponibile!"
+    "UpdateAvailableFormat": "La versione {0} è disponibile!",
+    "DebugStateCopiedTitle": "Stato di debug copiato",
+    "DebugStateCopiedMessage": "Lo stato di debug è stato copiato con successo negli appunti in formato JSON.\n\nOra puoi incollare queste informazioni per condividerle con gli sviluppatori per la risoluzione dei problemi.",
+    "DebugStateCopyFailedTitle": "Copia fallita",
+    "DebugStateCopyFailedMessageFormat": "Impossibile copiare lo stato di debug: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -32,7 +36,8 @@
     "DebugMenuHeader": "_Debug",
     "ResetConfigMenuText": "_Ripristina configurazione (per test)...",
     "OpenConfigFolderMenuText": "Apri cartella di _configurazione",
-    "ThrowTestExceptionMenuText": "_Lancia eccezione di test",
+    "ThrowTestExceptionMenuText": "_Genera eccezione di test",
+    "CopyDebugStateMenuText": "Copia stato di _debug",
     "DownloadOptionsButtonText": "Opzioni di download...",
     "ActiveProfilePrefixText": "Profilo attivo: ",
     "RecentStatusMessagesText": "Messaggi di stato recenti:",
@@ -56,8 +61,9 @@
     "ExitButtonText": "Esci",
     "ExitTooltip": "Esci dall'applicazione (consigliato)",
     "IgnoreButtonText": "Ignora (Non sicuro)",
-    "IgnoreTooltip": "Continua l'esecuzione - l'applicazione potrebbe essere in uno stato instabile",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "IgnoreTooltip": "Continua l'esecuzione - l'applicazione potrebbe trovarsi in uno stato instabile",
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Questa è un'eccezione di test per verificare la finestra di dialogo degli errori e la funzionalità di registrazione. Controllare il file error.log nella cartella dei dati dell'applicazione."
   },
   "CommentInput": {
     "WindowTitleCreate": "Aggiorna file di riferimento",
@@ -96,10 +102,16 @@
     "ProfilesFolderCannotBeCreatedMessage": "La cartella Profiles non può essere creata o accessibile",
     "BothPathsInvalidMessage": "Sia il percorso del gioco che il percorso dei dati dell'applicazione non sono validi.",
     "LanguageAutomatic": "Automatico",
-    "LanguageRestartRequired": "Le modifiche alla lingua avranno effetto dopo il riavvio dell'applicazione."
+    "LanguageRestartRequired": "Le modifiche alla lingua verranno applicate dopo il riavvio dell'applicazione.",
+    "CustomEditorPathLabel": "Editor di testo personalizzato (opzionale)",
+    "CustomEditorPathHint": "es: C:\\Programmi\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Lasciare vuoto per utilizzare l'editor di testo predefinito di Windows.",
+    "CustomEditorBrowseTitle": "Seleziona eseguibile dell'editor di testo",
+    "CustomEditorInvalidPathError": "Il percorso dell'editor di testo specificato non è valido",
+    "CustomEditorNotFoundError": "L'eseguibile dell'editor di testo specificato non è stato trovato"
   },
   "DiffDialog": {
-    "WindowTitle": "Modifiche all'ordine di caricamento",
+    "WindowTitle": "Modifiche all'ordine di carreggiamento",
     "DescriptionText": "Sono state rilevate le seguenti modifiche tra il tuo ordine di caricamento attuale e il riferimento:",
     "AcceptChangesButtonText": "Accetta modifiche",
     "DiscardChangesButtonText": "Scarta modifiche",
@@ -234,7 +246,9 @@
     "ProfilesFolderRequired": "L'applicazione richiede una cartella 'Profiles' nel percorso dati dell'applicazione configurato per memorizzare i dati del profilo. Questa cartella non può essere creata o accessibile. Si prega di verificare i permessi della cartella o selezionare un percorso dati dell'applicazione diverso nelle impostazioni.",
     "ProfilesFolderAccessDenied": "Accesso negato durante la creazione della cartella Profiles. Potrebbero essere necessari i permessi di amministratore o scegliere una posizione diversa.",
     "PluginsTxtRequired": "Il file Plugins.txt non è stato trovato nel percorso dati dell'applicazione configurato. Questo file è necessario per il funzionamento dell'applicazione. Assicurati di aver eseguito Starfield almeno una volta per generare questo file, o seleziona la cartella dati dell'applicazione corretta nelle impostazioni.",
-    "ErrorPrefix": "ERRORE: {0}"
+    "ErrorPrefix": "ERRORE: {0}",
+    "CustomEditorLaunchFailed": "Impossibile avviare l'editor di testo personalizzato. Apertura con l'editor predefinito del sistema.",
+    "CustomEditorNotFound": "Editor di testo personalizzato non trovato. Apertura con l'editor predefinito del sistema."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Inizializzazione applicazione...",
@@ -243,12 +257,37 @@
   },
   "FileMonitoring": {
     "SteamWarningTooltip": "Steam non è in esecuzione. SFSE richiede che Steam sia aperto per funzionare correttamente.",
-    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
+    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di carreggiamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
     "SortingRecommended": "Ordinamento consigliato: esegui Fix Load Order prima di risolvere altre modifiche."
   },
   "ConfigInvalidOverlay": {
     "Title": "Configurazione richiesta",
     "MessageLine1": "Correggere la configurazione nelle impostazioni della finestra principale.",
     "MessageLine2": "Questa finestra diventerà utilizzabile quando la configurazione sarà valida."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Applicazione della correzione dell'ordine di caricamento...",
+    "FixAppliedSuccess": "Ordine di caricamento applicato e corretto con successo!",
+    "ConfigUpdated": "Configurazione aggiornata.",
+    "ConfigInvalid": "La configurazione non è valida.",
+    "DebugStateCopied": "Stato di debug copiato negli appunti.",
+    "ConfigReset": "La configurazione è stata ripristinata ai valori vuoti.",
+    "ProfileSwitchedFormat": "Passato al profilo '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt non trovato in {0}. Impossibile creare automaticamente il riferimento.",
+    "NoReferenceCreating": "Nessun file di riferimento trovato. Creazione da Plugins.txt corrente...",
+    "ReferenceCreatedAuto": "File di riferimento creato automaticamente da Plugins.txt corrente.",
+    "FailedToCreateReferenceFormat": "ERRORE: Impossibile creare automaticamente il riferimento: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Aggiornamento del file di riferimento...",
+    "UpdateCancelled": "Aggiornamento del riferimento annullato.",
+    "ReferenceUpdatedSuccess": "File di riferimento aggiornato con successo!",
+    "CreatingReference": "Creazione del file di riferimento...",
+    "ReferenceCreatedSuccess": "Riferimento creato con successo! Ora puoi correggere l'ordine di caricamento.",
+    "DiscardingChanges": "Scarto delle modifiche all'ordine di carreggiamento...",
+    "ChangesDiscarded": "Plugins.txt ripristinato dal riferimento.",
+    "RolledBackFormat": "Ripristinato alla versione {0}. Accettare le modifiche per confermare."
   }
 }

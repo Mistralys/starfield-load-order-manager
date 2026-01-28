@@ -9,7 +9,11 @@
     "DismissTooltip": "Descartar",
     "PlayButtonSfse": "Jugar (SFSE)",
     "PlayButtonVanilla": "Jugar (Vanilla)",
-    "UpdateAvailableFormat": "¡La versión {0} está disponible!"
+    "UpdateAvailableFormat": "¡La versión {0} está disponible!",
+    "DebugStateCopiedTitle": "Estado de depuración copiado",
+    "DebugStateCopiedMessage": "El estado de depuración se ha copiado correctamente en tu portapapeles en formato JSON.\n\nAhora puedes pegar esta información para compartirla con los desarrolladores para solucionar problemas.",
+    "DebugStateCopyFailedTitle": "Error al copiar",
+    "DebugStateCopyFailedMessageFormat": "Error al copiar el estado de depuración: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -33,6 +37,7 @@
     "ResetConfigMenuText": "_Restablecer configuración (para pruebas)...",
     "OpenConfigFolderMenuText": "Abrir carpeta de _configuración",
     "ThrowTestExceptionMenuText": "_Lanzar excepción de prueba",
+    "CopyDebugStateMenuText": "Copiar estado de _depuración",
     "DownloadOptionsButtonText": "Opciones de descarga...",
     "ActiveProfilePrefixText": "Perfil activo: ",
     "RecentStatusMessagesText": "Mensajes de estado recientes:",
@@ -47,9 +52,9 @@
     "CopyrightFormat": "© 2025-{0} Mistralys"
   },
   "ErrorDialog": {
-    "WindowTitle": "Ha ocurrido un error inesperado",
-    "ErrorHeaderText": "Ha ocurrido un error inesperado",
-    "OpenLogFolderButtonText": "Abrir carpeta de registro",
+    "WindowTitle": "Se ha producido un error inesperado",
+    "ErrorHeaderText": "Se ha producido un error inesperado",
+    "OpenLogFolderButtonText": "Abrir carpeta de registros",
     "OpenLogFolderTooltip": "Abre la carpeta que contiene el archivo error.log",
     "ReportBugButtonText": "Reportar error",
     "ReportBugTooltip": "Abre la página de problemas de GitHub para reportar este error",
@@ -57,7 +62,8 @@
     "ExitTooltip": "Salir de la aplicación (recomendado)",
     "IgnoreButtonText": "Ignorar (Inseguro)",
     "IgnoreTooltip": "Continuar ejecutando - la aplicación puede estar en un estado inestable",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Esta es una excepción de prueba para verificar el diálogo de error y la funcionalidad de registro. Verifique el archivo error.log en su carpeta de datos de aplicación."
   },
   "CommentInput": {
     "WindowTitleCreate": "Actualizar archivo de referencia",
@@ -96,7 +102,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "La carpeta Profiles no puede ser creada o accedida",
     "BothPathsInvalidMessage": "Tanto la ruta del juego como la ruta de datos de la aplicación no son válidas.",
     "LanguageAutomatic": "Automático",
-    "LanguageRestartRequired": "Los cambios de idioma tendrán efecto después de reiniciar la aplicación."
+    "LanguageRestartRequired": "Los cambios de idioma se aplicarán después de reiniciar la aplicación.",
+    "CustomEditorPathLabel": "Editor de texto personalizado (opcional)",
+    "CustomEditorPathHint": "ej: C:\\Archivos de programa\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Dejar vacío para usar el editor de texto predeterminado de Windows.",
+    "CustomEditorBrowseTitle": "Seleccionar ejecutable del editor de texto",
+    "CustomEditorInvalidPathError": "La ruta del editor de texto especificada no es válida",
+    "CustomEditorNotFoundError": "No se encontró el ejecutable del editor de texto especificado"
   },
   "DiffDialog": {
     "WindowTitle": "Cambios en el orden de carga",
@@ -234,7 +246,9 @@
     "ProfilesFolderRequired": "La aplicación requiere una carpeta 'Profiles' en la ruta de datos de la aplicación configurada para almacenar datos de perfil. Esta carpeta no pudo ser creada o accedida. Por favor, verifica los permisos de la carpeta o selecciona una ruta de datos de aplicación diferente en la configuración.",
     "ProfilesFolderAccessDenied": "Acceso denegado al crear la carpeta Profiles. Es posible que necesites permisos de administrador o elegir una ubicación diferente.",
     "PluginsTxtRequired": "El archivo Plugins.txt no se encontró en la ruta de datos de la aplicación configurada. Este archivo es necesario para que la aplicación funcione. Por favor, asegúrate de haber ejecutado Starfield al menos una vez para generar este archivo, o selecciona la carpeta de datos de aplicación correcta en la configuración.",
-    "ErrorPrefix": "ERROR: {0}"
+    "ErrorPrefix": "ERROR: {0}",
+    "CustomEditorLaunchFailed": "No se pudo iniciar el editor de texto personalizado. Abriendo con el predeterminado del sistema.",
+    "CustomEditorNotFound": "Editor de texto personalizado no encontrado. Abriendo con el predeterminado del sistema."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Inicializando aplicación...",
@@ -250,5 +264,36 @@
     "Title": "Configuración requerida",
     "MessageLine1": "Por favor, corrija la configuración en los ajustes de la ventana principal.",
     "MessageLine2": "Esta ventana será utilizable cuando la configuración sea válida."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Aplicando corrección del orden de carga...",
+    "FixAppliedSuccess": "¡Orden de carga aplicado y corregido con éxito!",
+    "ConfigUpdated": "Configuración actualizada.",
+    "ConfigInvalid": "La configuración no es válida.",
+    "DebugStateCopied": "Estado de depuración copiado al portapapeles.",
+    "ConfigReset": "La configuración se ha restablecido a valores vacíos.",
+    "ProfileSwitchedFormat": "Cambiado al perfil '{0}'.",
+    "CreatingReference": "Creando archivo de referencia...",
+    "ReferenceUpdatedSuccess": "¡Archivo de referencia actualizado con éxito!",
+    "ReferenceCreatedSuccess": "¡Referencia creada con éxito! Ahora puede corregir el orden de carga.",
+    "DiscardingChanges": "Descartando cambios del orden de carga...",
+    "ChangesDiscarded": "Plugins.txt restaurado desde la referencia.",
+    "RolledBackFormat": "Revertido a la versión {0}. Acepte los cambios para confirmar.",
+    "UpdatingReference": "Actualizando archivo de referencia...",
+    "UpdateCancelled": "Actualización de referencia cancelada.",
+    "FailedToCreateReferenceFormat": "ERROR: Fallo al crear la referencia automáticamente: {0}",
+    "PluginsTxtNotFoundFormat": "Plugins.txt no encontrado en {0}. No se puede crear la referencia automáticamente.",
+    "NoReferenceCreating": "No se encontró archivo de referencia. Creando uno desde el Plugins.txt actual...",
+    "ReferenceCreatedAuto": "Archivo de referencia creado automáticamente desde el Plugins.txt actual."
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Actualizando archivo de referencia...",
+    "UpdateCancelled": "Actualización de referencia cancelada.",
+    "ReferenceUpdatedSuccess": "¡Archivo de referencia actualizado con éxito!",
+    "CreatingReference": "Creando archivo de referencia...",
+    "ReferenceCreatedSuccess": "¡Referencia creada con éxito! Ahora puede corregir el orden de carga.",
+    "DiscardingChanges": "Descartando cambios del orden de carga...",
+    "ChangesDiscarded": "Plugins.txt restaurado desde la referencia.",
+    "RolledBackFormat": "Revertido a la versión {0}. Acepte los cambios para confirmar."
   }
 }

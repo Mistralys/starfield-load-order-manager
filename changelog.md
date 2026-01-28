@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.8.2 - Bug Fixes
+- Profiles: Fixed an issue where opening the settings would revert back to the default profile.
+- Debug: Status messages are now stored interrnally and added to the debug output.
+- Translation: Translated all status messages that were still in english.
+- General: Status messages are now scrollable, and keep a longer history.
+
 ## v1.8.1 - Language Update
 - Translation: Language handling now with with zero-hardcoding architecture.
 - Translation: Fixed screens that had untranslated texts leftover.

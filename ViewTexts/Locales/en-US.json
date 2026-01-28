@@ -9,7 +9,11 @@
     "DismissTooltip": "Dismiss",
     "PlayButtonSfse": "Play (SFSE)",
     "PlayButtonVanilla": "Play (Vanilla)",
-    "UpdateAvailableFormat": "Version {0} is available!"
+    "UpdateAvailableFormat": "Version {0} is available!",
+    "DebugStateCopiedTitle": "Debug State Copied",
+    "DebugStateCopiedMessage": "The debug state has been successfully copied to your clipboard in JSON format.\n\nYou can now paste this information to share with developers for troubleshooting.",
+    "DebugStateCopyFailedTitle": "Copy Failed",
+    "DebugStateCopyFailedMessageFormat": "Failed to copy debug state: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -33,6 +37,7 @@
     "ResetConfigMenuText": "_Reset Configuration (for testing)...",
     "OpenConfigFolderMenuText": "Open _Configuration Folder",
     "ThrowTestExceptionMenuText": "_Throw Test Exception",
+    "CopyDebugStateMenuText": "Copy _Debug State",
     "DownloadOptionsButtonText": "Download options...",
     "ActiveProfilePrefixText": "Active Profile: ",
     "RecentStatusMessagesText": "Recent Status Messages:",
@@ -57,7 +62,8 @@
     "ExitTooltip": "Exit the application (recommended)",
     "IgnoreButtonText": "Ignore (Unsafe)",
     "IgnoreTooltip": "Continue running - application may be in an unstable state",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "This is a test exception to verify the error dialog and logging functionality. Check the error.log file in your application data folder."
   },
   "CommentInput": {
     "WindowTitleCreate": "Update Reference File",
@@ -96,7 +102,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "The Profiles folder cannot be created or accessed",
     "BothPathsInvalidMessage": "Both the game path and app data path are invalid.",
     "LanguageAutomatic": "Automatic",
-    "LanguageRestartRequired": "Language changes will take effect after restarting the application."
+    "LanguageRestartRequired": "Language changes will take effect after restarting the application.",
+    "CustomEditorPathLabel": "Custom Text Editor (Optional)",
+    "CustomEditorPathHint": "e.g., C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Leave empty to use Windows default text editor.",
+    "CustomEditorBrowseTitle": "Select Text Editor Executable",
+    "CustomEditorInvalidPathError": "The specified text editor path is invalid",
+    "CustomEditorNotFoundError": "The specified text editor executable was not found"
   },
   "DiffDialog": {
     "WindowTitle": "Load Order Changes",
@@ -231,10 +243,12 @@
     "ButtonSave": "Save",
     "ButtonClose": "Close",
     "ConfigInvalidGuidance": "\n\nThe likely cause is that the current configuration is invalid. Please refer to the error message in the main window to fix this.",
-    "ProfilesFolderRequired": "The application requires a 'Profiles' folder in your configured app data path to store profile data. This folder could not be created or accessed. Please check folder permissions or select a different app data path in settings.",
-    "ProfilesFolderAccessDenied": "Access denied when creating the Profiles folder. You may need administrator rights or to choose a different location.",
-    "PluginsTxtRequired": "The Plugins.txt file was not found in the configured app data path. This file is required for the application to function. Please ensure you have run Starfield at least once to generate this file, or select the correct app data folder in settings.",
-    "ErrorPrefix": "ERROR: {0}"
+    "ProfilesFolderRequired": "The application requires a 'Profiles' folder in your configured app data path to store profile data. This folder could not be created or accessed. Please check folder permissions or select a different app data path in Settings.",
+    "ProfilesFolderAccessDenied": "Access denied when creating the Profiles folder. You may need administrator privileges or to choose a different location.",
+    "PluginsTxtRequired": "The Plugins.txt file was not found in the configured app data path. This file is required for the application to function. Please ensure you have run Starfield at least once to generate this file, or select the correct app data folder in Settings.",
+    "ErrorPrefix": "ERROR: {0}",
+    "CustomEditorLaunchFailed": "Failed to launch custom text editor. Opening with system default.",
+    "CustomEditorNotFound": "Custom text editor not found. Opening with system default."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Initializing application...",
@@ -250,5 +264,30 @@
     "Title": "Configuration Required",
     "MessageLine1": "Please fix the configuration in the main window's settings.",
     "MessageLine2": "This window will become usable when the configuration is valid."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Applying load order fix...",
+    "FixAppliedSuccess": "Load order successfully applied and fixed!",
+    "ConfigUpdated": "Configuration updated.",
+    "ConfigInvalid": "Configuration is invalid.",
+    "DebugStateCopied": "Debug state copied to clipboard.",
+    "ConfigReset": "Configuration has been reset to empty values.",
+    "ProfileSwitchedFormat": "Switched to profile '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt not found at {0}. Unable to create reference automatically.",
+    "NoReferenceCreating": "No reference file found. Creating one from current Plugins.txt...",
+    "ReferenceCreatedAuto": "Reference file created automatically from current Plugins.txt.",
+    "FailedToCreateReferenceFormat": "ERROR: Failed to create reference automatically: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Updating reference file...",
+    "UpdateCancelled": "Reference update cancelled.",
+    "ReferenceUpdatedSuccess": "Reference file updated successfully!",
+    "CreatingReference": "Creating reference file...",
+    "ReferenceCreatedSuccess": "Reference created successfully! You can now fix the load order.",
+    "DiscardingChanges": "Discarding load order changes...",
+    "ChangesDiscarded": "Plugins.txt restored from reference.",
+    "RolledBackFormat": "Rolled back to version {0}. Accept the changes to confirm."
   }
 }

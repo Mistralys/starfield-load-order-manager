@@ -14,12 +14,15 @@ namespace LoadOrderKeeper.Models
         public List<string> PluginsTxtContents { get; set; } = new();
         public List<string> ReferenceContents { get; set; } = new();
         public List<DiffLineModel> ChangeList { get; set; } = new();
+        public List<StatusMessageModel> StatusMessages { get; set; } = new();
 
         public sealed class ConfigurationState
         {
             public string AppDataPath { get; set; } = string.Empty;
             public string GamePath { get; set; } = string.Empty;
             public string? ActiveProfileId { get; set; }
+            public bool IsValid { get; set; }
+            public string? ValidationError { get; set; }
         }
 
         public sealed class SteamState

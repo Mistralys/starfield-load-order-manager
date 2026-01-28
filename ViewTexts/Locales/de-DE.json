@@ -9,7 +9,11 @@
     "DismissTooltip": "Schließen",
     "PlayButtonSfse": "Spielen (SFSE)",
     "PlayButtonVanilla": "Spielen (Vanilla)",
-    "UpdateAvailableFormat": "Version {0} ist verfügbar!"
+    "UpdateAvailableFormat": "Version {0} ist verfügbar!",
+    "DebugStateCopiedTitle": "Debug-Status kopiert",
+    "DebugStateCopiedMessage": "Der Debug-Status wurde erfolgreich im JSON-Format in Ihre Zwischenablage kopiert.\n\nSie können diese Informationen nun einfügen, um sie mit Entwicklern zur Fehlerbehebung zu teilen.",
+    "DebugStateCopyFailedTitle": "Kopieren fehlgeschlagen",
+    "DebugStateCopyFailedMessageFormat": "Kopieren des Debug-Status fehlgeschlagen: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -33,6 +37,7 @@
     "ResetConfigMenuText": "Konfiguration _zurücksetzen (für Tests)...",
     "OpenConfigFolderMenuText": "_Konfigurationsordner öffnen",
     "ThrowTestExceptionMenuText": "_Testausnahme werfen",
+    "CopyDebugStateMenuText": "_Debug-Status kopieren",
     "DownloadOptionsButtonText": "Download-Optionen...",
     "ActiveProfilePrefixText": "Aktives Profil: ",
     "RecentStatusMessagesText": "Letzte Statusmeldungen:",
@@ -57,7 +62,8 @@
     "ExitTooltip": "Anwendung beenden (empfohlen)",
     "IgnoreButtonText": "Ignorieren (Unsicher)",
     "IgnoreTooltip": "Weiter ausführen - Anwendung könnte sich in einem instabilen Zustand befinden",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Dies ist eine Testausnahme zur Überprüfung der Fehlerdialog- und Protokollierungsfunktionalität. Überprüfen Sie die error.log-Datei in Ihrem Anwendungsdatenordner."
   },
   "CommentInput": {
     "WindowTitleCreate": "Referenzdatei aktualisieren",
@@ -96,7 +102,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "Der Profilordner kann nicht erstellt oder aufgerufen werden",
     "BothPathsInvalidMessage": "Sowohl der Spielpfad als auch der App-Datenpfad sind ungültig.",
     "LanguageAutomatic": "Automatisch",
-    "LanguageRestartRequired": "Sprachänderungen werden nach einem Neustart der Anwendung wirksam."
+    "LanguageRestartRequired": "Sprachänderungen werden nach einem Neustart der Anwendung wirksam.",
+    "CustomEditorPathLabel": "Benutzerdefinierter Texteditor (Optional)",
+    "CustomEditorPathHint": "z.B. C:\\Programme\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Leer lassen, um den Windows-Standard-Texteditor zu verwenden.",
+    "CustomEditorBrowseTitle": "Texteditor-Programm auswählen",
+    "CustomEditorInvalidPathError": "Der angegebene Texteditor-Pfad ist ungültig",
+    "CustomEditorNotFoundError": "Die angegebene Texteditor-Anwendung wurde nicht gefunden"
   },
   "DiffDialog": {
     "WindowTitle": "Ladereihenfolge-Änderungen",
@@ -234,7 +246,9 @@
     "ProfilesFolderRequired": "Die Anwendung benötigt einen 'Profiles'-Ordner in Ihrem konfigurierten App-Datenpfad zum Speichern von Profildaten. Dieser Ordner konnte nicht erstellt oder aufgerufen werden. Bitte überprüfen Sie die Ordnerberechtigungen oder wählen Sie einen anderen App-Datenpfad in den Einstellungen.",
     "ProfilesFolderAccessDenied": "Zugriff verweigert beim Erstellen des Profilordners. Möglicherweise benötigen Sie Administratorrechte oder müssen einen anderen Speicherort wählen.",
     "PluginsTxtRequired": "Die Plugins.txt-Datei wurde im konfigurierten App-Datenpfad nicht gefunden. Diese Datei ist für die Funktion der Anwendung erforderlich. Bitte stellen Sie sicher, dass Sie Starfield mindestens einmal ausgeführt haben, um diese Datei zu generieren, oder wählen Sie den richtigen App-Datenordner in den Einstellungen.",
-    "ErrorPrefix": "FEHLER: {0}"
+    "ErrorPrefix": "FEHLER: {0}",
+    "CustomEditorLaunchFailed": "Der benutzerdefinierte Texteditor konnte nicht gestartet werden. Öffnen mit Systemstandard.",
+    "CustomEditorNotFound": "Benutzerdefinierter Texteditor nicht gefunden. Öffnen mit Systemstandard."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Anwendung wird initialisiert...",
@@ -250,5 +264,30 @@
     "Title": "Konfiguration erforderlich",
     "MessageLine1": "Bitte beheben Sie die Konfiguration in den Einstellungen des Hauptfensters.",
     "MessageLine2": "Dieses Fenster wird verwendbar, sobald die Konfiguration gültig ist."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Ladereihenfolge wird korrigiert...",
+    "FixAppliedSuccess": "Ladereihenfolge erfolgreich angewendet und korrigiert!",
+    "ConfigUpdated": "Konfiguration aktualisiert.",
+    "ConfigInvalid": "Konfiguration ist ungültig.",
+    "DebugStateCopied": "Debug-Status in Zwischenablage kopiert.",
+    "ConfigReset": "Konfiguration wurde auf leere Werte zurückgesetzt.",
+    "ProfileSwitchedFormat": "Zu Profil '{0}' gewechselt."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt nicht gefunden unter {0}. Referenz kann nicht automatisch erstellt werden.",
+    "NoReferenceCreating": "Keine Referenzdatei gefunden. Erstelle eine aus der aktuellen Plugins.txt...",
+    "ReferenceCreatedAuto": "Referenzdatei automatisch aus der aktuellen Plugins.txt erstellt.",
+    "FailedToCreateReferenceFormat": "FEHLER: Automatische Erstellung der Referenz fehlgeschlagen: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Referenzdatei wird aktualisiert...",
+    "UpdateCancelled": "Referenzaktualisierung abgebrochen.",
+    "ReferenceUpdatedSuccess": "Referenzdatei erfolgreich aktualisiert!",
+    "CreatingReference": "Referenzdatei wird erstellt...",
+    "ReferenceCreatedSuccess": "Referenz erfolgreich erstellt! Sie können jetzt die Ladereihenfolge korrigieren.",
+    "DiscardingChanges": "Ladereihenfolge-Änderungen werden verworfen...",
+    "ChangesDiscarded": "Plugins.txt aus Referenz wiederhergestellt.",
+    "RolledBackFormat": "Auf Version {0} zurückgesetzt. Akzeptieren Sie die Änderungen zur Bestätigung."
   }
 }

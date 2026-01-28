@@ -2,14 +2,18 @@
   "LocaleName": "简体中文",
   "ParentCulture": "zh",
   "MainWindow": {
-    "ConfigErrorBannerText": "路径配置错误,请检查已配置的路径。",
+    "ConfigErrorBannerText": "路径配置错误，请检查配置的路径。",
     "OpenSettingsButtonText": "打开设置",
     "ShowChangesButtonText": "管理加载顺序",
-    "ShowChangesButtonTextWithCount": "管理加载顺序 ({0} 项更改)",
+    "ShowChangesButtonTextWithCount": "管理加载顺序（{0}项更改）",
     "DismissTooltip": "关闭",
-    "PlayButtonSfse": "启动游戏 (SFSE)",
-    "PlayButtonVanilla": "启动游戏 (原版)",
-    "UpdateAvailableFormat": "版本 {0} 已发布!"
+    "PlayButtonSfse": "开始游戏 (SFSE)",
+    "PlayButtonVanilla": "开始游戏 (原版)",
+    "UpdateAvailableFormat": "版本 {0} 已可用！",
+    "DebugStateCopiedTitle": "调试状态已复制",
+    "DebugStateCopiedMessage": "调试状态已成功以JSON格式复制到剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
+    "DebugStateCopyFailedTitle": "复制失败",
+    "DebugStateCopyFailedMessageFormat": "复制调试状态失败：{0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -33,6 +37,7 @@
     "ResetConfigMenuText": "重置配置(用于测试)(_R)...",
     "OpenConfigFolderMenuText": "打开配置文件夹(_C)",
     "ThrowTestExceptionMenuText": "抛出测试异常(_T)",
+    "CopyDebugStateMenuText": "复制调试状态(_D)",
     "DownloadOptionsButtonText": "下载选项...",
     "ActiveProfilePrefixText": "当前配置文件: ",
     "RecentStatusMessagesText": "最近的状态消息:",
@@ -54,10 +59,11 @@
     "ReportBugButtonText": "报告错误",
     "ReportBugTooltip": "打开 GitHub 问题页面以报告此错误",
     "ExitButtonText": "退出",
-    "ExitTooltip": "退出应用程序(推荐)",
-    "IgnoreButtonText": "忽略(不安全)",
+    "ExitTooltip": "退出应用程序（推荐）",
+    "IgnoreButtonText": "忽略（不安全）",
     "IgnoreTooltip": "继续运行 - 应用程序可能处于不稳定状态",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "这是一个测试异常，用于验证错误对话框和日志记录功能。请检查应用程序数据文件夹中的 error.log 文件。"
   },
   "CommentInput": {
     "WindowTitleCreate": "更新参考文件",
@@ -96,7 +102,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "无法创建或访问 Profiles 文件夹",
     "BothPathsInvalidMessage": "游戏路径和应用数据路径都无效。",
     "LanguageAutomatic": "自动",
-    "LanguageRestartRequired": "语言更改将在重启应用程序后生效。"
+    "LanguageRestartRequired": "语言更改将在重新启动应用程序后生效。",
+    "CustomEditorPathLabel": "自定义文本编辑器（可选）",
+    "CustomEditorPathHint": "例如：C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "留空以使用 Windows 默认文本编辑器。",
+    "CustomEditorBrowseTitle": "选择文本编辑器可执行文件",
+    "CustomEditorInvalidPathError": "指定的文本编辑器路径无效",
+    "CustomEditorNotFoundError": "未找到指定的文本编辑器可执行文件"
   },
   "DiffDialog": {
     "WindowTitle": "加载顺序更改",
@@ -134,7 +146,7 @@
     "ConfirmUpdateMessage": "您即将使用当前的 Plugins.txt 更新参考文件。\n\n这将把当前更改标记为已接受,并在历史记录中创建新版本。\n\n您确定要继续吗?",
     "ReferenceUpdateCancelledStatus": "参考更新已取消。",
     "DebugStateCopiedTitle": "调试状态已复制",
-    "DebugStateCopiedMessage": "调试状态已成功以 JSON 格式复制到您的剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
+    "DebugStateCopiedMessage": "调试状态已成功以JSON格式复制到剪贴板。\n\n您现在可以粘贴此信息与开发人员分享以进行故障排除。",
     "DebugStateCopiedStatus": "调试状态已复制到剪贴板。",
     "CopyFailedTitle": "复制失败",
     "FailedToCopyError": "将调试状态复制到剪贴板失败",
@@ -234,7 +246,9 @@
     "ProfilesFolderRequired": "应用程序需要在已配置的应用数据路径中创建 'Profiles' 文件夹来存储配置文件数据。无法创建或访问此文件夹。请检查文件夹权限或在设置中选择不同的应用数据路径。",
     "ProfilesFolderAccessDenied": "创建 Profiles 文件夹时访问被拒绝。您可能需要管理员权限或选择不同的位置。",
     "PluginsTxtRequired": "在已配置的应用数据路径中未找到 Plugins.txt 文件。应用程序需要此文件才能运行。请确保您至少运行过一次 Starfield 以生成此文件,或在设置中选择正确的应用数据文件夹。",
-    "ErrorPrefix": "错误: {0}"
+    "ErrorPrefix": "错误：{0}",
+    "CustomEditorLaunchFailed": "无法启动自定义文本编辑器。使用系统默认编辑器打开。",
+    "CustomEditorNotFound": "未找到自定义文本编辑器。使用系统默认编辑器打开。"
   },
   "StatusCoordinator": {
     "InitializingApplication": "正在初始化应用程序...",
@@ -249,6 +263,31 @@
   "ConfigInvalidOverlay": {
     "Title": "需要配置",
     "MessageLine1": "请在主窗口的设置中修复配置。",
-    "MessageLine2": "当配置有效时,此窗口将变为可用。"
+    "MessageLine2": "当配置有效时，此窗口将可用。"
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "正在应用加载顺序修复...",
+    "FixAppliedSuccess": "加载顺序已成功应用和修复！",
+    "ConfigUpdated": "配置已更新。",
+    "ConfigInvalid": "配置无效。",
+    "DebugStateCopied": "调试状态已复制到剪贴板。",
+    "ConfigReset": "配置已重置为空值。",
+    "ProfileSwitchedFormat": "已切换到配置文件 '{0}'。"
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "在 {0} 未找到 Plugins.txt。无法自动创建参考。",
+    "NoReferenceCreating": "未找到参考文件。正在从当前 Plugins.txt 创建...",
+    "ReferenceCreatedAuto": "参考文件已从当前 Plugins.txt 自动创建。",
+    "FailedToCreateReferenceFormat": "错误：自动创建参考失败：{0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "正在更新参考文件...",
+    "UpdateCancelled": "参考更新已取消。",
+    "ReferenceUpdatedSuccess": "参考文件已成功更新！",
+    "CreatingReference": "正在创建参考文件...",
+    "ReferenceCreatedSuccess": "参考创建成功！现在可以修复加载顺序。",
+    "DiscardingChanges": "正在放弃加载顺序更改...",
+    "ChangesDiscarded": "Plugins.txt 已从参考恢复。",
+    "RolledBackFormat": "已回滚到版本 {0}。接受更改以确认。"
   }
 }

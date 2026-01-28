@@ -17,8 +17,6 @@ namespace LoadOrderKeeper.ViewModels
 {
     public partial class MainViewModel : ObservableObject, IDisposable
     {
-        private const int MaxStatusHistoryCount = 3;
-        
         private readonly FileMonitoringCoordinator _fileMonitor;
         private readonly StatusCoordinator _statusCoordinator;
         private readonly UpdateCheckCoordinator _updateCheckCoordinator;
@@ -60,6 +58,8 @@ namespace LoadOrderKeeper.ViewModels
         public MenuViewModel Menu { get; } = new();
         public MainWindowTexts MainWindowTexts { get; } = new();
         public CommonTexts CommonTexts { get; } = new();
+        private readonly MainWindowStatusTexts _statusTexts = new();
+        private readonly ErrorDialogTexts _errorTexts = new();
 
         public string PlayButtonText => _gameLauncher.PlayButtonText;
 
@@ -94,6 +94,7 @@ namespace LoadOrderKeeper.ViewModels
         public IRelayCommand OpenConfigFolderCommand { get; }
         public IRelayCommand PlayGameCommand { get; }
         public IAsyncRelayCommand ShowDiffCommand { get; }
+        public IAsyncRelayCommand CopyDebugStateCommand { get; }
 
         public MainViewModel()
         {
@@ -110,7 +111,7 @@ namespace LoadOrderKeeper.ViewModels
                 async () => await _windowService.RefreshReferenceHistoryWindowAsync());
             _initializer = new ViewModelInitializer(
                 AddStatusMessage,
-                GetReadyStatusMessage,
+                (configValid) => _statusCoordinator.GetReadyStatusMessage(configValid),
                 UpdateCoordinatorsWithConfig);
 
             // Initialize localized button text
@@ -188,6 +189,7 @@ namespace LoadOrderKeeper.ViewModels
             OpenConfigFolderCommand = new RelayCommand(OpenConfigFolder);
             PlayGameCommand = new RelayCommand(PlayGame, CanAccessGamePath);
             ShowDiffCommand = new AsyncRelayCommand(ShowDiffAsync);
+            CopyDebugStateCommand = new AsyncRelayCommand(CopyDebugStateAsync);
 
             // Initialize status history with the initial message (handled by StatusCoordinator.Initialize())
 
@@ -218,12 +220,12 @@ namespace LoadOrderKeeper.ViewModels
         private async Task FixLoadOrderAsync()
         {
             IsBusy = true;
-            AddStatusMessage("Applying load order fix...", StatusMessageType.Info);
+            AddStatusMessage(_statusTexts.ApplyingFix, StatusMessageType.Info);
 
             try
             {
                 await FileService.ApplyLoadOrderAsync(Config);
-                AddStatusMessage("Load order successfully applied and fixed!", StatusMessageType.Success);
+                AddStatusMessage(_statusTexts.FixAppliedSuccess, StatusMessageType.Success);
             }
             catch (Exception ex)
             {
@@ -313,7 +315,17 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                _fileOperations.OpenPluginsFile(Config);
+                bool success = _fileOperations.OpenPluginsFile(Config);
+                
+                if (!success && !string.IsNullOrWhiteSpace(Config.CustomEditorPath))
+                {
+                    // Custom editor failed, show warning and inform about fallback
+                    var errorMsg = File.Exists(Config.CustomEditorPath)
+                        ? CommonTexts.CustomEditorLaunchFailed
+                        : CommonTexts.CustomEditorNotFound;
+                    
+                    AddStatusMessage(errorMsg, StatusMessageType.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -325,7 +337,17 @@ namespace LoadOrderKeeper.ViewModels
         {
             try
             {
-                _fileOperations.OpenReferenceFile(Config);
+                bool success = _fileOperations.OpenReferenceFile(Config);
+                
+                if (!success && !string.IsNullOrWhiteSpace(Config.CustomEditorPath))
+                {
+                    // Custom editor failed, show warning and inform about fallback
+                    var errorMsg = File.Exists(Config.CustomEditorPath)
+                        ? CommonTexts.CustomEditorLaunchFailed
+                        : CommonTexts.CustomEditorNotFound;
+                    
+                    AddStatusMessage(errorMsg, StatusMessageType.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -429,8 +451,8 @@ namespace LoadOrderKeeper.ViewModels
                 
                 // Show appropriate status message
                 _statusCoordinator.AddStatusMessage(Config.IsValid()
-                    ? "Configuration updated."
-                    : "Configuration is invalid.", Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
+                    ? _statusTexts.ConfigUpdated
+                    : _statusTexts.ConfigInvalid, Config.IsValid() ? StatusMessageType.Success : StatusMessageType.Warning);
                 
                 UpdateFileMonitorState();
                 await _fileMonitor.CheckPluginsFileAsync();
@@ -553,6 +575,56 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
+        private async Task CopyDebugStateAsync()
+        {
+            try
+            {
+                // Capture current state - use empty list if GetPluginsDiffAsync fails
+                IReadOnlyList<DiffLineModel> diffLines;
+                try
+                {
+                    diffLines = await DiffService.GetPluginsDiffAsync(Config);
+                }
+                catch
+                {
+                    // If diff service fails (e.g., due to invalid paths), use empty list
+                    diffLines = new List<DiffLineModel>();
+                }
+                
+                // Capture debug state using the service - always succeeds even with invalid config
+                string debugStateJson = await DebugStateService.CaptureDebugStateAsync(
+                    Config,
+                    diffLines,
+                    _configCoordinator,
+                    _statusCoordinator);
+
+                // Copy to clipboard
+                System.Windows.Clipboard.SetText(debugStateJson);
+
+                // Show success message
+                ConfirmationDialog.Show(
+                    MainWindowTexts.DebugStateCopiedTitle,
+                    MainWindowTexts.DebugStateCopiedMessage,
+                    ConfirmationIcon.Information,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
+
+                AddStatusMessage(_statusTexts.DebugStateCopied, StatusMessageType.Success);
+            }
+            catch (Exception ex)
+            {
+                AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
+                ConfirmationDialog.Show(
+                    MainWindowTexts.DebugStateCopyFailedTitle,
+                    string.Format(MainWindowTexts.DebugStateCopyFailedMessageFormat, ex.Message),
+                    ConfirmationIcon.Error,
+                    ConfirmationButton.OK,
+                    ConfirmationResult.OK,
+                    WpfApplication.Current?.MainWindow);
+            }
+        }
+
         private async void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
             // DiffWindow now subscribes directly to FileMonitoringCoordinator.ChangeDetected
@@ -572,7 +644,7 @@ namespace LoadOrderKeeper.ViewModels
         private void OnProfileChanged(object? sender, Coordinators.Events.ProfileChangedEventArgs e)
         {
             // Profile changed - update status message
-            AddStatusMessage($"Switched to profile '{e.NewProfile.Label}'.", StatusMessageType.Success);
+            AddStatusMessage(string.Format(_statusTexts.ProfileSwitchedFormat, e.NewProfile.Label), StatusMessageType.Success);
         }
 
         private void OnConfigValidationChanged(object? sender, Coordinators.Events.ConfigValidationChangedEventArgs e)
@@ -783,7 +855,7 @@ namespace LoadOrderKeeper.ViewModels
                 // Update file monitor state
                 UpdateFileMonitorState();
 
-                AddStatusMessage("Configuration has been reset to empty values.", StatusMessageType.Success);
+                AddStatusMessage(_statusTexts.ConfigReset, StatusMessageType.Success);
             }
             catch (Exception ex)
             {
@@ -794,7 +866,7 @@ namespace LoadOrderKeeper.ViewModels
         [RelayCommand]
         private void ThrowTestException()
         {
-            throw new InvalidOperationException("This is a test exception to verify the error dialog and logging functionality. Check the error.log file in your application data folder.");
+            throw new InvalidOperationException(_errorTexts.TestExceptionMessage);
         }
 
         public void Dispose()

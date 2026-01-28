@@ -15,6 +15,11 @@ namespace LoadOrderKeeper.ViewModels
     {
         private readonly ErrorDialogTexts _texts = new();
 
+        /// <summary>
+        /// Gets the localized text resources for the error dialog.
+        /// </summary>
+        public ErrorDialogTexts Texts => _texts;
+
         [ObservableProperty]
         private string _errorMessage = string.Empty;
 

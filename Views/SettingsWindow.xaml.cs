@@ -72,6 +72,7 @@ namespace LoadOrderKeeper.Views
             {
                 oldVm.BrowseAppDataRequested -= OnBrowseAppDataRequested;
                 oldVm.BrowseGamePathRequested -= OnBrowseGamePathRequested;
+                oldVm.BrowseCustomEditorRequested -= OnBrowseCustomEditorRequested;
                 oldVm.SaveRequested -= OnSaveRequested;
             }
 
@@ -79,6 +80,7 @@ namespace LoadOrderKeeper.Views
             {
                 newVm.BrowseAppDataRequested += OnBrowseAppDataRequested;
                 newVm.BrowseGamePathRequested += OnBrowseGamePathRequested;
+                newVm.BrowseCustomEditorRequested += OnBrowseCustomEditorRequested;
                 newVm.SaveRequested += OnSaveRequested;
             }
         }
@@ -110,6 +112,34 @@ namespace LoadOrderKeeper.Views
             {
                 vm.UpdateGamePath(selected);
                 vm.ValidateConfiguration(); // Validate after browse
+            }
+        }
+
+        private void OnBrowseCustomEditorRequested(object? sender, EventArgs e)
+        {
+            if (sender is not SettingsViewModel vm)
+            {
+                return;
+            }
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = vm.Texts.CustomEditorBrowseTitle,
+                Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*",
+                FilterIndex = 1,
+                CheckFileExists = true
+            };
+
+            if (!string.IsNullOrWhiteSpace(vm.CustomEditorPath) && File.Exists(vm.CustomEditorPath))
+            {
+                dialog.InitialDirectory = Path.GetDirectoryName(vm.CustomEditorPath);
+                dialog.FileName = Path.GetFileName(vm.CustomEditorPath);
+            }
+
+            if (dialog.ShowDialog(this) == true)
+            {
+                vm.UpdateCustomEditorPath(dialog.FileName);
+                vm.ValidateConfiguration();
             }
         }
 

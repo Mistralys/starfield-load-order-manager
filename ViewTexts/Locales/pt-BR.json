@@ -2,14 +2,18 @@
   "LocaleName": "Português (Brasil)",
   "ParentCulture": "pt",
   "MainWindow": {
-    "ConfigErrorBannerText": "Erro de configuração de caminho, por favor revise os caminhos configurados.",
+    "ConfigErrorBannerText": "Erro de configuração de caminho, verifique os caminhos configurados.",
     "OpenSettingsButtonText": "Abrir configurações",
     "ShowChangesButtonText": "Gerenciar ordem de carregamento",
     "ShowChangesButtonTextWithCount": "Gerenciar ordem de carregamento ({0} alterações)",
-    "DismissTooltip": "Dispensar",
+    "DismissTooltip": "Fechar",
     "PlayButtonSfse": "Jogar (SFSE)",
     "PlayButtonVanilla": "Jogar (Vanilla)",
-    "UpdateAvailableFormat": "Versão {0} está disponível!"
+    "UpdateAvailableFormat": "A versão {0} está disponível!",
+    "DebugStateCopiedTitle": "Estado de depuração copiado",
+    "DebugStateCopiedMessage": "O estado de depuração foi copiado com sucesso para a área de transferência no formato JSON.\n\nAgora você pode colar essas informações para compartilhá-las com os desenvolvedores para solução de problemas.",
+    "DebugStateCopyFailedTitle": "Falha na cópia",
+    "DebugStateCopyFailedMessageFormat": "Falha ao copiar o estado de depuração: {0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -30,9 +34,10 @@
     "CheckForUpdatesMenuText": "Verificar _Atualizações...",
     "AboutMenuText": "_Sobre...",
     "DebugMenuHeader": "_Debug",
-    "ResetConfigMenuText": "_Redefinir Configuração (para testes)...",
-    "OpenConfigFolderMenuText": "Abrir Pasta de _Configuração",
-    "ThrowTestExceptionMenuText": "_Lançar Exceção de Teste",
+    "ResetConfigMenuText": "_Redefinir configuração (para testes)...",
+    "OpenConfigFolderMenuText": "Abrir pasta de _configuração",
+    "ThrowTestExceptionMenuText": "_Lançar exceção de teste",
+    "CopyDebugStateMenuText": "Copiar estado de _depuração",
     "DownloadOptionsButtonText": "Opções de download...",
     "ActiveProfilePrefixText": "Perfil Ativo: ",
     "RecentStatusMessagesText": "Mensagens de Status Recentes:",
@@ -48,16 +53,17 @@
   },
   "ErrorDialog": {
     "WindowTitle": "Ocorreu um erro inesperado",
-    "ErrorHeaderText": "Ocorreu um Erro Inesperado",
-    "OpenLogFolderButtonText": "Abrir Pasta de Log",
-    "OpenLogFolderTooltip": "Abre a pasta contendo o arquivo error.log",
-    "ReportBugButtonText": "Reportar Bug",
-    "ReportBugTooltip": "Abre a página de issues do GitHub para reportar este erro",
+    "ErrorHeaderText": "Ocorreu um erro inesperado",
+    "OpenLogFolderButtonText": "Abrir pasta de logs",
+    "OpenLogFolderTooltip": "Abre a pasta que contém o arquivo error.log",
+    "ReportBugButtonText": "Reportar bug",
+    "ReportBugTooltip": "Abre a página de problemas do GitHub para reportar este erro",
     "ExitButtonText": "Sair",
     "ExitTooltip": "Sair da aplicação (recomendado)",
     "IgnoreButtonText": "Ignorar (Inseguro)",
     "IgnoreTooltip": "Continuar executando - a aplicação pode estar em um estado instável",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "Esta é uma exceção de teste para verificar o diálogo de erro e a funcionalidade de registro. Verifique o arquivo error.log na sua pasta de dados da aplicação."
   },
   "CommentInput": {
     "WindowTitleCreate": "Atualizar Arquivo de Referência",
@@ -96,7 +102,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "A pasta Profiles não pode ser criada ou acessada",
     "BothPathsInvalidMessage": "Tanto o caminho do jogo quanto o caminho AppData são inválidos.",
     "LanguageAutomatic": "Automático",
-    "LanguageRestartRequired": "As alterações de idioma entrarão em vigor após reiniciar a aplicação."
+    "LanguageRestartRequired": "As alterações de idioma entrarão em vigor após reiniciar o aplicativo.",
+    "CustomEditorPathLabel": "Editor de texto personalizado (opcional)",
+    "CustomEditorPathHint": "ex: C:\\Arquivos de Programas\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "Deixe em branco para usar o editor de texto padrão do Windows.",
+    "CustomEditorBrowseTitle": "Selecionar executável do editor de texto",
+    "CustomEditorInvalidPathError": "O caminho do editor de texto especificado é inválido",
+    "CustomEditorNotFoundError": "O executável do editor de texto especificado não foi encontrado"
   },
   "DiffDialog": {
     "WindowTitle": "Alterações na Ordem de Carregamento",
@@ -133,11 +145,10 @@
     "ConfirmUpdateTitle": "Confirmar Atualização de Referência",
     "ConfirmUpdateMessage": "Você está prestes a atualizar o arquivo de referência com o Plugins.txt atual.\n\nIsso marcará as alterações atuais como aceitas e criará uma nova versão no histórico.\n\nTem certeza de que deseja continuar?",
     "ReferenceUpdateCancelledStatus": "Atualização de referência cancelada.",
-    "DebugStateCopiedTitle": "Estado de Debug Copiado",
-    "DebugStateCopiedMessage": "O estado de debug foi copiado com sucesso para sua área de transferência em formato JSON.\n\nVocê pode agora colar esta informação para compartilhar com desenvolvedores para solução de problemas.",
-    "DebugStateCopiedStatus": "Estado de debug copiado para a área de transferência.",
-    "CopyFailedTitle": "Falha ao Copiar",
-    "FailedToCopyError": "Falha ao copiar estado de debug para a área de transferência",
+    "DebugStateCopiedTitle": "Estado de depuração copiado",
+    "DebugStateCopiedMessage": "O estado de depuração foi copiado com sucesso para a área de transferência no formato JSON.\n\nAgora você pode colar essas informações para compartilhá-las com os desenvolvedores para solução de problemas.",
+    "DebugStateCopyFailedTitle": "Falha na cópia",
+    "DebugStateCopyFailedMessageFormat": "Falha ao copiar o estado de depuração: {0}",
     "ReEnableModMenuText": "Reativar mod",
     "ReplaceWithMenuText": "Substituir por...",
     "RemoveModMenuText": "Remover mod",
@@ -234,7 +245,9 @@
     "ProfilesFolderRequired": "A aplicação requer uma pasta 'Profiles' no seu caminho AppData configurado para armazenar dados de perfil. Esta pasta não pôde ser criada ou acessada. Por favor, verifique as permissões da pasta ou selecione um caminho AppData diferente nas configurações.",
     "ProfilesFolderAccessDenied": "Acesso negado ao criar a pasta Profiles. Você pode precisar de direitos de administrador ou escolher um local diferente.",
     "PluginsTxtRequired": "O arquivo Plugins.txt não foi encontrado no caminho AppData configurado. Este arquivo é necessário para o funcionamento da aplicação. Por favor, certifique-se de ter executado o Starfield pelo menos uma vez para gerar este arquivo, ou selecione a pasta AppData correta nas configurações.",
-    "ErrorPrefix": "ERRO: {0}"
+    "ErrorPrefix": "ERRO: {0}",
+    "CustomEditorLaunchFailed": "Falha ao iniciar o editor de texto personalizado. Abrindo com o padrão do sistema.",
+    "CustomEditorNotFound": "Editor de texto personalizado não encontrado. Abrindo com o padrão do sistema."
   },
   "StatusCoordinator": {
     "InitializingApplication": "Inicializando aplicação...",
@@ -247,8 +260,33 @@
     "SortingRecommended": "Ordenação recomendada: execute Corrigir Ordem de Carregamento antes de resolver outras alterações."
   },
   "ConfigInvalidOverlay": {
-    "Title": "Configuração Necessária",
-    "MessageLine1": "Por favor, corrija a configuração nas configurações da janela principal.",
-    "MessageLine2": "Esta janela ficará utilizável quando a configuração estiver válida."
+    "Title": "Configuração necessária",
+    "MessageLine1": "Por favor, corrija a configuração nas definições da janela principal.",
+    "MessageLine2": "Esta janela ficará utilizável quando a configuração for válida."
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "Aplicando correção da ordem de carregamento...",
+    "FixAppliedSuccess": "Ordem de carregamento aplicada e corrigida com sucesso!",
+    "ConfigUpdated": "Configuração atualizada.",
+    "ConfigInvalid": "A configuração é inválida.",
+    "DebugStateCopied": "Estado de depuração copiado para a área de transferência.",
+    "ConfigReset": "A configuração foi redefinida para valores vazios.",
+    "ProfileSwitchedFormat": "Alternado para o perfil '{0}'."
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "Plugins.txt não encontrado em {0}. Não é possível criar a referência automaticamente.",
+    "NoReferenceCreating": "Nenhum arquivo de referência encontrado. Criando um a partir do Plugins.txt atual...",
+    "ReferenceCreatedAuto": "Arquivo de referência criado automaticamente a partir do Plugins.txt atual.",
+    "FailedToCreateReferenceFormat": "ERRO: Falha ao criar referência automaticamente: {0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "Atualizando arquivo de referência...",
+    "UpdateCancelled": "Atualização de referência cancelada.",
+    "ReferenceUpdatedSuccess": "Arquivo de referência atualizado com sucesso!",
+    "CreatingReference": "Criando arquivo de referência...",
+    "ReferenceCreatedSuccess": "Referência criada com sucesso! Agora você pode corrigir a ordem de carregamento.",
+    "DiscardingChanges": "Descartando alterações da ordem de carregamento...",
+    "ChangesDiscarded": "Plugins.txt restaurado a partir da referência.",
+    "RolledBackFormat": "Revertido para a versão {0}. Aceite as alterações para confirmar."
   }
 }

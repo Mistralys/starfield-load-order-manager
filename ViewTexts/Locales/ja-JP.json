@@ -2,14 +2,18 @@
   "LocaleName": "日本語",
   "ParentCulture": "ja",
   "MainWindow": {
-    "ConfigErrorBannerText": "パス設定エラーです。設定されたパスを確認してください。",
+    "ConfigErrorBannerText": "パス構成エラー。構成されたパスを確認してください。",
     "OpenSettingsButtonText": "設定を開く",
-    "ShowChangesButtonText": "ロードオーダーの管理",
-    "ShowChangesButtonTextWithCount": "ロードオーダーの管理（{0}件の変更）",
+    "ShowChangesButtonText": "ロード順序を管理",
+    "ShowChangesButtonTextWithCount": "ロード順序を管理 ({0} 件の変更)",
     "DismissTooltip": "閉じる",
-    "PlayButtonSfse": "プレイ（SFSE）",
-    "PlayButtonVanilla": "プレイ（バニラ）",
-    "UpdateAvailableFormat": "バージョン{0}が利用可能です！"
+    "PlayButtonSfse": "プレイ (SFSE)",
+    "PlayButtonVanilla": "プレイ (Vanilla)",
+    "UpdateAvailableFormat": "バージョン {0} が利用可能です！",
+    "DebugStateCopiedTitle": "デバッグ状態をコピー済み",
+    "DebugStateCopiedMessage": "デバッグ状態がJSON形式でクリップボードに正常にコピーされました。\n\nこの情報を開発者と共有してトラブルシューティングに役立てることができます。",
+    "DebugStateCopyFailedTitle": "コピー失敗",
+    "DebugStateCopyFailedMessageFormat": "デバッグ状態のコピーに失敗しました：{0}"
   },
   "Menu": {
     "WindowTitleFormat": "Starfield Load Order Keeper v{0}",
@@ -30,9 +34,10 @@
     "CheckForUpdatesMenuText": "更新の確認(_U)...",
     "AboutMenuText": "バージョン情報(_A)...",
     "DebugMenuHeader": "デバッグ(_D)",
-    "ResetConfigMenuText": "設定のリセット（テスト用）(_R)...",
-    "OpenConfigFolderMenuText": "設定フォルダを開く(_C)",
-    "ThrowTestExceptionMenuText": "テスト例外を発生させる(_T)",
+    "ResetConfigMenuText": "構成をリセット(テスト用)(_R)...",
+    "OpenConfigFolderMenuText": "構成フォルダを開く(_C)",
+    "ThrowTestExceptionMenuText": "テスト例外をスロー(_T)",
+    "CopyDebugStateMenuText": "デバッグ状態をコピー(_D)",
     "DownloadOptionsButtonText": "ダウンロードオプション...",
     "ActiveProfilePrefixText": "アクティブなプロファイル：",
     "RecentStatusMessagesText": "最近のステータスメッセージ：",
@@ -50,14 +55,15 @@
     "WindowTitle": "予期しないエラーが発生しました",
     "ErrorHeaderText": "予期しないエラーが発生しました",
     "OpenLogFolderButtonText": "ログフォルダを開く",
-    "OpenLogFolderTooltip": "error.logファイルを含むフォルダを開きます",
+    "OpenLogFolderTooltip": "error.log ファイルを含むフォルダを開きます",
     "ReportBugButtonText": "バグを報告",
-    "ReportBugTooltip": "このエラーを報告するためにGitHubのissuesページを開きます",
+    "ReportBugTooltip": "このエラーを報告するために GitHub の問題ページを開きます",
     "ExitButtonText": "終了",
-    "ExitTooltip": "アプリケーションを終了（推奨）",
+    "ExitTooltip": "アプリケーションを終了します（推奨）",
     "IgnoreButtonText": "無視（危険）",
-    "IgnoreTooltip": "実行を続行 - アプリケーションは不安定な状態になる可能性があります",
-    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues"
+    "IgnoreTooltip": "実行を続ける - アプリケーションが不安定な状態になっている可能性があります",
+    "BugReportUrl": "https://github.com/Mistralys/starfield-load-order-manager/issues",
+    "TestExceptionMessage": "これは、エラーダイアログとログ記録機能を検証するためのテスト例外です。アプリケーションデータフォルダの error.log ファイルを確認してください。"
   },
   "CommentInput": {
     "WindowTitleCreate": "参照ファイルの更新",
@@ -96,7 +102,13 @@
     "ProfilesFolderCannotBeCreatedMessage": "Profilesフォルダを作成またはアクセスできません",
     "BothPathsInvalidMessage": "ゲームパスとAppDataパスの両方が無効です。",
     "LanguageAutomatic": "自動",
-    "LanguageRestartRequired": "言語の変更はアプリケーションの再起動後に有効になります。"
+    "LanguageRestartRequired": "言語の変更はアプリケーションの再起動後に有効になります。",
+    "CustomEditorPathLabel": "カスタムテキストエディタ（オプション）",
+    "CustomEditorPathHint": "例：C:\\Program Files\\Notepad++\\notepad++.exe",
+    "CustomEditorPathInfo": "空白のままにすると、Windowsのデフォルトのテキストエディタを使用します。",
+    "CustomEditorBrowseTitle": "テキストエディタの実行ファイルを選択",
+    "CustomEditorInvalidPathError": "指定されたテキストエディタのパスが無効です",
+    "CustomEditorNotFoundError": "指定されたテキストエディタの実行ファイルが見つかりませんでした"
   },
   "DiffDialog": {
     "WindowTitle": "ロードオーダーの変更",
@@ -234,7 +246,9 @@
     "ProfilesFolderRequired": "アプリケーションは、プロファイルデータを保存するために、設定されたAppDataパスに「Profiles」フォルダが必要です。このフォルダを作成またはアクセスできませんでした。フォルダの権限を確認するか、設定で別のAppDataパスを選択してください。",
     "ProfilesFolderAccessDenied": "Profilesフォルダの作成時にアクセスが拒否されました。管理者権限が必要か、別の場所を選択する必要があります。",
     "PluginsTxtRequired": "設定されたAppDataパスにPlugins.txtファイルが見つかりませんでした。このファイルはアプリケーションの動作に必要です。このファイルを生成するために少なくとも一度Starfieldを実行したことを確認するか、設定で正しいAppDataフォルダを選択してください。",
-    "ErrorPrefix": "エラー：{0}"
+    "ErrorPrefix": "エラー：{0}",
+    "CustomEditorLaunchFailed": "カスタムテキストエディタの起動に失敗しました。システムのデフォルトで開きます。",
+    "CustomEditorNotFound": "カスタムテキストエディタが見つかりませんでした。システムのデフォルトで開きます。"
   },
   "StatusCoordinator": {
     "InitializingApplication": "アプリケーションを初期化しています...",
@@ -249,6 +263,31 @@
   "ConfigInvalidOverlay": {
     "Title": "設定が必要です",
     "MessageLine1": "メインウィンドウの設定で設定を修正してください。",
-    "MessageLine2": "設定が有効になると、このウィンドウは使用可能になります。"
+    "MessageLine2": "設定が有効になると、このウィンドウが使用可能になります。"
+  },
+  "MainWindowStatus": {
+    "ApplyingFix": "読み込み順序の修正を適用しています...",
+    "FixAppliedSuccess": "読み込み順序が正常に適用され、修正されました！",
+    "ConfigUpdated": "設定が更新されました。",
+    "ConfigInvalid": "設定が無効です。",
+    "DebugStateCopied": "デバッグ状態がクリップボードにコピーされました。",
+    "ConfigReset": "設定が空の値にリセットされました。",
+    "ProfileSwitchedFormat": "プロファイル '{0}' に切り替えました。"
+  },
+  "ViewModelInitializerStatus": {
+    "PluginsTxtNotFoundFormat": "{0} に Plugins.txt が見つかりません。自動的に参照を作成できません。",
+    "NoReferenceCreating": "参照ファイルが見つかりません。現在の Plugins.txt から作成しています...",
+    "ReferenceCreatedAuto": "現在の Plugins.txt から参照ファイルが自動的に作成されました。",
+    "FailedToCreateReferenceFormat": "エラー：参照の自動作成に失敗しました：{0}"
+  },
+  "ReferenceManagementStatus": {
+    "UpdatingReference": "参照ファイルを更新しています...",
+    "UpdateCancelled": "参照の更新がキャンセルされました。",
+    "ReferenceUpdatedSuccess": "参照ファイルが正常に更新されました！",
+    "CreatingReference": "参照ファイルを作成しています...",
+    "ReferenceCreatedSuccess": "参照が正常に作成されました！読み込み順序を修正できるようになりました。",
+    "DiscardingChanges": "読み込み順序の変更を破棄しています...",
+    "ChangesDiscarded": "Plugins.txt が参照から復元されました。",
+    "RolledBackFormat": "バージョン {0} にロールバックしました。変更を受け入れて確認してください。"
   }
 }

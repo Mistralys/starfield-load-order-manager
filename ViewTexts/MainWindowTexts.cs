@@ -35,6 +35,12 @@ namespace LoadOrderKeeper.ViewTexts
         // Update Message
         public string UpdateAvailableFormat => _localization.GetString("MainWindow", "UpdateAvailableFormat");
 
+        // Debug State
+        public string DebugStateCopiedTitle => _localization.GetString("MainWindow", "DebugStateCopiedTitle");
+        public string DebugStateCopiedMessage => _localization.GetString("MainWindow", "DebugStateCopiedMessage");
+        public string DebugStateCopyFailedTitle => _localization.GetString("MainWindow", "DebugStateCopyFailedTitle");
+        public string DebugStateCopyFailedMessageFormat => _localization.GetString("MainWindow", "DebugStateCopyFailedMessageFormat");
+
         /// <summary>
         /// Refreshes all localized properties when culture changes.
         /// </summary>
@@ -48,6 +54,10 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(PlayButtonSfse));
             OnPropertyChanged(nameof(PlayButtonVanilla));
             OnPropertyChanged(nameof(UpdateAvailableFormat));
+            OnPropertyChanged(nameof(DebugStateCopiedTitle));
+            OnPropertyChanged(nameof(DebugStateCopiedMessage));
+            OnPropertyChanged(nameof(DebugStateCopyFailedTitle));
+            OnPropertyChanged(nameof(DebugStateCopyFailedMessageFormat));
         }
 
         /// <summary>

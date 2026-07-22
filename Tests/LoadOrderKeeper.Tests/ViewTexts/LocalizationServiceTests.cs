@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using LoadOrderKeeper.ViewTexts;
 using Xunit;
@@ -24,13 +26,51 @@ public sealed class LocalizationServiceTests
     }
 
     [Fact]
-    public void CurrentCulture_DefaultsToEnglish()
+    public void CurrentCulture_DefaultsToSystemCulture()
     {
-        // Arrange & Act
-        var service = LocalizationService.Instance;
+        // Verifies the culture detection contract: when a locale file exists for the system
+        // culture, LocalizationService picks it up rather than defaulting to en-US.
+        // This test does NOT use EnglishLocaleFixture so it observes the singleton's
+        // actual startup behavior regardless of the running system locale.
 
-        // Assert
-        Assert.Equal("en-US", service.CurrentCulture);
+        // Arrange
+        var service = LocalizationService.Instance;
+        var sessionCulture = service.SessionStartCulture;
+
+        // The session-start culture must always be a non-empty, parseable culture string.
+        Assert.False(string.IsNullOrWhiteSpace(sessionCulture));
+        Assert.True(IsParseable(sessionCulture), $"'{sessionCulture}' is not a valid culture name.");
+
+        // When the system UI culture has a matching locale file, the service must have
+        // detected it — i.e., session-start culture should equal the system culture
+        // (or its mapped variant) rather than falling back to en-US.
+        var systemCulture = CultureInfo.CurrentUICulture.Name;
+        var exeDir = AppDomain.CurrentDomain.BaseDirectory;
+        var localesPath = Path.Combine(exeDir, "ViewTexts", "Locales");
+        var systemLocalePath = Path.Combine(localesPath, $"{systemCulture}.json");
+
+        if (File.Exists(systemLocalePath))
+        {
+            Assert.Equal(systemCulture, sessionCulture);
+        }
+        else
+        {
+            // Fallback to en-US is correct when no locale file matches the system culture.
+            Assert.Equal("en-US", sessionCulture);
+        }
+    }
+
+    private static bool IsParseable(string cultureName)
+    {
+        try
+        {
+            _ = CultureInfo.GetCultureInfo(cultureName);
+            return true;
+        }
+        catch (CultureNotFoundException)
+        {
+            return false;
+        }
     }
 
     [Fact]

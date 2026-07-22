@@ -149,11 +149,13 @@ public abstract class ScenarioTestBase
     }
 
     /// <summary>
-    /// Asserts the total number of changes detected.
+    /// Asserts the total number of primary changes detected (excludes Unchanged context lines and Separators).
     /// </summary>
     protected static void AssertChangeCount(IReadOnlyList<DiffLineModel> diffs, int expectedCount)
     {
-        Assert.Equal(expectedCount, diffs.Count);
+        Assert.Equal(expectedCount, diffs.Count(d =>
+            d.ChangeType != DiffChangeType.Unchanged &&
+            d.ChangeType != DiffChangeType.Separator));
     }
 
     /// <summary>

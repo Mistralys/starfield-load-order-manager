@@ -1,14 +1,21 @@
-using System;
+ï»¿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.Tests.Fixtures;
 using Xunit;
 
 namespace LoadOrderKeeper.Tests;
 
-public sealed class ProfileServiceTests
+[Collection(LocaleSequentialCollection.Name)]
+public sealed class ProfileServiceTests : IClassFixture<EnglishLocaleFixture>
 {
+    public ProfileServiceTests(EnglishLocaleFixture localeFixture)
+    {
+        _ = localeFixture; // Ensures en-US culture is active for the lifetime of this test class
+    }
+
     [Fact]
     public async Task LoadProfiles_NoProfiles_ReturnsDefaultOnly()
     {
@@ -85,7 +92,7 @@ public sealed class ProfileServiceTests
     {
         var existingIds = new System.Collections.Generic.HashSet<string>();
 
-        var id = ProfileService.GenerateProfileId("Élite Café", existingIds);
+        var id = ProfileService.GenerateProfileId("Ã‰lite CafÃ©", existingIds);
 
         Assert.Equal("elite-cafe", id);
     }

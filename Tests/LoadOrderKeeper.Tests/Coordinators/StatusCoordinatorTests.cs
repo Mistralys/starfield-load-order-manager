@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.Tests.Fixtures;
 using Xunit;
 
 namespace LoadOrderKeeper.Tests.Coordinators;
@@ -10,12 +11,14 @@ namespace LoadOrderKeeper.Tests.Coordinators;
 /// Tests for StatusCoordinator covering status message management, history handling,
 /// and ready message generation.
 /// </summary>
-public sealed class StatusCoordinatorTests : IDisposable
+[Collection(LocaleSequentialCollection.Name)]
+public sealed class StatusCoordinatorTests : IClassFixture<EnglishLocaleFixture>, IDisposable
 {
     private readonly StatusCoordinator _coordinator;
 
-    public StatusCoordinatorTests()
+    public StatusCoordinatorTests(EnglishLocaleFixture localeFixture)
     {
+        _ = localeFixture; // Ensures en-US culture is active for the lifetime of this test class
         _coordinator = new StatusCoordinator();
     }
 

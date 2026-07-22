@@ -7,10 +7,11 @@ namespace LoadOrderKeeper.Coordinators.Events
     /// </summary>
     public sealed class ChangeDetectedEventArgs : EventArgs
     {
-        public ChangeDetectedEventArgs(bool hasChanges, int changeCount)
+        public ChangeDetectedEventArgs(bool hasChanges, int changeCount, int dependentChangeCount)
         {
             HasChanges = hasChanges;
             ChangeCount = changeCount;
+            DependentChangeCount = dependentChangeCount;
         }
 
         /// <summary>
@@ -19,9 +20,14 @@ namespace LoadOrderKeeper.Coordinators.Events
         public bool HasChanges { get; }
 
         /// <summary>
-        /// Total number of changes detected (including dependent changes).
+        /// Number of primary changes detected (excludes Unchanged and Separator items).
         /// </summary>
         public int ChangeCount { get; }
+
+        /// <summary>
+        /// Number of dependent changes (mod position shifts caused by primary changes).
+        /// </summary>
+        public int DependentChangeCount { get; }
     }
 
     /// <summary>

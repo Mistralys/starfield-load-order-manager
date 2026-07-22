@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
@@ -10,9 +9,19 @@ using Xunit.Abstractions;
 namespace LoadOrderKeeper.Tests;
 
 /// <summary>
-/// Diagnostic tests for replacement detection algorithm with detailed logging.
-/// These tests provide step-by-step insight into how the two-pass replacement
-/// detection algorithm processes position shifts caused by earlier deletions.
+/// Behavioral regression diagnostics for Scenario 16: replacement detection under position shift.
+///
+/// This file serves as a diagnostic companion to ScenarioTests.Scenario_16. Its primary purpose
+/// is to exercise the <see cref="DiffService.GetPluginsDiffAsync"/> output for a complex scenario
+/// and emit a step-by-step diagnostic log that aids debugging if a regression occurs.
+///
+/// <para>
+/// The production pipeline uses an LCS (Longest Common Subsequence) approach:
+/// <c>FileService.ReadModListAsync</c> → <c>DiffService.ComputeLcs</c> → <c>DiffService.ClassifyChanges</c>.
+/// Position shifts are handled inherently by LCS alignment rather than a post-hoc shift correction.
+/// The behavioral assertion at the end of <see cref="DetailedReplacementDetection_WithPositionShifts"/>
+/// is the authoritative regression check.
+/// </para>
 /// </summary>
 [Trait("Category", "Diagnostic")]
 public class ReplacementDetectionDiagnostics : ScenarioTestBase
@@ -25,16 +34,22 @@ public class ReplacementDetectionDiagnostics : ScenarioTestBase
     }
 
     /// <summary>
-    /// Comprehensive diagnostic test that logs every step of the replacement detection algorithm.
-    /// This test is valuable for:
-    /// - Verifying the algorithm works correctly
-    /// - Diagnosing future regressions
-    /// - Understanding how position shifts are calculated
-    /// - Documenting algorithm behavior with real data
-    /// 
-    /// Scenario: Two mods deleted (positions 5, 9), one mod replaced at shifted position (17 ? 15)
-    /// Expected: Fragile.esm at ref pos 17 replaced by Fragile2.esm at current pos 15
-    /// Calculation: 17 - 2 deletions = 15 ?
+    /// Diagnostic test that logs the Scenario 16 diff result for debugging regressions in
+    /// replacement-under-position-shift detection.
+    ///
+    /// <para>
+    /// <b>Scenario:</b> Two mods deleted (reference positions 5 and 9); Fragile.esm (reference
+    /// position 17) replaced by Fragile2.esm. Because of the two earlier deletions, Fragile2.esm
+    /// appears at current position 15 (17 − 2 = 15). The LCS pipeline aligns these correctly
+    /// without any explicit shift correction.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Authoritative assertion:</b> <c>Assert.Equal(DiffChangeType.Replaced, fragile.ChangeType)</c>
+    /// verifies that the LCS pipeline correctly classifies Fragile.esm as <c>Replaced</c>. A failure
+    /// here is a confirmed regression in <c>DiffService.ClassifyChanges</c> Step 3 (replacement
+    /// detection) or <c>ComputeLcs</c>.
+    /// </para>
     /// </summary>
     [Fact]
     public async Task DetailedReplacementDetection_WithPositionShifts()
@@ -64,120 +79,11 @@ public class ReplacementDetectionDiagnostics : ScenarioTestBase
         };
         await SetupCurrentOrderAsync(context, modifiedOrder);
 
-        // Act - Get raw mod diffs
-        var rawDiffs = await FileService.GetModDiffAsync(context.Config);
-        
-        _output.WriteLine("=== RAW MOD DIFFS ===");
-        foreach (var diff in rawDiffs)
-        {
-            _output.WriteLine($"{diff.FileName,-40} Ref: {diff.ReferenceNumber,4} Cur: {diff.CurrentNumber,4} | IsNew: {diff.IsNew}, IsRemoved: {diff.IsRemoved}");
-        }
-        
-        // Manually simulate DetectReplacements logic
-        _output.WriteLine("\n=== SIMULATING DETECT REPLACEMENTS ALGORITHM ===");
-        
-        // Build additionsByLine dictionary
-        var additionsByLine = new Dictionary<int, ModDiffModel>();
-        foreach (var diff in rawDiffs)
-        {
-            if (diff.IsNew && diff.CurrentNumber is int currentLine)
-            {
-                _output.WriteLine($"Adding to dictionary: [{currentLine}] = {diff.FileName}");
-                if (!additionsByLine.ContainsKey(currentLine))
-                {
-                    additionsByLine[currentLine] = diff;
-                }
-            }
-        }
-        
-        _output.WriteLine($"\nadditionsByLine dictionary has {additionsByLine.Count} entries");
-        foreach (var kvp in additionsByLine.OrderBy(k => k.Key))
-        {
-            _output.WriteLine($"  [{kvp.Key}] = {kvp.Value.FileName}");
-        }
-        
-        // Get removed mods
-        var removedMods = rawDiffs
-            .Where(d => d.IsRemoved && d.ReferenceNumber.HasValue)
-            .OrderBy(d => d.ReferenceNumber!.Value)
-            .ToList();
-        
-        _output.WriteLine($"\nRemoved mods: {removedMods.Count}");
-        foreach (var removed in removedMods)
-        {
-            _output.WriteLine($"  {removed.FileName,-40} at reference position {removed.ReferenceNumber}");
-        }
-        
-        // First pass: Exact position matching
-        _output.WriteLine("\n=== FIRST PASS: EXACT POSITION MATCHING ===");
-        var replacements = new Dictionary<string, string>();
-        var usedAdditions = new HashSet<string>();
-        
-        foreach (var removed in removedMods)
-        {
-            int refPos = removed.ReferenceNumber!.Value;
-            _output.WriteLine($"Checking {removed.FileName} at ref pos {refPos}...");
-            
-            if (additionsByLine.TryGetValue(refPos, out var candidate))
-            {
-                _output.WriteLine($"  MATCH FOUND: {candidate.FileName} at position {refPos}");
-                replacements[removed.FileName] = candidate.FileName;
-                usedAdditions.Add(candidate.FileName);
-            }
-            else
-            {
-                _output.WriteLine($"  No match at position {refPos}");
-            }
-        }
-        
-        // Second pass: Shifted position matching (THE ENHANCEMENT)
-        _output.WriteLine("\n=== SECOND PASS: SHIFTED POSITION MATCHING (ENHANCEMENT) ===");
-        
-        foreach (var removed in removedMods)
-        {
-            if (replacements.ContainsKey(removed.FileName))
-            {
-                _output.WriteLine($"Skipping {removed.FileName} (already matched in first pass)");
-                continue;
-            }
-            
-            int referencePosition = removed.ReferenceNumber!.Value;
-            int deletionsBeforeThisPosition = removedMods.Count(r => r.ReferenceNumber!.Value < referencePosition);
-            int shiftedPosition = referencePosition - deletionsBeforeThisPosition;
-            
-            _output.WriteLine($"Checking {removed.FileName}:");
-            _output.WriteLine($"  Reference position: {referencePosition}");
-            _output.WriteLine($"  Deletions before: {deletionsBeforeThisPosition}");
-            _output.WriteLine($"  Shifted position: {shiftedPosition}");
-            
-            if (additionsByLine.TryGetValue(shiftedPosition, out var candidate))
-            {
-                if (!usedAdditions.Contains(candidate.FileName))
-                {
-                    _output.WriteLine($"  ? MATCH FOUND: {candidate.FileName} at shifted position {shiftedPosition}");
-                    replacements[removed.FileName] = candidate.FileName;
-                    usedAdditions.Add(candidate.FileName);
-                }
-                else
-                {
-                    _output.WriteLine($"  ? Found {candidate.FileName} but already used");
-                }
-            }
-            else
-            {
-                _output.WriteLine($"  ? No match at shifted position {shiftedPosition}");
-                _output.WriteLine($"  Dictionary keys: {string.Join(", ", additionsByLine.Keys.OrderBy(k => k))}");
-            }
-        }
-        
-        _output.WriteLine($"\n=== FINAL REPLACEMENTS: {replacements.Count} ===");
-        foreach (var kvp in replacements)
-        {
-            _output.WriteLine($"  {kvp.Key} ? {kvp.Value}");
-        }
-        
-        // Get actual result from DiffService
-        _output.WriteLine("\n=== ACTUAL DIFF SERVICE RESULT ===");
+        // -----------------------------------------------------------------------
+        // Act — LCS pipeline (production path)
+        // GetPluginsDiffAsync calls ReadModListAsync → ComputeLcs → ClassifyChanges.
+        // -----------------------------------------------------------------------
+        _output.WriteLine("\n=== ACTUAL DIFF SERVICE RESULT (LCS pipeline) ===");
         var actualDiffs = await DiffService.GetPluginsDiffAsync(context.Config);
         foreach (var diff in actualDiffs)
         {
@@ -186,19 +92,20 @@ public class ReplacementDetectionDiagnostics : ScenarioTestBase
         
         // Verify Fragile was detected as replaced
         var fragile = actualDiffs.FirstOrDefault(d => d.FileName.Equals("Fragile.esm", StringComparison.OrdinalIgnoreCase));
-        Assert.NotNull(fragile);
+        Assert.NotNull(fragile); // Fragile.esm should appear in the diff — if null, check Scenario 16 test data setup
         
         _output.WriteLine($"\n=== VERIFICATION ===");
         _output.WriteLine($"Fragile.esm ChangeType: {fragile.ChangeType}");
         
         if (fragile.ChangeType == DiffChangeType.Replaced)
         {
-            _output.WriteLine("? SUCCESS: Replacement detected correctly!");
+            _output.WriteLine("SUCCESS: Replacement detected correctly by LCS pipeline!");
         }
         else
         {
-            _output.WriteLine("? FAILURE: Replacement not detected!");
-            _output.WriteLine("This indicates a regression in the algorithm.");
+            _output.WriteLine("FAILURE: Replacement not detected!");
+            _output.WriteLine("This indicates a regression in DiffService.ClassifyChanges Step 3 (replacement detection)");
+            _output.WriteLine("or in ComputeLcs. Review the LCS alignment for Fragile.esm vs Fragile2.esm.");
         }
         
         // Assert the algorithm worked

@@ -82,6 +82,7 @@ namespace LoadOrderKeeper.ViewTexts
         public string CopyDebugStateMenuText => _localization.GetString("DiffDialog", "CopyDebugStateMenuText");
         public string FixLoadOrderButtonText => _localization.GetString("DiffDialog", "FixLoadOrderButtonText");
         public string SortingInsertedWarning => _localization.GetString("DiffDialog", "SortingInsertedWarning");
+        public string InsertedWarningTooltip => _localization.GetString("DiffDialog", "InsertedWarningTooltip");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -133,6 +134,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(CopyDebugStateMenuText));
             OnPropertyChanged(nameof(FixLoadOrderButtonText));
             OnPropertyChanged(nameof(SortingInsertedWarning));
+            OnPropertyChanged(nameof(InsertedWarningTooltip));
         }
 
         /// <summary>

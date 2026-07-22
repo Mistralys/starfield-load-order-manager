@@ -6,6 +6,7 @@
     "OpenSettingsButtonText": "設定を開く",
     "ShowChangesButtonText": "ロード順序を管理",
     "ShowChangesButtonTextWithCount": "ロード順序を管理（{0} 件の変更）",
+    "ShowChangesButtonTextWithDependents": "ロード順序を管理（{0} 件の変更、+{1} 件影響あり）",
     "DismissTooltip": "閉じる",
     "PlayButtonSfse": "プレイ（SFSE）",
     "PlayButtonVanilla": "プレイ（Vanilla）",
@@ -161,7 +162,14 @@
     "InsertedText_Action": "に挿入されました",
     "AddedText_Action": "に追加されました",
     "ModChangeText_Description": "#{0}：{1} がロードオーダー {2}",
-    "MovedText_Description": "{0} が #{1} から #{2} に移動しました"
+    "MovedText_Description": "{0} が #{1} から #{2} に移動しました",
+    "DependentChangesSummary": "+ {0} 件の Mod が {1} の {2} により移動しました",
+    "DependentChangesSummary_Singular": "+ 1 件の Mod が {1} の {2} により移動しました",
+    "DependentChangesSummary_Generic": "+ {0} 件の Mod 位置がこの変更により影響を受けました",
+    "DependentCause_Removed": "削除",
+    "DependentCause_Inserted": "挿入",
+    "DependentCause_Added": "追加",
+    "InsertedWarningTooltip": "この Mod はロード順序の中間に挿入されました。先にリストをソートすることをお勧めします。"
   },
   "ManageProfiles": {
     "WindowTitle": "プロファイルの管理",

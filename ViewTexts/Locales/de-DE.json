@@ -6,6 +6,7 @@
     "OpenSettingsButtonText": "Einstellungen öffnen",
     "ShowChangesButtonText": "Ladereihenfolge verwalten",
     "ShowChangesButtonTextWithCount": "Ladereihenfolge verwalten ({0} Änderungen)",
+    "ShowChangesButtonTextWithDependents": "Ladereihenfolge verwalten ({0} Änderungen, +{1} betroffen)",
     "DismissTooltip": "Schließen",
     "PlayButtonSfse": "Spielen (SFSE)",
     "PlayButtonVanilla": "Spielen (Vanilla)",
@@ -161,7 +162,14 @@
     "InsertedText_Action": "eingefügt in",
     "AddedText_Action": "hinzugefügt zu",
     "ModChangeText_Description": "#{0}: {1} {2} Ladereihenfolge",
-    "MovedText_Description": "{0} von #{1} nach #{2} verschoben"
+    "MovedText_Description": "{0} von #{1} nach #{2} verschoben",
+    "DependentChangesSummary": "+ {0} Mods verschoben, weil {1} {2} wurde",
+    "DependentChangesSummary_Singular": "+ 1 Mod verschoben, weil {1} {2} wurde",
+    "DependentChangesSummary_Generic": "+ {0} Mod-Positionen durch diese Änderung betroffen",
+    "DependentCause_Removed": "entfernt",
+    "DependentCause_Inserted": "eingefügt",
+    "DependentCause_Added": "hinzugefügt",
+    "InsertedWarningTooltip": "Dieses Mod wurde in die Mitte der Ladereihenfolge eingefügt. Erwägen Sie, die Liste zuerst zu sortieren."
   },
   "ManageProfiles": {
     "WindowTitle": "Profile verwalten",

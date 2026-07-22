@@ -31,6 +31,7 @@
                 <ResourceDictionary Source="Styles/ButtonStyles.xaml" />
                 <ResourceDictionary Source="Styles/TextStyles.xaml" />
                 <ResourceDictionary Source="Styles/WindowStyles.xaml" />
+                <ResourceDictionary Source="Styles/DiffBrushes.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->

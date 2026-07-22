@@ -148,7 +148,7 @@ namespace LoadOrderKeeper.ViewModels
             // Special handling for ChangeCount
             binder.BindPropertyWithAction(_fileMonitor, nameof(FileMonitoringCoordinator.ChangeCount), () =>
             {
-                UpdateChangeCountDisplay(_fileMonitor.ChangeCount);
+                UpdateChangeCountDisplay(_fileMonitor.ChangeCount, _fileMonitor.DependentChangeCount);
             });
 
             // Status Coordinator property bindings
@@ -556,11 +556,18 @@ namespace LoadOrderKeeper.ViewModels
             OpenConfigFolderCommand?.NotifyCanExecuteChanged();
         }
 
-        private void UpdateChangeCountDisplay(int changeCount)
+        private void UpdateChangeCountDisplay(int changeCount, int dependentChangeCount)
         {
-            ShowChangesButtonText = changeCount > 0 
-                ? string.Format(MainWindowTexts.ShowChangesButtonTextWithCount, changeCount)
-                : MainWindowTexts.ShowChangesButtonText;
+            if (changeCount > 0)
+            {
+                ShowChangesButtonText = dependentChangeCount > 0
+                    ? string.Format(MainWindowTexts.ShowChangesButtonTextWithDependents, changeCount, dependentChangeCount)
+                    : string.Format(MainWindowTexts.ShowChangesButtonTextWithCount, changeCount);
+            }
+            else
+            {
+                ShowChangesButtonText = MainWindowTexts.ShowChangesButtonText;
+            }
         }
  
         private async Task ShowDiffAsync()

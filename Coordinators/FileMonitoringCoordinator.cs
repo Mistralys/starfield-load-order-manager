@@ -50,6 +50,9 @@ namespace LoadOrderKeeper.Coordinators
         [ObservableProperty]
         private int _changeCount;
 
+        [ObservableProperty]
+        private int _dependentChangeCount;
+
         #endregion
 
         #region Computed Properties
@@ -155,7 +158,7 @@ namespace LoadOrderKeeper.Coordinators
             {
                 PluginsFileChangedExternally = false;
                 ChangeCount = 0;
-                ChangeDetected?.Invoke(this, new ChangeDetectedEventArgs(false, 0));
+                ChangeDetected?.Invoke(this, new ChangeDetectedEventArgs(false, 0, 0));
                 return;
             }
 
@@ -188,7 +191,7 @@ namespace LoadOrderKeeper.Coordinators
                 if (hasChanged != PluginsFileChangedExternally || signatureChanged)
                 {
                     PluginsFileChangedExternally = hasChanged;
-                    ChangeDetected?.Invoke(this, new ChangeDetectedEventArgs(hasChanged, ChangeCount));
+                    ChangeDetected?.Invoke(this, new ChangeDetectedEventArgs(hasChanged, ChangeCount, DependentChangeCount));
                 }
 
                 UpdateSortingRecommendationState(sortingRecommendation, hasInsertedMods);
@@ -267,25 +270,29 @@ namespace LoadOrderKeeper.Coordinators
             if (!hasDifferences || _config == null)
             {
                 ChangeCount = 0;
+                DependentChangeCount = 0;
                 return;
             }
 
             try
             {
                 var diffLines = await DiffService.GetPluginsDiffAsync(_config);
-                int totalCount = diffLines.Count;
 
-                // Include dependent changes in the total count
-                foreach (var line in diffLines)
-                {
-                    totalCount += line.DependentChanges.Count;
-                }
+                // Primary changes: exclude Unchanged and Separator items
+                int primaryCount = diffLines.Count(line =>
+                    line.ChangeType != DiffChangeType.Unchanged &&
+                    line.ChangeType != DiffChangeType.Separator);
 
-                ChangeCount = totalCount;
+                // Dependent changes: total across all primary items
+                int dependentCount = diffLines.Sum(line => line.DependentChanges.Count);
+
+                ChangeCount = primaryCount;
+                DependentChangeCount = dependentCount;
             }
             catch
             {
                 ChangeCount = 0;
+                DependentChangeCount = 0;
             }
         }
 

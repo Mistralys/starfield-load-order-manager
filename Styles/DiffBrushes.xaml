@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Diff change type brushes -->
+    <SolidColorBrush x:Key="DiffBrush.Added" Color="#1A4CAF50" />
+    <SolidColorBrush x:Key="DiffBrush.Removed" Color="#1AF44336" />
+    <SolidColorBrush x:Key="DiffBrush.Inserted" Color="#1AFFEB3B" />
+    <SolidColorBrush x:Key="DiffBrush.Moved" Color="#1A2196F3" />
+    <SolidColorBrush x:Key="DiffBrush.Replaced" Color="#1A9C27B0" />
+    <SolidColorBrush x:Key="DiffBrush.Context" Color="#08FFFFFF" />
+
+    <!-- Sorting recommendation banner -->
+    <SolidColorBrush x:Key="DiffBrush.SortingBannerBackground" Color="#FFFFA726" />
+    <SolidColorBrush x:Key="DiffBrush.SortingBannerBorder" Color="#FFFF9800" />
+
+    <!-- Multiple replacements help banner -->
+    <SolidColorBrush x:Key="DiffBrush.HelpBannerBackground" Color="#FFD3E4FD" />
+    <SolidColorBrush x:Key="DiffBrush.HelpBannerBorder" Color="#FF0B57D0" />
+    <SolidColorBrush x:Key="DiffBrush.HelpBannerForeground" Color="#FF001A41" />
+
+</ResourceDictionary>

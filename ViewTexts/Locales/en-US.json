@@ -6,6 +6,7 @@
     "OpenSettingsButtonText": "Open settings",
     "ShowChangesButtonText": "Manage load order",
     "ShowChangesButtonTextWithCount": "Manage load order ({0} changes)",
+    "ShowChangesButtonTextWithDependents": "Manage load order ({0} changes, +{1} affected)",
     "DismissTooltip": "Dismiss",
     "PlayButtonSfse": "Play (SFSE)",
     "PlayButtonVanilla": "Play (Vanilla)",
@@ -161,7 +162,14 @@
     "InsertedText_Action": "inserted into",
     "AddedText_Action": "added to",
     "ModChangeText_Description": "#{0}: {1} {2} load order",
-    "MovedText_Description": "{0} moved from #{1} to #{2}"
+    "MovedText_Description": "{0} moved from #{1} to #{2}",
+    "DependentChangesSummary": "+ {0} mods shifted because {1} was {2}",
+    "DependentChangesSummary_Singular": "+ 1 mod shifted because {1} was {2}",
+    "DependentChangesSummary_Generic": "+ {0} mod positions affected by this change",
+    "DependentCause_Removed": "removed",
+    "DependentCause_Inserted": "inserted",
+    "DependentCause_Added": "added",
+    "InsertedWarningTooltip": "This mod was inserted into the middle of the load order. Consider sorting the list first."
   },
   "ManageProfiles": {
     "WindowTitle": "Manage Profiles",

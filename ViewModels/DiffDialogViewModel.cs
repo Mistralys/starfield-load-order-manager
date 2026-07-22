@@ -142,6 +142,8 @@ namespace LoadOrderKeeper.ViewModels
 
         public bool HasInsertedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
 
+        public string InsertedWarningTooltip => Texts.InsertedWarningTooltip;
+
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
 
         public IAsyncRelayCommand FixLoadOrderCommand { get; }
@@ -218,7 +220,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private void UpdateDiffState()
         {
-            HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged);
+            HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged && line.ChangeType != DiffChangeType.Separator);
             ScrollTargetIndex = ComputeScrollTargetIndex();
             OnPropertyChanged(nameof(ShowSortingRecommendation));
             OnPropertyChanged(nameof(ShowMultipleReplacementsHelp));
@@ -239,7 +241,7 @@ namespace LoadOrderKeeper.ViewModels
             {
                 for (int index = 0; index < DiffLines.Count; index++)
                 {
-                    if (DiffLines[index].ChangeType != DiffChangeType.Unchanged)
+                    if (DiffLines[index].ChangeType != DiffChangeType.Unchanged && DiffLines[index].ChangeType != DiffChangeType.Separator)
                     {
                         return index;
                     }

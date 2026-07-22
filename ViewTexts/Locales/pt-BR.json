@@ -6,6 +6,7 @@
     "OpenSettingsButtonText": "Abrir configurações",
     "ShowChangesButtonText": "Gerenciar ordem de carregamento",
     "ShowChangesButtonTextWithCount": "Gerenciar ordem de carregamento ({0} alterações)",
+    "ShowChangesButtonTextWithDependents": "Gerenciar ordem de carregamento ({0} alterações, +{1} afetados)",
     "DismissTooltip": "Fechar",
     "PlayButtonSfse": "Jogar (SFSE)",
     "PlayButtonVanilla": "Jogar (Vanilla)",
@@ -161,7 +162,14 @@
     "InsertedText_Action": "inserido em",
     "AddedText_Action": "adicionado a",
     "ModChangeText_Description": "#{0}: {1} {2} ordem de carregamento",
-    "MovedText_Description": "{0} movido de #{1} para #{2}"
+    "MovedText_Description": "{0} movido de #{1} para #{2}",
+    "DependentChangesSummary": "+ {0} mods deslocados porque {1} foi {2}",
+    "DependentChangesSummary_Singular": "+ 1 mod deslocado porque {1} foi {2}",
+    "DependentChangesSummary_Generic": "+ {0} posições de mods afetadas por esta alteração",
+    "DependentCause_Removed": "removido",
+    "DependentCause_Inserted": "inserido",
+    "DependentCause_Added": "adicionado",
+    "InsertedWarningTooltip": "Este mod foi inserido no meio da ordem de carregamento. Considere ordenar a lista primeiro."
   },
   "ManageProfiles": {
     "WindowTitle": "Gerenciar Perfis",

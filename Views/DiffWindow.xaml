@@ -172,21 +172,30 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Added}">
-                                        <Setter Property="Background" Value="#1A4CAF50" />
+                                        <Setter Property="Background" Value="{DynamicResource DiffBrush.Added}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
-                                        <Setter Property="Background" Value="#1AF44336" />
+                                        <Setter Property="Background" Value="{DynamicResource DiffBrush.Removed}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
-                                        <Setter Property="Background" Value="#1AFFEB3B" />
+                                        <Setter Property="Background" Value="{DynamicResource DiffBrush.Inserted}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
-                                        <Setter Property="Background" Value="#1A2196F3" />
+                                        <Setter Property="Background" Value="{DynamicResource DiffBrush.Moved}" />
                                         <Setter Property="ContextMenu" Value="{x:Null}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Replaced}">
-                                        <Setter Property="Background" Value="#1A9C27B0" />
+                                        <Setter Property="Background" Value="{DynamicResource DiffBrush.Replaced}" />
                                         <Setter Property="ContextMenu" Value="{x:Null}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Unchanged}">
+                                        <Setter Property="Background" Value="{DynamicResource DiffBrush.Context}" />
+                                        <Setter Property="ContextMenu" Value="{x:Null}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Separator}">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="ContextMenu" Value="{x:Null}" />
+                                        <Setter Property="IsHitTestVisible" Value="False" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -202,7 +211,7 @@
                                                                 Foreground="Orange"
                                                                 VerticalAlignment="Center"
                                                                 Margin="0,0,4,0"
-                                                                ToolTip="This mod was inserted into the middle of the load order. Consider sorting the list first.">
+                                                                ToolTip="{Binding DataContext.InsertedWarningTooltip, RelativeSource={RelativeSource AncestorType=ListView}}">
                                             <materialDesign:PackIcon.Style>
                                                 <Style TargetType="materialDesign:PackIcon">
                                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -215,13 +224,37 @@
                                             </materialDesign:PackIcon.Style>
                                         </materialDesign:PackIcon>
                                         
-                                        <TextBlock Text="{Binding Prefix}"
+                                                        <TextBlock Text="{Binding Prefix}"
                                                    FontWeight="Bold"
                                                    Width="16"
-                                                   HorizontalAlignment="Left" />
+                                                   HorizontalAlignment="Left">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Unchanged}">
+                                                            <Setter Property="Opacity" Value="0.45" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                         <TextBlock Text="{Binding Text}"
                                                    TextWrapping="Wrap"
-                                                   Foreground="{DynamicResource MaterialDesignBody}" />
+                                                   Foreground="{DynamicResource MaterialDesignBody}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Unchanged}">
+                                                            <Setter Property="Opacity" Value="0.45" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Separator}">
+                                                            <Setter Property="Opacity" Value="0.35" />
+                                                            <Setter Property="HorizontalAlignment" Value="Center" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </StackPanel>
 
                                     <StackPanel Visibility="{Binding HasDependentChanges, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -267,8 +300,8 @@
                 <!-- Sorting Recommendation Banner -->
                 <Border Grid.Row="2"
                         Margin="0,8,0,0"
-                        Background="#FFFFA726"
-                        BorderBrush="#FFFF9800"
+                        Background="{DynamicResource DiffBrush.SortingBannerBackground}"
+                        BorderBrush="{DynamicResource DiffBrush.SortingBannerBorder}"
                         BorderThickness="2"
                         CornerRadius="4"
                         Padding="12,8"
@@ -309,8 +342,8 @@
                 <!-- Multiple Replacements Help Banner -->
                 <Border Grid.Row="3"
                         Margin="0,8,0,0"
-                        Background="#FFD3E4FD"
-                        BorderBrush="#FF0B57D0"
+                        Background="{DynamicResource DiffBrush.HelpBannerBackground}"
+                        BorderBrush="{DynamicResource DiffBrush.HelpBannerBorder}"
                         BorderThickness="2"
                         CornerRadius="4"
                         Padding="12,8"
@@ -322,11 +355,11 @@
                                                 Height="20"
                                                 VerticalAlignment="Center"
                                                 Margin="0,0,8,0"
-                                                Foreground="#FF0B57D0" />
+                                                Foreground="{DynamicResource DiffBrush.HelpBannerBorder}" />
                         <TextBlock Text="{Binding MultipleReplacementsHelpMessage}"
                                    d:Text="Many changes message."
                                    TextWrapping="Wrap"
-                                   Foreground="#FF001A41"
+                                   Foreground="{DynamicResource DiffBrush.HelpBannerForeground}"
                                    VerticalAlignment="Center" />
                     </DockPanel>
                 </Border>

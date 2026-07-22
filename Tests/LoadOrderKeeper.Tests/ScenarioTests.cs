@@ -667,9 +667,8 @@ public class ScenarioTests : ScenarioTestBase
 
     /// <summary>
     /// Scenario 16: Tests replacement detection when position shifts occur due to earlier deletions.
-    /// NOTE: This scenario tests the enhanced replacement detection algorithm that accounts for
-    /// position shifts caused by earlier deletions. The algorithm calculates shifted positions
-    /// using: shiftedPosition = referencePosition - deletionsBeforePosition
+    /// The LCS pipeline inherently accounts for position shifts, so the IDEAL replacement-detected
+    /// path always succeeds — no fallback is needed.
     /// </summary>
     [Fact]
     public async Task Scenario16_ReplacementWithPositionShift_DetectsReplacement()
@@ -708,47 +707,21 @@ public class ScenarioTests : ScenarioTestBase
         var diffs = await DiffService.GetPluginsDiffAsync(context.Config);
 
         // Assert - Change Detection
-        // This test documents the EXPECTED behavior of the enhancement.
-        // The two deletions should be detected
         AssertModRemoved(diffs, "BetterShipPartSnaps.esm", 5);
         AssertModRemoved(diffs, "BuySwimsuits.esm", 9);
-        
-        // The replacement detection may or may not work depending on test execution context.
-        // If it works (algorithm functions correctly):
-        //   - Fragile.esm shows as Replaced
-        //   - Fragile2.esm does NOT appear as a separate change
-        //   - Total count is 3-4 (3 core changes + possible GagarinNewDawn moved)
-        // If it doesn't work (test environment issue):
-        //   - Fragile.esm shows as Removed
-        //   - Fragile2.esm shows as Added/Inserted
-        //   - Total count is 4-5
-        
+
+        // IDEAL: The LCS pipeline detects the replacement despite the position shift
         var fragile = diffs.FirstOrDefault(d => d.FileName.Equals("Fragile.esm", System.StringComparison.OrdinalIgnoreCase));
         var fragile2 = diffs.FirstOrDefault(d => d.FileName.Equals("Fragile2.esm", System.StringComparison.OrdinalIgnoreCase));
-        
+
         Assert.NotNull(fragile);
-        
-        // IDEAL case: Replacement detected
-        if (fragile.ChangeType == DiffChangeType.Replaced)
-        {
-            Assert.Contains("Fragile.esm", fragile.Text, System.StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("Fragile2.esm", fragile.Text, System.StringComparison.OrdinalIgnoreCase);
-            Assert.Equal(17, fragile.ReferenceNumber);
-            Assert.Null(fragile2); // Should not exist as separate change
-            Assert.InRange(diffs.Count, 3, 4); // 2 removals + 1 replacement + optional GagarinNewDawn
-        }
-        // FALLBACK case: Test environment doesn't trigger replacement detection
-        else if (fragile.ChangeType == DiffChangeType.Removed)
-        {
-            Assert.Equal(DiffChangeType.Removed, fragile.ChangeType);
-            Assert.NotNull(fragile2); // Will appear as separate addition
-            Assert.True(fragile2.ChangeType == DiffChangeType.Added || fragile2.ChangeType == DiffChangeType.Inserted);
-            Assert.InRange(diffs.Count, 4, 5); // 2 removals + 1 removal + 1 addition + optional GagarinNewDawn
-        }
-        else
-        {
-            Assert.Fail($"Unexpected change type for Fragile.esm: {fragile.ChangeType}");
-        }
+        Assert.Equal(DiffChangeType.Replaced, fragile.ChangeType);
+        Assert.Contains("Fragile.esm", fragile.Text, System.StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Fragile2.esm", fragile.Text, System.StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(17, fragile.ReferenceNumber);
+        Assert.Null(fragile2); // Should not exist as a separate change
+        int primaryCount = diffs.Count(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator);
+        Assert.InRange(primaryCount, 3, 4); // 2 removals + 1 replacement + optional GagarinNewDawn
 
         // Act - Apply Sorting
         await FileService.ApplyLoadOrderAsync(context.Config);
@@ -757,9 +730,8 @@ public class ScenarioTests : ScenarioTestBase
         // Assert - Post-Sort: Core deletions should remain
         AssertModRemoved(postSortDiffs, "BetterShipPartSnaps.esm", 5);
         AssertModRemoved(postSortDiffs, "BuySwimsuits.esm", 9);
-        
-        // Post-sort count varies based on whether replacement was detected
-        Assert.InRange(postSortDiffs.Count, 3, 5);
+        int postSortPrimaryCount = postSortDiffs.Count(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator);
+        Assert.InRange(postSortPrimaryCount, 3, 4);
     }
 
     #endregion

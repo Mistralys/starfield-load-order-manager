@@ -1,13 +1,22 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Services;
+using LoadOrderKeeper.Tests.Fixtures;
 using Xunit;
 
 namespace LoadOrderKeeper.Tests;
 
-public class DiffServiceTests
+[Collection(LocaleSequentialCollection.Name)]
+public class DiffServiceTests : IClassFixture<EnglishLocaleFixture>
 {
+    public DiffServiceTests(EnglishLocaleFixture localeFixture)
+    {
+        _ = localeFixture; // Ensures en-US culture is active for the lifetime of this test class
+    }
+
     [Fact]
     public async Task GetPluginsDiffAsync_ReportsUnpairedAddedAndRemovedMods()
     {
@@ -30,7 +39,8 @@ public class DiffServiceTests
 
         var diff = await DiffService.GetPluginsDiffAsync(context.Config);
 
-        var entry = Assert.Single(diff);
+        var changed = diff.Where(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator).ToList();
+        var entry = Assert.Single(changed);
         Assert.Equal(DiffChangeType.Replaced, entry.ChangeType);
         Assert.Contains("b.esm", entry.Text);
         Assert.Contains("c.esm", entry.Text);
@@ -72,8 +82,9 @@ public class DiffServiceTests
 
         var diff = await DiffService.GetPluginsDiffAsync(context.Config);
 
+        var changed = diff.Where(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator).ToList();
         Assert.Collection(
-            diff,
+            changed,
             item =>
             {
                 Assert.Equal(DiffChangeType.Moved, item.ChangeType);
@@ -245,16 +256,17 @@ public class DiffServiceTests
         // (they get pulled up by d removal but pushed down by new insertion = net zero)
         Assert.False(removed.HasDependentChanges, "Removed mod should NOT have dependent changes in this scenario");
 
-        // Verify only c appears as dependent (under inserted)
-        Assert.DoesNotContain(diff, item => item.FileName == "c.esm");
+        // Verify only c appears as dependent (under inserted), not as a top-level changed item
+        Assert.DoesNotContain(diff, item => item.FileName == "c.esm" && item.ChangeType != DiffChangeType.Unchanged && item.ChangeType != DiffChangeType.Separator);
         
-        // e, f, g should not appear at all since they didn't move
-        Assert.DoesNotContain(diff, item => item.FileName == "e.esm");
-        Assert.DoesNotContain(diff, item => item.FileName == "f.esm");
-        Assert.DoesNotContain(diff, item => item.FileName == "g.esm");
+        // e, f, g should not appear as changed items since they didn't move
+        // (they may appear as Unchanged context lines)
+        Assert.DoesNotContain(diff, item => item.FileName == "e.esm" && item.ChangeType != DiffChangeType.Unchanged && item.ChangeType != DiffChangeType.Separator);
+        Assert.DoesNotContain(diff, item => item.FileName == "f.esm" && item.ChangeType != DiffChangeType.Unchanged && item.ChangeType != DiffChangeType.Separator);
+        Assert.DoesNotContain(diff, item => item.FileName == "g.esm" && item.ChangeType != DiffChangeType.Unchanged && item.ChangeType != DiffChangeType.Separator);
 
-        // Total count should be 2 (inserted + removed)
-        Assert.Equal(2, diff.Count);
+        // Primary change count should be 2 (inserted + removed)
+        Assert.Equal(2, diff.Count(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator));
     }
 
     [Fact]
@@ -352,5 +364,261 @@ public class DiffServiceTests
         Assert.NotNull(removed);
         Assert.Equal(DiffChangeType.Removed, removed.ChangeType);
         Assert.Equal(4, removed.ReferenceNumber);
+    }
+
+    // -------------------------------------------------------------------------
+    // LCS unit tests
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void ComputeLcs_ReturnsCorrectLcs_ForIdenticalLists()
+    {
+        // Identical lists: every element is part of the LCS, paired at matching indices.
+        var list = new List<string> { "a.esm", "b.esm", "c.esm" };
+
+        var lcs = DiffService.ComputeLcs(list, list, StringComparer.OrdinalIgnoreCase);
+
+        Assert.Equal(list.Count, lcs.Count);
+        for (int i = 0; i < list.Count; i++)
+        {
+            Assert.Equal(i, lcs[i].refIndex);
+            Assert.Equal(i, lcs[i].curIndex);
+        }
+    }
+
+    [Fact]
+    public void ComputeLcs_ReturnsCorrectLcs_ForDisjointLists()
+    {
+        // No shared elements: the LCS must be empty.
+        var reference = new List<string> { "a.esm", "b.esm", "c.esm" };
+        var current   = new List<string> { "x.esm", "y.esm", "z.esm" };
+
+        var lcs = DiffService.ComputeLcs(reference, current, StringComparer.OrdinalIgnoreCase);
+
+        Assert.Empty(lcs);
+    }
+
+    [Fact]
+    public void ComputeLcs_ReturnsCorrectLcs_ForPartialOverlap()
+    {
+        // Reference: a, b, c, d, e
+        // Current:   b, a, d, e, f    (a reordered to pos 2, c removed, f added)
+        // LCS should be the longest subsequence in the same relative order in both lists.
+        // Valid LCS candidates: "a,d,e" (length 3) or "b,d,e" (length 3).
+        // The algorithm picks one deterministically; we just verify length and that all pairs
+        // are consistent (reference[ri] == current[ci]).
+        var reference = new List<string> { "a.esm", "b.esm", "c.esm", "d.esm", "e.esm" };
+        var current   = new List<string> { "b.esm", "a.esm", "d.esm", "e.esm", "f.esm" };
+
+        var lcs = DiffService.ComputeLcs(reference, current, StringComparer.OrdinalIgnoreCase);
+
+        // LCS length must be 3 (max possible given the reordering of a/b)
+        Assert.Equal(3, lcs.Count);
+
+        // Each pair must actually match in both lists
+        foreach (var (ri, ci) in lcs)
+        {
+            Assert.Equal(reference[ri], current[ci], StringComparer.OrdinalIgnoreCase);
+        }
+
+        // Indices must be strictly increasing (valid subsequence)
+        for (int i = 1; i < lcs.Count; i++)
+        {
+            Assert.True(lcs[i].refIndex > lcs[i - 1].refIndex, "refIndex must be strictly increasing");
+            Assert.True(lcs[i].curIndex > lcs[i - 1].curIndex, "curIndex must be strictly increasing");
+        }
+    }
+
+    [Fact]
+    public void ComputeLcs_IsCaseInsensitive()
+    {
+        // Same filenames, different casing — should be treated as equal when using
+        // StringComparer.OrdinalIgnoreCase, yielding a full-length LCS.
+        var reference = new List<string> { "Alpha.ESM", "Beta.ESM" };
+        var current   = new List<string> { "alpha.esm", "beta.esm" };
+
+        var lcs = DiffService.ComputeLcs(reference, current, StringComparer.OrdinalIgnoreCase);
+
+        Assert.Equal(2, lcs.Count);
+        Assert.Equal(0, lcs[0].refIndex);
+        Assert.Equal(0, lcs[0].curIndex);
+        Assert.Equal(1, lcs[1].refIndex);
+        Assert.Equal(1, lcs[1].curIndex);
+    }
+
+    // -------------------------------------------------------------------------
+    // Context line / TrimToContextWindow tests (tested indirectly via GetPluginsDiffAsync)
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task TrimToContextWindow_SingleChangeMiddle_ShowsOneNeighborEachSide()
+    {
+        // One change in the middle of a 5-item list (c replaced by X).
+        // Expected context: one Unchanged before (b) and one Unchanged after (d).
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm", "*d.esm", "*e.esm");
+        await context.WritePluginsAsync("*a.esm", "*b.esm", "*x.esm", "*d.esm", "*e.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var changed = diff.Where(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator).ToList();
+        Assert.Single(changed);
+
+        // One context line above the change (b) and one below (d)
+        var unchangedItems = diff.Where(d => d.ChangeType == DiffChangeType.Unchanged).Select(d => d.FileName).ToList();
+        Assert.Contains("b.esm", unchangedItems);
+        Assert.Contains("d.esm", unchangedItems);
+
+        // Items far from the change (a, e) should not appear
+        Assert.DoesNotContain("a.esm", unchangedItems);
+        Assert.DoesNotContain("e.esm", unchangedItems);
+    }
+
+    [Fact]
+    public async Task TrimToContextWindow_AdjacentChanges_NoSeparatorBetween()
+    {
+        // Two adjacent changes (b and c replaced). The context lines around them
+        // share neighbors, so no separator should be inserted between the groups.
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm", "*d.esm", "*e.esm");
+        await context.WritePluginsAsync("*a.esm", "*x.esm", "*y.esm", "*d.esm", "*e.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        Assert.DoesNotContain(diff, item => item.ChangeType == DiffChangeType.Separator);
+    }
+
+    [Fact]
+    public async Task TrimToContextWindow_DistantChanges_InsertsSeparator()
+    {
+        // Two changes separated by many unchanged items.
+        // A separator should appear between the two context groups.
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync(
+            "*a.esm", "*b.esm", "*x.esm", "*c.esm",
+            "*d.esm", "*e.esm", "*f.esm", "*y.esm",
+            "*g.esm", "*h.esm");
+        await context.WritePluginsAsync(
+            "*a.esm", "*b.esm", "*p.esm", "*c.esm",
+            "*d.esm", "*e.esm", "*f.esm", "*q.esm",
+            "*g.esm", "*h.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        Assert.Contains(diff, item => item.ChangeType == DiffChangeType.Separator);
+    }
+
+    [Fact]
+    public async Task TrimToContextWindow_ChangeAtStart_NoContextAbove()
+    {
+        // Changed item is the first mod in the list. No context line above it.
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm");
+        await context.WritePluginsAsync("*x.esm", "*b.esm", "*c.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var changed = diff.Where(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator).ToList();
+        Assert.Single(changed);
+
+        // b.esm is the context line after the change
+        Assert.Contains(diff, item => item.FileName == "b.esm" && item.ChangeType == DiffChangeType.Unchanged);
+
+        // No context above the first item
+        var unchangedItems = diff.Where(d => d.ChangeType == DiffChangeType.Unchanged).Select(d => d.FileName).ToList();
+        Assert.DoesNotContain("c.esm", unchangedItems);
+    }
+
+    [Fact]
+    public async Task TrimToContextWindow_ChangeAtEnd_NoContextBelow()
+    {
+        // Changed item is the last mod in the list. No context line below it.
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm");
+        await context.WritePluginsAsync("*a.esm", "*b.esm", "*x.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var changed = diff.Where(d => d.ChangeType != DiffChangeType.Unchanged && d.ChangeType != DiffChangeType.Separator).ToList();
+        Assert.Single(changed);
+
+        // b.esm is the context line before the change
+        Assert.Contains(diff, item => item.FileName == "b.esm" && item.ChangeType == DiffChangeType.Unchanged);
+
+        // No context below the last item
+        var unchangedItems = diff.Where(d => d.ChangeType == DiffChangeType.Unchanged).Select(d => d.FileName).ToList();
+        Assert.DoesNotContain("a.esm", unchangedItems);
+    }
+
+    // -------------------------------------------------------------------------
+    // Dependent-change causal text tests
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task DependentChanges_HaveCauseFileName()
+    {
+        // When a mod is removed and causes dependent shifts, the parent entry
+        // should have DependentChangeCauseFileName set to the removed mod's filename.
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm", "*d.esm");
+        await context.WritePluginsAsync("*a.esm", "*c.esm", "*d.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var removed = diff.FirstOrDefault(item => item.FileName == "b.esm");
+        Assert.NotNull(removed);
+        Assert.True(removed.HasDependentChanges);
+        Assert.Equal("b.esm", removed.DependentChangeCauseFileName);
+    }
+
+    [Fact]
+    public async Task DependentChanges_HaveCauseAction()
+    {
+        // When a mod is removed and causes dependent shifts, the parent entry
+        // should have DependentChangeCauseAction set to "DependentCause_Removed".
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm", "*d.esm");
+        await context.WritePluginsAsync("*a.esm", "*c.esm", "*d.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var removed = diff.FirstOrDefault(item => item.FileName == "b.esm");
+        Assert.NotNull(removed);
+        Assert.True(removed.HasDependentChanges);
+        Assert.Equal("DependentCause_Removed", removed.DependentChangeCauseAction);
+    }
+
+    [Fact]
+    public async Task DependentChanges_InsertedMod_HaveCauseAction()
+    {
+        // When a mod is inserted and causes dependent shifts, the parent entry
+        // should have DependentChangeCauseAction set to "DependentCause_Inserted".
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm");
+        await context.WritePluginsAsync("*a.esm", "*new.esm", "*b.esm", "*c.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var inserted = diff.FirstOrDefault(item => item.FileName == "new.esm");
+        Assert.NotNull(inserted);
+        Assert.True(inserted.HasDependentChanges);
+        Assert.Equal("DependentCause_Inserted", inserted.DependentChangeCauseAction);
+    }
+
+    [Fact]
+    public async Task DependentChanges_SummaryIsNotEmpty_WhenCauseSet()
+    {
+        // Entries with dependent changes and a cause should have a non-empty DependentChangesSummary.
+        using var context = new TestConfigContext();
+        await context.WriteReferenceAsync("*a.esm", "*b.esm", "*c.esm", "*d.esm");
+        await context.WritePluginsAsync("*a.esm", "*c.esm", "*d.esm");
+
+        var diff = await DiffService.GetPluginsDiffAsync(context.Config);
+
+        var removed = diff.FirstOrDefault(item => item.FileName == "b.esm");
+        Assert.NotNull(removed);
+        Assert.True(removed.HasDependentChanges);
+        Assert.NotEmpty(removed.DependentChangesSummary);
+        Assert.Contains("b.esm", removed.DependentChangesSummary);
     }
 }

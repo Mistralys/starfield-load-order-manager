@@ -21,6 +21,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>LoadOrderKeeper.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include=".github\dependabot.yml" />
     <None Include=".github\workflows\release.yml" />
     <None Include="installer\StarfieldLoadOrderKeeper.wixproj" />

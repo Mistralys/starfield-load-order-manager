@@ -421,3 +421,14 @@ Docs/Design/nexus-features.jpg
 
 # Generated merged documentation files
 Tools/*-Complete.md
+
+# Ledger Workflow temporary files
+/Docs/Agents/**/research-brief.md
+/Docs/Agents/**/audit.md
+/Docs/Agents/**/design-review.md
+/Docs/Agents/**/pipeline-configuration.md
+/Docs/Agents/**/work-packages-draft.md
+/Docs/Agents/**/dependency-analysis.md
+/Docs/Agents/**/work.md
+/Docs/Agents/**/work/
+/Docs/Agents/**/.orchestrator-run.json

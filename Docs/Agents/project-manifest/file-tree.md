@@ -58,7 +58,8 @@
 │  ├─ ViewModelInitializer.cs
 │  └─ WindowLifecycleService.cs
 ├─ Helpers/
-│  └─ CoordinatorEventBinder.cs
+│  ├─ CoordinatorEventBinder.cs
+│  └─ SteamLibraryVdfParser.cs         (bounded parser for Steam libraryfolders.vdf)
 ├─ ViewModels/
 │  ├─ AboutViewModel.cs
 │  ├─ CommentInputViewModel.cs
@@ -174,6 +175,8 @@
       ├─ Fixtures/
       │  ├─ EnglishLocaleFixture.cs      (IDisposable; forces en-US on LocalizationService singleton for test class lifetime)
       │  └─ LocaleSequentialCollection.cs (xUnit CollectionDefinition with DisableParallelization=true; groups locale-sensitive test classes)
+      ├─ Helpers/
+      │  └─ SteamLibraryVdfParserTests.cs (fixture and grammar tests for Steam libraryfolders.vdf)
       ├─ Coordinators/
       │  ├─ ConfigurationCoordinatorTests.cs
       │  ├─ FileMonitoringCoordinatorTests.cs

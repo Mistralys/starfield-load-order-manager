@@ -93,8 +93,8 @@
 - Configuration edits retain `ActiveProfileId`, so profile-specific references stay aligned.
 - `SettingsService.TryGetDefaultSteamPath()` intelligently detects Starfield installation by:
   1. Calling `TryGetSteamInstallPath()` to find main Steam installation via Windows registry (CurrentUser, LocalMachine paths)
-  2. If found, calling `TryFindStarfieldInSteamLibraries()` to parse `libraryfolders.vdf` using Gameloop.Vdf
-  3. Iterating through numeric library keys (0, 1, 2, ...) to check each library's `apps` collection for Starfield AppID (1716740)
+  2. If found, calling `TryFindStarfieldInSteamLibraries()` to read `libraryfolders.vdf` and parse its supported text subset with `SteamLibraryVdfParser`
+  3. Iterating ordered object-valued library entries to check each `apps` collection for Starfield AppID (1716740)
   4. Validating installation by checking for `Data` subfolder presence
   5. Falling back to default Steam installation location if VDF parsing fails
   6. Final fallback to Program Files location if all detection methods fail

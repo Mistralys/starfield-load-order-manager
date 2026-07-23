@@ -20,7 +20,7 @@
 - **CommunityToolkit.Mvvm**
   - `ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`, `RelayCommand`, `AsyncRelayCommand`, `IRelayCommand`, `IAsyncRelayCommand`
 - **MaterialDesignThemes** / **MaterialDesignColors** for dialogs, icons, and card layouts (v5)
-- **Gameloop.Vdf** for parsing Steam library configuration files (Valve Data Format)
+- **SteamLibraryVdfParser** internal helper for Steam `libraryfolders.vdf` parsing using standard .NET APIs only
 - **System.Text.Json** for JSON serialization/deserialization (localization files, configuration, metadata)
 - **System.Text.Encodings.Web** for JSON Unicode handling in localization
 - Standard .NET `System.*` APIs for I/O, processes, collections, and globalization
@@ -97,6 +97,7 @@ Instance services support MainViewModel with dependency injection via constructo
 
 - `CoordinatorEventBinder`: simplifies property change forwarding from coordinators to ViewModels using declarative binding methods
 - `MenuViewModel`: consolidates all menu and UI text properties for centralized management and easier localization
+- `SteamLibraryVdfParser`: bounded, read-only parser for the supported Steam `libraryfolders.vdf` subset
 
 ---
 
@@ -262,6 +263,7 @@ public class SomeTexts : ObservableObject
 ### Steam Library Detection
 
 - `SettingsService` parses Steam's `libraryfolders.vdf` to locate Starfield across all Steam library folders
+- `SteamLibraryVdfParser` returns ordered library entries with nullable path/app sections and throws `FormatException` for malformed input
 - Detects Steam installation via Windows registry, searches all configured libraries for Starfield (AppID: 1716740)
 - Validates installations by checking for `Data` folder presence
 - Silent failure with multi-level fallbacks ensures robust path detection

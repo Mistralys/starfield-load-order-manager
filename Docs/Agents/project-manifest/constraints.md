@@ -41,6 +41,7 @@
 
 - **CoordinatorEventBinder**: Simplifies PropertyChanged forwarding with `BindPropertiesDirect()`, `BindProperty()`, etc.
 - **MenuViewModel**: Consolidates all menu and UI text properties for centralized management
+- **SteamLibraryVdfParser**: Internal, stateless, bounded parser for Steam `libraryfolders.vdf`; it owns syntax validation but not file I/O or installation selection policy.
 
 ---
 
@@ -134,6 +135,15 @@
 
 ---
 
+## Steam Library Parsing
+
+- Steam library parsing supports only the required text `libraryfolders.vdf` subset: quoted keys/values, nested objects, whitespace, and `//` comments outside quoted tokens.
+- The parser accepts exactly one top-level `libraryfolders` object, advances a bounded cursor on every loop, and rejects duplicate keys, unknown or unterminated escapes, missing values, unbalanced braces, extra top-level pairs, and trailing tokens with `FormatException`.
+- Object-valued `libraryfolders` children remain in source order. Missing/non-scalar `path` and missing/non-object `apps` yield null fields; an empty `apps` object yields an empty AppID set.
+- `SettingsService.TryFindStarfieldInSteamLibraries()` catches parser, file, and path failures and returns null, so automatic detection continues through its existing fallback chain.
+
+---
+
 ## Navigation & Threading
 
 - Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `CommentInputDialog`) block until close; viewmodels flow back via dialog results/events.
@@ -151,7 +161,7 @@
 - Profile operations (create, copy) validate Profiles folder exists via `ProfileService.EnsureProfilesFolderExists()` before proceeding.
 - All profile folder errors include actionable guidance (check permissions, change location).
 - Secondary windows (ManageProfilesWindow, etc.) append `UserMessages.ConfigInvalidGuidance` or `UserMessages.ProfilesFolderRequired` based on error type.
-- Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parse errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+- Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parser errors, I/O errors) and returns null, allowing fallback detection methods to execute.
 
 ---
 

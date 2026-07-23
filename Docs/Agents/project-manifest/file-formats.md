@@ -130,6 +130,19 @@ Archived with the next reference update — the comment describes the changes be
 
 ---
 
+## Steam Library Folders
+
+**Location**: `{Steam install}/steamapps/libraryfolders.vdf`
+
+- Read-only external Steam metadata used by `SettingsService` to discover Starfield installations.
+- `SteamLibraryVdfParser` supports quoted keys and values, nested objects, whitespace, and `//` comments between tokens or at line ends.
+- The parser decodes only `\\`, `\"`, `\n`, `\r`, and `\t`; unsupported or unterminated escapes, duplicate keys, missing values, unbalanced braces, extra root pairs, and trailing tokens produce `FormatException`.
+- Exactly one top-level `libraryfolders` object is accepted. Object-valued children become ordered library entries; scalar children are ignored. Missing/non-scalar `path` and missing/non-object `apps` are represented as null, while an empty `apps` object is an empty set.
+- `SettingsService` treats unavailable, invalid, or malformed metadata as a detection miss and preserves its normal Steam-location fallbacks.
+- `Docs/Agents/example-steam-library.vdf` is linked to `Fixtures/example-steam-library.vdf` in the test output so parser tests load it through `AppContext.BaseDirectory`.
+
+---
+
 ## Update Check Cache
 
 **Location**: `%LOCALAPPDATA%\StarfieldLoadOrderKeeper\update-check-cache.json`

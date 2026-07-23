@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "There are a lot of changes in the list, including replacements and removals. This can confuse the change detection - If you made these edits, it is recommended to accept the changes. Otherwise, consider discarding the changes.",
     "DifferencesLoadedStatus": "Differences loaded.",
     "NoNewDifferencesStatus": "No new differences detected",
+    "DetectedChangesStatus": "Detected changes",
+    "MatchesReferenceStatus": "Plugins.txt now matches the reference",
     "FailedToRefreshError": "Failed to refresh differences:",
     "NoDifferencesToDiscardStatus": "No differences to discard.",
     "CannotDiscardNowStatus": "Cannot discard changes right now.",
@@ -169,7 +171,8 @@
     "DependentCause_Removed": "removed",
     "DependentCause_Inserted": "inserted",
     "DependentCause_Added": "added",
-    "InsertedWarningTooltip": "This mod was inserted into the middle of the load order. Consider sorting the list first."
+    "InsertedWarningTooltip": "This mod was inserted into the middle of the load order. Consider sorting the list first.",
+    "ShowAllModsToggleText": "Show all mods"
   },
   "ManageProfiles": {
     "WindowTitle": "Manage Profiles",

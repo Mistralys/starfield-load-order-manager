@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "Hay muchos cambios en la lista, incluyendo reemplazos y eliminaciones. Esto puede confundir la detección de cambios - Si realizaste estas ediciones, se recomienda aceptar los cambios. De lo contrario, considera descartar los cambios.",
     "DifferencesLoadedStatus": "Diferencias cargadas.",
     "NoNewDifferencesStatus": "No se detectaron nuevas diferencias",
+    "DetectedChangesStatus": "Cambios detectados",
+    "MatchesReferenceStatus": "Plugins.txt ahora coincide con la referencia",
     "FailedToRefreshError": "Error al actualizar las diferencias:",
     "NoDifferencesToDiscardStatus": "No hay diferencias para descartar.",
     "CannotDiscardNowStatus": "No se pueden descartar los cambios ahora.",
@@ -169,7 +171,8 @@
     "DependentCause_Removed": "eliminado",
     "DependentCause_Inserted": "insertado",
     "DependentCause_Added": "añadido",
-    "InsertedWarningTooltip": "Este mod fue insertado en el medio del orden de carga. Considera ordenar la lista primero."
+    "InsertedWarningTooltip": "Este mod fue insertado en el medio del orden de carga. Considera ordenar la lista primero.",
+    "ShowAllModsToggleText": "Mostrar todos los mods"
   },
   "ManageProfiles": {
     "WindowTitle": "Gestionar perfiles",

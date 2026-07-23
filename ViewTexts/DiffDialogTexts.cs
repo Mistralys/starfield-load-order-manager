@@ -45,6 +45,8 @@ namespace LoadOrderKeeper.ViewTexts
         // Status Messages
         public string DifferencesLoadedStatus => _localization.GetString("DiffDialog", "DifferencesLoadedStatus");
         public string NoNewDifferencesStatus => _localization.GetString("DiffDialog", "NoNewDifferencesStatus");
+        public string DetectedChangesStatus => _localization.GetString("DiffDialog", "DetectedChangesStatus");
+        public string MatchesReferenceStatus => _localization.GetString("DiffDialog", "MatchesReferenceStatus");
         public string FailedToRefreshError => _localization.GetString("DiffDialog", "FailedToRefreshError");
         public string NoDifferencesToDiscardStatus => _localization.GetString("DiffDialog", "NoDifferencesToDiscardStatus");
         public string CannotDiscardNowStatus => _localization.GetString("DiffDialog", "CannotDiscardNowStatus");
@@ -83,6 +85,7 @@ namespace LoadOrderKeeper.ViewTexts
         public string FixLoadOrderButtonText => _localization.GetString("DiffDialog", "FixLoadOrderButtonText");
         public string SortingInsertedWarning => _localization.GetString("DiffDialog", "SortingInsertedWarning");
         public string InsertedWarningTooltip => _localization.GetString("DiffDialog", "InsertedWarningTooltip");
+        public string ShowAllModsToggleText => _localization.GetString("DiffDialog", "ShowAllModsToggleText");
 
         /// <summary>
         /// Handles culture changes by refreshing all properties.
@@ -105,6 +108,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(MultipleChangesHelp));
             OnPropertyChanged(nameof(DifferencesLoadedStatus));
             OnPropertyChanged(nameof(NoNewDifferencesStatus));
+            OnPropertyChanged(nameof(DetectedChangesStatus));
+            OnPropertyChanged(nameof(MatchesReferenceStatus));
             OnPropertyChanged(nameof(FailedToRefreshError));
             OnPropertyChanged(nameof(NoDifferencesToDiscardStatus));
             OnPropertyChanged(nameof(CannotDiscardNowStatus));
@@ -135,6 +140,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(FixLoadOrderButtonText));
             OnPropertyChanged(nameof(SortingInsertedWarning));
             OnPropertyChanged(nameof(InsertedWarningTooltip));
+            OnPropertyChanged(nameof(ShowAllModsToggleText));
         }
 
         /// <summary>

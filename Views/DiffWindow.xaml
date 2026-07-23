@@ -66,6 +66,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -81,11 +82,18 @@
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource MaterialDesignBody}" />
 
-                <Border Grid.Row="1"
+                <CheckBox Grid.Row="1"
+                          Content="{Binding ShowAllModsToggleText}"
+                          IsChecked="{Binding ShowAllMods, Mode=TwoWay}"
+                          Style="{StaticResource MaterialDesignCheckBox}"
+                          Margin="0,4,0,4"
+                          HorizontalAlignment="Left" />
+
+                <Border Grid.Row="2"
                         BorderThickness="1"
                         BorderBrush="{DynamicResource MaterialDesignDivider}"
                         Background="{DynamicResource MaterialDesignCardBackground}">
-                    <ListView x:Name="DiffListView" ItemsSource="{Binding DiffLines}"
+                    <ListView x:Name="DiffListView" ItemsSource="{Binding FilteredDiffLines}"
                               Margin="0"
                               BorderThickness="0"
                               Background="Transparent"
@@ -298,7 +306,7 @@
                 </Border>
                 
                 <!-- Sorting Recommendation Banner -->
-                <Border Grid.Row="2"
+                <Border Grid.Row="3"
                         Margin="0,8,0,0"
                         Background="{DynamicResource DiffBrush.SortingBannerBackground}"
                         BorderBrush="{DynamicResource DiffBrush.SortingBannerBorder}"
@@ -340,7 +348,7 @@
                 </Border>
                 
                 <!-- Multiple Replacements Help Banner -->
-                <Border Grid.Row="3"
+                <Border Grid.Row="4"
                         Margin="0,8,0,0"
                         Background="{DynamicResource DiffBrush.HelpBannerBackground}"
                         BorderBrush="{DynamicResource DiffBrush.HelpBannerBorder}"
@@ -364,13 +372,13 @@
                     </DockPanel>
                 </Border>
                 
-                <TextBlock Grid.Row="4"
+                <TextBlock Grid.Row="5"
                            Text="{Binding DiffStatusMessage}"
                            d:Text="Status message"
                            Margin="0,8,0,0"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                <TextBlock Grid.Row="5"
+                <TextBlock Grid.Row="6"
                             Text="{Binding NoDifferencesMessage}"
                             d:Text="No differences detected."
                             Margin="0,8,0,0"
@@ -386,7 +394,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <StackPanel Grid.Row="6"
+                <StackPanel Grid.Row="7"
                              Orientation="Horizontal"
                              HorizontalAlignment="Right"
                              Margin="0,16,0,0">

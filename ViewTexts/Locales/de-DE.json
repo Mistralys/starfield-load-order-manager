@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "Es gibt viele Änderungen in der Liste, einschließlich Ersetzungen und Entfernungen. Dies kann die Änderungserkennung verwirren - Wenn Sie diese Änderungen vorgenommen haben, wird empfohlen, sie zu akzeptieren. Andernfalls sollten Sie die Änderungen verwerfen.",
     "DifferencesLoadedStatus": "Unterschiede geladen.",
     "NoNewDifferencesStatus": "Keine neuen Unterschiede erkannt",
+    "DetectedChangesStatus": "Änderungen erkannt",
+    "MatchesReferenceStatus": "Plugins.txt entspricht jetzt der Referenz",
     "FailedToRefreshError": "Aktualisierung der Unterschiede fehlgeschlagen:",
     "NoDifferencesToDiscardStatus": "Keine Unterschiede zum Verwerfen.",
     "CannotDiscardNowStatus": "Änderungen können jetzt nicht verworfen werden.",
@@ -169,7 +171,8 @@
     "DependentCause_Removed": "entfernt",
     "DependentCause_Inserted": "eingefügt",
     "DependentCause_Added": "hinzugefügt",
-    "InsertedWarningTooltip": "Dieses Mod wurde in die Mitte der Ladereihenfolge eingefügt. Erwägen Sie, die Liste zuerst zu sortieren."
+    "InsertedWarningTooltip": "Dieses Mod wurde in die Mitte der Ladereihenfolge eingefügt. Erwägen Sie, die Liste zuerst zu sortieren.",
+    "ShowAllModsToggleText": "Alle Mods anzeigen"
   },
   "ManageProfiles": {
     "WindowTitle": "Profile verwalten",

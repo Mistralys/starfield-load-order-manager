@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "Il y a beaucoup de modifications dans la liste, y compris des remplacements et des suppressions. Cela peut perturber la détection des modifications - Si vous avez effectué ces modifications, il est recommandé de les accepter. Sinon, envisagez d'abandonner les modifications.",
     "DifferencesLoadedStatus": "Différences chargées.",
     "NoNewDifferencesStatus": "Aucune nouvelle différence détectée",
+    "DetectedChangesStatus": "Modifications détectées",
+    "MatchesReferenceStatus": "Plugins.txt correspond maintenant à la référence",
     "FailedToRefreshError": "Échec de l'actualisation des différences :",
     "NoDifferencesToDiscardStatus": "Aucune différance à abandonner.",
     "CannotDiscardNowStatus": "Impossible d'abandonner les modifications maintenant.",
@@ -169,7 +171,8 @@
     "DependentCause_Removed": "supprimé",
     "DependentCause_Inserted": "inséré",
     "DependentCause_Added": "ajouté",
-    "InsertedWarningTooltip": "Ce mod a été inséré au milieu de l'ordre de chargement. Envisagez de trier la liste en premier."
+    "InsertedWarningTooltip": "Ce mod a été inséré au milieu de l'ordre de chargement. Envisagez de trier la liste en premier.",
+    "ShowAllModsToggleText": "Afficher tous les mods"
   },
   "ManageProfiles": {
     "WindowTitle": "Gérer les profils",

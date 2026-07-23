@@ -39,7 +39,7 @@ No C# code changes, no compilation, no hardcoded mappings. The system automatica
 
 - **Total Languages**: 8
 - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT, zh-CN, ja-JP, pt-BR
-- **Total Strings**: 198 translated strings per locale 
+- **Total Strings**: 201 translated strings per locale 
 - **User-Selectable**: Language preference dropdown in Settings
 - **Auto-Detection**: Automatic system locale detection
 - **Extensibility**: New languages require only JSON file (no code changes)

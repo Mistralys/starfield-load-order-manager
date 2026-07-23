@@ -91,8 +91,10 @@ All diff change type colors are defined as semantic brush resources and referenc
 
 ### Diff Window Context Lines and Separators
 
-- **Context lines** (`DiffChangeType.Unchanged`): Shown with 3% background opacity (`DiffBrush.Context`) and text opacity 0.45. Display 1 unchanged neighbor above and below each change group for spatial orientation. Not selectable (no context menu).
-- **Separator** (`DiffChangeType.Separator`): A centered `···` text at 35% opacity between non-adjacent context groups. Transparent background. Not hit-test visible.
+- **Default view**: The list shows only changed entries (`Added`, `Removed`, `Moved`, `Replaced`, `Inserted`) to reduce visual noise.
+- **Show all mods toggle**: A `MaterialDesignCheckBox` between description and list toggles full-context mode.
+- **Context lines** (`DiffChangeType.Unchanged`): Hidden by default; shown in full-context mode with 3% background opacity (`DiffBrush.Context`) and text opacity 0.45. Display 1 unchanged neighbor above and below each change group for spatial orientation. Not selectable (no context menu).
+- **Separator** (`DiffChangeType.Separator`): Hidden by default; shown in full-context mode as centered `···` text at 35% opacity between non-adjacent context groups. Transparent background. Not hit-test visible.
 
 ### Main Window Banners
 

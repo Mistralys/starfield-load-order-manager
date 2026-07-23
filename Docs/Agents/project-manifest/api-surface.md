@@ -934,6 +934,9 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel);
 
     public ObservableCollection<DiffLineModel> DiffLines { get; }
+    public ICollectionView FilteredDiffLines { get; }
+    public bool ShowAllMods { get; set; }
+    public string ShowAllModsToggleText { get; }
     public bool ShowSortingRecommendation { get; }
     public string SortingRecommendationMessage { get; }
     public bool ShowMultipleReplacementsHelp { get; }

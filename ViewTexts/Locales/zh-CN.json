@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "列表中有很多更改，包括替换和移除。这可能会混淆更改检测 - 如果这些编辑是您所做的，建议接受更改。否则，请考虑放弃更改。",
     "DifferencesLoadedStatus": "差异已加载。",
     "NoNewDifferencesStatus": "未检测到新的差异",
+    "DetectedChangesStatus": "检测到更改",
+    "MatchesReferenceStatus": "Plugins.txt 现已与参考文件一致",
     "FailedToRefreshError": "刷新差异失败:",
     "NoDifferencesToDiscardStatus": "没有要放弃的差异。",
     "CannotDiscardNowStatus": "现在无法放弃更改。",
@@ -169,7 +171,8 @@
     "DependentCause_Removed": "移除",
     "DependentCause_Inserted": "插入",
     "DependentCause_Added": "添加",
-    "InsertedWarningTooltip": "此 Mod 被插入加载顺序的中间。请考虑先对列表进行排序。"
+    "InsertedWarningTooltip": "此 Mod 被插入加载顺序的中间。请考虑先对列表进行排序。",
+    "ShowAllModsToggleText": "显示所有 MOD"
   },
   "ManageProfiles": {
     "WindowTitle": "管理配置文件",

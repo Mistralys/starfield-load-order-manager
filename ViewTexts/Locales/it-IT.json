@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "Ci sono molte modifiche nell'elenco, incluse sostituzioni e rimozioni. Questo può confondere il rilevamento delle modifiche - Se hai effettuato queste modifiche, si consiglia di accettare le modifiche. Altrimenti, considera di scartare le modifiche.",
     "DifferencesLoadedStatus": "Differenze caricate.",
     "NoNewDifferencesStatus": "Nessuna nuova differenza rilevata",
+    "DetectedChangesStatus": "Modifiche rilevate",
+    "MatchesReferenceStatus": "Plugins.txt ora corrisponde al riferimento",
     "FailedToRefreshError": "Impossibile aggiornare le differenze:",
     "NoDifferencesToDiscardStatus": "Nessuna differenza da scartare.",
     "CannotDiscardNowStatus": "Impossibile scartare le modifiche ora.",
@@ -168,8 +170,9 @@
     "DependentChangesSummary_Generic": "+ {0} posizioni mod interessate da questa modifica",
     "DependentCause_Removed": "rimosso",
     "DependentCause_Inserted": "inserito",
-    "DependentCause_Added": "aggiunto",
-    "InsertedWarningTooltip": "Questo mod è stato inserito nel mezzo dell'ordine di caricamento. Considera di ordinare prima la lista."
+    "DependentCause_Added": "aggiunta",
+    "InsertedWarningTooltip": "Questa mod è stata inserita nel mezzo dell'ordine di caricamento. Considera di ordinare prima la lista.",
+    "ShowAllModsToggleText": "Mostra tutti i mod"
   },
   "ManageProfiles": {
     "WindowTitle": "Gestisci profili",

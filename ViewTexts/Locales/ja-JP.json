@@ -128,6 +128,8 @@
     "MultipleChangesHelp": "リストには置換や削除を含む多くの変更があります。これは変更検出を混乱させる可能性があります - これらの編集を行った場合は、変更を承認することをお勧めします。そうでない場合は、変更を破棄することを検討してください。",
     "DifferencesLoadedStatus": "差異が読み込まれました。",
     "NoNewDifferencesStatus": "新しい差異は検出されませんでした",
+    "DetectedChangesStatus": "変更を検出しました",
+    "MatchesReferenceStatus": "Plugins.txt は参照ファイルと一致しています",
     "FailedToRefreshError": "差異の更新に失敗しました：",
     "NoDifferencesToDiscardStatus": "破棄する差異がありません。",
     "CannotDiscardNowStatus": "今は変更を破棄できません。",
@@ -169,7 +171,8 @@
     "DependentCause_Removed": "削除",
     "DependentCause_Inserted": "挿入",
     "DependentCause_Added": "追加",
-    "InsertedWarningTooltip": "この Mod はロード順序の中間に挿入されました。先にリストをソートすることをお勧めします。"
+    "InsertedWarningTooltip": "この Mod はロード順序の中間に挿入されました。先にリストをソートすることをお勧めします。",
+    "ShowAllModsToggleText": "すべての MOD を表示"
   },
   "ManageProfiles": {
     "WindowTitle": "プロファイルの管理",

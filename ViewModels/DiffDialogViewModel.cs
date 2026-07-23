@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
@@ -35,6 +36,7 @@ namespace LoadOrderKeeper.ViewModels
     public partial class DiffDialogViewModel : ObservableObject, IDisposable
     {
         private readonly MainViewModel _mainViewModel;
+        private readonly ListCollectionView _filteredDiffLines;
         private bool _suppressCollectionNotification;
         private string _lastDiffSignature = string.Empty;
         private bool _isRefreshing;
@@ -44,6 +46,9 @@ namespace LoadOrderKeeper.ViewModels
 
         [ObservableProperty]
         private bool _isOperationInProgress;
+
+        [ObservableProperty]
+        private bool _showAllMods = false;
 
         public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
 
@@ -55,6 +60,8 @@ namespace LoadOrderKeeper.ViewModels
         {
             _mainViewModel = mainViewModel;
             DiffLines = new ObservableCollection<DiffLineModel>(diffLines);
+            _filteredDiffLines = new ListCollectionView(DiffLines);
+            _filteredDiffLines.Filter = FilterDiffLines;
             DiffLines.CollectionChanged += OnDiffCollectionChanged;
             UpdateReferenceCommand = new AsyncRelayCommand(UpdateReferenceWithConfirmationAsync, CanUpdateReference);
             FixLoadOrderCommand = _mainViewModel.FixLoadOrderCommand;
@@ -80,9 +87,13 @@ namespace LoadOrderKeeper.ViewModels
 
         public ObservableCollection<DiffLineModel> DiffLines { get; }
 
+        public ICollectionView FilteredDiffLines => _filteredDiffLines;
+
         public string Title => Texts.WindowTitle;
 
         public string Description => Texts.DescriptionText;
+
+        public string ShowAllModsToggleText => Texts.ShowAllModsToggleText;
 
         public string UpdateReferenceButtonText
         {
@@ -237,6 +248,11 @@ namespace LoadOrderKeeper.ViewModels
                 return -1;
             }
 
+            if (!ShowAllMods)
+            {
+                return HasDifferences ? 0 : -1;
+            }
+
             if (HasDifferences)
             {
                 for (int index = 0; index < DiffLines.Count; index++)
@@ -256,10 +272,13 @@ namespace LoadOrderKeeper.ViewModels
             _suppressCollectionNotification = true;
             try
             {
-                DiffLines.Clear();
-                foreach (var line in newLines)
+                using (_filteredDiffLines.DeferRefresh())
                 {
-                    DiffLines.Add(line);
+                    DiffLines.Clear();
+                    foreach (var line in newLines)
+                    {
+                        DiffLines.Add(line);
+                    }
                 }
             }
             finally
@@ -269,10 +288,28 @@ namespace LoadOrderKeeper.ViewModels
             
             // Force property change notifications for all computed properties
             UpdateDiffState();
-            
-            // Also notify that the DiffLines collection property itself may have changed
-            // This ensures WPF rebinds to the collection
-            OnPropertyChanged(nameof(DiffLines));
+        }
+
+        private bool FilterDiffLines(object item)
+        {
+            if (ShowAllMods)
+            {
+                return true;
+            }
+
+            if (item is not DiffLineModel line)
+            {
+                return false;
+            }
+
+            return line.ChangeType != DiffChangeType.Unchanged && line.ChangeType != DiffChangeType.Separator;
+        }
+
+        partial void OnShowAllModsChanged(bool value)
+        {
+            _filteredDiffLines.Refresh();
+            UpdateDiffState();
+            RequestScroll();
         }
 
         private static string BuildSignature(IEnumerable<DiffLineModel> lines)
@@ -501,7 +538,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private async void OnFileChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
-            string reason = e.HasChanges ? "Detected changes" : "Plugins.txt now matches the reference";
+            string reason = e.HasChanges ? Texts.DetectedChangesStatus : Texts.MatchesReferenceStatus;
             await RefreshDiffAsync(reason);
         }
 

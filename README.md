@@ -73,6 +73,14 @@ On first launch, the app asks for:
 
 It auto-detects common locations, but you can browse manually.
 
+## **Project Tools**
+
+The repository includes a lightweight CLI menu for common maintenance tasks. Run `menu.cmd` from the repo root to open it.
+
+- `d` starts a Debug build of the solution
+- `r` runs the application in Debug mode
+- `m` runs the docs merge tool in `Tools\MergeDocs.ps1`
+
 ---
 
 ## **License**

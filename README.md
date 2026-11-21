@@ -99,6 +99,4 @@ The repository includes a lightweight CLI menu for common maintenance tasks. Run
 
 I created this for my own use, and decided to share it with the community.
 
-It was entirely developed using **AI-assisted coding techniques** with GPT-5.1-Codex and Claude Sonnet 4.
-If you are interested in the development process, the folder [Docs/Agents/implementation-history](./Docs/Agents/implementation-history)
-contains the individual agent plans used to incrementally build the application.
+It was entirely developed using **AI-assisted coding techniques**. Inititally developed with GPT-5.1-Codex and Claude Sonnet 4, it was later improved with Claude Opus 5.5 and Sonnet 5.5, with the agent personas from my [AI Insights](https://github.com/Mistralys/ai-insights) project. If you are interested in the development process, the folder [Docs/Agents/implementation-history](./Docs/Agents/implementation-history) contains the individual agent plans used to incrementally build and maintain the application.

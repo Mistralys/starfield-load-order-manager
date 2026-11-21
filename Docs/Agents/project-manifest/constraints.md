@@ -69,6 +69,7 @@
 - Profiles folder validation integrated into `AppConfigModel.IsValid()` and settings window validation.
 - Profile operations fail with actionable error messages if Profiles folder cannot be created or accessed.
 - `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
+- If a persisted `ActiveProfileId` no longer matches an existing profile folder, initialization and profile refresh normalize it to `default` before reference-dependent operations run.
 - The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
 - Profile labels must be unique (case-insensitive), 2�30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
 - `ProfileCoordinator` manages active profile state and fires `ProfileChanged` event when profile switches.
@@ -106,6 +107,15 @@
 - `GetPluginsDiffAsync` output includes `Unchanged` context lines (1 neighbor per side of each change group) and `Separator` items between non-adjacent groups. Consumers that count or iterate all items must filter these out using `ChangeType != Unchanged && ChangeType != Separator`.
 - `FileMonitoringCoordinator` fires `ChangeDetected` event with `HasChanges`, `ChangeCount` (primary changes only), and `DependentChangeCount` when changes detected.
 - `FileMonitoringCoordinator.ChangeCount` counts primary changes only (excludes `Unchanged` and `Separator` items). `DependentChangeCount` is the total of all dependent position shifts.
+
+---
+
+## Diff Window Guidance Sidebar
+
+- **Informational only**: The recommendations sidebar is a passive display component — it does not block, gate, or modify any user operations. Showing or hiding a guidance card never prevents the user from accepting or discarding changes.
+- **Does not replace the sorting recommendation banner**: The sorting recommendation banner (Grid.Row="3") remains in its existing position below the diff list and continues to provide an actionable "Fix Load Order" button. The sidebar coexists with the banner; they address different concerns (positional guidance vs. risk-level explanations), and neither replaces the other.
+- **Sidebar container always rendered**: The sidebar `Border`/`ScrollViewer`/`StackPanel` structure is unconditionally in the visual tree. Individual `materialDesign:Card` elements control their own visibility via `Show*Guidance` bindings. There is no container-level `ShowGuidanceSidebar` toggle.
+- **Card visibility is mutually exclusive with no-changes state**: `ShowNoChangesGuidance` is `!HasDifferences`; the four change-type cards each require `HasDifferences`. Exactly one of the two groups is active at a time.
 
 ---
 
@@ -162,6 +172,40 @@
 - All profile folder errors include actionable guidance (check permissions, change location).
 - Secondary windows (ManageProfilesWindow, etc.) append `UserMessages.ConfigInvalidGuidance` or `UserMessages.ProfilesFolderRequired` based on error type.
 - Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parser errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+
+---
+
+## ViewModel Test-Seam Constructor Pattern
+
+ViewModels that accumulate coordinator dependencies (subscriptions to `FileMonitoringCoordinator`, `ConfigurationCoordinator`, etc.) use an internal test-seam constructor to allow unit testing without a full `MainViewModel` dependency graph.
+
+**Convention:**
+
+```csharp
+/// <summary>
+/// Test-only constructor. Accepts a pre-populated collection and skips all
+/// coordinator subscriptions that require a full <see cref="MainViewModel"/>
+/// dependency graph. Not for production use.
+/// </summary>
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+internal DiffDialogViewModel(ObservableCollection<DiffLineModel> diffLines)
+{
+    _mainViewModel = null!;
+    // ... minimal wiring: collection view, stub commands, UpdateDiffState
+}
+```
+
+**Rules:**
+
+1. **`internal` visibility** — accessible to the test project via `[assembly: InternalsVisibleTo("LoadOrderKeeper.Tests")]` in the main `.csproj`. Not visible to external consumers.
+2. **`[EditorBrowsable(Never)]`** — hides the constructor from IDE completion in production code, making the intent unambiguous.
+3. **`null!` assignment** — production-only fields that are not needed in tests are assigned `null!` to satisfy the compiler's non-nullable analysis. Test code must not call any member that dereferences these fields.
+4. **Stub commands** — async commands that would normally delegate to `MainViewModel` or coordinator workflows are replaced with `() => Task.CompletedTask` lambdas.
+5. **`IDisposable` contract** — `Dispose()` must null-guard any `null!`-assigned field before dereferencing it. The guard must still perform all cleanup that was wired in both constructors (e.g., `DiffLines.CollectionChanged -= OnDiffCollectionChanged`) before returning early.
+
+**When to apply:** Add a test-seam constructor whenever a ViewModel constructor performs coordinator subscriptions that prevent direct instantiation in tests. Do not apply this pattern to ViewModels whose only constructor argument is a simple data model — those can be tested via their production constructor.
+
+**Example (from `DiffDialogViewModel`):** The production constructor subscribes to `FileMonitoringCoordinator.ChangeDetected` and `ConfigurationCoordinator.ValidationChanged`. Both require a live `MainViewModel`. The test-seam constructor accepts an `ObservableCollection<DiffLineModel>` directly, skipping all coordinator wiring, which lets tests drive ViewModel state by mutating the collection.
 
 ---
 

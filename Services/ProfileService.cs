@@ -88,10 +88,36 @@ public static class ProfileService
     /// </summary>
     public static async Task<ProfileModel> GetActiveProfileAsync(AppConfigModel config)
     {
+        return await NormalizeActiveProfileAsync(config, persistIfChanged: false);
+    }
+
+    /// <summary>
+    /// Resolves the active profile ID to a valid profile or the default profile.
+    /// If the configured profile no longer exists, it is normalized to the default profile.
+    /// </summary>
+    public static async Task<ProfileModel> NormalizeActiveProfileAsync(AppConfigModel config, bool persistIfChanged)
+    {
+        if (config == null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
         var profiles = await LoadProfilesAsync(config);
-        var activeId = config.ActiveProfileId ?? "default";
-        
-        return profiles.FirstOrDefault(p => p.Id == activeId) ?? ProfileModel.CreateDefault();
+        var requestedId = config.ActiveProfileId?.Trim();
+        var resolvedProfile = profiles.FirstOrDefault(p => string.Equals(p.Id, requestedId, StringComparison.OrdinalIgnoreCase))
+            ?? ProfileModel.CreateDefault();
+
+        var canonicalId = resolvedProfile.Id;
+        if (!string.Equals(requestedId, canonicalId, StringComparison.OrdinalIgnoreCase))
+        {
+            config.ActiveProfileId = canonicalId;
+            if (persistIfChanged)
+            {
+                await SettingsService.SaveSettingsAsync(config);
+            }
+        }
+
+        return resolvedProfile;
     }
 
     /// <summary>

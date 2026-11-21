@@ -12,7 +12,8 @@
 - Validates Profiles folder via `ProfileService.EnsureProfilesFolderExists()`.
 - Updates all coordinators with configuration via `UpdateConfiguration()` calls.
 - `ConfigurationCoordinator.UpdateConfiguration()` validates paths and Profiles folder writability.
-- `ProfileCoordinator.RefreshActiveProfileAsync()` loads active profile state.
+- `ProfileService.NormalizeActiveProfileAsync()` repairs stale persisted `ActiveProfileId` values to `default` before downstream profile/reference operations use them.
+- `ProfileCoordinator.RefreshActiveProfileAsync()` loads active profile state from the normalized config.
 - `GameLauncherCoordinator.UpdateConfiguration()` detects SFSE installation and updates play button text.
 - `FileMonitoringCoordinator.UpdateState()` initializes monitoring with config, reference existence, and validation state.
 - `UpdateCheckCoordinator.CheckForUpdatesBackgroundAsync()` checks for new versions on startup.
@@ -129,7 +130,7 @@
 - **Event-Based Architecture**: `DiffDialogViewModel` subscribes directly to `FileMonitoringCoordinator.ChangeDetected` event in constructor and to `ConfigurationCoordinator.ValidationChanged` for overlay management.
 - When file changes detected (every 3 seconds), `OnFileChangeDetected()` handler calls `RefreshDiffAsync()` automatically.
 - `RefreshDiffAsync()` fetches latest diff via `DiffService.GetPluginsDiffAsync()`, compares signatures, and updates `DiffLines` collection if changed.
-- `ReplaceDiffLines()` clears and repopulates `ObservableCollection<DiffLineModel>`, triggering UI updates via `UpdateDiffState()` and `OnPropertyChanged(nameof(DiffLines))`.
+- `ReplaceDiffLines()` clears and repopulates `ObservableCollection<DiffLineModel>`, triggering UI updates via `UpdateDiffState()` and `OnPropertyChanged(nameof(DiffLines))`. `UpdateDiffState()` recomputes all sidebar state properties — change type counts (`RemovedModCount`, `InsertedModCount`, `ReplacedModCount`, `AddedModCount`), presence booleans (`HasRemovedMods`, `HasReplacedMods`), card visibility flags (`ShowRemovalGuidance`, `ShowInsertionGuidance`, `ShowReplacementGuidance`, `ShowAddedGuidance`, `ShowNoChangesGuidance`), and count display strings (`RemovedModCountText`, etc.) — alongside the pre-existing properties (`HasDifferences`, `HasAddedMods`, `HasInsertedMods`).
 - Status message updated with timestamp: "Detected changes at HH:mm:ss" or "No new differences detected (HH:mm:ss)".
 - `_isRefreshing` flag prevents concurrent refresh operations.
 - `MainViewModel` no longer tracks `_activeDiffDialog`; each diff window is self-managing and reactive.
@@ -143,10 +144,7 @@
 
 - In `DiffDialogViewModel`, commands trigger `FileService.ReEnableModAsync()`, `RemoveNewModAsync()`, `ReplaceModWithNewAsync()`, and `MainViewModel.DiscardChangesCommand` (which calls `FileService.DiscardChangesAsync()`), refreshing diffs afterward.
 - Update reference and discard changes actions request confirmation via `ConfirmationRequested` event, which is handled by `DiffWindow` to show `ConfirmationDialog`.
-- **Multiple Replacements Help**: When 2+ removals or replacements detected, `ShowMultipleReplacementsHelp` property becomes true, triggering blue info banner display.
-- Info banner explains two workflow options: (1) Accept after each replacement, or (2) Make all replacements then accept once.
-- Banner message stored in `MultipleReplacementsHelpMessage` property for consistent display.
-- `UpdateDiffState()` notifies `ShowMultipleReplacementsHelp` property change whenever diff lines collection changes.
+- **Risk-specific confirmation message** (`UpdateReferenceWithConfirmationAsync()`): When removed or inserted mods are present, the confirmation message is composed dynamically from locale strings rather than using the generic `ConfirmUpdateMessage`. The method assembles singular or plural detail lines (`ConfirmRiskyDetail_RemovedSingular` / `ConfirmRiskyDetail_Removals` and `ConfirmRiskyDetail_InsertedSingular` / `ConfirmRiskyDetail_Insertions`) based on the actual counts, joins them with a newline, and embeds the result into `ConfirmUpdateMessage_RiskyChanges` via its `{0}` placeholder. When only safe changes are present (added or replaced mods only), no confirmation dialog is shown and the update proceeds directly — preserving prior behavior.
 
 ---
 
@@ -155,6 +153,7 @@
 - All `MessageBox.Show` calls replaced with `ConfirmationDialog.Show()` static method.
 - `ConfirmationDialog` provides Material Design v5 styled dialogs with icon support (Information, Question, Warning, Error) and multiple button configurations.
 - `DiffDialogViewModel` raises `ConfirmationRequested` event for critical actions (update reference, discard changes); `DiffWindow` handles the event and shows the dialog.
+- The update-reference confirmation uses a **risk-gated, content-aware message**: risky changes (removed or inserted mods) produce a `Warning`-icon dialog with a composed detail block listing counts and risk descriptions; safe-only changes (added/replaced) bypass the dialog entirely. See [Diff Dialog Operations](#diff-dialog-operations) for the message-composition details.
 - Error messages in `MainViewModel` and profile management windows use `ConfirmationDialog.Show()` for consistent UX.
 
 ---

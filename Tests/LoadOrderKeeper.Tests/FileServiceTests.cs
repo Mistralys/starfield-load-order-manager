@@ -63,6 +63,29 @@ public class FileServiceTests
     }
 
     [Fact]
+    public async Task GetModDiffAsync_StaleProfileId_UsesDefaultReferencePathAfterStartupNormalization()
+    {
+        // Startup flow normalizes stale IDs before FileService operations run.
+        // This test simulates that sequence: normalize first, then call GetModDiffAsync.
+        using var context = new TestConfigContext();
+        context.Config.ActiveProfileId = "missing-profile";
+        await ProfileService.EnsureDefaultProfileFilesAsync(context.Config);
+
+        var defaultReferencePath = ProfileService.GetProfileReferenceFilePath(context.Config, "default");
+        await File.WriteAllLinesAsync(defaultReferencePath, new[] { "*a.esm", "*b.esm" });
+        await context.WritePluginsAsync("*a.esm", "*b.esm");
+
+        // Simulate startup normalization (ViewModelInitializer runs this before any FileService call)
+        await ProfileService.NormalizeActiveProfileAsync(context.Config, persistIfChanged: false);
+
+        var diffs = await FileService.GetModDiffAsync(context.Config);
+
+        Assert.NotEmpty(diffs);
+        Assert.Equal(2, diffs.Count);
+        Assert.Equal("default", context.Config.ActiveProfileId);
+    }
+
+    [Fact]
     public async Task GetModDiffAsync_IgnoresDisabledNewMods()
     {
         using var context = new TestConfigContext();

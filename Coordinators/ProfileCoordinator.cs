@@ -76,7 +76,7 @@ namespace LoadOrderKeeper.Coordinators
             try
             {
                 var oldProfile = ActiveProfile;
-                var profile = await ProfileService.GetActiveProfileAsync(_config);
+                var profile = await ProfileService.NormalizeActiveProfileAsync(_config, persistIfChanged: true);
                 
                 ActiveProfile = profile;
                 ActiveProfileLabel = profile.Label;

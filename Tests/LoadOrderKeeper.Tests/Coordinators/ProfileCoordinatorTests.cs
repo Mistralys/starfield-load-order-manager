@@ -193,6 +193,23 @@ public sealed class ProfileCoordinatorTests : IDisposable
         Assert.Equal("default", _coordinator.ActiveProfile.Id);
     }
 
+    [Fact]
+    public async Task RefreshActiveProfileAsync_StaleProfileId_CanonicalizesConfigToDefault()
+    {
+        // Arrange
+        using var context = new TestConfigContext();
+        await context.WritePluginsAsync("*mod1.esm");
+        context.Config.ActiveProfileId = "missing-profile";
+        _coordinator.UpdateConfiguration(context.Config);
+
+        // Act
+        await _coordinator.RefreshActiveProfileAsync();
+
+        // Assert
+        Assert.Equal("default", _coordinator.ActiveProfile.Id);
+        Assert.Equal("default", context.Config.ActiveProfileId);
+    }
+
     #endregion
 
     #region SwitchProfileAsync Tests

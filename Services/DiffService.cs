@@ -258,6 +258,8 @@ namespace LoadOrderKeeper.Services
             {
                 if (newByFilename.TryGetValue(removed.FileName, out var matchingNew))
                 {
+                    Debug.Assert(removed.LineNumber.HasValue, $"removed entry '{removed.FileName}' must have LineNumber set — FileService.ReadFileAsync guarantees LineNumber is populated for every entry.");
+                    Debug.Assert(matchingNew.LineNumber.HasValue, $"new entry '{matchingNew.FileName}' must have LineNumber set — FileService.ReadFileAsync guarantees LineNumber is populated for every entry.");
                     // Same filename appeared in both removed and new → swapped/moved
                     string text = _localization.GetString("DiffDialog", "MovedText_Description",
                         removed.FileName,
@@ -312,6 +314,7 @@ namespace LoadOrderKeeper.Services
             var usedForReplacement = new HashSet<ModEntryModel>(ReferenceEqualityComparer.Instance);
 
             // Sort removed mods by reference position for sequential processing
+            Debug.Assert(remainingRemoved.All(m => m.LineNumber.HasValue), "All remaining removed entries must have LineNumber set — FileService.ReadFileAsync guarantees LineNumber is populated for every entry.");
             var removedByRefPos = remainingRemoved
                 .OrderBy(m => m.LineNumber ?? 0)
                 .ToList();
@@ -345,6 +348,7 @@ namespace LoadOrderKeeper.Services
             int maxSurvivingRefCurPos = 0;
             foreach (var (ri, ci) in lcs)
             {
+                Debug.Assert(current[ci].LineNumber.HasValue, $"current[{ci}].LineNumber must be set — FileService.ReadFileAsync guarantees LineNumber is populated for every entry.");
                 int curPos = current[ci].LineNumber ?? (ci + 1);
                 if (curPos > maxSurvivingRefCurPos)
                     maxSurvivingRefCurPos = curPos;
@@ -353,6 +357,7 @@ namespace LoadOrderKeeper.Services
             // "still within the reference range"
             foreach (var replacement in replacements.Values)
             {
+                Debug.Assert(replacement.LineNumber.HasValue, $"replacement entry '{replacement.FileName}' must have LineNumber set — FileService.ReadFileAsync guarantees LineNumber is populated for every entry.");
                 int curPos = replacement.LineNumber ?? 0;
                 if (curPos > maxSurvivingRefCurPos)
                     maxSurvivingRefCurPos = curPos;

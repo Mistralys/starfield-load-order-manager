@@ -570,20 +570,16 @@ public static class DiffService
 
 **`ClassifyChanges`:** Classifies mod list differences using the pre-computed LCS as the "stable spine." Runs a 7-step pipeline (Steps 0–6): (0) build lookup sets, (1) detect shifted LCS items, (2) same-filename reconciliation → `Moved`, (3) LCS-aligned replacement detection → `Replaced`, (4) classify remaining new mods as `Added` or `Inserted`, (5) build the top-level result list, (6) group shifted items as `DependentChanges` under their causal insertion/deletion. Step 6 is split into two sub-steps: (6a) attribute shifted mods to `Removed` entries using a reference-position range scan; (6b) attribute remaining shifted mods to `Inserted` entries using a two-pointer scan over a `shiftedByCurPos` list pre-sorted by `CurrentNumber` — `insertedEntries` is sorted ascending, so a single advancing `shiftedIdx` pointer achieves amortized O(k) for all `firstAffected` lookups across all insertions. All `DiffLineModel` entries are constructed via `_localization.GetString()` — no hardcoded UI strings. Requires `ModEntryModel.LineNumber` to be populated before calling (guaranteed by `FileService.ReadFileAsync`). Pure function — no shared mutable state. Covered by dedicated isolation tests in `ClassifyChangesTests.cs` targeting each classification step independently.
 
-**`LineNumber` invariant and `Debug.Assert` pattern:** `FileService.ReadFileAsync` always assigns `LineNumber` to every `ModEntryModel` it produces. This invariant is enforced at three assertion sites inside `ClassifyChanges`:
+**`LineNumber` invariant and `Debug.Assert` pattern:** `FileService.ReadFileAsync` always assigns `LineNumber` to every `ModEntryModel` it produces. This invariant is enforced at every `LineNumber ?? fallback` site inside `ClassifyChanges`:
 
 - **Step 1 (LCS loop):** `Debug.Assert(reference[ri].LineNumber.HasValue)` and `Debug.Assert(current[ci].LineNumber.HasValue)` fire before the `?? (ri + 1)` / `?? (ci + 1)` fallbacks. The fallbacks use a 1-based LCS index as a *proxy position* so that shift detection can still run in Release even if the invariant is ever violated (1-based avoids collision with the 0-sentinel used in Step 3).
+- **Step 2 (same-filename reconciliation):** `Debug.Assert` on `removed.LineNumber` and `matchingNew.LineNumber` fires before they are interpolated into `MovedText_Description` and used as the `Moved` entry's reference/current numbers.
 - **Step 3 (`remainingNew` loop):** `Debug.Assert(m.LineNumber.HasValue)` fires before the `?? 0` sentinel. The 0-sentinel differs from the Step 1 proxy intentionally: 0 is outside the valid line-number range, so any null-`LineNumber` entry is naturally excluded from position-based replacement matching and falls through to be classified as `Added`.
+- **Step 3 (`removedByRefPos` sort):** `Debug.Assert(remainingRemoved.All(m => m.LineNumber.HasValue))` fires before the `OrderBy(m => m.LineNumber ?? 0)` sort and the `removed.LineNumber ?? 0` reference position derived from it.
+- **Step 4 (`maxSurvivingRefCurPos`):** `Debug.Assert` on `current[ci].LineNumber` (LCS pairs) and on each `replacement.LineNumber` fires before the respective `??` fallback.
 - **Step 6 (shifted-lines sort):** Two asserts fire at the top of the Step 6 guard block. `Debug.Assert(shiftedLines.All(s => s.ReferenceNumber.HasValue))` replaces the former vacuous `.Where(s => s.ReferenceNumber.HasValue)` filter, which was removed because all shifted lines are constructed from LCS pairs with explicit `refPos` values and the filter was unreachable dead code. `Debug.Assert(shiftedLines.All(s => s.CurrentNumber.HasValue))` covers the additional invariant required by the Step 6b two-pointer sort (`shiftedByCurPos` is ordered by `CurrentNumber`) — shifted lines are constructed from LCS pairs with explicit `curPos` values so `CurrentNumber` is always set.
 
-All three `Debug.Assert` calls are elided in Release builds; the `??` fallbacks remain as defensive code. `using System.Diagnostics;` is required.
-
-**Deferred assertion gaps (known maintenance debt):** Two additional `??` fallbacks inside `ClassifyChanges` share the same invariant but do not yet have corresponding assertions:
-
-- **Step 2** (`MovedText_Description` string interpolation, `removed.LineNumber ?? 0` and `matchingNew.LineNumber ?? 0` at L247–248)
-- **Step 3** (`removedByRefPos` sort, `OrderBy(m => m.LineNumber ?? 0)` at L298–300, and `removed.LineNumber ?? 0` at L305)
-
-These gaps should be addressed in a future cleanup pass alongside any other `DiffService.cs` maintenance. The assertion pattern established by Steps 1, 3, and 6 is the intended template.
+All `Debug.Assert` calls are elided in Release builds; the `??` fallbacks remain as defensive code. `using System.Diagnostics;` is required.
 
 ### `LoadOrderKeeper.Services.FileOperationsService`
 

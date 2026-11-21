@@ -173,6 +173,11 @@
       ├─ ScenarioTests.cs                 (Scenarios 01–16: diff detection and sorting behavior)
       ├─ ReplacementDetectionDiagnostics.cs  ([Trait("Category","Diagnostic")] companion to Scenario_16; logs LCS diff for regression triage)
       ├─ ClassifyChangesTests.cs          (isolation tests for DiffService.ClassifyChanges — constructs ModEntryModel lists directly, asserts structural properties per classification step)
+      ├─ DiffServiceTests.cs
+      ├─ FileServiceTests.cs
+      ├─ ProfileServiceTests.cs
+      ├─ ReferenceHistoryServiceTests.cs
+      ├─ SettingsServiceTests.cs
       ├─ Fixtures/
       │  ├─ EnglishLocaleFixture.cs      (IDisposable; forces en-US on LocalizationService singleton for test class lifetime)
       │  └─ LocaleSequentialCollection.cs (xUnit CollectionDefinition with DisableParallelization=true; groups locale-sensitive test classes)
@@ -184,29 +189,19 @@
       │  ├─ GameLauncherCoordinatorTests.cs
       │  ├─ ProfileCoordinatorTests.cs
       │  ├─ StatusCoordinatorTests.cs
-      │  ├─ UpdateCheckCoordinatorTests.cs
-      │  └─ WindowManagerTests.cs
+      │  └─ UpdateCheckCoordinatorTests.cs
       ├─ Models/
       │  ├─ AppConfigModelTests.cs
-      │  ├─ DiffLineModelTests.cs
-      │  ├─ ModDiffModelTests.cs
       │  ├─ ModEntryModelTests.cs
       │  └─ ProfileModelTests.cs
       ├─ Services/
       │  ├─ DateTimeFormattingServiceTests.cs
-      │  ├─ DebugStateServiceTests.cs
-      │  ├─ DiffServiceTests.cs
       │  ├─ ErrorLoggingServiceTests.cs
-      │  ├─ FileOperationsServiceTests.cs
-      │  ├─ FileServiceTests.cs
-      │  ├─ ProfileServiceTests.cs
-      │  ├─ ReferenceHistoryServiceTests.cs
-      │  ├─ ReferenceManagementServiceTests.cs
-      │  ├─ SettingsServiceTests.cs
-      │  ├─ UpdateCheckServiceTests.cs
-      │  └─ VersionServiceTests.cs
+      │  ├─ VersionServiceTests.cs
+      │  └─ ViewModelInitializerTests.cs
       ├─ ViewModels/
-      │  └─ DiffDialogViewModelTests.cs  (counts, visibility booleans, count text, reactive refresh, Dispose safety)
+      │  ├─ DiffDialogViewModelTests.cs  (counts, visibility booleans, count text, guidance cards, sidebar state, confirmation message, reactive refresh, Dispose safety)
+      │  └─ MainViewModelTests.cs
       └─ ViewTexts/
          ├─ LocalizationCompletenessTests.cs
          └─ LocalizationServiceTests.cs

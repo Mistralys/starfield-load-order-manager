@@ -106,6 +106,7 @@
 ├─ Converters/
 │  ├─ ActiveProfileVisibilityConverter.cs
 │  ├─ BooleanAndConverter.cs
+│  ├─ BoolToChevronKindConverter.cs
 │  ├─ ChangeSummaryConverter.cs
 │  ├─ CountToVisibilityConverter.cs
 │  ├─ InverseBooleanToVisibilityConverter.cs
@@ -204,6 +205,8 @@
       │  ├─ SettingsServiceTests.cs
       │  ├─ UpdateCheckServiceTests.cs
       │  └─ VersionServiceTests.cs
+      ├─ ViewModels/
+      │  └─ DiffDialogViewModelTests.cs  (counts, visibility booleans, count text, reactive refresh, Dispose safety)
       └─ ViewTexts/
          ├─ LocalizationCompletenessTests.cs
          └─ LocalizationServiceTests.cs

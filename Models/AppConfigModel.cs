@@ -19,6 +19,15 @@ namespace LoadOrderKeeper.Models
         /// </summary>
         public string? CustomEditorPath { get; set; }
 
+        // ── DiffWindow UI state ─────────────────────────────────────────────────
+        public double DiffSidebarWidth { get; set; } = 300.0;
+        public bool DiffRemovalCardExpanded { get; set; } = true;
+        public bool DiffInsertionCardExpanded { get; set; } = false;
+        public bool DiffReplacementCardExpanded { get; set; } = false;
+        public bool DiffAddedCardExpanded { get; set; } = false;
+        public bool DiffMovedCardExpanded { get; set; } = false;
+        public bool DiffNoChangesCardExpanded { get; set; } = false;
+
         public bool IsValid()
         {
             if (string.IsNullOrWhiteSpace(StarfieldAppDataPath) ||

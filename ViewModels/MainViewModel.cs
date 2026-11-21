@@ -491,13 +491,14 @@ namespace LoadOrderKeeper.ViewModels
         }
 
         [RelayCommand]
-        private async Task ManageProfilesAsync()
+        private Task ManageProfilesAsync()
         {
             _windowService.ShowManageProfilesWindow(
                 Config, 
                 _configCoordinator, 
                 WpfApplication.Current?.MainWindow,
                 async () => await UpdateActiveProfileLabelAsync());
+            return Task.CompletedTask;
         }
 
         [RelayCommand]
@@ -632,7 +633,7 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
-        private async void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
+        private void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
             // DiffWindow now subscribes directly to FileMonitoringCoordinator.ChangeDetected
             // No need to manually refresh here anymore

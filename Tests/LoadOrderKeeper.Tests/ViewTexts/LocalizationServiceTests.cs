@@ -184,7 +184,7 @@ public sealed class LocalizationServiceTests
     }
 
     [Fact]
-    public void GetString_ThreadSafe_NoExceptions()
+    public async Task GetString_ThreadSafe_NoExceptions()
     {
         // Arrange
         var service = LocalizationService.Instance;
@@ -204,6 +204,6 @@ public sealed class LocalizationServiceTests
         }
 
         // Assert - Should complete without exceptions
-        Task.WaitAll(tasks.ToArray());
+        await Task.WhenAll(tasks.ToArray());
     }
 }

@@ -23,7 +23,7 @@ SLOK helps you to stop that from happening.
 - Restores the correct order with one click
 - Appends new mods safely at the end
 - Supports multiple profiles (different load orders for different characters)
-- Shows an intelligent diff of what changed
+- Shows an intelligent diff of what changed, with contextual guidance on the risks of each change type
 - Maintains a version history with rollback support
 - Can launch the game (uses SFSE if present)
 

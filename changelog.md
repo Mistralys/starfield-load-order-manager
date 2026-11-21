@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.0 - Load Order Change Guidance
+
+- Changes Window: Added a recommendations sidebar that displays contextual risk cards for each change type detected (removals, insertions, replacements, new mods, no changes). Cards are color-coded by risk level and always visible alongside the diff list.
+- Changes Window: Added per-item tooltips to all change type icons (Added, Removed, Replaced, Moved). Hovering over an icon now explains the change and its implications. The existing Inserted warning tooltip is unchanged.
+- Changes Window: Enhanced the "Update reference" confirmation dialog with a risk-specific message when removed or inserted mods are present. Safe-only changes (added/replaced) continue to skip the confirmation dialog.
+- Changes Window: Window default width increased to 1060 px (minimum 720 px) to accommodate the new sidebar without reducing diff list readability.
+- Translation: All new guidance strings are fully localized across all 8 supported languages from day one, with live locale switching supported.
+
 ## v1.9.0 - External Editor
 - General: Added a setting to choose an external text editor for opening files.
 - Profiles: Fixed an issue where opening the settings would revert back to the default profile.

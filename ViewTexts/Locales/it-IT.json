@@ -46,7 +46,7 @@
   },
   "About": {
     "ApplicationName": "Starfield Load Order Keeper",
-    "Description": "Uno strumento per aiutare a gestire e mantenere l'ordine di carreggiamento delle tue mod di Starfield una volta iniziato un gioco.",
+    "Description": "Uno strumento per aiutare a gestire e mantenere l'ordine di caricamento delle tue mod di Starfield una volta iniziato un gioco.",
     "HomepageButtonText": "Pagina principale",
     "CloseButtonText": "Chiudi",
     "VersionLabelText": "Versione",
@@ -112,7 +112,7 @@
     "CustomEditorNotFoundError": "L'eseguibile dell'editor di testo specificato non è stato trovato"
   },
   "DiffDialog": {
-    "WindowTitle": "Modifiche all'ordine di carreggiamento",
+    "WindowTitle": "Modifiche all'ordine di caricamento",
     "DescriptionText": "Sono state rilevate le seguenti modifiche tra il tuo ordine di caricamento attuale e il riferimento:",
     "AcceptChangesButtonText": "Accetta modifiche",
     "DiscardChangesButtonText": "Scarta modifiche",
@@ -125,7 +125,6 @@
     "MovedText": "Spostato",
     "ReplacedText": "Sostituito",
     "NoDifferencesMessage": "Nessuna differenza rilevata.",
-    "MultipleChangesHelp": "Ci sono molte modifiche nell'elenco, incluse sostituzioni e rimozioni. Questo può confondere il rilevamento delle modifiche - Se hai effettuato queste modifiche, si consiglia di accettare le modifiche. Altrimenti, considera di scartare le modifiche.",
     "DifferencesLoadedStatus": "Differenze caricate.",
     "NoNewDifferencesStatus": "Nessuna nuova differenza rilevata",
     "DetectedChangesStatus": "Modifiche rilevate",
@@ -170,9 +169,40 @@
     "DependentChangesSummary_Generic": "+ {0} posizioni mod interessate da questa modifica",
     "DependentCause_Removed": "rimosso",
     "DependentCause_Inserted": "inserito",
-    "DependentCause_Added": "aggiunta",
     "InsertedWarningTooltip": "Questa mod è stata inserita nel mezzo dell'ordine di caricamento. Considera di ordinare prima la lista.",
-    "ShowAllModsToggleText": "Mostra tutti i mod"
+    "ShowAllModsToggleText": "Mostra tutti i mod",
+    "AddedTooltip": "Questo mod è stato aggiunto alla fine dell'ordine di caricamento. È sicuro e non influenzerà le posizioni dei mod esistenti.",
+    "RemovedTooltip": "Questo mod è stato rimosso dall'ordine di caricamento. Tutti i mod successivi si sono spostati verso l'alto, il che può danneggiare i riferimenti dei salvataggi. Clic destro per le opzioni.",
+    "ReplacedTooltip": "Questo mod è stato sostituito nella stessa posizione. Nessun altro mod è interessato — questo è un cambiamento sicuro.",
+    "MovedTooltip": "La posizione di questo mod è cambiata a causa di altre modifiche nell'ordine di caricamento.",
+    "GuidanceSidebarTitle": "Raccomandazioni",
+    "GuidanceRemovalTitle": "Mod rimossi — Rischio elevato",
+    "GuidanceRemovalBody": "Rimuovere un mod sposta tutte le posizioni dei mod successivi. I salvataggi memorizzano i riferimenti per posizione — i mod spostati possono causare oggetti mancanti, missioni interrotte o crash.\n\nRaccomandazione: Fai clic destro su ogni mod rimosso e scegli 'Sostituisci con...' per sostituirlo con un mod segnaposto. Ciò preserva le posizioni di tutti i mod sottostanti.",
+    "GuidanceRemovalCountFormat": "{0} mod rimosso/i",
+    "GuidanceRemovalCountSingular": "1 mod rimosso",
+    "GuidanceInsertionTitle": "Mod inseriti — Rischio moderato",
+    "GuidanceInsertionBody": "I mod inseriti nel mezzo dell'elenco spostano tutte le posizioni successive verso il basso. Ciò comporta gli stessi rischi della rimozione di un mod.\n\nRaccomandazione: Fai clic su 'Correggi ordine di caricamento' per ordinare l'elenco. L'ordinamento sposta i mod inseriti alla fine, ripristinando le posizioni originali dei mod esistenti.",
+    "GuidanceInsertionCountFormat": "{0} mod inserito/i",
+    "GuidanceInsertionCountSingular": "1 mod inserito",
+    "GuidanceReplacementTitle": "Mod sostituiti — Sicuro",
+    "GuidanceReplacementBody": "I mod sostituiti occupano la stessa posizione dell'originale. Nessun altro mod viene spostato — questa è un'operazione sicura.",
+    "GuidanceReplacementCountFormat": "{0} mod sostituito/i",
+    "GuidanceReplacementCountSingular": "1 mod sostituito",
+    "GuidanceAddedTitle": "Nuovi mod — Sicuro",
+    "GuidanceAddedBody": "I mod aggiunti alla fine dell'ordine di caricamento non influenzano le posizioni esistenti. È sempre sicuro.",
+    "GuidanceAddedCountFormat": "{0} mod aggiunto/i",
+    "GuidanceAddedCountSingular": "1 mod aggiunto",
+    "GuidanceMovedTitle": "Mod spostati — Informativo",
+    "GuidanceMovedBody": "Questi mod hanno cambiato posizione a causa di altre modifiche nell'ordine di caricamento. Non è necessaria alcuna azione — le loro nuove posizioni sono una conseguenza naturale di altri cambiamenti.",
+    "GuidanceMovedCountFormat": "{0} mod spostato/i",
+    "GuidanceMovedCountSingular": "1 mod spostato",
+    "GuidanceNoChangesTitle": "Nessuna modifica",
+    "GuidanceNoChangesBody": "L'ordine di caricamento attuale corrisponde al file di riferimento.",
+    "ConfirmUpdateMessage_RiskyChanges": "Stai per accettare modifiche che includono cambiamenti rischiosi:\n\n{0}\nAccettare queste modifiche aggiornerà il file di riferimento. Questa azione crea una nuova versione nella cronologia, ma gli spostamenti di posizione diventeranno permanenti.\n\nSei sicuro di voler accettare tutte le modifiche?",
+    "ConfirmRiskyDetail_Removals": "• {0} mod rimosso/i — posizioni spostate, i riferimenti dei salvataggi potrebbero rompersi",
+    "ConfirmRiskyDetail_Insertions": "• {0} mod inserito/i — posizioni successive spostate",
+    "ConfirmRiskyDetail_RemovedSingular": "• 1 mod rimosso — posizioni spostate, i riferimenti dei salvataggi potrebbero rompersi",
+    "ConfirmRiskyDetail_InsertedSingular": "• 1 mod inserito — posizioni successive spostate"
   },
   "ManageProfiles": {
     "WindowTitle": "Gestisci profili",
@@ -268,7 +298,7 @@
   },
   "FileMonitoring": {
     "SteamWarningTooltip": "Steam non è in esecuzione. SFSE richiede che Steam sia aperto per funzionare correttamente.",
-    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di carreggiamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
+    "SortingInsertedWarning": "IMPORTANTE: Le mod sono state inserite nel mezzo dell'ordine di caricamento. Ordina prima l'elenco per spostarle alla fine prima di effettuare altre modifiche.",
     "SortingRecommended": "Ordinamento consigliato: esegui Fix Load Order prima di risolvere altre modifiche."
   },
   "ConfigInvalidOverlay": {
@@ -297,7 +327,7 @@
     "ReferenceUpdatedSuccess": "File di riferimento aggiornato con successo!",
     "CreatingReference": "Creazione del file di riferimento...",
     "ReferenceCreatedSuccess": "Riferimento creato con successo! Ora puoi correggere l'ordine di caricamento.",
-    "DiscardingChanges": "Scarto delle modifiche all'ordine di carreggiamento...",
+    "DiscardingChanges": "Scarto delle modifiche all'ordine di caricamento...",
     "ChangesDiscarded": "Plugins.txt ripristinato dal riferimento.",
     "RolledBackFormat": "Ripristinato alla versione {0}. Accettare le modifiche per confermare."
   }

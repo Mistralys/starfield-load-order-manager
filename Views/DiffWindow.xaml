@@ -11,15 +11,17 @@
         Title="{Binding Title}"
         d:Title="Diff Window"
         Height="494"
-        Width="810"
-        MinWidth="480"
+        Width="1060"
+        MinWidth="720"
         MinHeight="360"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
+        Style="{StaticResource MaterialDesignDefaultWindowStyle}"
         Background="{DynamicResource MaterialDesignPaper}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:ReplacementCommandParameterConverter x:Key="ReplacementCommandParameterConverter" />
+        <converters:BoolToChevronKindConverter x:Key="BoolToChevronKindConverter" />
     </Window.Resources>
     <Grid>
         <DockPanel Margin="16" Background="{DynamicResource MaterialDesignPaper}">
@@ -72,7 +74,6 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
@@ -86,13 +87,29 @@
                           Content="{Binding ShowAllModsToggleText}"
                           IsChecked="{Binding ShowAllMods, Mode=TwoWay}"
                           Style="{StaticResource MaterialDesignCheckBox}"
+                          Foreground="{DynamicResource MaterialDesignBody}"
                           Margin="0,4,0,4"
                           HorizontalAlignment="Left" />
 
-                <Border Grid.Row="2"
-                        BorderThickness="1"
-                        BorderBrush="{DynamicResource MaterialDesignDivider}"
-                        Background="{DynamicResource MaterialDesignCardBackground}">
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="200" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition x:Name="SidebarColumn" Width="300" MinWidth="180" />
+                    </Grid.ColumnDefinitions>
+
+                    <GridSplitter Grid.Column="1"
+                                  Width="6"
+                                  HorizontalAlignment="Stretch"
+                                  Background="Transparent"
+                                  Cursor="SizeWE"
+                                  ResizeBehavior="PreviousAndNext" />
+
+                    <!-- Diff list (column 0) -->
+                    <Border Grid.Column="0"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}"
+                            Background="{DynamicResource MaterialDesignCardBackground}">
                     <ListView x:Name="DiffListView" ItemsSource="{Binding FilteredDiffLines}"
                               Margin="0"
                               BorderThickness="0"
@@ -212,30 +229,12 @@
                             <DataTemplate DataType="{x:Type models:DiffLineModel}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="4,2">
-                                        <!-- Warning icon for inserted mods -->
-                                        <materialDesign:PackIcon Kind="AlertCircle" 
-                                                                Width="16" 
-                                                                Height="16"
-                                                                Foreground="Orange"
-                                                                VerticalAlignment="Center"
-                                                                Margin="0,0,4,0"
-                                                                ToolTip="{Binding DataContext.InsertedWarningTooltip, RelativeSource={RelativeSource AncestorType=ListView}}">
-                                            <materialDesign:PackIcon.Style>
-                                                <Style TargetType="materialDesign:PackIcon">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </materialDesign:PackIcon.Style>
-                                        </materialDesign:PackIcon>
-                                        
-                                                        <TextBlock Text="{Binding Prefix}"
-                                                   FontWeight="Bold"
-                                                   Width="16"
-                                                   HorizontalAlignment="Left">
+                                        <!-- Line number -->
+                                        <TextBlock Text="{Binding FormattedLineNumber}"
+                                                   FontFamily="Consolas, Courier New, monospace"
+                                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                   Margin="0,0,8,0"
+                                                   VerticalAlignment="Center">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Style.Triggers>
@@ -246,6 +245,53 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
+
+                                        <!-- Status icon -->
+                                        <materialDesign:PackIcon Width="16"
+                                                                 Height="16"
+                                                                 VerticalAlignment="Center"
+                                                                 Margin="0,0,6,0">
+                                            <materialDesign:PackIcon.Style>
+                                                <Style TargetType="materialDesign:PackIcon">
+                                                    <!-- Default: no icon for Unchanged (hidden to preserve column width) -->
+                                                    <Setter Property="Kind" Value="Circle" />
+                                                    <Setter Property="Visibility" Value="Hidden" />
+                                                    <Setter Property="Foreground" Value="Transparent" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Added}">
+                                                            <Setter Property="Kind" Value="PlusCircleOutline" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource DiffBrush.AddedForeground}" />
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Setter Property="ToolTip" Value="{Binding DataContext.AddedTooltip, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Removed}">
+                                                            <Setter Property="Kind" Value="MinusCircleOutline" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource DiffBrush.RemovedForeground}" />
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Setter Property="ToolTip" Value="{Binding DataContext.RemovedTooltip, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Moved}">
+                                                            <Setter Property="Kind" Value="SwapVertical" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource DiffBrush.MovedForeground}" />
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Setter Property="ToolTip" Value="{Binding DataContext.MovedTooltip, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Replaced}">
+                                                            <Setter Property="Kind" Value="SwapHorizontal" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource DiffBrush.ReplacedForeground}" />
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Setter Property="ToolTip" Value="{Binding DataContext.ReplacedTooltip, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ChangeType}" Value="{x:Static models:DiffChangeType.Inserted}">
+                                                            <Setter Property="Kind" Value="ArrowUpCircleOutline" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource DiffBrush.InsertedForeground}" />
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Setter Property="ToolTip" Value="{Binding DataContext.InsertedWarningTooltip, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </materialDesign:PackIcon.Style>
+                                        </materialDesign:PackIcon>
                                         <TextBlock Text="{Binding Text}"
                                                    TextWrapping="Wrap"
                                                    Foreground="{DynamicResource MaterialDesignBody}">
@@ -272,7 +318,7 @@
                                                 HorizontalAlignment="Left"
                                                 Style="{StaticResource MaterialDesignFlatButton}"
                                                 Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                                FontSize="11"
+                                                FontSize="12"
                                                 Command="{Binding Tag.ToggleDependentChangesCommand, RelativeSource={RelativeSource AncestorType=ListViewItem}}"
                                                 CommandParameter="{Binding}" />
 
@@ -292,7 +338,7 @@
                                                             <TextBlock Text="{Binding Text}"
                                                                        TextWrapping="Wrap"
                                                                        Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                                                       FontSize="11" />
+                                                                       FontSize="12" />
                                                         </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -303,8 +349,345 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </Border>
-                
+                    </Border>
+
+                    <!-- Recommendations sidebar (column 2) -->
+                    <Border Grid.Column="2"
+                            Margin="8,0,0,0"
+                            Background="{DynamicResource DiffBrush.GuidanceSidebarBackground}"
+                            BorderThickness="1,0,0,0"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="0,4">
+                                <TextBlock Text="{Binding GuidanceSidebarTitle}"
+                                           d:Text="Recommendations"
+                                           FontWeight="SemiBold"
+                                           Margin="4,0,4,8"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource MaterialDesignBody}" />
+
+                                <!-- Removal card — High Risk (red) -->
+                                <materialDesign:Card UniformCornerRadius="8"
+                                                     Margin="0,0,0,8"
+                                                     Background="{DynamicResource DiffBrush.GuidanceRemovalBackground}"
+                                                     Visibility="{Binding ShowRemovalGuidance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Margin="10,8">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{Binding ToggleRemovalCardCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="0"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Grid.Column="0"
+                                                                         Kind="AlertCircleOutline"
+                                                                         Width="18" Height="18"
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="0,0,6,0"
+                                                                         Foreground="{DynamicResource DiffBrush.RemovedForeground}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GuidanceRemovalTitle}"
+                                                           d:Text="Removed Mods — High Risk"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                                <materialDesign:PackIcon Grid.Column="2"
+                                                                         Kind="{Binding IsRemovalCardExpanded, Converter={StaticResource BoolToChevronKindConverter}}"
+                                                                         Width="16" Height="16"
+                                                                         VerticalAlignment="Center"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Visibility="{Binding IsRemovalCardExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding RemovedModCountText}"
+                                                       d:Text="1 mod removed"
+                                                       FontSize="11"
+                                                       Margin="0,0,0,4"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="{Binding GuidanceRemovalBody}"
+                                                       d:Text="Removing mods mid-playthrough can corrupt saves."
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+
+                                <!-- Insertion card — Moderate Risk (orange) -->
+                                <materialDesign:Card UniformCornerRadius="8"
+                                                     Margin="0,0,0,8"
+                                                     Background="{DynamicResource DiffBrush.GuidanceInsertionBackground}"
+                                                     Visibility="{Binding ShowInsertionGuidance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Margin="10,8">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{Binding ToggleInsertionCardCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="0"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Grid.Column="0"
+                                                                         Kind="ArrowUpCircleOutline"
+                                                                         Width="18" Height="18"
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="0,0,6,0"
+                                                                         Foreground="{DynamicResource DiffBrush.InsertedForeground}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GuidanceInsertionTitle}"
+                                                           d:Text="Inserted Mods — Moderate Risk"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                                <materialDesign:PackIcon Grid.Column="2"
+                                                                         Kind="{Binding IsInsertionCardExpanded, Converter={StaticResource BoolToChevronKindConverter}}"
+                                                                         Width="16" Height="16"
+                                                                         VerticalAlignment="Center"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Visibility="{Binding IsInsertionCardExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding InsertedModCountText}"
+                                                       d:Text="1 mod inserted"
+                                                       FontSize="11"
+                                                       Margin="0,0,0,4"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="{Binding GuidanceInsertionBody}"
+                                                       d:Text="Mods inserted out of order may cause instability."
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+
+                                <!-- Replacement card — Safe (purple) -->
+                                <materialDesign:Card UniformCornerRadius="8"
+                                                     Margin="0,0,0,8"
+                                                     Background="{DynamicResource DiffBrush.GuidanceReplacementBackground}"
+                                                     Visibility="{Binding ShowReplacementGuidance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Margin="10,8">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{Binding ToggleReplacementCardCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="0"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Grid.Column="0"
+                                                                         Kind="SwapHorizontal"
+                                                                         Width="18" Height="18"
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="0,0,6,0"
+                                                                         Foreground="{DynamicResource DiffBrush.GuidanceReplacementForeground}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GuidanceReplacementTitle}"
+                                                           d:Text="Replaced Mods — Safe"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                                <materialDesign:PackIcon Grid.Column="2"
+                                                                         Kind="{Binding IsReplacementCardExpanded, Converter={StaticResource BoolToChevronKindConverter}}"
+                                                                         Width="16" Height="16"
+                                                                         VerticalAlignment="Center"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Visibility="{Binding IsReplacementCardExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding ReplacedModCountText}"
+                                                       d:Text="1 mod replaced"
+                                                       FontSize="11"
+                                                       Margin="0,0,0,4"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="{Binding GuidanceReplacementBody}"
+                                                       d:Text="Replacing a mod with another is generally safe."
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+
+                                <!-- Added card — Safe (green) -->
+                                <materialDesign:Card UniformCornerRadius="8"
+                                                     Margin="0,0,0,8"
+                                                     Background="{DynamicResource DiffBrush.GuidanceAddedBackground}"
+                                                     Visibility="{Binding ShowAddedGuidance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Margin="10,8">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{Binding ToggleAddedCardCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="0"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Grid.Column="0"
+                                                                         Kind="PlusCircleOutline"
+                                                                         Width="18" Height="18"
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="0,0,6,0"
+                                                                         Foreground="{DynamicResource DiffBrush.AddedForeground}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GuidanceAddedTitle}"
+                                                           d:Text="New Mods — Safe"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                                <materialDesign:PackIcon Grid.Column="2"
+                                                                         Kind="{Binding IsAddedCardExpanded, Converter={StaticResource BoolToChevronKindConverter}}"
+                                                                         Width="16" Height="16"
+                                                                         VerticalAlignment="Center"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Visibility="{Binding IsAddedCardExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding AddedModCountText}"
+                                                       d:Text="1 mod added"
+                                                       FontSize="11"
+                                                       Margin="0,0,0,4"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="{Binding GuidanceAddedBody}"
+                                                       d:Text="Adding new mods is generally safe."
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+
+                                <!-- Moved card — Informational (blue) -->
+                                <materialDesign:Card UniformCornerRadius="8"
+                                                     Margin="0,0,0,8"
+                                                     Background="{DynamicResource DiffBrush.GuidanceMovedBackground}"
+                                                     Visibility="{Binding ShowMovedGuidance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Margin="10,8">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{Binding ToggleMovedCardCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="0"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Grid.Column="0"
+                                                                         Kind="SwapVertical"
+                                                                         Width="18" Height="18"
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="0,0,6,0"
+                                                                         Foreground="{DynamicResource DiffBrush.GuidanceMovedForeground}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GuidanceMovedTitle}"
+                                                           d:Text="Moved Mods — Informational"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                                <materialDesign:PackIcon Grid.Column="2"
+                                                                         Kind="{Binding IsMovedCardExpanded, Converter={StaticResource BoolToChevronKindConverter}}"
+                                                                         Width="16" Height="16"
+                                                                         VerticalAlignment="Center"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Visibility="{Binding IsMovedCardExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding MovedModCountText}"
+                                                       d:Text="1 mod moved"
+                                                       FontSize="11"
+                                                       Margin="0,0,0,4"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="{Binding GuidanceMovedBody}"
+                                                       d:Text="These mods changed position due to other changes."
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+
+                                <!-- No Changes card -->
+                                <!-- Intentionally no Background: neutral state uses MD card default.
+                                     The four risk-level cards above each carry an explicit DiffBrush.Guidance*Background
+                                     value; this card deliberately omits one to avoid implying a risk level. -->
+                                <materialDesign:Card UniformCornerRadius="8"
+                                                     Margin="0,0,0,8"
+                                                     Visibility="{Binding ShowNoChangesGuidance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel Margin="10,8">
+                                        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                Command="{Binding ToggleNoChangesCardCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="0"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Grid.Column="0"
+                                                                         Kind="CheckCircleOutline"
+                                                                         Width="18" Height="18"
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="0,0,6,0"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GuidanceNoChangesTitle}"
+                                                           d:Text="No Changes"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                                <materialDesign:PackIcon Grid.Column="2"
+                                                                         Kind="{Binding IsNoChangesCardExpanded, Converter={StaticResource BoolToChevronKindConverter}}"
+                                                                         Width="16" Height="16"
+                                                                         VerticalAlignment="Center"
+                                                                         Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Visibility="{Binding IsNoChangesCardExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding GuidanceNoChangesBody}"
+                                                       d:Text="Your load order matches the reference."
+                                                       TextWrapping="Wrap"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </materialDesign:Card>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                </Grid>
+
                 <!-- Sorting Recommendation Banner -->
                 <Border Grid.Row="3"
                         Margin="0,8,0,0"
@@ -347,38 +730,13 @@
                     </DockPanel>
                 </Border>
                 
-                <!-- Multiple Replacements Help Banner -->
-                <Border Grid.Row="4"
-                        Margin="0,8,0,0"
-                        Background="{DynamicResource DiffBrush.HelpBannerBackground}"
-                        BorderBrush="{DynamicResource DiffBrush.HelpBannerBorder}"
-                        BorderThickness="2"
-                        CornerRadius="4"
-                        Padding="12,8"
-                        Visibility="{Binding ShowMultipleReplacementsHelp, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <DockPanel>
-                        <materialDesign:PackIcon Kind="InformationOutline" 
-                                                DockPanel.Dock="Left"
-                                                Width="20" 
-                                                Height="20"
-                                                VerticalAlignment="Center"
-                                                Margin="0,0,8,0"
-                                                Foreground="{DynamicResource DiffBrush.HelpBannerBorder}" />
-                        <TextBlock Text="{Binding MultipleReplacementsHelpMessage}"
-                                   d:Text="Many changes message."
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource DiffBrush.HelpBannerForeground}"
-                                   VerticalAlignment="Center" />
-                    </DockPanel>
-                </Border>
-                
-                <TextBlock Grid.Row="5"
+                <TextBlock Grid.Row="4"
                            Text="{Binding DiffStatusMessage}"
                            d:Text="Status message"
                            Margin="0,8,0,0"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            Visibility="{Binding HasStatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                <TextBlock Grid.Row="6"
+                <TextBlock Grid.Row="5"
                             Text="{Binding NoDifferencesMessage}"
                             d:Text="No differences detected."
                             Margin="0,8,0,0"
@@ -394,7 +752,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <StackPanel Grid.Row="7"
+                <StackPanel Grid.Row="6"
                              Orientation="Horizontal"
                              HorizontalAlignment="Right"
                              Margin="0,16,0,0">

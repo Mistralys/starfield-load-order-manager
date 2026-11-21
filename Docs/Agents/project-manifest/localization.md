@@ -7,11 +7,12 @@
 ## Table of Contents
 
 1. [Zero-Hardcoding Design](#zero-hardcoding-design)
-2. [Chinese and Japanese Translation Guidelines](#chinese-and-japanese-translation-guidelines)
-3. [Locale File Structure](#locale-file-structure)
-4. [Language Preference System](#language-preference-system)
-5. [Adding a New Language](#adding-a-new-language)
-6. [Testing LocalizationService](#testing-localizationservice)
+2. [Plural Forms — CountFormat / CountSingular Pattern](#plural-forms--countformat--countsingular-pattern)
+3. [Chinese and Japanese Translation Guidelines](#chinese-and-japanese-translation-guidelines)
+4. [Locale File Structure](#locale-file-structure)
+5. [Language Preference System](#language-preference-system)
+6. [Adding a New Language](#adding-a-new-language)
+7. [Testing LocalizationService](#testing-localizationservice)
 
 ---
 
@@ -39,10 +40,46 @@ No C# code changes, no compilation, no hardcoded mappings. The system automatica
 
 - **Total Languages**: 8
 - **Locale Codes**: en-US, de-DE, fr-FR, es-ES, it-IT, zh-CN, ja-JP, pt-BR
-- **Total Strings**: 201 translated strings per locale 
+- **Total Strings**: See `en-US.json` for the current key count (use it as the translation template) 
 - **User-Selectable**: Language preference dropdown in Settings
 - **Auto-Detection**: Automatic system locale detection
 - **Extensibility**: New languages require only JSON file (no code changes)
+
+---
+
+## Plural Forms — CountFormat / CountSingular Pattern
+
+Several DiffDialog strings describe counts of mods affected by a load-order change. These use a **paired key convention** to handle the singular/plural distinction without runtime branching in the JSON keys:
+
+| Key suffix | When used | Example value |
+|------------|-----------|---------------|
+| `CountFormat` | Count is **2 or more** — contains `{0}` placeholder | `"{0} mod(s) removed"` |
+| `CountSingular` | Count is **exactly 1** — no `{0}` placeholder | `"1 mod removed"` |
+
+### Contract
+
+- `{0}` in a `CountFormat` value always receives an **integer ≥ 2**. Never pass `1` to a `CountFormat` string; the ViewModel selects `CountSingular` when the count is 1.
+- `CountSingular` values **must not** contain `{0}`. The hardcoded `"1"` is intentional.
+
+### Current key pairs (DiffDialog section)
+
+```
+GuidanceRemovalCountFormat    / GuidanceRemovalCountSingular
+GuidanceInsertionCountFormat  / GuidanceInsertionCountSingular
+GuidanceReplacementCountFormat/ GuidanceReplacementCountSingular
+GuidanceAddedCountFormat      / GuidanceAddedCountSingular
+```
+
+A parallel pair also exists in the confirmation dialog:
+
+```
+ConfirmRiskyDetail_Removals   ({0} placeholder, count ≥ 2)  / ConfirmRiskyDetail_RemovedSingular  (no placeholder)
+ConfirmRiskyDetail_Insertions ({0} placeholder, count ≥ 2)  / ConfirmRiskyDetail_InsertedSingular (no placeholder)
+```
+
+### Translator guidance
+
+When adding a non-English locale file, translate **both keys** in every pair. Languages with more than two plural forms (e.g., Russian, Polish) must still map to exactly these two keys — choose the **plural** form for `CountFormat` (used for counts ≥ 2) and the **singular** form for `CountSingular`. If your language requires additional plural categories (e.g., a specific form for 11–19), default those to the plural form used in `CountFormat`.
 
 ---
 
@@ -66,10 +103,11 @@ No C# code changes, no compilation, no hardcoded mappings. The system automatica
 
 ### 3. Quotation Marks
 
-- Use **Chinese quotes** `" "` (zh-CN) when referring to folder names or UI labels
-- Use **Japanese quotes** `「 」` (ja-JP) when referring to folder names or UI labels
-- Example (Chinese): `"Profiles" 文件夹`
+- Use **corner brackets** `「 」` (zh-CN and ja-JP) when referring to folder names or UI labels
+- Example (Chinese): `「Profiles」文件夹`
 - Example (Japanese): `「Profiles」フォルダ`
+
+> **Tooling constraint — JSON safety:** The typographic double-quote characters U+201C (`"`) and U+201D (`"`) are silently transcribed as ASCII `"` (U+0022) by the `edit_file` tool. Because U+0022 is a JSON string delimiter, embedding it in a JSON string value breaks JSON parsing. **Do not use `" "` in zh-CN or ja-JP locale files.** Use `「」` (U+300C / U+300D — CJK corner brackets) as the approved JSON-safe alternative for both locales. These are semantically correct per CJK UI typography conventions and are unambiguous to JSON parsers.
 
 ### 4. Punctuation
 
@@ -90,7 +128,8 @@ No C# code changes, no compilation, no hardcoded mappings. The system automatica
 
 - ❌ Western punctuation in Chinese text: `列表中有很多更改, 包括替换和移除.`
 - ❌ Missing spacing: `版本{0}` or `JSON格式`
-- ❌ Western quotes: `'Profiles' 文件夹` (use `"Profiles"` instead)
+- ❌ Western quotes: `'Profiles' 文件夹` (use `「Profiles」` instead)
+- ❌ Typographic double-quotes in JSON: `"Profiles" 文件夹` — U+201C/U+201D are transcribed as ASCII `"` by tooling, breaking JSON (use `「Profiles」` instead)
 - ❌ Space before hotkey: `文件 (_F)` (use `文件(_F)` instead)
 
 ---
@@ -183,7 +222,7 @@ Copy `en-US.json` to `pt-BR.json` in `ViewTexts\Locales\`
 
 ### Step 3: Translate Strings
 
-Translate all string values in each section (189 strings total)
+Translate all string values in each section (use `en-US.json` as the canonical reference for the current key set)
 
 ### Step 4: Configure Build Action (**CRITICAL**)
 
@@ -219,6 +258,12 @@ Launch application - language appears in dropdown automatically
 
 **Solution**: Always add `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>` to `.csproj`
 
+### ⚠️ Typographic Quotes Break JSON in zh-CN / ja-JP Files
+
+**Problem**: Typographic double-quote characters U+201C (`"`) and U+201D (`"`) are silently transcribed as ASCII `"` (U+0022) by the `edit_file` tool. In a JSON string value, this produces unescaped quote characters that break the JSON parser, and the application fails to load translations.
+
+**Solution**: Use `「」` (U+300C / U+300D — CJK corner brackets) for all UI element references in zh-CN and ja-JP locale files. Example: `「Profiles」文件夹` instead of `"Profiles" 文件夹`.
+
 ### ⚠️ Invalid JSON Syntax
 
 **Problem**: Application fails to load translations
@@ -229,7 +274,7 @@ Launch application - language appears in dropdown automatically
 
 **Problem**: UI shows placeholder text or throws errors
 
-**Solution**: Ensure all 189 keys are present in the file (use en-US.json as reference)
+**Solution**: Ensure all keys are present in the file (use `en-US.json` as the canonical reference)
 
 ### ⚠️ Incorrect Metadata
 

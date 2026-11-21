@@ -45,6 +45,8 @@ namespace LoadOrderKeeper.Models
 
         public string DependentChangesSummary { get; set; } = string.Empty;
 
+        public string FormattedLineNumber { get; set; } = string.Empty;
+
         public string? DependentChangeCauseFileName { get; set; }
 
         public string? DependentChangeCauseAction { get; set; }

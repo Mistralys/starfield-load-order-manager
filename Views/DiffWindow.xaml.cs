@@ -13,6 +13,12 @@ namespace LoadOrderKeeper.Views
             InitializeComponent();
             Loaded += OnDiffWindowLoaded;
             DataContextChanged += OnDiffDataContextChanged;
+            // NOTE: OnWindowClosed fires inside base.OnClosed(e), which is called AFTER
+            // the existing OnClosed override calls viewModel.Dispose(). This ordering is
+            // currently safe because Dispose() does not null out _mainViewModel or the card
+            // bool properties. If Dispose() is ever widened to null those out, persistence
+            // will silently break.
+            Closed += OnWindowClosed;
         }
 
         private void OnDiffDataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
@@ -41,6 +47,23 @@ namespace LoadOrderKeeper.Views
         {
             Loaded -= OnDiffWindowLoaded;
             ScrollToTargetLine();
+            RestoreSidebarWidth();
+        }
+
+        private void RestoreSidebarWidth()
+        {
+            if (DataContext is DiffDialogViewModel vm)
+            {
+                SidebarColumn.Width = new GridLength(vm.GetSidebarWidth());
+            }
+        }
+
+        private void OnWindowClosed(object? sender, EventArgs e)
+        {
+            if (DataContext is DiffDialogViewModel vm)
+            {
+                _ = vm.PersistWindowStateAsync(SidebarColumn.Width.Value);
+            }
         }
 
         private void OnScrollRequested(object? sender, EventArgs e)

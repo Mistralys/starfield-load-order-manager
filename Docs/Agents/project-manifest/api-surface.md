@@ -266,6 +266,16 @@ public class AppConfigModel
     public string StarfieldGamePath { get; set; }
     public string? ActiveProfileId { get; set; }
     public string PreferredLanguage { get; set; } // Default: "auto"
+    public string? CustomEditorPath { get; set; }
+
+    // DiffWindow UI state — persisted across sessions
+    public double DiffSidebarWidth { get; set; }          // Default: 300.0
+    public bool DiffRemovalCardExpanded { get; set; }     // Default: true
+    public bool DiffInsertionCardExpanded { get; set; }   // Default: false
+    public bool DiffReplacementCardExpanded { get; set; } // Default: false
+    public bool DiffAddedCardExpanded { get; set; }       // Default: false
+    public bool DiffMovedCardExpanded { get; set; }       // Default: false
+    public bool DiffNoChangesCardExpanded { get; set; }   // Default: false
 
     public bool IsValid();
     public string GetPluginsFilePath();
@@ -824,6 +834,50 @@ public static class LocalizationJsonNormalizer
 
 **Purpose:** Development-only utility for normalizing JSON localization files before committing. Not used at runtime.
 
+### `LoadOrderKeeper.ViewTexts.DiffDialogTexts`
+
+```csharp
+public sealed class DiffDialogTexts : ObservableObject
+{
+    // Per-item tooltips (Added, Removed, Replaced, Moved only — Inserted uses InsertedWarningTooltip; unchanged)
+    public string AddedTooltip { get; }
+    public string RemovedTooltip { get; }
+    public string ReplacedTooltip { get; }
+    public string MovedTooltip { get; }
+    public string InsertedWarningTooltip { get; }
+
+    // Sidebar guidance card strings
+    public string GuidanceSidebarTitle { get; }
+    public string GuidanceRemovalTitle { get; }
+    public string GuidanceRemovalBody { get; }
+    public string GuidanceRemovalCountFormat { get; }
+    public string GuidanceRemovalCountSingular { get; }
+    public string GuidanceInsertionTitle { get; }
+    public string GuidanceInsertionBody { get; }
+    public string GuidanceInsertionCountFormat { get; }
+    public string GuidanceInsertionCountSingular { get; }
+    public string GuidanceReplacementTitle { get; }
+    public string GuidanceReplacementBody { get; }
+    public string GuidanceReplacementCountFormat { get; }
+    public string GuidanceReplacementCountSingular { get; }
+    public string GuidanceAddedTitle { get; }
+    public string GuidanceAddedBody { get; }
+    public string GuidanceAddedCountFormat { get; }
+    public string GuidanceAddedCountSingular { get; }
+    public string GuidanceNoChangesTitle { get; }
+    public string GuidanceNoChangesBody { get; }
+
+    // Risk-gated confirmation dialog strings
+    public string ConfirmUpdateMessage_RiskyChanges { get; }
+    public string ConfirmRiskyDetail_Removals { get; }
+    public string ConfirmRiskyDetail_Insertions { get; }
+    public string ConfirmRiskyDetail_RemovedSingular { get; }
+    public string ConfirmRiskyDetail_InsertedSingular { get; }
+}
+```
+
+**Pattern:** Each property calls `_localization.GetString("DiffDialog", "<KeyName>")`. All properties are listed in `OnCultureChanged()` and raised via `OnPropertyChanged()` when the culture changes. The `CountFormat` properties are used with `string.Format(countFormat, count)` when count ≠ 1; the `CountSingular` properties are used directly when count == 1. The `ConfirmUpdateMessage_RiskyChanges` property contains a `{0}` placeholder for the composed detail block.
+
 ---
 
 ## ViewModels
@@ -931,28 +985,97 @@ public partial class SettingsViewModel : ObservableObject
 ```csharp
 public partial class DiffDialogViewModel : ObservableObject, IDisposable
 {
-    public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel);
+    // Production constructor
+    public DiffDialogViewModel(
+        IEnumerable<DiffLineModel> trimmedLines,
+        IEnumerable<DiffLineModel> fullLines,
+        MainViewModel mainViewModel);
 
+    // Test-seam constructor — see Architecture Notes below
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    internal DiffDialogViewModel(ObservableCollection<DiffLineModel> diffLines);
+
+    // Core state
     public ObservableCollection<DiffLineModel> DiffLines { get; }
     public ICollectionView FilteredDiffLines { get; }
+    public bool HasDifferences { get; }
     public bool ShowAllMods { get; set; }
-    public string ShowAllModsToggleText { get; }
+    public bool IsConfigValid { get; set; }
+    public bool IsOperationInProgress { get; set; }
+    public bool ShowOverlay { get; }
+    public int ScrollTargetIndex { get; }
+    public string DiffStatusMessage { get; }
+    public bool HasStatusMessage { get; }
+
+    // Sorting recommendation
     public bool ShowSortingRecommendation { get; }
     public string SortingRecommendationMessage { get; }
-    public bool ShowMultipleReplacementsHelp { get; }
-    public string MultipleReplacementsHelpMessage { get; }
+
+    // Legacy mod presence (pre-existing; unchanged by WP-004)
     public IReadOnlyList<DiffLineModel> AddedMods { get; }
     public bool HasAddedMods { get; }
     public bool HasInsertedMods { get; }
     public string InsertedWarningTooltip { get; }
-    public bool HasDifferences { get; }
-    public int ScrollTargetIndex { get; }
-    public string DiffStatusMessage { get; }
-    public bool HasStatusMessage { get; }
-    public bool IsConfigValid { get; set; }
-    public bool IsOperationInProgress { get; set; }
-    public bool ShowOverlay { get; }
 
+    // Change type counts
+    public int RemovedModCount { get; }
+    public int InsertedModCount { get; }
+    public int ReplacedModCount { get; }
+    public int AddedModCount { get; }
+    public int MovedModCount { get; }
+
+    // Mod presence booleans (derived from counts)
+    public bool HasRemovedMods { get; }
+    public bool HasReplacedMods { get; }
+
+    // Sidebar card visibility (always render sidebar; cards control own visibility)
+    public bool ShowRemovalGuidance { get; }      // HasDifferences && HasRemovedMods
+    public bool ShowInsertionGuidance { get; }    // HasDifferences && HasInsertedMods
+    public bool ShowReplacementGuidance { get; }  // HasDifferences && HasReplacedMods
+    public bool ShowAddedGuidance { get; }        // HasDifferences && HasAddedMods
+    public bool ShowMovedGuidance { get; }        // HasDifferences && MovedModCount > 0
+    public bool ShowNoChangesGuidance { get; }    // !HasDifferences
+
+    // Sidebar card expansion state (collapsible cards; persisted via PersistWindowStateAsync)
+    public bool IsRemovalCardExpanded { get; set; }     // Default: true
+    public bool IsInsertionCardExpanded { get; set; }   // Default: false
+    public bool IsReplacementCardExpanded { get; set; } // Default: false
+    public bool IsAddedCardExpanded { get; set; }       // Default: false
+    public bool IsMovedCardExpanded { get; set; }       // Default: false
+    public bool IsNoChangesCardExpanded { get; set; }   // Default: false
+
+    // Count display strings (singular/plural via locale keys)
+    public string RemovedModCountText { get; }
+    public string InsertedModCountText { get; }
+    public string ReplacedModCountText { get; }
+    public string AddedModCountText { get; }
+    public string MovedModCountText { get; }
+
+    // Sidebar card text pass-throughs
+    public string GuidanceSidebarTitle { get; }
+    public string GuidanceRemovalTitle { get; }
+    public string GuidanceRemovalBody { get; }
+    public string GuidanceInsertionTitle { get; }
+    public string GuidanceInsertionBody { get; }
+    public string GuidanceReplacementTitle { get; }
+    public string GuidanceReplacementBody { get; }
+    public string GuidanceAddedTitle { get; }
+    public string GuidanceAddedBody { get; }
+    public string GuidanceMovedTitle { get; }
+    public string GuidanceMovedBody { get; }
+    public string GuidanceNoChangesTitle { get; }
+    public string GuidanceNoChangesBody { get; }
+
+    // Per-item tooltip pass-throughs (Inserted uses InsertedWarningTooltip; unchanged)
+    public string AddedTooltip { get; }
+    public string RemovedTooltip { get; }
+    public string ReplacedTooltip { get; }
+    public string MovedTooltip { get; }
+
+    // UI text pass-throughs
+    public string ShowAllModsToggleText { get; }
+
+    // Commands
     public IAsyncRelayCommand UpdateReferenceCommand { get; }
     public IAsyncRelayCommand FixLoadOrderCommand { get; }
     public IAsyncRelayCommand<DiffLineModel> ReEnableModCommand { get; }
@@ -960,12 +1083,26 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
     public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
 
+    // Sidebar card toggle commands
+    public IRelayCommand ToggleRemovalCardCommand { get; }
+    public IRelayCommand ToggleInsertionCardCommand { get; }
+    public IRelayCommand ToggleReplacementCardCommand { get; }
+    public IRelayCommand ToggleAddedCardCommand { get; }
+    public IRelayCommand ToggleMovedCardCommand { get; }
+    public IRelayCommand ToggleNoChangesCardCommand { get; }
+
+    // Events
     public event EventHandler? CloseRequested;
     public event EventHandler? ScrollRequested;
     public event EventHandler<ConfirmationRequestedEventArgs>? ConfirmationRequested;
 
     public Task<bool> RefreshDiffAsync(string? reason = null);
     public void Dispose();
+
+    // Internal — accessible to LoadOrderKeeper.Tests via InternalsVisibleTo
+    internal string? BuildConfirmationMessage();
+    internal double GetSidebarWidth();
+    internal Task PersistWindowStateAsync(double sidebarWidth);
 }
 
 public class ConfirmationRequestedEventArgs : EventArgs
@@ -981,6 +1118,18 @@ public class ConfirmationRequestedEventArgs : EventArgs
 ```
 
 **Auto-Refresh:** Subscribes to `FileMonitoringCoordinator.ChangeDetected` and `ConfigurationCoordinator.ValidationChanged` in constructor; unsubscribes in `Dispose()`. `ShowOverlay` computed as `!IsConfigValid && !IsOperationInProgress`.
+
+**Sidebar card visibility:** The sidebar container is always rendered. The five `Show*Guidance` boolean properties control which cards appear. Exactly one of `ShowNoChangesGuidance` and the four change-type cards (`ShowRemovalGuidance`, `ShowInsertionGuidance`, `ShowReplacementGuidance`, `ShowAddedGuidance`) is ever true: `ShowNoChangesGuidance` is `!HasDifferences`, so it is mutually exclusive with the other four, which all require `HasDifferences`. Note: a diff containing only `Moved` entries produces `HasDifferences = true` but none of the four change-type cards — this is an accepted scope gap; the sorting recommendation banner covers that scenario.
+
+**Count text properties:** Use singular locale key when count equals 1; use `string.Format` with the plural format key otherwise. Both keys reside in the `DiffDialog` locale section.
+
+**`UpdateDiffState()` notification ordering:** `HasDifferences` is set first via `SetProperty`, then legacy properties, then new count properties, then `Has*` booleans, then `Show*` visibility properties, then count text strings — mirroring the dependency chain.
+
+**`BuildConfirmationMessage()` null contract:** Returns `null` when `DiffLines` contains only safe change types (Added, Replaced, Moved, Unchanged) — no confirmation dialog is needed. Returns a non-`null` formatted string when at least one Removed or Inserted line is present. `UpdateReferenceWithConfirmationAsync()` branches on this return value: a non-`null` result triggers the `ConfirmationRequested` event and blocks the update unless the user confirms.
+
+**Dispose() null-guard:** When constructed via the internal test-seam constructor (`_mainViewModel = null!`), `Dispose()` null-guards `_mainViewModel` before accessing coordinator references. It unsubscribes `DiffLines.CollectionChanged` in both branches to prevent event leaks regardless of construction path. See *Architecture Notes — Test-Seam Constructor Pattern* in `constraints.md` for details.
+
+**Architecture Notes — Test-Seam Constructor Pattern:** See `constraints.md` for the reusable `internal` + `[EditorBrowsable(Never)]` + `null!` convention used to inject test state without the full coordinator dependency graph.
 
 ### `LoadOrderKeeper.ViewModels.SwitchProfileViewModel`
 
@@ -1339,6 +1488,7 @@ public partial class ConfigInvalidOverlay : UserControl
 | `InverseCountToVisibilityConverter` | `IValueConverter` | `Visible` when count == 0, `Collapsed` otherwise |
 | `InverseBooleanToVisibilityConverter` | `IValueConverter` | `Visible` when `false`, `Collapsed` when `true` |
 | `ChangeSummaryConverter` | `IValueConverter` | Formats a `ReferenceVersionMetadataModel` change summary for display |
+| `BoolToChevronKindConverter` | `IValueConverter` | `ChevronDown` when `true` (expanded), `ChevronRight` when `false` (collapsed); used by sidebar card toggle headers |
 
 ---
 

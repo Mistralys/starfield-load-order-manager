@@ -10,6 +10,22 @@ namespace LoadOrderKeeper.Services
 
         public static async Task<IReadOnlyList<DiffLineModel>> GetPluginsDiffAsync(AppConfigModel config)
         {
+            var (referenceMods, currentMods, lcs) = await ReadDiffInputsAsync(config).ConfigureAwait(false);
+            return ClassifyChanges(referenceMods, currentMods, lcs);
+        }
+
+        /// <summary>
+        /// Returns the complete diff without trimming to a context window.
+        /// All unchanged mods are included; no <see cref="DiffChangeType.Separator"/> items are inserted.
+        /// </summary>
+        public static async Task<IReadOnlyList<DiffLineModel>> GetFullPluginsDiffAsync(AppConfigModel config)
+        {
+            var (referenceMods, currentMods, lcs) = await ReadDiffInputsAsync(config).ConfigureAwait(false);
+            return ClassifyChanges(referenceMods, currentMods, lcs, trim: false);
+        }
+
+        private static async Task<(IReadOnlyList<ModEntryModel> Reference, IReadOnlyList<ModEntryModel> Current, List<(int refIndex, int curIndex)> Lcs)> ReadDiffInputsAsync(AppConfigModel config)
+        {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
@@ -41,7 +57,7 @@ namespace LoadOrderKeeper.Services
 
             var lcs = ComputeLcs(refFileNames, curFileNames, StringComparer.OrdinalIgnoreCase);
 
-            return ClassifyChanges(referenceMods, currentMods, lcs);
+            return (referenceMods, currentMods, lcs);
         }
 
         /// <summary>
@@ -171,7 +187,8 @@ namespace LoadOrderKeeper.Services
         internal static List<DiffLineModel> ClassifyChanges(
             IReadOnlyList<ModEntryModel> reference,
             IReadOnlyList<ModEntryModel> current,
-            List<(int refIndex, int curIndex)> lcs)
+            List<(int refIndex, int curIndex)> lcs,
+            bool trim = true)
         {
             // --- Step 0: Build fast lookup sets ---
             var lcsRefIndices = new HashSet<int>();
@@ -608,7 +625,7 @@ namespace LoadOrderKeeper.Services
                 return xCur.CompareTo(yCur);
             });
 
-            return TrimToContextWindow(result);
+            return trim ? TrimToContextWindow(result) : result;
         }
 
         /// <summary>

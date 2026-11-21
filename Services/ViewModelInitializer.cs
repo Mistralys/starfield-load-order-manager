@@ -73,6 +73,8 @@ namespace LoadOrderKeeper.Services
             // At this point, the Profiles folder should already exist if config is valid
             _updateCoordinators(config);
 
+            await ProfileService.NormalizeActiveProfileAsync(config, persistIfChanged: true);
+
             bool refExists = FileService.DoesReferenceFileExist(config);
 
             var referenceResult = await EnsureReferenceFileExistsAsync(config, refExists);

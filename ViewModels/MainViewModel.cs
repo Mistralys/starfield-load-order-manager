@@ -148,7 +148,7 @@ namespace LoadOrderKeeper.ViewModels
             // Special handling for ChangeCount
             binder.BindPropertyWithAction(_fileMonitor, nameof(FileMonitoringCoordinator.ChangeCount), () =>
             {
-                UpdateChangeCountDisplay(_fileMonitor.ChangeCount);
+                UpdateChangeCountDisplay(_fileMonitor.ChangeCount, _fileMonitor.DependentChangeCount);
             });
 
             // Status Coordinator property bindings
@@ -491,13 +491,14 @@ namespace LoadOrderKeeper.ViewModels
         }
 
         [RelayCommand]
-        private async Task ManageProfilesAsync()
+        private Task ManageProfilesAsync()
         {
             _windowService.ShowManageProfilesWindow(
                 Config, 
                 _configCoordinator, 
                 WpfApplication.Current?.MainWindow,
                 async () => await UpdateActiveProfileLabelAsync());
+            return Task.CompletedTask;
         }
 
         [RelayCommand]
@@ -556,11 +557,18 @@ namespace LoadOrderKeeper.ViewModels
             OpenConfigFolderCommand?.NotifyCanExecuteChanged();
         }
 
-        private void UpdateChangeCountDisplay(int changeCount)
+        private void UpdateChangeCountDisplay(int changeCount, int dependentChangeCount)
         {
-            ShowChangesButtonText = changeCount > 0 
-                ? string.Format(MainWindowTexts.ShowChangesButtonTextWithCount, changeCount)
-                : MainWindowTexts.ShowChangesButtonText;
+            if (changeCount > 0)
+            {
+                ShowChangesButtonText = dependentChangeCount > 0
+                    ? string.Format(MainWindowTexts.ShowChangesButtonTextWithDependents, changeCount, dependentChangeCount)
+                    : string.Format(MainWindowTexts.ShowChangesButtonTextWithCount, changeCount);
+            }
+            else
+            {
+                ShowChangesButtonText = MainWindowTexts.ShowChangesButtonText;
+            }
         }
  
         private async Task ShowDiffAsync()
@@ -625,7 +633,7 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
-        private async void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
+        private void OnChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
             // DiffWindow now subscribes directly to FileMonitoringCoordinator.ChangeDetected
             // No need to manually refresh here anymore
@@ -687,7 +695,7 @@ namespace LoadOrderKeeper.ViewModels
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 ConfirmationDialog.Show(
                     "Error",
-                    $"Failed to discard changes: {ex.Message}",
+                    $"Failed to restore from the reference: {ex.Message}",
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,

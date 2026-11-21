@@ -58,6 +58,20 @@ namespace LoadOrderKeeper.Services
             return result;
         }
 
+        /// <summary>
+        /// Reads and parses an enabled-mod list from <paramref name="filePath"/>.
+        /// </summary>
+        /// <param name="filePath">Full path to the plugins or reference file.</param>
+        /// <param name="isReferenceFile">
+        /// When <see langword="true"/>, sets <see cref="ModEntryModel.OriginalLineNumber"/> on each
+        /// entry in addition to <see cref="ModEntryModel.LineNumber"/>.
+        /// </param>
+        /// <returns>A read-only list of enabled mod entries with sequential line numbers assigned.</returns>
+        public static async Task<IReadOnlyList<ModEntryModel>> ReadModListAsync(string filePath, bool isReferenceFile = false)
+        {
+            return await ReadFileAsync(filePath, isReferenceFile).ConfigureAwait(false);
+        }
+
         public static bool DoesReferenceFileExist(AppConfigModel config)
         {
             return File.Exists(config.GetReferenceFilePath());

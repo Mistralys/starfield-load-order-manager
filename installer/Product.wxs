@@ -23,7 +23,11 @@
     <!-- Installation directory -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
-        <Directory Id="INSTALLFOLDER" Name="Starfield Load Order Keeper" />
+        <Directory Id="INSTALLFOLDER" Name="Starfield Load Order Keeper">
+          <Directory Id="ViewTextsFolder" Name="ViewTexts">
+            <Directory Id="LocalesFolder" Name="Locales" />
+          </Directory>
+        </Directory>
       </Directory>
 
       <!-- Start Menu folder -->
@@ -34,12 +38,26 @@
 
     <!-- Files -->
     <DirectoryRef Id="INSTALLFOLDER">
-      <!-- Main executable (single-file deployment means only the .exe is needed) -->
+      <!-- Main executable (single-file deployment; the csproj embeds the WPF native DLLs via IncludeNativeLibrariesForSelfExtract, the locale JSON files ship separately, see below) -->
       <Component Id="MainExecutable" Guid="0b7e8c4e-3e4a-4e0b-9c3e-2a0f2f8b8c11" Win64="yes">
         <File
             Id="AppExe"
             Source="$(var.PublishDir)\StarfieldLoadOrderKeeper.exe"
             KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Localization files: LocalizationService loads ViewTexts\Locales\*.json from the app directory -->
+    <DirectoryRef Id="LocalesFolder">
+      <Component Id="LocaleFiles" Guid="fbbbe5a9-d654-4299-a7e9-60b82e427da7" Win64="yes">
+        <File Id="Locale_en_US" Source="$(var.PublishDir)\ViewTexts\Locales\en-US.json" KeyPath="yes" />
+        <File Id="Locale_de_DE" Source="$(var.PublishDir)\ViewTexts\Locales\de-DE.json" />
+        <File Id="Locale_es_ES" Source="$(var.PublishDir)\ViewTexts\Locales\es-ES.json" />
+        <File Id="Locale_fr_FR" Source="$(var.PublishDir)\ViewTexts\Locales\fr-FR.json" />
+        <File Id="Locale_it_IT" Source="$(var.PublishDir)\ViewTexts\Locales\it-IT.json" />
+        <File Id="Locale_ja_JP" Source="$(var.PublishDir)\ViewTexts\Locales\ja-JP.json" />
+        <File Id="Locale_pt_BR" Source="$(var.PublishDir)\ViewTexts\Locales\pt-BR.json" />
+        <File Id="Locale_zh_CN" Source="$(var.PublishDir)\ViewTexts\Locales\zh-CN.json" />
       </Component>
     </DirectoryRef>
 
@@ -64,6 +82,7 @@
 
     <Feature Id="MainFeature" Title="Starfield Load Order Keeper" Level="1">
       <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="LocaleFiles" />
       <ComponentRef Id="StartMenuShortcut" />
     </Feature>
 

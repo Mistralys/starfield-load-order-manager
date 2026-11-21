@@ -50,6 +50,8 @@ namespace LoadOrderKeeper.ViewModels
 
         public string WindowTitle => _texts.WindowTitle;
         public string RollbackButtonText => _texts.RollbackButtonText;
+        public string RollbackMenuText => _texts.RollbackMenuText;
+        public string EditCommentMenuText => _texts.EditCommentMenuText;
         public string DeleteVersionButtonText => _texts.DeleteVersionButtonText;
         public string ClearHistoryButtonText => _texts.ClearHistoryButtonText;
         public string CloseButtonText => _texts.CloseButtonText;

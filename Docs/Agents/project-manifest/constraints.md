@@ -1,0 +1,233 @@
+# Current Constraints & Invariants
+
+> Rules, guarantees, and system constraints that must be maintained.
+
+---
+
+## Coordinator Architecture
+
+- All coordinators inherit from `CoordinatorBase` which provides `INotifyPropertyChanged` and `IDisposable`.
+- Coordinators are initialized in `MainViewModel` constructor and disposed in `Dispose()` method.
+- Communication between coordinators and ViewModels is event-driven via `PropertyChanged` and custom events.
+- `MainViewModel` reduced from ~1200 lines to ~460 lines (62% reduction) through two-phase refactoring:
+  - **Phase 1**: Window management, menu properties, event wiring extraction (~400 lines)
+  - **Phase 2**: File operations, reference management, initialization services (~340 lines)
+- Pass-through properties in `MainViewModel` expose coordinator state for UI binding.
+- **CoordinatorEventBinder** helper consolidates property change forwarding with declarative binding methods.
+- Each coordinator has single responsibility: file monitoring, status, updates, profiles, configuration, or game launching.
+
+---
+
+## Service Architecture
+
+### Static Services
+- Stateless utilities for pure functions (FileService, ProfileService, DiffService, etc.)
+- Direct static method calls for operations without side effects
+
+### Instance Services
+- **FileOperationsService**: File/folder opening with shell integration
+- **ReferenceManagementService**: Reference workflow (create, update, discard, rollback)
+- **WindowLifecycleService**: Non-modal window lifecycle management
+- **ViewModelInitializer**: MainViewModel startup sequence coordination
+
+### Service Design Patterns
+- **Callback-based injection**: Services receive `Action<>` and `Func<>` delegates for ViewModel coordination
+- **Result objects**: Services return structured data (e.g., `InitializationResult`) instead of modifying state
+- **Clear boundaries**: Services don't reference ViewModels, avoiding circular dependencies
+
+---
+
+## Helper Classes
+
+- **CoordinatorEventBinder**: Simplifies PropertyChanged forwarding with `BindPropertiesDirect()`, `BindProperty()`, etc.
+- **MenuViewModel**: Consolidates all menu and UI text properties for centralized management
+- **SteamLibraryVdfParser**: Internal, stateless, bounded parser for Steam `libraryfolders.vdf`; it owns syntax validation but not file I/O or installation selection policy.
+
+---
+
+## Configuration Validity
+
+- `ConfigurationCoordinator` manages validation state with caching to prevent excessive I/O.
+- `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
+- `AppConfigModel.IsValid()` also requires `Plugins.txt` to exist in `StarfieldAppDataPath` (cannot be auto-generated, user must run Starfield at least once).
+- `AppConfigModel.IsValid()` validates Profiles folder creation and writability with test file.
+- **Invalid Configuration Handling**: Application remains open when configuration is invalid; error banner shown in main window with "Open settings" button. No automatic settings dialog is shown during startup—users must explicitly click the error banner button or use the menu when ready to configure paths.
+- **Secondary Window Overlays**: DiffWindow, ManageProfilesWindow, ReferenceHistoryWindow, ViewPendingChangesWindow, and SwitchProfileWindow show `ConfigInvalidOverlay` when configuration becomes invalid.
+- **Overlay Behavior**: Semi-transparent dark overlay blocks all window interaction; automatically disappears when configuration becomes valid again.
+- **State Preservation**: Windows remain open and preserve state during invalid configuration periods; no data loss occurs.
+- **Operation Management**: `IsOperationInProgress` flag prevents overlay display during active file operations to allow completion without interruption.
+- `ConfigurationCoordinator.ValidationChanged` event fires when validation state changes, triggering command `CanExecute` updates and overlay visibility changes in secondary windows.
+- **Command Restrictions**: File menu commands (`OpenPluginsFile`, `OpenReferenceFile`, etc.) and Play button still require valid configuration as they operate in main window without overlay protection.
+- **ShowDiffCommand**: No longer checks `Config.IsValid()` in CanExecute; overlay protection replaces button disabling for better UX.
+
+---
+
+## Profile Storage
+
+- Profiles live under `StarfieldAppDataPath/Profiles/{profileId}` with `profile.json`, `main.txt`, and `reference.txt`; folders are created automatically.
+- Profiles folder existence and writability validated via `ProfileService.EnsureProfilesFolderExists()` which tests write access with temporary file.
+- Profiles folder validation integrated into `AppConfigModel.IsValid()` and settings window validation.
+- Profile operations fail with actionable error messages if Profiles folder cannot be created or accessed.
+- `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
+- If a persisted `ActiveProfileId` no longer matches an existing profile folder, initialization and profile refresh normalize it to `default` before reference-dependent operations run.
+- The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
+- Profile labels must be unique (case-insensitive), 2–30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
+- `ProfileCoordinator` manages active profile state and fires `ProfileChanged` event when profile switches.
+
+---
+
+## Profile Switching Guarantees
+
+- Switching always backs up the current `Plugins.txt` into the old profile's `main.txt`, ensures the target `main.txt` and `reference.txt`, writes UTF-8 (no BOM), and updates `ActiveProfileId` before monitoring continues.
+- `ProfileCoordinator.SwitchProfileAsync()` delegates to `ProfileService.SwitchProfileAsync()` and updates coordinator state.
+
+---
+
+## File Locations & I/O
+
+- `Plugins.txt` stays under `StarfieldAppDataPath`; references are profile-specific (`Profiles/{id}/reference.txt`).
+- `Plugins.txt` must exist for configuration to be valid (cannot be auto-generated, created by Starfield on first run).
+- All disk operations in services are asynchronous; plugins-related writes use UTF-8 without BOM, and reference creation copies raw files to retain comments.
+
+---
+
+## Case Restoration
+
+- `FileService.ApplyLoadOrderAsync()` builds a case map from `StarfieldGamePath/Data` (`*.esm` / `*.esp`) so output lines reuse on-disk casing.
+
+---
+
+## Diff Semantics & Monitoring
+
+- `FileMonitoringCoordinator` handles all periodic checking (3-second interval) and change detection.
+- `FileService.GetModDiffAsync()` bases `ModDiffModel` flags on original vs current line numbers; `DiffService` translates them to `DiffLineModel` change types (`Added`, `Removed`, `Moved`, `Replaced`, `Inserted`).
+- The monitor compares trimmed file contents, tracks a `PluginsSignature`, and only runs when state is valid (config valid, reference exists, not busy, config not invalid).
+- Monitoring paused when `configIsInvalid` is true to prevent I/O operations on invalid paths.
+- Dependent changes are tracked and displayed: when a mod is removed/added, all mods that shift position as a result are shown as dependent changes. The causal mod name and action are stored on the parent entry (`DependentChangeCauseFileName`, `DependentChangeCauseAction`) and used to format the localized `DependentChangesSummary`.
+- `GetPluginsDiffAsync` output includes `Unchanged` context lines (1 neighbor per side of each change group) and `Separator` items between non-adjacent groups. Consumers that count or iterate all items must filter these out using `ChangeType != Unchanged && ChangeType != Separator`.
+- `FileMonitoringCoordinator` fires `ChangeDetected` event with `HasChanges`, `ChangeCount` (primary changes only), and `DependentChangeCount` when changes detected.
+- `FileMonitoringCoordinator.ChangeCount` counts primary changes only (excludes `Unchanged` and `Separator` items). `DependentChangeCount` is the total of all dependent position shifts.
+
+---
+
+## Diff Window Guidance Sidebar
+
+- **Informational only**: The recommendations sidebar is a passive display component — it does not block, gate, or modify any user operations. Showing or hiding a guidance card never prevents the user from accepting or discarding changes.
+- **Does not replace the sorting recommendation banner**: The sorting recommendation banner (Grid.Row="3") remains in its existing position below the diff list and continues to provide an actionable "Fix Load Order" button. The sidebar coexists with the banner; they address different concerns (positional guidance vs. risk-level explanations), and neither replaces the other.
+- **Sidebar container always rendered**: The sidebar `Border`/`ScrollViewer`/`StackPanel` structure is unconditionally in the visual tree. Individual `materialDesign:Card` elements control their own visibility via `Show*Guidance` bindings. There is no container-level `ShowGuidanceSidebar` toggle.
+- **Card visibility is mutually exclusive with no-changes state**: `ShowNoChangesGuidance` is `!HasDifferences`; the four change-type cards each require `HasDifferences`. Exactly one of the two groups is active at a time.
+
+---
+
+## Replacement Workflow Constraints
+
+- **Reference File is Source of Truth**: All diff comparisons are made against the reference file on disk, not in-memory state.
+- **Replacement Operations are Temporary**: `ReplaceModWithNewAsync()` updates `Plugins.txt` immediately but **never** writes to the reference file—only "Save to reference" updates the reference.
+- **Sequential Replacements**: When making multiple replacements in one session, users have two options:
+  1. Click "Save to reference" after each replacement to persist it before making the next
+  2. Make all replacements together, then click "Save to reference" once to accept all
+- **Visual Guidance**: Blue info banner appears in diff window when 2+ removals/replacements detected, explaining the workflow options.
+- **Documented Limitation**: This behavior is documented in application-description.md under "Managing Changes: The DIFF Window" > "Replacement Workflow Notes".
+- **No Session State Management**: The application intentionally does NOT cache replacement state in memory to keep architecture simple and avoid lifecycle management complexity.
+- **Working As Designed**: This is correct behavior—the diff window shows current state vs. reference baseline, which is the fundamental purpose of the tool.
+
+---
+
+## Steam Process Detection
+
+- `FileMonitoringCoordinator` detects Steam installation via Windows registry.
+- Checks for running steam.exe process on same 3-second timer as file monitoring.
+- Warning shown when both Steam installed and Steam running.
+- Warning automatically dismissed when Steam closes.
+- Tooltip message: "Steam is running. To prevent conflicts, it is recommended to close Steam before making changes to the load order."
+- Detection uses `Process.GetProcessesByName("steam")` for efficient process checking.
+- `SteamWarningChanged` event fired when warning state changes (Steam starts/stops).
+
+---
+
+## Steam Library Parsing
+
+- Steam library parsing supports only the required text `libraryfolders.vdf` subset: quoted keys/values, nested objects, whitespace, and `//` comments outside quoted tokens.
+- The parser accepts exactly one top-level `libraryfolders` object, advances a bounded cursor on every loop, and rejects duplicate keys, unknown or unterminated escapes, missing values, unbalanced braces, extra top-level pairs, and trailing tokens with `FormatException`.
+- Object-valued `libraryfolders` children remain in source order. Missing/non-scalar `path` and missing/non-object `apps` yield null fields; an empty `apps` object yields an empty AppID set.
+- `SettingsService.TryFindStarfieldInSteamLibraries()` catches parser, file, and path failures and returns null, so automatic detection continues through its existing fallback chain.
+
+---
+
+## Navigation & Threading
+
+- Modal windows (`SettingsWindow`, `SwitchProfileWindow`, `ProfilePropertiesWindow`, `ConfirmationDialog`, `AboutWindow`, `UpdateOptionsDialog`, `CommentInputDialog`) block until close; viewmodels flow back via dialog results/events.
+- Non-modal windows (`DiffWindow`, `ManageProfilesWindow`, `ReferenceHistoryWindow`) allow main window interaction while open; `WindowManager` coordinator tracks instances to prevent duplicates and manages window lifecycle.
+- `FileMonitoringCoordinator` timer runs on the UI thread; service calls are awaited, `IsBusy` gates commands, and UI updates stay on the dispatcher thread.
+
+---
+
+## Error Handling
+
+- Services throw `InvalidOperationException`, `IOException`, or `ArgumentException` when invariants break; `MainViewModel` captures these, updates status via `StatusCoordinator.AddStatusMessage()`, and surfaces `ConfirmationDialog` for errors.
+- All user-facing dialogs use `ConfirmationDialog` with appropriate icon types (Error, Warning, Information) for consistent Material Design v5 styling.
+- `IOException` includes specific messages for common issues: access denied, disk full, network paths.
+- Profiles folder creation failures caught at startup with actionable error dialogs offering settings access.
+- Profile operations (create, copy) validate Profiles folder exists via `ProfileService.EnsureProfilesFolderExists()` before proceeding.
+- All profile folder errors include actionable guidance (check permissions, change location).
+- Secondary windows (ManageProfilesWindow, etc.) append `UserMessages.ConfigInvalidGuidance` or `UserMessages.ProfilesFolderRequired` based on error type.
+- Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parser errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+- **Debug state export** (`DebugStateService`): the report must never contain user-specific paths (sanitize every path and every free-text message with `SanitizeText`), reference history comments, or localized UI text; it serializes dedicated report types (never UI models such as `DiffLineModel`), writes enums by name, and lists only real changes (no `Unchanged`/`Separator` rows). Each optional section is captured independently and failures go to `CaptureWarnings` instead of aborting the export.
+
+---
+
+## ViewModel Test-Seam Constructor Pattern
+
+ViewModels that accumulate coordinator dependencies (subscriptions to `FileMonitoringCoordinator`, `ConfigurationCoordinator`, etc.) use an internal test-seam constructor to allow unit testing without a full `MainViewModel` dependency graph.
+
+**Convention:**
+
+```csharp
+/// <summary>
+/// Test-only constructor. Accepts a pre-populated collection and skips all
+/// coordinator subscriptions that require a full <see cref="MainViewModel"/>
+/// dependency graph. Not for production use.
+/// </summary>
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+internal DiffDialogViewModel(ObservableCollection<DiffLineModel> diffLines)
+{
+    _mainViewModel = null!;
+    // ... minimal wiring: collection view, stub commands, UpdateDiffState
+}
+```
+
+**Rules:**
+
+1. **`internal` visibility** — accessible to the test project via `[assembly: InternalsVisibleTo("LoadOrderKeeper.Tests")]` in the main `.csproj`. Not visible to external consumers.
+2. **`[EditorBrowsable(Never)]`** — hides the constructor from IDE completion in production code, making the intent unambiguous.
+3. **`null!` assignment** — production-only fields that are not needed in tests are assigned `null!` to satisfy the compiler's non-nullable analysis. Test code must not call any member that dereferences these fields.
+4. **Stub commands** — async commands that would normally delegate to `MainViewModel` or coordinator workflows are replaced with `() => Task.CompletedTask` lambdas.
+5. **`IDisposable` contract** — `Dispose()` must null-guard any `null!`-assigned field before dereferencing it. The guard must still perform all cleanup that was wired in both constructors (e.g., `DiffLines.CollectionChanged -= OnDiffCollectionChanged`) before returning early.
+
+**When to apply:** Add a test-seam constructor whenever a ViewModel constructor performs coordinator subscriptions that prevent direct instantiation in tests. Do not apply this pattern to ViewModels whose only constructor argument is a simple data model — those can be tested via their production constructor.
+
+**Example (from `DiffDialogViewModel`):** The production constructor subscribes to `FileMonitoringCoordinator.ChangeDetected` and `ConfigurationCoordinator.ValidationChanged`. Both require a live `MainViewModel`. The test-seam constructor accepts an `ObservableCollection<DiffLineModel>` directly, skipping all coordinator wiring, which lets tests drive ViewModel state by mutating the collection.
+
+---
+
+## Release Packaging
+
+- The single-file publish bundles managed assemblies only; the csproj setting `IncludeNativeLibrariesForSelfExtract=true` additionally embeds the WPF native DLLs, and it must stay on, because the MSI ships just the exe and the locale files. Locale JSONs are side-by-side files and must be shipped by every distribution channel (ZIP and MSI). See [tech-stack.md](tech-stack.md#packaging--distribution).
+- `installer/Product.wxs` must list every locale file; `UpgradeCode` and existing component GUIDs must not change.
+
+## Configuration Validation
+
+- `ConfigurationCoordinator` caches validation state to minimize repeated file system checks.
+- `AppConfigModel.IsValid()` validates paths AND Plugins.txt existence AND Profiles folder creation/writability with test file.
+- Error banner (`ShowErrorBanner` from coordinator) shown in main window when paths invalid; includes "Open settings" button.
+- Status banner in settings window provides real-time feedback with error/success states:
+  - **Error state**: Shows specific path issues (app data invalid, game path invalid, both invalid, Data folder missing, Plugins.txt missing, Profiles folder access issues)
+  - **Success state**: Confirms "The configured paths are valid" with checkmark icon
+- Validation runs on: window open, input blur, save button click, auto-detected path click.
+- Validation order: paths configured ? paths exist ? Data folder exists ? Plugins.txt exists ? Profiles folder writable.
+- All operations gated by validation check to prevent I/O failures with invalid paths.
+- `ConfigurationCoordinator.GetValidationResult()` provides detailed error messages for debugging and user feedback.
+- Centralized error messages in `Constants/UserMessages.cs` for easy modification and future localization.
+- **Overlay Integration**: Secondary windows subscribe to `ConfigurationCoordinator.ValidationChanged` event via constructor injection for real-time overlay management.
+
+[<< Back to Index](README.md)

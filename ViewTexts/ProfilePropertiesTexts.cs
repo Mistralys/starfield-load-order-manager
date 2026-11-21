@@ -23,6 +23,8 @@ namespace LoadOrderKeeper.ViewTexts
         // Labels
         public string LabelLabelText => _localization.GetString("ProfileProperties", "LabelLabelText");
         public string DescriptionLabelText => _localization.GetString("ProfileProperties", "DescriptionLabelText");
+        public string LabelHintText => _localization.GetString("ProfileProperties", "LabelHintText");
+        public string DescriptionHintText => _localization.GetString("ProfileProperties", "DescriptionHintText");
         
         // Buttons
         public string SaveButtonText => _localization.GetString("ProfileProperties", "SaveButtonText");
@@ -46,6 +48,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(WindowTitleEdit));
             OnPropertyChanged(nameof(LabelLabelText));
             OnPropertyChanged(nameof(DescriptionLabelText));
+            OnPropertyChanged(nameof(LabelHintText));
+            OnPropertyChanged(nameof(DescriptionHintText));
             OnPropertyChanged(nameof(SaveButtonText));
             OnPropertyChanged(nameof(CreateButtonText));
             OnPropertyChanged(nameof(CancelButtonText));

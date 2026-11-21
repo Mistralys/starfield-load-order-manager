@@ -263,10 +263,10 @@ public sealed class ProfileModelTests
     public void Label_AcceptsSpecialCharacters()
     {
         // Arrange & Act
-        var profile = new ProfileModel("test", "Test™ Profile © 2024");
+        var profile = new ProfileModel("test", "Testâ„¢ Profile Â© 2024");
 
         // Assert
-        Assert.Equal("Test™ Profile © 2024", profile.Label);
+        Assert.Equal("Testâ„¢ Profile Â© 2024", profile.Label);
     }
 
     [Fact]

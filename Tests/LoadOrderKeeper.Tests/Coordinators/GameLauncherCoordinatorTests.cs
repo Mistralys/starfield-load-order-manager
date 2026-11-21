@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.Tests.Fixtures;
 using Xunit;
 
 namespace LoadOrderKeeper.Tests.Coordinators;
@@ -10,13 +11,15 @@ namespace LoadOrderKeeper.Tests.Coordinators;
 /// Tests for GameLauncherCoordinator covering SFSE detection, game launching,
 /// executable path resolution, and play button text updates.
 /// </summary>
-public sealed class GameLauncherCoordinatorTests : IDisposable
+[Collection(LocaleSequentialCollection.Name)]
+public sealed class GameLauncherCoordinatorTests : IClassFixture<EnglishLocaleFixture>, IDisposable
 {
     private readonly GameLauncherCoordinator _coordinator;
     private readonly string _testGamePath;
 
-    public GameLauncherCoordinatorTests()
+    public GameLauncherCoordinatorTests(EnglishLocaleFixture localeFixture)
     {
+        _ = localeFixture; // Ensures en-US culture is active for the lifetime of this test class
         _coordinator = new GameLauncherCoordinator();
         _testGamePath = Path.Combine(Path.GetTempPath(), "TestStarfield", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_testGamePath);

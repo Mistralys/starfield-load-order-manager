@@ -2,21 +2,30 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using LoadOrderKeeper.Helpers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Models;
 using Microsoft.Win32;
-using Gameloop.Vdf;
-using Gameloop.Vdf.Linq;
 
 namespace LoadOrderKeeper.Services
 {
     public static class SettingsService
     {
-        private static readonly string ConfigPath =
+        private static readonly string DefaultConfigFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                         "LoadOrderKeeper",
-                         "config.json");
+                         "LoadOrderKeeper");
+
+        /// <summary>
+        /// Redirects the config folder (config.json, error log) away from the per-user default.
+        /// Reserved for the test assembly, which sets it once at startup so tests never touch the
+        /// real user configuration. Null restores the default.
+        /// </summary>
+        internal static string? ConfigFolderOverride { get; set; }
+
+        private static string ConfigFolder => ConfigFolderOverride ?? DefaultConfigFolder;
+
+        private static string ConfigPath => Path.Combine(ConfigFolder, "config.json");
 
         private const string StarfieldAppId = "1716740";
 
@@ -91,7 +100,7 @@ namespace LoadOrderKeeper.Services
 
         public static string GetConfigFolderPath()
         {
-            return Path.GetDirectoryName(ConfigPath) ?? string.Empty;
+            return ConfigFolder;
         }
 
         /// <summary>
@@ -209,53 +218,17 @@ namespace LoadOrderKeeper.Services
                     return null;
                 }
 
-                // Parse the VDF file
-                dynamic vdfData = VdfConvert.Deserialize(File.ReadAllText(libraryFoldersPath));
-
-                // The VDF structure has a "libraryfolders" key at the root
-                var libraryFolders = vdfData.Value as VObject;
-                if (libraryFolders == null)
+                var libraries = SteamLibraryVdfParser.Parse(File.ReadAllText(libraryFoldersPath));
+                foreach (var library in libraries)
                 {
-                    return null;
-                }
-
-                // Iterate through each library folder (they have numeric keys: "0", "1", "2", ...)
-                foreach (var libraryEntry in libraryFolders)
-                {
-                    var libraryFolder = libraryEntry.Value as VObject;
-                    if (libraryFolder == null)
-                    {
-                        continue;
-                    }
-
-                    // Get the path property
-                    var pathToken = libraryFolder["path"];
-                    if (pathToken == null)
-                    {
-                        continue;
-                    }
-
-                    var libraryPath = pathToken.ToString();
+                    var libraryPath = library.Path;
                     if (string.IsNullOrWhiteSpace(libraryPath))
                     {
                         continue;
                     }
 
-                    // Check if this library has the apps property
-                    var appsToken = libraryFolder["apps"];
-                    if (appsToken == null)
-                    {
-                        continue;
-                    }
-
-                    var apps = appsToken as VObject;
-                    if (apps == null)
-                    {
-                        continue;
-                    }
-
                     // Check if Starfield's AppID is present in the apps list
-                    if (apps[StarfieldAppId] != null)
+                    if (library.AppIds?.Contains(StarfieldAppId) == true)
                     {
                         // Found Starfield in this library folder
                         var starfieldPath = Path.Combine(libraryPath, "steamapps", "common", "Starfield");

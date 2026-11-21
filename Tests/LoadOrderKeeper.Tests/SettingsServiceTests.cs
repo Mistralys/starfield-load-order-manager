@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Services;
 using Xunit;
@@ -8,6 +9,11 @@ namespace LoadOrderKeeper.Tests;
 
 public class SettingsServiceTests
 {
+    private static readonly MethodInfo SteamLibraryLookupMethod = typeof(SettingsService).GetMethod(
+        "TryFindStarfieldInSteamLibraries",
+        BindingFlags.NonPublic | BindingFlags.Static) ?? throw new InvalidOperationException(
+            "Could not locate SettingsService.TryFindStarfieldInSteamLibraries.");
+
     [Fact]
     public void TryGetDefaultSteamPath_FindsStarfieldInSteamLibrary_WhenLibraryFoldersVdfExists()
     {
@@ -66,12 +72,8 @@ public class SettingsServiceTests
             var vdfPath = Path.Combine(steamAppsPath, "libraryfolders.vdf");
             File.WriteAllText(vdfPath, vdfContent);
 
-            // Act: Use reflection to call the private method with the test path
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            // Act
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert: Should find Starfield in library 0
             Assert.NotNull(result);
@@ -136,11 +138,7 @@ public class SettingsServiceTests
             File.WriteAllText(vdfPath, vdfContent);
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert: Should return the first library (library1)
             Assert.NotNull(result);
@@ -186,11 +184,7 @@ public class SettingsServiceTests
             File.WriteAllText(vdfPath, vdfContent);
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert
             Assert.Null(result);
@@ -216,11 +210,7 @@ public class SettingsServiceTests
             // Note: No steamapps folder or VDF file created
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert
             Assert.Null(result);
@@ -266,11 +256,7 @@ public class SettingsServiceTests
             File.WriteAllText(vdfPath, vdfContent);
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert: Should return null because Data folder doesn't exist
             Assert.Null(result);
@@ -302,11 +288,7 @@ public class SettingsServiceTests
             File.WriteAllText(vdfPath, vdfContent);
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert: Should fail silently and return null
             Assert.Null(result);
@@ -353,11 +335,7 @@ public class SettingsServiceTests
             File.WriteAllText(vdfPath, vdfContent);
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert: Should normalize path with backslashes
             Assert.NotNull(result);
@@ -408,11 +386,7 @@ public class SettingsServiceTests
             File.WriteAllText(vdfPath, vdfContent);
 
             // Act
-            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            Assert.NotNull(method);
-
-            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+            var result = TryFindStarfieldInSteamLibraries(mainSteamPath);
 
             // Assert: Should skip library 0 and find in library 1
             Assert.NotNull(result);
@@ -425,5 +399,48 @@ public class SettingsServiceTests
                 Directory.Delete(tempRoot, recursive: true);
             }
         }
+    }
+
+    [Fact]
+    public void TryFindStarfieldInSteamLibraries_SkipsLibrariesWithNonObjectAppsProperty()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), "SteamLibraryTest_" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var mainSteamPath = Path.Combine(tempRoot, "Steam");
+            var steamAppsPath = Path.Combine(mainSteamPath, "steamapps");
+            Directory.CreateDirectory(steamAppsPath);
+
+            var libraryPath = Path.Combine(tempRoot, "Library");
+            Directory.CreateDirectory(Path.Combine(libraryPath, "steamapps", "common", "Starfield", "Data"));
+
+            var vdfContent = @"""libraryfolders""
+{
+	""0"" { ""path"" ""C:\\NotUsed"" ""apps"" ""not-an-object"" }
+	""1"" { ""path"" """ + libraryPath.Replace("\\", "\\\\") + @""" ""apps"" { ""1716740"" ""1"" } }
+}";
+            File.WriteAllText(Path.Combine(steamAppsPath, "libraryfolders.vdf"), vdfContent);
+
+            var method = typeof(SettingsService).GetMethod("TryFindStarfieldInSteamLibraries",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(method);
+
+            var result = method.Invoke(null, new object[] { mainSteamPath }) as string;
+
+            Assert.NotNull(result);
+            Assert.Contains("Library", result);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    private static string? TryFindStarfieldInSteamLibraries(string steamInstallPath)
+    {
+        return SteamLibraryLookupMethod.Invoke(null, new object[] { steamInstallPath }) as string;
     }
 }

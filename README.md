@@ -23,7 +23,7 @@ SLOK helps you to stop that from happening.
 - Restores the correct order with one click
 - Appends new mods safely at the end
 - Supports multiple profiles (different load orders for different characters)
-- Shows an intelligent diff of what changed
+- Shows an intelligent diff of what changed, with contextual guidance on the risks of each change type
 - Maintains a version history with rollback support
 - Can launch the game (uses SFSE if present)
 
@@ -73,6 +73,22 @@ On first launch, the app asks for:
 
 It auto-detects common locations, but you can browse manually.
 
+## **Reporting a Bug**
+
+If something looks wrong, open **Debug → Copy Debug State** in the main window (or **File → Copy Debug State** in the Changes window) and paste the result into a [GitHub issue](https://github.com/Mistralys/starfield-load-order-manager/issues).
+
+The report holds your OS and app version, settings, profiles, both mod list files, the detected changes and the status log, which is usually enough to reproduce a diff problem. Your Windows user name is replaced with `%USERPROFILE%`, and reference history comments are left out.
+
+---
+
+## **Project Tools**
+
+The repository includes a lightweight CLI menu for common maintenance tasks. Run `menu.cmd` from the repo root to open it.
+
+- `d` starts a Debug build of the solution
+- `r` runs the application in Debug mode
+- `m` runs the docs merge tool in `Tools\MergeDocs.ps1`
+
 ---
 
 ## **License**
@@ -84,5 +100,5 @@ It auto-detects common locations, but you can browse manually.
 I created this for my own use, and decided to share it with the community.
 
 It was entirely developed using **AI-assisted coding techniques** with GPT-5.1-Codex and Claude Sonnet 4.
-If you are interested in the development process, the folder [Docs/Agents/Development History](./Docs/Agents/Development%20History)
+If you are interested in the development process, the folder [Docs/Agents/implementation-history](./Docs/Agents/implementation-history)
 contains the individual agent plans used to incrementally build the application.

@@ -1,0 +1,56 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Diff change type brushes -->
+    <SolidColorBrush x:Key="DiffBrush.Added" Color="#1A4CAF50" />
+    <SolidColorBrush x:Key="DiffBrush.Removed" Color="#1AF44336" />
+    <SolidColorBrush x:Key="DiffBrush.Inserted" Color="#1AFFEB3B" />
+    <SolidColorBrush x:Key="DiffBrush.Moved" Color="#1A2196F3" />
+    <SolidColorBrush x:Key="DiffBrush.Replaced" Color="#1A9C27B0" />
+    <SolidColorBrush x:Key="DiffBrush.Context" Color="#08FFFFFF" />
+
+    <!-- Sorting recommendation banner -->
+    <SolidColorBrush x:Key="DiffBrush.SortingBannerBackground" Color="#FFFFA726" />
+    <SolidColorBrush x:Key="DiffBrush.SortingBannerBorder" Color="#FFFF9800" />
+
+    <!-- Sidebar guidance card backgrounds -->
+    <SolidColorBrush x:Key="DiffBrush.GuidanceRemovalBackground" Color="#33F44336" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceInsertionBackground" Color="#33FF9800" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceReplacementBackground" Color="#339C27B0" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceAddedBackground" Color="#334CAF50" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceMovedBackground" Color="#332196F3" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceSidebarBackground" Color="#0AFFFFFF" />
+
+    <!--
+        Diff change type foreground brushes (icons)
+
+        Naming rule for foreground brush keys:
+          • Sidebar cards whose icon colour MATCHES the diff-list icon for the same change type
+            reuse the plain DiffBrush.{ChangeType}Foreground key (no prefix).
+            e.g. the Removal card icon reuses DiffBrush.RemovedForeground because its colour
+            is identical to the Removed diff-list icon.
+
+          • Sidebar cards whose icon colour DIFFERS from the diff-list icon get a
+            Guidance-prefixed key: DiffBrush.Guidance{ChangeType}Foreground.
+            e.g. the Replacement card icon is purple (#9C27B0) while the diff-list Replaced
+            icon is blue (#42A5F5), so it uses DiffBrush.GuidanceReplacementForeground.
+
+        This asymmetry is intentional — do not "fix" it by normalising all sidebar keys to
+        Guidance-prefixed or all to plain keys. The prefix signals a colour difference.
+
+        Keys currently reused by sidebar cards (no Guidance prefix):
+            DiffBrush.RemovedForeground, DiffBrush.InsertedForeground, DiffBrush.AddedForeground
+
+        Keys unique to sidebar cards (Guidance prefix):
+            DiffBrush.GuidanceReplacementForeground — Replacement card (purple)
+            DiffBrush.GuidanceMovedForeground       — Moved card (blue, reserved for WP-003)
+    -->
+    <SolidColorBrush x:Key="DiffBrush.AddedForeground" Color="#66BB6A" />
+    <SolidColorBrush x:Key="DiffBrush.RemovedForeground" Color="#EF5350" />
+    <SolidColorBrush x:Key="DiffBrush.MovedForeground" Color="#FFA726" />
+    <SolidColorBrush x:Key="DiffBrush.ReplacedForeground" Color="#42A5F5" />
+    <SolidColorBrush x:Key="DiffBrush.InsertedForeground" Color="#FF9800" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceReplacementForeground" Color="#9C27B0" />
+    <SolidColorBrush x:Key="DiffBrush.GuidanceMovedForeground" Color="#2196F3" />
+
+</ResourceDictionary>

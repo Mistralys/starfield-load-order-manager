@@ -17,8 +17,16 @@
     <RepositoryUrl>git@github.com:Mistralys/starfield-load-order-manager.git</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <ApplicationIcon>Docs\Design\Favicon\icon.ico</ApplicationIcon>
-    <Version>1.4.0</Version>
+    <Version>2.0.0</Version>
+    <!-- Single-file publish: embed the WPF native DLLs in the exe (extracted to %TEMP%\.net on first start) so the MSI only needs the exe and the locale files. -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>LoadOrderKeeper.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 
   <ItemGroup>
     <None Include=".github\dependabot.yml" />
@@ -29,7 +37,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
     <PackageReference Include="MaterialDesignColors" Version="5.3.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
   </ItemGroup>

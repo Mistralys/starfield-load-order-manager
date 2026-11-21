@@ -1,0 +1,4 @@
+{
+  "description": "Findings of Tools/ReleaseCheck.ps1 that were reviewed and accepted. Every rule needs a reason. 'check' is the check id, 'match' a regular expression tested against the finding key (see Tools/README.md).",
+  "rules": []
+}

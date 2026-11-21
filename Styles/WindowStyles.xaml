@@ -7,7 +7,7 @@
            TargetType="Window"
            BasedOn="{StaticResource {x:Type Window}}">
         <Setter Property="FontFamily" Value="Segoe UI" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="Auto" />
     </Style>

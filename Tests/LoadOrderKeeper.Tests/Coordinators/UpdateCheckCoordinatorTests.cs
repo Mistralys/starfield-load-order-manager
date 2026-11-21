@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LoadOrderKeeper.Coordinators;
 using LoadOrderKeeper.Models;
+using LoadOrderKeeper.Tests.Fixtures;
 using Xunit;
 
 namespace LoadOrderKeeper.Tests.Coordinators;
@@ -12,12 +13,14 @@ namespace LoadOrderKeeper.Tests.Coordinators;
 /// Note: These tests focus on coordinator behavior. UpdateCheckService (which makes HTTP calls)
 /// is tested separately with mocked responses.
 /// </summary>
-public sealed class UpdateCheckCoordinatorTests : IDisposable
+[Collection(LocaleSequentialCollection.Name)]
+public sealed class UpdateCheckCoordinatorTests : IClassFixture<EnglishLocaleFixture>, IDisposable
 {
     private readonly UpdateCheckCoordinator _coordinator;
 
-    public UpdateCheckCoordinatorTests()
+    public UpdateCheckCoordinatorTests(EnglishLocaleFixture localeFixture)
     {
+        _ = localeFixture; // Ensures en-US culture is active for the lifetime of this test class
         _coordinator = new UpdateCheckCoordinator();
     }
 

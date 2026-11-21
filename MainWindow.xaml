@@ -291,8 +291,8 @@
                                           d:Text="Steam is running. To prevent conflicts, it is recommended to close Steam before making changes to the load order."
                                           TextWrapping="Wrap"
                                           Foreground="{DynamicResource MaterialDesignPaper}"
-                                          FontSize="13"
-                                          LineHeight="18"
+                                          FontSize="14"
+                                          LineHeight="19"
                                           VerticalAlignment="Center" />
                             </Grid>
                         </Border>
@@ -328,7 +328,7 @@
                                                 CornerRadius="2">
                                             <TextBlock Text="{Binding DisplayText}"
                                                        TextWrapping="Wrap"
-                                                       FontSize="11">
+                                                       FontSize="12">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Style.Triggers>

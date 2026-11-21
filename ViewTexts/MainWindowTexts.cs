@@ -24,6 +24,7 @@ namespace LoadOrderKeeper.ViewTexts
         // Show Changes Button
         public string ShowChangesButtonText => _localization.GetString("MainWindow", "ShowChangesButtonText");
         public string ShowChangesButtonTextWithCount => _localization.GetString("MainWindow", "ShowChangesButtonTextWithCount");
+        public string ShowChangesButtonTextWithDependents => _localization.GetString("MainWindow", "ShowChangesButtonTextWithDependents");
         
         // Dismiss Tooltip
         public string DismissTooltip => _localization.GetString("MainWindow", "DismissTooltip");
@@ -50,6 +51,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(OpenSettingsButtonText));
             OnPropertyChanged(nameof(ShowChangesButtonText));
             OnPropertyChanged(nameof(ShowChangesButtonTextWithCount));
+            OnPropertyChanged(nameof(ShowChangesButtonTextWithDependents));
             OnPropertyChanged(nameof(DismissTooltip));
             OnPropertyChanged(nameof(PlayButtonSfse));
             OnPropertyChanged(nameof(PlayButtonVanilla));

@@ -129,7 +129,7 @@
                         Margin="0,0,0,8">
                 <TextBlock Text="{Binding Texts.DetectedPathsLabel}"
                            d:Text="Detected: "
-                           FontSize="11"
+                           FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 <Button Style="{StaticResource MaterialDesignFlatButton}"
                         Padding="0"
@@ -140,12 +140,13 @@
                         Visibility="{Binding HasDetectedAppDataPath, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="{Binding DetectedAppDataPath, Mode=OneWay}"
                                d:Text="C:\Users\Example\AppData\Local\Starfield"
-                               FontSize="11"
+                               FontSize="12"
                                Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                TextDecorations="None" />
                 </Button>
-                <TextBlock Text="(None found)"
-                           FontSize="11"
+                <TextBlock Text="{Binding DataContext.Texts.NoneFoundText, RelativeSource={RelativeSource AncestorType=Window}}"
+                           d:Text="(None found)"
+                           FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            DataContext="{Binding HasDetectedAppDataPath}"
                            Style="{StaticResource InverseBooleanToVisibilityStyle}" />
@@ -183,7 +184,7 @@
                         Margin="0,0,0,8">
                 <TextBlock Text="{Binding Texts.DetectedPathsLabel}"
                            d:Text="Detected: "
-                           FontSize="11"
+                           FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}" />
                 <Button Style="{StaticResource MaterialDesignFlatButton}"
                         Padding="0"
@@ -194,12 +195,13 @@
                         Visibility="{Binding HasDetectedGamePath, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBlock Text="{Binding DetectedGamePath, Mode=OneWay}"
                                d:Text="C:\Program Files (x86)\Steam\steamapps\common\Starfield"
-                               FontSize="11"
+                               FontSize="12"
                                Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                TextDecorations="None" />
                 </Button>
-                <TextBlock Text="(None found)"
-                           FontSize="11"
+                <TextBlock Text="{Binding DataContext.Texts.NoneFoundText, RelativeSource={RelativeSource AncestorType=Window}}"
+                           d:Text="(None found)"
+                           FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            DataContext="{Binding HasDetectedGamePath}"
                            Style="{StaticResource InverseBooleanToVisibilityStyle}" />
@@ -288,7 +290,7 @@
                        Margin="0,0,0,8"
                        Text="{Binding Texts.CustomEditorPathInfo}"
                        d:Text="Leave empty to use Windows default text editor."
-                       FontSize="11"
+                       FontSize="12"
                        Foreground="{DynamicResource MaterialDesignBodyLight}"
                        TextWrapping="Wrap" />
 

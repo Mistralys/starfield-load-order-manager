@@ -23,7 +23,7 @@
            TargetType="DataGridColumnHeader"
            BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="Padding" Value="8,8,8,8" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="Background" Value="{DynamicResource MaterialDesignSelection}" />

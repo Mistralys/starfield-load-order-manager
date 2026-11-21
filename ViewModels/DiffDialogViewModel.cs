@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LoadOrderKeeper.Models;
@@ -35,6 +36,7 @@ namespace LoadOrderKeeper.ViewModels
     public partial class DiffDialogViewModel : ObservableObject, IDisposable
     {
         private readonly MainViewModel _mainViewModel;
+        private readonly ListCollectionView _filteredDiffLines;
         private bool _suppressCollectionNotification;
         private string _lastDiffSignature = string.Empty;
         private bool _isRefreshing;
@@ -45,16 +47,43 @@ namespace LoadOrderKeeper.ViewModels
         [ObservableProperty]
         private bool _isOperationInProgress;
 
+        [ObservableProperty]
+        private bool _showAllMods = false;
+
+        // ── Sidebar card expansion state ────────────────────────────────────────
+        // _isRemovalCardExpanded uses a field initializer so the test-only constructor
+        // (which never runs production-constructor code) inherits the correct true default.
+        [ObservableProperty]
+        private bool _isRemovalCardExpanded = true;
+
+        [ObservableProperty]
+        private bool _isInsertionCardExpanded;
+
+        [ObservableProperty]
+        private bool _isReplacementCardExpanded;
+
+        [ObservableProperty]
+        private bool _isAddedCardExpanded;
+
+        [ObservableProperty]
+        private bool _isMovedCardExpanded;
+
+        [ObservableProperty]
+        private bool _isNoChangesCardExpanded;
+
         public bool ShowOverlay => !IsConfigValid && !IsOperationInProgress;
 
         // Add localization texts
         public DiffDialogTexts Texts { get; } = new();
         public MenuViewModel Menu => _mainViewModel.Menu;
 
-        public DiffDialogViewModel(IEnumerable<DiffLineModel> diffLines, MainViewModel mainViewModel)
+        public DiffDialogViewModel(IEnumerable<DiffLineModel> trimmedLines, IEnumerable<DiffLineModel> fullLines, MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
-            DiffLines = new ObservableCollection<DiffLineModel>(diffLines);
+            var trimmedList = trimmedLines.ToList();
+            DiffLines = new ObservableCollection<DiffLineModel>(fullLines);
+            _filteredDiffLines = new ListCollectionView(DiffLines);
+            _filteredDiffLines.Filter = FilterDiffLines;
             DiffLines.CollectionChanged += OnDiffCollectionChanged;
             UpdateReferenceCommand = new AsyncRelayCommand(UpdateReferenceWithConfirmationAsync, CanUpdateReference);
             FixLoadOrderCommand = _mainViewModel.FixLoadOrderCommand;
@@ -73,16 +102,52 @@ namespace LoadOrderKeeper.ViewModels
             var coordinator = _mainViewModel.GetFileMonitoringCoordinator();
             coordinator.ChangeDetected += OnFileChangeDetected;
             
+            ApplyLineNumbers(DiffLines);
             UpdateDiffState();
-            _lastDiffSignature = BuildSignature(DiffLines);
+            _lastDiffSignature = BuildSignature(trimmedList);
             DiffStatusMessage = Texts.DifferencesLoadedStatus;
+
+            // Restore card expansion states from config
+            _isRemovalCardExpanded = _mainViewModel.Config.DiffRemovalCardExpanded;
+            _isInsertionCardExpanded = _mainViewModel.Config.DiffInsertionCardExpanded;
+            _isReplacementCardExpanded = _mainViewModel.Config.DiffReplacementCardExpanded;
+            _isAddedCardExpanded = _mainViewModel.Config.DiffAddedCardExpanded;
+            _isMovedCardExpanded = _mainViewModel.Config.DiffMovedCardExpanded;
+            _isNoChangesCardExpanded = _mainViewModel.Config.DiffNoChangesCardExpanded;
+        }
+
+        /// <summary>
+        /// Test-only constructor. Accepts a pre-populated diff collection and skips all
+        /// coordinator subscriptions that require a full <see cref="MainViewModel"/> dependency
+        /// graph. Not for production use.
+        /// </summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        internal DiffDialogViewModel(ObservableCollection<DiffLineModel> diffLines)
+        {
+            _mainViewModel = null!;
+            DiffLines = diffLines;
+            _filteredDiffLines = new ListCollectionView(DiffLines);
+            _filteredDiffLines.Filter = FilterDiffLines;
+            DiffLines.CollectionChanged += OnDiffCollectionChanged;
+            UpdateReferenceCommand = new AsyncRelayCommand(() => Task.CompletedTask);
+            FixLoadOrderCommand = new AsyncRelayCommand(() => Task.CompletedTask);
+            ReEnableModCommand = new AsyncRelayCommand<DiffLineModel>(_ => Task.CompletedTask);
+            RemoveNewModCommand = new AsyncRelayCommand<DiffLineModel>(_ => Task.CompletedTask);
+            ReplaceRemovedModCommand = new AsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)>(_ => Task.CompletedTask);
+            ToggleDependentChangesCommand = new RelayCommand<DiffLineModel>(ToggleDependentChanges);
+            ApplyLineNumbers(DiffLines);
+            UpdateDiffState();
         }
 
         public ObservableCollection<DiffLineModel> DiffLines { get; }
 
+        public ICollectionView FilteredDiffLines => _filteredDiffLines;
+
         public string Title => Texts.WindowTitle;
 
         public string Description => Texts.DescriptionText;
+
+        public string ShowAllModsToggleText => Texts.ShowAllModsToggleText;
 
         public string UpdateReferenceButtonText
         {
@@ -98,6 +163,10 @@ namespace LoadOrderKeeper.ViewModels
         public string FixLoadOrderButtonText => Texts.FixLoadOrderButtonText;
 
         public string DiscardChangesButtonText => Texts.DiscardChangesButtonText;
+
+        public string UpdateReferenceButtonTooltip => Texts.AcceptChangesButtonTooltip;
+
+        public string DiscardChangesButtonTooltip => Texts.DiscardChangesButtonTooltip;
 
         public string CloseButtonText => Texts.CloseButtonText;
 
@@ -125,22 +194,91 @@ namespace LoadOrderKeeper.ViewModels
 
         public IRelayCommand OpenPluginsFileCommand => _mainViewModel.OpenPluginsFileCommand;
 
+        public IRelayCommand OpenReferenceFileCommand => _mainViewModel.OpenReferenceFileCommand;
+
+        public IRelayCommand OpenAppDataFolderCommand => _mainViewModel.OpenAppDataFolderCommand;
+
+        public IRelayCommand OpenGameFolderCommand => _mainViewModel.OpenGameFolderCommand;
+
+        public IAsyncRelayCommand CopyDebugStateCommand => _mainViewModel.CopyDebugStateCommand;
+
+        public string CopyDebugStateMenuText => Texts.CopyDebugStateMenuText;
+
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;
-
-        public bool ShowMultipleReplacementsHelp => HasMultipleReplacementsOrRemovals;
-
-        public string MultipleReplacementsHelpMessage => Texts.MultipleChangesHelp;
-
-        private bool HasMultipleReplacementsOrRemovals => 
-            DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed || line.ChangeType == DiffChangeType.Replaced) > 1;
 
         public IReadOnlyList<DiffLineModel> AddedMods => DiffLines.Where(line => line.ChangeType == DiffChangeType.Added).ToList();
 
         public bool HasAddedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Added);
 
         public bool HasInsertedMods => DiffLines.Any(line => line.ChangeType == DiffChangeType.Inserted);
+
+        public string InsertedWarningTooltip => Texts.InsertedWarningTooltip;
+
+        // ── Change type counts ──────────────────────────────────────────────────
+        public int RemovedModCount => DiffLines.Count(l => l.ChangeType == DiffChangeType.Removed);
+        public int InsertedModCount => DiffLines.Count(l => l.ChangeType == DiffChangeType.Inserted);
+        public int ReplacedModCount => DiffLines.Count(l => l.ChangeType == DiffChangeType.Replaced);
+        public int AddedModCount => DiffLines.Count(l => l.ChangeType == DiffChangeType.Added);
+        public int MovedModCount => DiffLines.Count(l => l.ChangeType == DiffChangeType.Moved);
+
+        // ── Sidebar card visibility ─────────────────────────────────────────────
+        // The sidebar container itself is always rendered; card-level visibility
+        // properties control which cards appear and disappear.
+        public bool HasRemovedMods => RemovedModCount > 0;
+        public bool HasReplacedMods => ReplacedModCount > 0;
+        public bool ShowRemovalGuidance => HasDifferences && HasRemovedMods;
+        public bool ShowInsertionGuidance => HasDifferences && HasInsertedMods;
+        public bool ShowReplacementGuidance => HasDifferences && HasReplacedMods;
+        public bool ShowAddedGuidance => HasDifferences && HasAddedMods;
+        public bool ShowMovedGuidance => HasDifferences && MovedModCount > 0;
+        public bool ShowNoChangesGuidance => !HasDifferences;
+
+        // ── Count display strings (singular / plural) ───────────────────────────
+        public string RemovedModCountText => RemovedModCount == 1
+            ? Texts.GuidanceRemovalCountSingular
+            : string.Format(Texts.GuidanceRemovalCountFormat, RemovedModCount);
+
+        public string InsertedModCountText => InsertedModCount == 1
+            ? Texts.GuidanceInsertionCountSingular
+            : string.Format(Texts.GuidanceInsertionCountFormat, InsertedModCount);
+
+        public string ReplacedModCountText => ReplacedModCount == 1
+            ? Texts.GuidanceReplacementCountSingular
+            : string.Format(Texts.GuidanceReplacementCountFormat, ReplacedModCount);
+
+        public string AddedModCountText => AddedModCount == 1
+            ? Texts.GuidanceAddedCountSingular
+            : string.Format(Texts.GuidanceAddedCountFormat, AddedModCount);
+
+        public string MovedModCountText => MovedModCount == 1
+            ? Texts.GuidanceMovedCountSingular
+            : string.Format(Texts.GuidanceMovedCountFormat, MovedModCount);
+
+        // ── Pass-through text properties for sidebar card headings and body text ─
+        // DiffWindow.xaml binds to VM properties rather than Texts.* sub-paths,
+        // consistent with all other text bindings in the file.
+        public string GuidanceSidebarTitle => Texts.GuidanceSidebarTitle;
+        public string GuidanceRemovalTitle => Texts.GuidanceRemovalTitle;
+        public string GuidanceRemovalBody => Texts.GuidanceRemovalBody;
+        public string GuidanceInsertionTitle => Texts.GuidanceInsertionTitle;
+        public string GuidanceInsertionBody => Texts.GuidanceInsertionBody;
+        public string GuidanceReplacementTitle => Texts.GuidanceReplacementTitle;
+        public string GuidanceReplacementBody => Texts.GuidanceReplacementBody;
+        public string GuidanceAddedTitle => Texts.GuidanceAddedTitle;
+        public string GuidanceAddedBody => Texts.GuidanceAddedBody;
+        public string GuidanceMovedTitle => Texts.GuidanceMovedTitle;
+        public string GuidanceMovedBody => Texts.GuidanceMovedBody;
+        public string GuidanceNoChangesTitle => Texts.GuidanceNoChangesTitle;
+        public string GuidanceNoChangesBody => Texts.GuidanceNoChangesBody;
+
+        // ── Tooltip pass-through properties for PackIcon bindings ───────────────
+        // Added, Removed, Replaced, Moved only — Inserted already has InsertedWarningTooltip.
+        public string AddedTooltip => Texts.AddedTooltip;
+        public string RemovedTooltip => Texts.RemovedTooltip;
+        public string ReplacedTooltip => Texts.ReplacedTooltip;
+        public string MovedTooltip => Texts.MovedTooltip;
 
         public IAsyncRelayCommand UpdateReferenceCommand { get; }
 
@@ -216,16 +354,29 @@ namespace LoadOrderKeeper.ViewModels
             }
         }
 
+        /// <summary>
+        /// Recomputes <see cref="HasDifferences"/> and <see cref="ScrollTargetIndex"/>, then
+        /// broadcasts a full property-change notification via
+        /// <c>OnPropertyChanged(string.Empty)</c>.
+        /// <para>
+        /// Using <c>string.Empty</c> (rather than individual <c>nameof(...)</c> calls) is the
+        /// documented CommunityToolkit.Mvvm convention for signalling that all properties on the
+        /// ViewModel may have changed. This covers every computed property —
+        /// <c>ShowRemovalGuidance</c>, <c>ShowAddedGuidance</c>, <c>ShowMovedGuidance</c>,
+        /// count text strings, etc. — without requiring a manual update each time a new
+        /// computed property is added.
+        /// </para>
+        /// <para>
+        /// Note: <see cref="HasDifferences"/> receives two <c>PropertyChanged</c> notifications
+        /// per call — one from <c>SetProperty</c> and one from the bulk broadcast. WPF bindings
+        /// are idempotent, so this is harmless and is an accepted trade-off of the pattern.
+        /// </para>
+        /// </summary>
         private void UpdateDiffState()
         {
-            HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged);
+            HasDifferences = DiffLines.Any(line => line.ChangeType != DiffChangeType.Unchanged && line.ChangeType != DiffChangeType.Separator);
             ScrollTargetIndex = ComputeScrollTargetIndex();
-            OnPropertyChanged(nameof(ShowSortingRecommendation));
-            OnPropertyChanged(nameof(ShowMultipleReplacementsHelp));
-            OnPropertyChanged(nameof(AddedMods));
-            OnPropertyChanged(nameof(HasAddedMods));
-            OnPropertyChanged(nameof(HasInsertedMods));
-            OnPropertyChanged(nameof(UpdateReferenceButtonText));
+            OnPropertyChanged(string.Empty);
         }
 
         private int ComputeScrollTargetIndex()
@@ -235,11 +386,16 @@ namespace LoadOrderKeeper.ViewModels
                 return -1;
             }
 
+            if (!ShowAllMods)
+            {
+                return HasDifferences ? 0 : -1;
+            }
+
             if (HasDifferences)
             {
                 for (int index = 0; index < DiffLines.Count; index++)
                 {
-                    if (DiffLines[index].ChangeType != DiffChangeType.Unchanged)
+                    if (DiffLines[index].ChangeType != DiffChangeType.Unchanged && DiffLines[index].ChangeType != DiffChangeType.Separator)
                     {
                         return index;
                     }
@@ -249,13 +405,13 @@ namespace LoadOrderKeeper.ViewModels
             return DiffLines.Count - 1;
         }
 
-        private void ReplaceDiffLines(IEnumerable<DiffLineModel> newLines)
+        private void ReplaceDiffLines(IEnumerable<DiffLineModel> fullLines)
         {
             _suppressCollectionNotification = true;
             try
             {
                 DiffLines.Clear();
-                foreach (var line in newLines)
+                foreach (var line in fullLines)
                 {
                     DiffLines.Add(line);
                 }
@@ -264,13 +420,56 @@ namespace LoadOrderKeeper.ViewModels
             {
                 _suppressCollectionNotification = false;
             }
-            
+
+            ApplyLineNumbers(DiffLines);
+
             // Force property change notifications for all computed properties
             UpdateDiffState();
-            
-            // Also notify that the DiffLines collection property itself may have changed
-            // This ensures WPF rebinds to the collection
-            OnPropertyChanged(nameof(DiffLines));
+        }
+
+        private bool FilterDiffLines(object item)
+        {
+            if (item is not DiffLineModel line)
+            {
+                return false;
+            }
+
+            if (line.ChangeType == DiffChangeType.Separator)
+            {
+                return false;
+            }
+
+            if (ShowAllMods)
+            {
+                return true;
+            }
+
+            return line.ChangeType != DiffChangeType.Unchanged;
+        }
+
+        partial void OnShowAllModsChanged(bool value)
+        {
+            _filteredDiffLines.Refresh();
+            UpdateDiffState();
+            RequestScroll();
+        }
+
+        private static void ApplyLineNumbers(IEnumerable<DiffLineModel> lines)
+        {
+            var list = lines as IList<DiffLineModel> ?? lines.ToList();
+            int maxNumber = list.Count > 0
+                ? list.Max(l => l.ReferenceNumber ?? l.CurrentNumber ?? 0)
+                : 0;
+            int width = Math.Max(3, maxNumber.ToString().Length);
+            string format = new string('0', width);
+
+            foreach (var line in list)
+            {
+                int? displayNumber = line.ReferenceNumber ?? line.CurrentNumber;
+                line.FormattedLineNumber = displayNumber.HasValue
+                    ? displayNumber.Value.ToString(format)
+                    : string.Empty;
+            }
         }
 
         private static string BuildSignature(IEnumerable<DiffLineModel> lines)
@@ -311,14 +510,15 @@ namespace LoadOrderKeeper.ViewModels
             _isRefreshing = true;
             try
             {
-                var latestLines = await DiffService.GetPluginsDiffAsync(_mainViewModel.Config);
-                string newSignature = BuildSignature(latestLines);
+                var trimmedLines = await DiffService.GetPluginsDiffAsync(_mainViewModel.Config);
+                string newSignature = BuildSignature(trimmedLines);
 
                 bool signatureChanged = !string.Equals(newSignature, _lastDiffSignature, StringComparison.Ordinal);
                 
                 if (signatureChanged)
                 {
-                    ReplaceDiffLines(latestLines);
+                    var fullLines = await DiffService.GetFullPluginsDiffAsync(_mainViewModel.Config);
+                    ReplaceDiffLines(fullLines);
                     _lastDiffSignature = newSignature;
                     DiffStatusMessage = reason ?? Texts.DifferencesLoadedStatus;
                     RequestScroll();
@@ -461,24 +661,57 @@ namespace LoadOrderKeeper.ViewModels
 
         private bool CanUpdateReference()
         {
-            return _mainViewModel.CreateReferenceCommand?.CanExecute(null) ?? false;
+            return _mainViewModel?.CreateReferenceCommand?.CanExecute(null) ?? false;
+        }
+
+        /// <summary>
+        /// Builds a risk-specific confirmation message based on the current diff state.
+        /// </summary>
+        /// <returns>
+        /// <c>null</c> when only safe change types are present (Added, Replaced, Moved, or
+        /// Unchanged) — no confirmation dialog is required. A non-<c>null</c> formatted string
+        /// when at least one <see cref="DiffChangeType.Removed"/> or
+        /// <see cref="DiffChangeType.Inserted"/> line is present; the string is passed directly
+        /// to the <see cref="ConfirmationRequested"/> event so the view can display it in a
+        /// warning dialog before the update proceeds.
+        /// </returns>
+        internal string? BuildConfirmationMessage()
+        {
+            var removedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Removed);
+            var insertedCount = DiffLines.Count(line => line.ChangeType == DiffChangeType.Inserted);
+
+            if (removedCount == 0 && insertedCount == 0)
+                return null;
+
+            var detailLines = new List<string>();
+
+            if (removedCount > 0)
+            {
+                detailLines.Add(removedCount == 1
+                    ? Texts.ConfirmRiskyDetail_RemovedSingular
+                    : string.Format(Texts.ConfirmRiskyDetail_Removals, removedCount));
+            }
+
+            if (insertedCount > 0)
+            {
+                detailLines.Add(insertedCount == 1
+                    ? Texts.ConfirmRiskyDetail_InsertedSingular
+                    : string.Format(Texts.ConfirmRiskyDetail_Insertions, insertedCount));
+            }
+
+            string detailBlock = string.Join("\n", detailLines);
+            return string.Format(Texts.ConfirmUpdateMessage_RiskyChanges, detailBlock);
         }
 
         private async Task UpdateReferenceWithConfirmationAsync()
         {
-            // Check if we have removed or inserted mods that require confirmation
-            var removedMods = DiffLines.Where(line => line.ChangeType == DiffChangeType.Removed).ToList();
-            var insertedMods = DiffLines.Where(line => line.ChangeType == DiffChangeType.Inserted).ToList();
+            string? confirmMessage = BuildConfirmationMessage();
 
-            bool hasRemovedMods = removedMods.Any();
-            bool hasInsertedMods = insertedMods.Any();
-
-            if (hasRemovedMods || hasInsertedMods)
+            if (confirmMessage is not null)
             {
-                // Request confirmation from the view
                 var eventArgs = new ConfirmationRequestedEventArgs(
                     Texts.ConfirmUpdateTitle,
-                    Texts.ConfirmUpdateMessage,
+                    confirmMessage,
                     ConfirmationIcon.Warning,
                     ConfirmationButton.YesNo);
                 ConfirmationRequested?.Invoke(this, eventArgs);
@@ -499,7 +732,7 @@ namespace LoadOrderKeeper.ViewModels
 
         private async void OnFileChangeDetected(object? sender, Coordinators.Events.ChangeDetectedEventArgs e)
         {
-            string reason = e.HasChanges ? "Detected changes" : "Plugins.txt now matches the reference";
+            string reason = e.HasChanges ? Texts.DetectedChangesStatus : Texts.MatchesReferenceStatus;
             await RefreshDiffAsync(reason);
         }
 
@@ -518,9 +751,66 @@ namespace LoadOrderKeeper.ViewModels
             OnPropertyChanged(nameof(ShowOverlay));
         }
 
+        // ── Sidebar card toggle commands ────────────────────────────────────────
+
+        [RelayCommand]
+        private void ToggleRemovalCard() => IsRemovalCardExpanded = !IsRemovalCardExpanded;
+
+        [RelayCommand]
+        private void ToggleInsertionCard() => IsInsertionCardExpanded = !IsInsertionCardExpanded;
+
+        [RelayCommand]
+        private void ToggleReplacementCard() => IsReplacementCardExpanded = !IsReplacementCardExpanded;
+
+        [RelayCommand]
+        private void ToggleAddedCard() => IsAddedCardExpanded = !IsAddedCardExpanded;
+
+        [RelayCommand]
+        private void ToggleMovedCard() => IsMovedCardExpanded = !IsMovedCardExpanded;
+
+        [RelayCommand]
+        private void ToggleNoChangesCard() => IsNoChangesCardExpanded = !IsNoChangesCardExpanded;
+
+        // ── Persistence ─────────────────────────────────────────────────────────
+
+        /// <summary>Returns the persisted sidebar width, or 300.0 if not available.</summary>
+        internal double GetSidebarWidth()
+        {
+            return _mainViewModel?.Config.DiffSidebarWidth ?? 300.0;
+        }
+
+        /// <summary>
+        /// Writes the current sidebar width and all card expansion states back to config
+        /// and persists to disk. Guarded for the test-only constructor where
+        /// <see cref="_mainViewModel"/> is <c>null</c>.
+        /// </summary>
+        internal async Task PersistWindowStateAsync(double sidebarWidth)
+        {
+            if (_mainViewModel is null)
+            {
+                return;
+            }
+
+            _mainViewModel.Config.DiffSidebarWidth = sidebarWidth;
+            _mainViewModel.Config.DiffRemovalCardExpanded = IsRemovalCardExpanded;
+            _mainViewModel.Config.DiffInsertionCardExpanded = IsInsertionCardExpanded;
+            _mainViewModel.Config.DiffReplacementCardExpanded = IsReplacementCardExpanded;
+            _mainViewModel.Config.DiffAddedCardExpanded = IsAddedCardExpanded;
+            _mainViewModel.Config.DiffMovedCardExpanded = IsMovedCardExpanded;
+            _mainViewModel.Config.DiffNoChangesCardExpanded = IsNoChangesCardExpanded;
+
+            await SettingsService.SaveSettingsAsync(_mainViewModel.Config);
+        }
+
         public void Dispose()
         {
             DiffLines.CollectionChanged -= OnDiffCollectionChanged;
+
+            if (_mainViewModel is null)
+            {
+                return;
+            }
+
             _mainViewModel.PropertyChanged -= OnMainViewModelPropertyChanged;
             var fileCoordinator = _mainViewModel.GetFileMonitoringCoordinator();
             fileCoordinator.ChangeDetected -= OnFileChangeDetected;

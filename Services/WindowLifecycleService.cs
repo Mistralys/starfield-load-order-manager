@@ -57,9 +57,10 @@ namespace LoadOrderKeeper.Services
                 return;
             }
 
-            var diffLines = await DiffService.GetPluginsDiffAsync(config);
-            
-            var diffViewModel = new DiffDialogViewModel(diffLines, mainViewModel);
+            var trimmedLines = await DiffService.GetPluginsDiffAsync(config);
+            var fullLines = await DiffService.GetFullPluginsDiffAsync(config);
+
+            var diffViewModel = new DiffDialogViewModel(trimmedLines, fullLines, mainViewModel);
             _diffWindow = new DiffWindow
             {
                 Owner = owner,

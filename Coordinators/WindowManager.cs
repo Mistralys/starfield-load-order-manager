@@ -35,7 +35,7 @@ namespace LoadOrderKeeper.Coordinators
                 return _diffWindow;
             }
 
-            var diffViewModel = new DiffDialogViewModel(diffLines, mainViewModel);
+            var diffViewModel = new DiffDialogViewModel(diffLines, System.Array.Empty<LoadOrderKeeper.Models.DiffLineModel>(), mainViewModel);
             _diffWindow = new DiffWindow
             {
                 Owner = owner,

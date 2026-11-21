@@ -22,6 +22,7 @@ namespace LoadOrderKeeper.ViewTexts
         // Labels
         public string AppDataPathLabel => _localization.GetString("Settings", "AppDataPathLabel");
         public string GamePathLabel => _localization.GetString("Settings", "GamePathLabel");
+        public string NoneFoundText => _localization.GetString("Settings", "NoneFoundText");
         public string DetectedPathsLabel => _localization.GetString("Settings", "DetectedPathsLabel");
         
         // Buttons
@@ -66,6 +67,7 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(GamePathLabel));
             OnPropertyChanged(nameof(LanguageLabel));
             OnPropertyChanged(nameof(DetectedPathsLabel));
+            OnPropertyChanged(nameof(NoneFoundText));
             OnPropertyChanged(nameof(BrowseButtonText));
             OnPropertyChanged(nameof(UseDetectedAppDataButtonText));
             OnPropertyChanged(nameof(UseDetectedGamePathButtonText));

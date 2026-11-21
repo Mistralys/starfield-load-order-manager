@@ -1,5 +1,34 @@
 # Changelog
 
+## v2.0.0 - Load Order Change Guidance
+
+**The Changes window now detects load order changes far more reliably and explains the risk of each one.**
+Moves, replacements, insertions and removals are classified accurately, and mods that merely shifted
+are grouped under their cause. A resizable guidance sidebar adds color-coded risk advice, and the main
+window now counts both changes and affected mods.
+
+- Changes Window: Rebuilt change detection for reliable moves, replacements, insertions and removals.
+- Changes Window: Mods that merely shifted are grouped under the change that caused them.
+- Changes Window: Added a guidance sidebar with color-coded risk cards for every change type.
+- Changes Window: The sidebar is resizable, its cards collapse, and both are remembered.
+- Changes Window: Unchanged mods are shown around each change, with separators between groups.
+- Changes Window: Added a "show all mods" toggle; by default only changes and context are listed.
+- Changes Window: Dependent changes now state their cause in a localized summary.
+- Changes Window: Added tooltips to the change icons explaining each change and its implications.
+- Changes Window: The "Update reference" dialog now warns specifically about removed or inserted mods.
+- Changes Window: Widened the default window to fit the sidebar.
+- Changes Window: Fixed the File menu items "Open reference file", "Open AppData folder" and "Open game folder" doing nothing.
+- Changes Window: Renamed the buttons and added tooltips to clarify their actions.
+- Changes Window: Added "Copy Debug State" to the File menu.
+- Debug: Improved the debug state information collected to be more exhaustive.
+- Main Window: The changes button now shows the number of changes and of affected mods.
+- Translation: All new guidance texts are available in all 8 languages, with live switching.
+- Profiles: A stale active profile is now repaired to the default profile at startup.
+- General: Refreshed the window sizing and styling of the main and settings windows.
+- Translation: Fixed the About window title, the profile and history context menus and the profile input hints, which always appeared in English.
+- Translation: Fixed several clashing menu access keys in German, Spanish, French and Portuguese.
+- General: Fixed the MSI installer not starting the app and not including the translation files.
+
 ## v1.9.0 - External Editor
 - General: Added a setting to choose an external text editor for opening files.
 - Profiles: Fixed an issue where opening the settings would revert back to the default profile.

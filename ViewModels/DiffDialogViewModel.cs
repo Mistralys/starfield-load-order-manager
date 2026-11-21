@@ -190,6 +190,12 @@ namespace LoadOrderKeeper.ViewModels
 
         public IRelayCommand OpenPluginsFileCommand => _mainViewModel.OpenPluginsFileCommand;
 
+        public IRelayCommand OpenReferenceFileCommand => _mainViewModel.OpenReferenceFileCommand;
+
+        public IRelayCommand OpenAppDataFolderCommand => _mainViewModel.OpenAppDataFolderCommand;
+
+        public IRelayCommand OpenGameFolderCommand => _mainViewModel.OpenGameFolderCommand;
+
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;

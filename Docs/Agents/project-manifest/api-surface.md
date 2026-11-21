@@ -1079,6 +1079,12 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand<(DiffLineModel Removed, DiffLineModel Replacement)> ReplaceRemovedModCommand { get; }
     public IRelayCommand<DiffLineModel> ToggleDependentChangesCommand { get; }
 
+    // File-menu commands forwarded to MainViewModel
+    public IRelayCommand OpenPluginsFileCommand { get; }
+    public IRelayCommand OpenReferenceFileCommand { get; }
+    public IRelayCommand OpenAppDataFolderCommand { get; }
+    public IRelayCommand OpenGameFolderCommand { get; }
+
     // Sidebar card toggle commands
     public IRelayCommand ToggleRemovalCardCommand { get; }
     public IRelayCommand ToggleInsertionCardCommand { get; }

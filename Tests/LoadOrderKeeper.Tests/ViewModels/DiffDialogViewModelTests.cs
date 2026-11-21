@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using LoadOrderKeeper.Models;
 using LoadOrderKeeper.Tests.Fixtures;
 using LoadOrderKeeper.ViewModels;
@@ -34,8 +37,34 @@ public sealed class DiffDialogViewModelTests : IClassFixture<EnglishLocaleFixtur
     private static DiffLineModel Line(DiffChangeType changeType, string name = "Mod.esm") =>
         new(name, name, changeType, referenceNumber: 1, currentNumber: 1);
 
+    private static string ThisFile([System.Runtime.CompilerServices.CallerFilePath] string path = "") => path;
+
     private static DiffDialogViewModel Create(IEnumerable<DiffLineModel> lines) =>
         new(new ObservableCollection<DiffLineModel>(lines));
+
+    // ── XAML binding contract ───────────────────────────────────────────────────
+
+    [Fact]
+    public void DiffWindowXaml_SimpleCommandBindings_ResolveToViewModelProperties()
+    {
+        // WPF silently ignores bindings to missing properties, so a menu item bound to an
+        // unexposed command simply does nothing. Guard every plain "Command={Binding X}".
+        var dir = new DirectoryInfo(Path.GetDirectoryName(ThisFile())!);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Views", "DiffWindow.xaml")))
+            dir = dir.Parent;
+        Assert.NotNull(dir);
+
+        var xaml = File.ReadAllText(Path.Combine(dir!.FullName, "Views", "DiffWindow.xaml"));
+        var bound = System.Text.RegularExpressions.Regex
+            .Matches(xaml, @"Command=""\{Binding (\w+)\}""")
+            .Select(m => m.Groups[1].Value)
+            .Distinct()
+            .ToList();
+
+        Assert.Contains("OpenReferenceFileCommand", bound);
+        var missing = bound.Where(name => typeof(DiffDialogViewModel).GetProperty(name) == null).ToList();
+        Assert.True(missing.Count == 0, "DiffWindow.xaml binds commands missing from DiffDialogViewModel: " + string.Join(", ", missing));
+    }
 
     // ── ShowRemovalGuidance ──────────────────────────────────────────────────────
 

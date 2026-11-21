@@ -23,7 +23,7 @@
     "OpenReferenceMenuText": "Abrir Arquivo de _Referência",
     "OpenAppDataFolderMenuText": "Abrir Pasta _AppData",
     "OpenGameFolderMenuText": "Abrir Pasta do _Jogo",
-    "ExitMenuText": "Sai_r",
+    "ExitMenuText": "_Sair",
     "EditMenuHeader": "_Editar",
     "SettingsMenuText": "_Configurações...",
     "ProfileMenuHeader": "_Perfil",
@@ -45,6 +45,7 @@
     "PluginsModifiedWarningText": "Plugins.txt foi modificado fora do Load Order Keeper."
   },
   "About": {
+    "WindowTitle": "Sobre",
     "ApplicationName": "Starfield Load Order Keeper",
     "Description": "Uma ferramenta para ajudar a gerenciar e manter sua ordem de carregamento de mods do Starfield depois que você iniciou um jogo.",
     "HomepageButtonText": "Página inicial",
@@ -82,6 +83,7 @@
     "NoButtonText": "Não"
   },
   "Settings": {
+    "NoneFoundText": "(Nenhum encontrado)",
     "WindowTitle": "Configurações",
     "AppDataPathLabel": "Caminho AppData do Starfield:",
     "GamePathLabel": "Caminho do Jogo Starfield:",
@@ -210,7 +212,7 @@
     "WindowTitle": "Gerenciar Perfis",
     "FileMenuText": "_Arquivo",
     "AddProfileMenuText": "Adicionar Perfil",
-    "ExitMenuText": "Sai_r",
+    "ExitMenuText": "_Sair",
     "EditProfileMenuText": "Editar",
     "DeleteProfileMenuText": "Excluir",
     "CopyProfileMenuText": "Copiar",
@@ -222,6 +224,8 @@
     "DefaultProfileDescription": "O perfil padrão está sempre disponível."
   },
   "ProfileProperties": {
+    "LabelHintText": "Digite o rótulo do perfil",
+    "DescriptionHintText": "Digite a descrição do perfil (opcional)",
     "WindowTitleCreate": "Criar Perfil",
     "WindowTitleEdit": "Editar Perfil",
     "LabelLabelText": "Rótulo:",
@@ -244,9 +248,11 @@
     "CurrentProfileLabel": "Perfil Atual"
   },
   "ReferenceHistory": {
+    "RollbackMenuText": "Reverter para esta versão...",
+    "EditCommentMenuText": "Editar comentário",
     "WindowTitle": "Histórico de Versões do Arquivo de Referência",
     "FileMenuText": "_Arquivo",
-    "ExitMenuText": "Sai_r",
+    "ExitMenuText": "_Sair",
     "EditMenuText": "_Editar",
     "ClearHistoryMenuText": "Limpar o _histórico...",
     "RollbackButtonText": "Reverter para versão selecionada...",

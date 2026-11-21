@@ -23,7 +23,7 @@
     "OpenReferenceMenuText": "_Referenzdatei öffnen",
     "OpenAppDataFolderMenuText": "_AppData-Ordner öffnen",
     "OpenGameFolderMenuText": "_Spielordner öffnen",
-    "ExitMenuText": "_Schließen",
+    "ExitMenuText": "S_chließen",
     "EditMenuHeader": "_Bearbeiten",
     "SettingsMenuText": "_Einstellungen...",
     "ProfileMenuHeader": "_Profil",
@@ -34,7 +34,7 @@
     "HelpMenuHeader": "_Hilfe",
     "CheckForUpdatesMenuText": "Nach _Updates suchen...",
     "AboutMenuText": "Ü_ber...",
-    "DebugMenuHeader": "_Debug",
+    "DebugMenuHeader": "D_ebug",
     "ResetConfigMenuText": "Konfiguration _zurücksetzen (für Tests)...",
     "OpenConfigFolderMenuText": "_Konfigurationsordner öffnen",
     "ThrowTestExceptionMenuText": "_Testausnahme werfen",
@@ -45,6 +45,7 @@
     "PluginsModifiedWarningText": "Plugins.txt wurde außerhalb von Load Order Keeper geändert."
   },
   "About": {
+    "WindowTitle": "Über",
     "ApplicationName": "Starfield Load Order Keeper",
     "Description": "Ein Tool zur Verwaltung und Pflege Ihrer Starfield-Mods-Ladereihenfolge, nachdem Sie ein Spiel gestartet haben.",
     "HomepageButtonText": "Homepage",
@@ -82,6 +83,7 @@
     "NoButtonText": "Nein"
   },
   "Settings": {
+    "NoneFoundText": "(Keine gefunden)",
     "WindowTitle": "Einstellungen",
     "AppDataPathLabel": "Starfield App Data Pfad:",
     "GamePathLabel": "Starfield Spielpfad:",
@@ -201,8 +203,8 @@
     "GuidanceNoChangesTitle": "Keine Änderungen",
     "GuidanceNoChangesBody": "Die aktuelle Ladereihenfolge stimmt mit der Referenzdatei überein.",
     "ConfirmUpdateMessage_RiskyChanges": "Sie sind dabei, Änderungen in der Referenz zu speichern, die riskante Modifikationen enthalten:\n\n{0}\nDas Speichern dieser Änderungen aktualisiert die Referenzdatei. Diese Aktion erstellt eine neue Version im Verlauf, aber die Positionsverschiebungen werden dauerhaft.\n\nSind Sie sicher, dass Sie alle Änderungen in der Referenz speichern möchten?",
-    "ConfirmRiskyDetail_Removals": "• {0} entfernter Mod(s) — Positionen verschoben, Speicherstand-Referenzen können beschädigt werden",
-    "ConfirmRiskyDetail_Insertions": "• {0} eingefügter Mod(s) — nachfolgende Positionen verschoben",
+    "ConfirmRiskyDetail_Removals": "• {0} Mod(s) entfernt — Positionen verschoben, Speicherstand-Referenzen können beschädigt werden",
+    "ConfirmRiskyDetail_Insertions": "• {0} Mod(s) eingefügt — nachfolgende Positionen verschoben",
     "ConfirmRiskyDetail_RemovedSingular": "• 1 entfernter Mod — Positionen verschoben, Speicherstand-Referenzen können beschädigt werden",
     "ConfirmRiskyDetail_InsertedSingular": "• 1 eingefügter Mod — nachfolgende Positionen verschoben"
   },
@@ -210,7 +212,7 @@
     "WindowTitle": "Profile verwalten",
     "FileMenuText": "_Datei",
     "AddProfileMenuText": "Profil hinzufügen",
-    "ExitMenuText": "_Schließen",
+    "ExitMenuText": "S_chließen",
     "EditProfileMenuText": "Bearbeiten",
     "DeleteProfileMenuText": "Löschen",
     "CopyProfileMenuText": "Kopieren",
@@ -222,6 +224,8 @@
     "DefaultProfileDescription": "Das Standardprofil ist immer verfügbar."
   },
   "ProfileProperties": {
+    "LabelHintText": "Profilbezeichnung eingeben",
+    "DescriptionHintText": "Profilbeschreibung eingeben (optional)",
     "WindowTitleCreate": "Profil erstellen",
     "WindowTitleEdit": "Profil bearbeiten",
     "LabelLabelText": "Bezeichnung:",
@@ -244,9 +248,11 @@
     "CurrentProfileLabel": "Aktuelles Profil"
   },
   "ReferenceHistory": {
+    "RollbackMenuText": "Auf diese Version zurücksetzen...",
+    "EditCommentMenuText": "Kommentar bearbeiten",
     "WindowTitle": "Referenzdatei-Versionsverlauf",
     "FileMenuText": "_Datei",
-    "ExitMenuText": "_Schließen",
+    "ExitMenuText": "S_chließen",
     "EditMenuText": "_Bearbeiten",
     "ClearHistoryMenuText": "Verlauf _löschen...",
     "RollbackButtonText": "Auf ausgewählte Version zurücksetzen...",

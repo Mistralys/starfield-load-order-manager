@@ -34,17 +34,18 @@
     "HelpMenuHeader": "_Aide",
     "CheckForUpdatesMenuText": "Rechercher des _mises à jour...",
     "AboutMenuText": "À _propos...",
-    "DebugMenuHeader": "_Débogage",
+    "DebugMenuHeader": "Dé_bogage",
     "ResetConfigMenuText": "_Réinitialiser la configuration (pour tests)...",
     "OpenConfigFolderMenuText": "Ouvrir le _dossier de configuration",
     "ThrowTestExceptionMenuText": "_Lancer une exception de test",
-    "CopyDebugStateMenuText": "Copier l'état de _débogage",
+    "CopyDebugStateMenuText": "Copier l'état de dé_bogage",
     "DownloadOptionsButtonText": "Options de téléchargement...",
     "ActiveProfilePrefixText": "Profil actif : ",
     "RecentStatusMessagesText": "Messages d'état récents :",
     "PluginsModifiedWarningText": "Plugins.txt a été modifié en dehors de Load Order Keeper."
   },
   "About": {
+    "WindowTitle": "À propos",
     "ApplicationName": "Starfield Load Order Keeper",
     "Description": "Un outil pour aider à gérer et maintenir l'ordre de chargement de vos mods Starfield une fois que vous avez commencé une partie.",
     "HomepageButtonText": "Page d'accueil",
@@ -82,6 +83,7 @@
     "NoButtonText": "Non"
   },
   "Settings": {
+    "NoneFoundText": "(Aucun trouvé)",
     "WindowTitle": "Paramètres",
     "AppDataPathLabel": "Chemin des données d'application Starfield :",
     "GamePathLabel": "Chemin du jeu Starfield :",
@@ -222,6 +224,8 @@
     "DefaultProfileDescription": "Le profil par défaut est toujours disponible."
   },
   "ProfileProperties": {
+    "LabelHintText": "Saisissez le libellé du profil",
+    "DescriptionHintText": "Saisissez la description du profil (facultatif)",
     "WindowTitleCreate": "Créer un profil",
     "WindowTitleEdit": "Modifier le profil",
     "LabelLabelText": "Libellé :",
@@ -244,6 +248,8 @@
     "CurrentProfileLabel": "Profil actuel"
   },
   "ReferenceHistory": {
+    "RollbackMenuText": "Revenir à cette version...",
+    "EditCommentMenuText": "Modifier le commentaire",
     "WindowTitle": "Historique des versions du fichier de référence",
     "FileMenuText": "_Fichier",
     "ExitMenuText": "_Quitter",

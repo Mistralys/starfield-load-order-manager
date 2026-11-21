@@ -144,7 +144,8 @@
                                Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                TextDecorations="None" />
                 </Button>
-                <TextBlock Text="(None found)"
+                <TextBlock Text="{Binding DataContext.Texts.NoneFoundText, RelativeSource={RelativeSource AncestorType=Window}}"
+                           d:Text="(None found)"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            DataContext="{Binding HasDetectedAppDataPath}"
@@ -198,7 +199,8 @@
                                Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                TextDecorations="None" />
                 </Button>
-                <TextBlock Text="(None found)"
+                <TextBlock Text="{Binding DataContext.Texts.NoneFoundText, RelativeSource={RelativeSource AncestorType=Window}}"
+                           d:Text="(None found)"
                            FontSize="12"
                            Foreground="{DynamicResource MaterialDesignBodyLight}"
                            DataContext="{Binding HasDetectedGamePath}"

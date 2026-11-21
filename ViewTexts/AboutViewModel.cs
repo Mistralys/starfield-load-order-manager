@@ -10,6 +10,7 @@ namespace LoadOrderKeeper.ViewTexts
     {
         private readonly LocalizationService _localization = LocalizationService.Instance;
 
+        public string WindowTitle => _localization.GetString("About", "WindowTitle");
         public string ApplicationName => _localization.GetString("About", "ApplicationName");
         public string Description => _localization.GetString("About", "Description");
         public string HomepageButtonText => _localization.GetString("About", "HomepageButtonText");
@@ -32,6 +33,7 @@ namespace LoadOrderKeeper.ViewTexts
         private void OnCultureChanged(object? sender, EventArgs e)
         {
             // Refresh all localized strings
+            OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(ApplicationName));
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(HomepageButtonText));

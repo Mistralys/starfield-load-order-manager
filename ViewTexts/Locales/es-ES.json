@@ -33,7 +33,7 @@
     "ViewPendingChangesMenuText": "_Ver cambios pendientes...",
     "HelpMenuHeader": "A_yuda",
     "CheckForUpdatesMenuText": "Buscar _actualizaciones...",
-    "AboutMenuText": "_Acerca de...",
+    "AboutMenuText": "Acerca _de...",
     "DebugMenuHeader": "_Depuración",
     "ResetConfigMenuText": "_Restablecer configuración (para pruebas)...",
     "OpenConfigFolderMenuText": "Abrir carpeta de _configuración",
@@ -45,6 +45,7 @@
     "PluginsModifiedWarningText": "Plugins.txt fue modificado fuera de Load Order Keeper."
   },
   "About": {
+    "WindowTitle": "Acerca de",
     "ApplicationName": "Starfield Load Order Keeper",
     "Description": "Una herramienta para ayudar a gestionar y mantener el orden de carga de tus mods de Starfield una vez que hayas iniciado un juego.",
     "HomepageButtonText": "Página principal",
@@ -82,6 +83,7 @@
     "NoButtonText": "No"
   },
   "Settings": {
+    "NoneFoundText": "(Ninguna encontrada)",
     "WindowTitle": "Configuración",
     "AppDataPathLabel": "Ruta de datos de la aplicación de Starfield:",
     "GamePathLabel": "Ruta del juego de Starfield:",
@@ -222,6 +224,8 @@
     "DefaultProfileDescription": "El perfil predeterminado siempre está disponible."
   },
   "ProfileProperties": {
+    "LabelHintText": "Introduzca la etiqueta del perfil",
+    "DescriptionHintText": "Introduzca la descripción del perfil (opcional)",
     "WindowTitleCreate": "Crear perfil",
     "WindowTitleEdit": "Editar perfil",
     "LabelLabelText": "Etiqueta:",
@@ -244,6 +248,8 @@
     "CurrentProfileLabel": "Perfil actual"
   },
   "ReferenceHistory": {
+    "RollbackMenuText": "Revertir a esta versión...",
+    "EditCommentMenuText": "Editar comentario",
     "WindowTitle": "Historial de versiones del archivo de referencia",
     "FileMenuText": "_Archivo",
     "ExitMenuText": "_Salir",

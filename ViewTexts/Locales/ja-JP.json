@@ -45,6 +45,7 @@
     "PluginsModifiedWarningText": "Plugins.txt が Load Order Keeper 以外で変更されました。"
   },
   "About": {
+    "WindowTitle": "バージョン情報",
     "ApplicationName": "Starfield Load Order Keeper",
     "Description": "ゲームを開始した後、Starfield の mod ロードオーダーを管理および維持するためのツールです。",
     "HomepageButtonText": "ホームページ",
@@ -82,6 +83,7 @@
     "NoButtonText": "いいえ"
   },
   "Settings": {
+    "NoneFoundText": "（見つかりません）",
     "WindowTitle": "設定",
     "AppDataPathLabel": "Starfield AppData パス：",
     "GamePathLabel": "Starfield ゲームパス：",
@@ -166,9 +168,9 @@
     "AddedText_Action": "に追加されました",
     "ModChangeText_Description": "#{0}：{1} がロードオーダー {2}",
     "MovedText_Description": "{0} が #{1} から #{2} に移動しました",
-    "DependentChangesSummary": "+ {0} 件の Mod が {1} の {2} により移動しました",
-    "DependentChangesSummary_Singular": "+ 1 件の Mod が {1} の {2} により移動しました",
-    "DependentChangesSummary_Generic": "+ {0} 件の Mod 位置がこの変更により影響を受けました",
+    "DependentChangesSummary": "+ {0} 件の MOD が {1} の {2} により移動しました",
+    "DependentChangesSummary_Singular": "+ 1 件の MOD が {1} の {2} により移動しました",
+    "DependentChangesSummary_Generic": "+ {0} 件の MOD 位置がこの変更により影響を受けました",
     "DependentCause_Removed": "削除",
     "DependentCause_Inserted": "挿入",
     "InsertedWarningTooltip": "この Mod はロード順序の中間に挿入されました。先にリストをソートすることをお勧めします。",
@@ -222,6 +224,8 @@
     "DefaultProfileDescription": "デフォルトプロファイルは常に利用可能です。"
   },
   "ProfileProperties": {
+    "LabelHintText": "プロファイルのラベルを入力",
+    "DescriptionHintText": "プロファイルの説明を入力（任意）",
     "WindowTitleCreate": "プロファイルの作成",
     "WindowTitleEdit": "プロファイルの編集",
     "LabelLabelText": "ラベル：",
@@ -244,6 +248,8 @@
     "CurrentProfileLabel": "現在のプロファイル"
   },
   "ReferenceHistory": {
+    "RollbackMenuText": "このバージョンにロールバック...",
+    "EditCommentMenuText": "コメントを編集",
     "WindowTitle": "参照ファイルのバージョン履歴",
     "FileMenuText": "ファイル (_F)",
     "ExitMenuText": "終了 (_X)",

@@ -45,6 +45,8 @@ public partial class ProfilePropertiesViewModel : ObservableObject
     public string CancelButtonText => _texts.CancelButtonText;
     public string LabelLabelText => _texts.LabelLabelText;
     public string DescriptionLabelText => _texts.DescriptionLabelText;
+    public string LabelHintText => _texts.LabelHintText;
+    public string DescriptionHintText => _texts.DescriptionHintText;
 
     /// <summary>
     /// Creates a ViewModel for creating a new profile.

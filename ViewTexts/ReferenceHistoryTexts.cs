@@ -27,6 +27,8 @@ namespace LoadOrderKeeper.ViewTexts
         
         // Buttons
         public string RollbackButtonText => _localization.GetString("ReferenceHistory", "RollbackButtonText");
+        public string RollbackMenuText => _localization.GetString("ReferenceHistory", "RollbackMenuText");
+        public string EditCommentMenuText => _localization.GetString("ReferenceHistory", "EditCommentMenuText");
         public string DeleteVersionButtonText => _localization.GetString("ReferenceHistory", "DeleteVersionButtonText");
         public string ClearHistoryButtonText => _localization.GetString("ReferenceHistory", "ClearHistoryButtonText");
         public string CloseButtonText => _localization.GetString("ReferenceHistory", "CloseButtonText");
@@ -51,6 +53,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(EditMenuText));
             OnPropertyChanged(nameof(ClearHistoryMenuText));
             OnPropertyChanged(nameof(RollbackButtonText));
+            OnPropertyChanged(nameof(RollbackMenuText));
+            OnPropertyChanged(nameof(EditCommentMenuText));
             OnPropertyChanged(nameof(DeleteVersionButtonText));
             OnPropertyChanged(nameof(ClearHistoryButtonText));
             OnPropertyChanged(nameof(CloseButtonText));

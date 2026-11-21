@@ -45,6 +45,7 @@
     "PluginsModifiedWarningText": "Plugins.txt was modified outside Load Order Keeper."
   },
   "About": {
+    "WindowTitle": "About",
     "ApplicationName": "Starfield Load Order Keeper",
     "Description": "A tool to help manage and maintain your Starfield mods load order once you have started a game.",
     "HomepageButtonText": "Homepage",
@@ -82,6 +83,7 @@
     "NoButtonText": "No"
   },
   "Settings": {
+    "NoneFoundText": "(None found)",
     "WindowTitle": "Settings",
     "AppDataPathLabel": "Starfield App Data Path:",
     "GamePathLabel": "Starfield Game Path:",
@@ -222,6 +224,8 @@
     "DefaultProfileDescription": "The default profile is always available."
   },
   "ProfileProperties": {
+    "LabelHintText": "Enter profile label",
+    "DescriptionHintText": "Enter profile description (optional)",
     "WindowTitleCreate": "Create Profile",
     "WindowTitleEdit": "Edit Profile",
     "LabelLabelText": "Label:",
@@ -244,6 +248,8 @@
     "CurrentProfileLabel": "Current Profile"
   },
   "ReferenceHistory": {
+    "RollbackMenuText": "Rollback to this version...",
+    "EditCommentMenuText": "Edit comment",
     "WindowTitle": "Reference File Version History",
     "FileMenuText": "_File",
     "ExitMenuText": "E_xit",

@@ -77,16 +77,16 @@
             </DataGrid.Columns>
             <DataGrid.Resources>
                 <ContextMenu x:Key="RowContextMenu" DataContext="{Binding DataContext, Source={x:Reference ProfileDataGrid}}">
-                    <MenuItem Header="Edit"
+                    <MenuItem Header="{Binding EditProfileMenuText}"
                               Command="{Binding EditProfileCommand}"
                               CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                               Icon="{materialDesign:PackIcon Kind=Edit}" />
-                    <MenuItem Header="Copy"
+                    <MenuItem Header="{Binding CopyProfileMenuText}"
                               Command="{Binding CopyProfileCommand}"
                               CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                               Icon="{materialDesign:PackIcon Kind=ContentCopy}" />
                     <Separator />
-                    <MenuItem Header="Delete"
+                    <MenuItem Header="{Binding DeleteProfileMenuText}"
                               Command="{Binding DeleteProfileCommand}"
                               CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                               Icon="{materialDesign:PackIcon Kind=Delete}" />

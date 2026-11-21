@@ -2,11 +2,25 @@
 
 ## v2.0.0 - Load Order Change Guidance
 
-- Changes Window: Added a recommendations sidebar that displays contextual risk cards for each change type detected (removals, insertions, replacements, new mods, no changes). Cards are color-coded by risk level and always visible alongside the diff list.
-- Changes Window: Added per-item tooltips to all change type icons (Added, Removed, Replaced, Moved). Hovering over an icon now explains the change and its implications. The existing Inserted warning tooltip is unchanged.
-- Changes Window: Enhanced the "Update reference" confirmation dialog with a risk-specific message when removed or inserted mods are present. Safe-only changes (added/replaced) continue to skip the confirmation dialog.
-- Changes Window: Window default width increased to 1060 px (minimum 720 px) to accommodate the new sidebar without reducing diff list readability.
-- Translation: All new guidance strings are fully localized across all 8 supported languages from day one, with live locale switching supported.
+**The Changes window now detects load order changes far more reliably and explains the risk of each one.**
+Moves, replacements, insertions and removals are classified accurately, and mods that merely shifted
+are grouped under their cause. A resizable guidance sidebar adds color-coded risk advice, and the main
+window now counts both changes and affected mods.
+
+- Changes Window: Rebuilt change detection for reliable moves, replacements, insertions and removals.
+- Changes Window: Mods that merely shifted are grouped under the change that caused them.
+- Changes Window: Added a guidance sidebar with color-coded risk cards for every change type.
+- Changes Window: The sidebar is resizable, its cards collapse, and both are remembered.
+- Changes Window: Unchanged mods are shown around each change, with separators between groups.
+- Changes Window: Added a "show all mods" toggle; by default only changes and context are listed.
+- Changes Window: Dependent changes now state their cause in a localized summary.
+- Changes Window: Added tooltips to the change icons explaining each change and its implications.
+- Changes Window: The "Update reference" dialog now warns specifically about removed or inserted mods.
+- Changes Window: Widened the default window to fit the sidebar.
+- Main Window: The changes button now shows the number of changes and of affected mods.
+- Translation: All new guidance texts are available in all 8 languages, with live switching.
+- Profiles: A stale active profile is now repaired to the default profile at startup.
+- General: Refreshed the window sizing and styling of the main and settings windows.
 
 ## v1.9.0 - External Editor
 - General: Added a setting to choose an external text editor for opening files.

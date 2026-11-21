@@ -172,6 +172,7 @@
 - All profile folder errors include actionable guidance (check permissions, change location).
 - Secondary windows (ManageProfilesWindow, etc.) append `UserMessages.ConfigInvalidGuidance` or `UserMessages.ProfilesFolderRequired` based on error type.
 - Steam library detection (`TryFindStarfieldInSteamLibraries`) silently catches all exceptions (missing VDF file, parser errors, I/O errors) and returns null, allowing fallback detection methods to execute.
+- **Debug state export** (`DebugStateService`): the report must never contain user-specific paths (sanitize every path and every free-text message with `SanitizeText`), reference history comments, or localized UI text; it serializes dedicated report types (never UI models such as `DiffLineModel`), writes enums by name, and lists only real changes (no `Unchanged`/`Separator` rows). Each optional section is captured independently and failures go to `CaptureWarnings` instead of aborting the export.
 
 ---
 

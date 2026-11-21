@@ -429,18 +429,29 @@ public sealed class PendingChangesModel
 public sealed class DebugStateModel
 {
     public string ApplicationVersion { get; set; }
+    public EnvironmentState Environment { get; set; }          // OS, framework, architectures, preferred language, active culture
     public ConfigurationState Configuration { get; set; }
     public SteamState Steam { get; set; }
-    public int TotalChangesDetected { get; set; }
+    public List<ProfileEntry> Profiles { get; set; }           // Id, Label, IsActive
+    public FileState PluginsTxt { get; set; }                  // Exists, SizeBytes, LastWriteTimeUtc, IsValidUtf8, HasUtf8Bom, LineEndings
+    public FileState Reference { get; set; }
+    public List<VersionHistoryEntry> ReferenceHistory { get; set; }  // VersionNumber, Timestamp, AddedModCount, RemovedModCount
+    public int TotalChangesDetected { get; set; }              // real top-level changes only
+    public int TotalDependentChanges { get; set; }
     public List<string> PluginsTxtContents { get; set; }
     public List<string> ReferenceContents { get; set; }
-    public List<DiffLineModel> ChangeList { get; set; }
+    public List<ChangeEntry> ChangeList { get; set; }          // ChangeType (enum name), FileName, ReplacementFileName?, ReferenceNumber, CurrentNumber, DependentChanges?
+    public List<StatusEntry> StatusMessages { get; set; }      // Timestamp, Type, sanitized Message
+    public List<string> CaptureWarnings { get; set; }
 
     public sealed class ConfigurationState
     {
         public string AppDataPath { get; set; }
         public string GamePath { get; set; }
         public string? ActiveProfileId { get; set; }
+        public bool IsValid { get; set; }
+        public string? ValidationError { get; set; }
+        public string? CustomEditorPath { get; set; }
     }
 
     public sealed class SteamState
@@ -780,11 +791,16 @@ public static class DebugStateService
     public static Task<string> CaptureDebugStateAsync(
         AppConfigModel config,
         IReadOnlyList<DiffLineModel> changeList,
+        ConfigurationCoordinator? configCoordinator = null,
         StatusCoordinator? statusCoordinator = null);
+
+    internal static List<DebugStateModel.ChangeEntry> BuildChangeEntries(IEnumerable<DiffLineModel> lines);
+    internal static Task<DebugStateModel.FileState> ReadFileStateAsync(string filePath);
+    internal static string SanitizeText(string text);
 }
 ```
 
-**Debug State Contents:** Application version, configuration paths (sanitized), Steam state, diff change list, full Plugins.txt and reference file contents, complete status message history.
+**Debug State Contents:** Application version, environment (OS, framework, architectures, language), sanitized configuration, Steam state, profiles, file facts (size, UTF-8 validity, BOM, line endings) for `Plugins.txt` and the reference, reference history counts, real changes only (context lines and separators dropped; dependent changes nested), full Plugins.txt and reference file contents, complete sanitized status message history, and capture warnings. The change type is serialized by name. Sections are captured independently: a failure is recorded in `CaptureWarnings` and never aborts the export. Reference history comments and mod names are intentionally excluded for privacy.
 
 ### `LoadOrderKeeper.ViewTexts.LocalizationService`
 
@@ -1090,8 +1106,7 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
     public IRelayCommand OpenReferenceFileCommand { get; }
     public IRelayCommand OpenAppDataFolderCommand { get; }
     public IRelayCommand OpenGameFolderCommand { get; }
-
-    // Sidebar card toggle commands
+    public IAsyncRelayCommand CopyDebugStateCommand { get; }
     public IRelayCommand ToggleRemovalCardCommand { get; }
     public IRelayCommand ToggleInsertionCardCommand { get; }
     public IRelayCommand ToggleReplacementCardCommand { get; }

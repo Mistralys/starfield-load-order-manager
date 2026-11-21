@@ -275,20 +275,25 @@
 ## Debug State Export
 
 - `DebugStateService.CaptureDebugStateAsync()` provides comprehensive application state snapshot for troubleshooting.
-- Accessible via Debug menu's "Copy Debug State" command in both main window and diff window.
-- Exports complete JSON snapshot including:
+- Accessible via the "Copy Debug State" command in the main window's Debug menu and in the diff window's File menu (both forward to `MainViewModel.CopyDebugStateCommand`).
+- Exports a JSON snapshot (typed report classes in `DebugStateModel`, not UI models; enums written as names) including:
   - **Application Version**: Current semantic version
-  - **Configuration**: App data path, game path, active profile ID (all paths sanitized)
+  - **Environment**: OS, .NET framework, OS/process architecture, preferred language setting and active culture
+  - **Configuration**: App data path, game path, active profile ID, validity and validation error, custom editor path (all paths sanitized)
   - **Steam State**: Installation status and running status
-  - **Total Changes**: Count of detected differences
-  - **File Contents**: Complete `Plugins.txt` and reference file contents
-  - **Change List**: Full diff with all detected modifications
+  - **Profiles**: Id, label and active flag of every profile (a stale active ID shows as no profile flagged active)
+  - **File Facts** (`PluginsTxt`, `Reference`): existence, size, last write time, UTF-8 validity, BOM, line-ending style (`CRLF`/`LF`/`Mixed`/`None`)
+  - **Reference History**: version number, timestamp and added/removed counts per version (comments and mod names are deliberately left out)
+  - **Total Changes** / **Total Dependent Changes**: Counts of real top-level changes and of grouped shifted mods
+  - **File Contents**: Complete `Plugins.txt` and reference file contents (together with the file facts these reproduce the diff exactly)
+  - **Change List**: Real changes only (`Unchanged` context lines and `Separator` rows are dropped, so a trimmed or full diff yields the same report); dependent changes are nested under their cause
   - **Status Messages**: Complete internal log of all status messages from session start
-- All file paths sanitized automatically (`%USERPROFILE%` placeholder for user profile paths).
+  - **Capture Warnings**: Sections that failed to capture and why; a failing section never aborts the export
+- All file paths and message texts sanitized automatically (`%USERPROFILE%` placeholder for user profile paths, also inside free text).
 - JSON output prettified for readability with indentation.
 - `StatusCoordinator.GetAllMessages()` provides chronological history of all logged messages.
-- Status messages include timestamp, message text, and type (Info, Success, Warning, Error).
-- Enables users to share complete diagnostic information with developers without exposing sensitive data.
+- Status messages include timestamp, sanitized message text, and type (Info, Success, Warning, Error).
+- Enables users to share complete diagnostic information with developers without exposing sensitive data. The README explains how to attach it to a bug report.
 
 ---
 

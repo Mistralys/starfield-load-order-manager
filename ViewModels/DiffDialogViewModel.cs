@@ -200,6 +200,10 @@ namespace LoadOrderKeeper.ViewModels
 
         public IRelayCommand OpenGameFolderCommand => _mainViewModel.OpenGameFolderCommand;
 
+        public IAsyncRelayCommand CopyDebugStateCommand => _mainViewModel.CopyDebugStateCommand;
+
+        public string CopyDebugStateMenuText => Texts.CopyDebugStateMenuText;
+
         public bool ShowSortingRecommendation => HasDifferences && _mainViewModel.SortingRecommendationActive;
 
         public string SortingRecommendationMessage => _mainViewModel.SortingRecommendationMessage;

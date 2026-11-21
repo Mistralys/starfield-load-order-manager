@@ -44,6 +44,10 @@
                               d:Header="Open _Game Folder"
                               Command="{Binding OpenGameFolderCommand}" />
                     <Separator />
+                    <MenuItem Header="{Binding CopyDebugStateMenuText}"
+                              d:Header="Copy Debug State"
+                              Command="{Binding CopyDebugStateCommand}" />
+                    <Separator />
                     <MenuItem Header="{Binding ExitMenuText}"
                               d:Header="E_xit"
                               Click="OnCloseClicked" />

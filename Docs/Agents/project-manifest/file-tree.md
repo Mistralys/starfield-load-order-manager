@@ -196,6 +196,7 @@
       │  └─ ProfileModelTests.cs
       ├─ Services/
       │  ├─ DateTimeFormattingServiceTests.cs
+      │  ├─ DebugStateServiceTests.cs    (change filtering, enum names, file facts, sanitizing)
       │  ├─ ErrorLoggingServiceTests.cs
       │  ├─ VersionServiceTests.cs
       │  └─ ViewModelInitializerTests.cs

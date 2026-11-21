@@ -73,6 +73,14 @@ On first launch, the app asks for:
 
 It auto-detects common locations, but you can browse manually.
 
+## **Reporting a Bug**
+
+If something looks wrong, open **Debug → Copy Debug State** in the main window (or **File → Copy Debug State** in the Changes window) and paste the result into a [GitHub issue](https://github.com/Mistralys/starfield-load-order-manager/issues).
+
+The report holds your OS and app version, settings, profiles, both mod list files, the detected changes and the status log, which is usually enough to reproduce a diff problem. Your Windows user name is replaced with `%USERPROFILE%`, and reference history comments are left out.
+
+---
+
 ## **Project Tools**
 
 The repository includes a lightweight CLI menu for common maintenance tasks. Run `menu.cmd` from the repo root to open it.

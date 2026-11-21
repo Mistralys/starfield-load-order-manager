@@ -69,7 +69,7 @@
   "CommentInput": {
     "WindowTitleCreate": "Mettre à jour le fichier de référence",
     "WindowTitleEdit": "Modifier le commentaire",
-    "PromptTextCreate": "Vous pouvez ajouter un commentaire optionnel pour d�crire les modifications :",
+    "PromptTextCreate": "Vous pouvez ajouter un commentaire optionnel pour décrire les modifications :",
     "PromptTextEdit": "Modifier le commentaire pour cette version :",
     "CommentPlaceholder": "Entrer un commentaire (optionnel)...",
     "OkButtonText": "OK",

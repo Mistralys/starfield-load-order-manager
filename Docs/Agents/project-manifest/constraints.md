@@ -51,7 +51,7 @@
 - `AppConfigModel.IsValid()` requires non-empty paths, existing `StarfieldAppDataPath` and `StarfieldGamePath`, plus `StarfieldGamePath/Data` present.
 - `AppConfigModel.IsValid()` also requires `Plugins.txt` to exist in `StarfieldAppDataPath` (cannot be auto-generated, user must run Starfield at least once).
 - `AppConfigModel.IsValid()` validates Profiles folder creation and writability with test file.
-- **Invalid Configuration Handling**: Application remains open when configuration is invalid; error banner shown in main window with "Open settings" button. No automatic settings dialog is shown during startup�users must explicitly click the error banner button or use the menu when ready to configure paths.
+- **Invalid Configuration Handling**: Application remains open when configuration is invalid; error banner shown in main window with "Open settings" button. No automatic settings dialog is shown during startup—users must explicitly click the error banner button or use the menu when ready to configure paths.
 - **Secondary Window Overlays**: DiffWindow, ManageProfilesWindow, ReferenceHistoryWindow, ViewPendingChangesWindow, and SwitchProfileWindow show `ConfigInvalidOverlay` when configuration becomes invalid.
 - **Overlay Behavior**: Semi-transparent dark overlay blocks all window interaction; automatically disappears when configuration becomes valid again.
 - **State Preservation**: Windows remain open and preserve state during invalid configuration periods; no data loss occurs.
@@ -71,7 +71,7 @@
 - `ActiveProfileId` (default `default`) resides in `AppConfigModel` and is persisted through `SettingsService`.
 - If a persisted `ActiveProfileId` no longer matches an existing profile folder, initialization and profile refresh normalize it to `default` before reference-dependent operations run.
 - The default profile (`id = default`) is virtual, cannot be deleted or edited, and is auto-recreated when files are missing.
-- Profile labels must be unique (case-insensitive), 2�30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
+- Profile labels must be unique (case-insensitive), 2–30 chars, trimmed, and cannot be `Default`; IDs are transliterated ASCII with dash separators via `ProfileService.GenerateProfileId()` and gain numeric suffixes for uniqueness.
 - `ProfileCoordinator` manages active profile state and fires `ProfileChanged` event when profile switches.
 
 ---
@@ -122,14 +122,14 @@
 ## Replacement Workflow Constraints
 
 - **Reference File is Source of Truth**: All diff comparisons are made against the reference file on disk, not in-memory state.
-- **Replacement Operations are Temporary**: `ReplaceModWithNewAsync()` updates `Plugins.txt` immediately but **never** writes to the reference file�only "Accept changes" updates the reference.
+- **Replacement Operations are Temporary**: `ReplaceModWithNewAsync()` updates `Plugins.txt` immediately but **never** writes to the reference file—only "Accept changes" updates the reference.
 - **Sequential Replacements**: When making multiple replacements in one session, users have two options:
   1. Click "Accept changes" after each replacement to persist it before making the next
   2. Make all replacements together, then click "Accept changes" once to accept all
 - **Visual Guidance**: Blue info banner appears in diff window when 2+ removals/replacements detected, explaining the workflow options.
 - **Documented Limitation**: This behavior is documented in application-description.md under "Managing Changes: The DIFF Window" > "Replacement Workflow Notes".
 - **No Session State Management**: The application intentionally does NOT cache replacement state in memory to keep architecture simple and avoid lifecycle management complexity.
-- **Working As Designed**: This is correct behavior�the diff window shows current state vs. reference baseline, which is the fundamental purpose of the tool.
+- **Working As Designed**: This is correct behavior—the diff window shows current state vs. reference baseline, which is the fundamental purpose of the tool.
 
 ---
 

@@ -1,0 +1,35 @@
+# Line endings: Git normalizes text files to LF in the repository and checks them
+# out with the platform's native endings (CRLF on Windows).
+* text=auto
+
+# Windows-only files that must keep CRLF even when checked out elsewhere
+*.sln   text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Unix scripts must keep LF
+*.sh    text eol=lf
+
+# Source and documentation
+*.cs    text diff=csharp
+*.xaml  text
+*.csproj text
+*.wxs   text
+*.wixproj text
+*.json  text
+*.md    text diff=markdown
+*.ps1   text
+*.yml   text
+*.txt   text
+*.vdf   text
+
+# Binary files: never touch, never diff as text
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.psd   binary
+*.exe   binary
+*.dll   binary
+*.msi   binary
+*.zip   binary

@@ -525,8 +525,12 @@ public static class SettingsService
     public static string GetConfigFolderPath();
     public static bool IsStarfieldInstalledViaSteam();
     public static bool IsSteamRunning();
+
+    internal static string? ConfigFolderOverride { get; set; } // test-only: redirects config.json and error log
 }
 ```
+
+`ConfigFolderOverride` is set once by the test assembly (`TestEnvironment`) so tests never touch the user's real `%LOCALAPPDATA%\LoadOrderKeeper` folder. `GetConfigFolderPath()` honors it. Production code never sets it.
 
 ### `LoadOrderKeeper.Services.FileService`
 

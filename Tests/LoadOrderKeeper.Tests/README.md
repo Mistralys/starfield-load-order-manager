@@ -53,6 +53,14 @@ Each scenario test uses `TestConfigContext` (an `IDisposable` wrapper) to isolat
 
 ---
 
+## Config Isolation
+
+`SettingsService` is static and persists to a single `config.json`. `TestEnvironment` (a `[ModuleInitializer]`) points it at a temporary folder for the whole test run via `SettingsService.ConfigFolderOverride`, so running the tests never touches your real settings in `%LOCALAPPDATA%\LoadOrderKeeper`. The folder is deleted when the test process exits.
+
+Because every test shares that one temporary `config.json`, test parallelization is disabled assembly-wide (`AssemblyInfo.cs`).
+
+---
+
 ## Locale-Sensitive Tests
 
 Tests that depend on a specific locale (e.g., date formatting, localization string output) use the `EnglishLocaleFixture` and `LocaleSequentialCollection` to force `en-US` for their test class lifetime and disable parallelization. See `Fixtures/` for details.

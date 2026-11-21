@@ -193,6 +193,8 @@
       ├─ LoadOrderKeeper.Tests.csproj
       ├─ README.md                        (test project overview, trait filter guide, scenario infrastructure notes)
       ├─ TestConfigContext.cs
+      ├─ TestEnvironment.cs               ([ModuleInitializer]: redirects SettingsService to a temp config folder for the whole test run)
+      ├─ AssemblyInfo.cs                  (disables test parallelization; all tests share one temp config.json)
       ├─ ScenarioTestBase.cs              (abstract base: StandardModList, SetupStandardReferenceAsync, assertion helpers)
       ├─ ScenarioTests.cs                 (Scenarios 01–16: diff detection and sorting behavior)
       ├─ ReplacementDetectionDiagnostics.cs  ([Trait("Category","Diagnostic")] companion to Scenario_16; logs LCS diff for regression triage)

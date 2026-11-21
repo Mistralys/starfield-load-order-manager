@@ -12,10 +12,20 @@ namespace LoadOrderKeeper.Services
 {
     public static class SettingsService
     {
-        private static readonly string ConfigPath =
+        private static readonly string DefaultConfigFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                         "LoadOrderKeeper",
-                         "config.json");
+                         "LoadOrderKeeper");
+
+        /// <summary>
+        /// Redirects the config folder (config.json, error log) away from the per-user default.
+        /// Reserved for the test assembly, which sets it once at startup so tests never touch the
+        /// real user configuration. Null restores the default.
+        /// </summary>
+        internal static string? ConfigFolderOverride { get; set; }
+
+        private static string ConfigFolder => ConfigFolderOverride ?? DefaultConfigFolder;
+
+        private static string ConfigPath => Path.Combine(ConfigFolder, "config.json");
 
         private const string StarfieldAppId = "1716740";
 
@@ -90,7 +100,7 @@ namespace LoadOrderKeeper.Services
 
         public static string GetConfigFolderPath()
         {
-            return Path.GetDirectoryName(ConfigPath) ?? string.Empty;
+            return ConfigFolder;
         }
 
         /// <summary>

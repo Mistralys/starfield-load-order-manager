@@ -835,6 +835,10 @@ public static class LocalizationJsonNormalizer
 ```csharp
 public sealed class DiffDialogTexts : ObservableObject
 {
+    // Footer/menu action tooltips (labels: AcceptChangesButtonText = "Save to reference", DiscardChangesButtonText = "Restore from reference")
+    public string AcceptChangesButtonTooltip { get; }
+    public string DiscardChangesButtonTooltip { get; }
+
     // Per-item tooltips (Added, Removed, Replaced, Moved only — Inserted uses InsertedWarningTooltip; unchanged)
     public string AddedTooltip { get; }
     public string RemovedTooltip { get; }
@@ -1070,6 +1074,8 @@ public partial class DiffDialogViewModel : ObservableObject, IDisposable
 
     // UI text pass-throughs
     public string ShowAllModsToggleText { get; }
+    public string UpdateReferenceButtonTooltip { get; }   // "Save to reference" explanation (Texts.AcceptChangesButtonTooltip)
+    public string DiscardChangesButtonTooltip { get; }    // "Restore from reference" explanation
 
     // Commands
     public IAsyncRelayCommand UpdateReferenceCommand { get; }

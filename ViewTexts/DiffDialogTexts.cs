@@ -53,6 +53,8 @@ namespace LoadOrderKeeper.ViewTexts
         // Buttons
         public string AcceptChangesButtonText => _localization.GetString("DiffDialog", "AcceptChangesButtonText");
         public string DiscardChangesButtonText => _localization.GetString("DiffDialog", "DiscardChangesButtonText");
+        public string AcceptChangesButtonTooltip => _localization.GetString("DiffDialog", "AcceptChangesButtonTooltip");
+        public string DiscardChangesButtonTooltip => _localization.GetString("DiffDialog", "DiscardChangesButtonTooltip");
         public string CloseButtonText => _localization.GetString("DiffDialog", "CloseButtonText");
         
         // Column Headers
@@ -161,6 +163,8 @@ namespace LoadOrderKeeper.ViewTexts
             OnPropertyChanged(nameof(DescriptionText));
             OnPropertyChanged(nameof(AcceptChangesButtonText));
             OnPropertyChanged(nameof(DiscardChangesButtonText));
+            OnPropertyChanged(nameof(AcceptChangesButtonTooltip));
+            OnPropertyChanged(nameof(DiscardChangesButtonTooltip));
             OnPropertyChanged(nameof(CloseButtonText));
             OnPropertyChanged(nameof(ChangeColumnHeader));
             OnPropertyChanged(nameof(ModNameColumnHeader));

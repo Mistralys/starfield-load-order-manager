@@ -18,6 +18,7 @@ window now counts both changes and affected mods.
 - Changes Window: The "Update reference" dialog now warns specifically about removed or inserted mods.
 - Changes Window: Widened the default window to fit the sidebar.
 - Changes Window: Fixed the File menu items "Open reference file", "Open AppData folder" and "Open game folder" doing nothing.
+- Changes Window: Renamed the buttons and added tooltips to clarify their actions.
 - Main Window: The changes button now shows the number of changes and of affected mods.
 - Translation: All new guidance texts are available in all 8 languages, with live switching.
 - Profiles: A stale active profile is now repaired to the default profile at startup.

@@ -54,12 +54,16 @@
                               Command="{Binding FixLoadOrderCommand}"
                               IsEnabled="{Binding HasDifferences}" />
                     <MenuItem Header="{Binding UpdateReferenceButtonText}"
-                              d:Header="Accept changes"
+                              d:Header="Save to reference"
+                              ToolTip="{Binding UpdateReferenceButtonTooltip}"
+                              ToolTipService.ShowOnDisabled="True"
                               Command="{Binding UpdateReferenceCommand}"
                               IsEnabled="{Binding HasDifferences}" />
                     <Separator />
                     <MenuItem Header="{Binding DiscardChangesButtonText}"
-                              d:Header="Discard all changes"
+                              d:Header="Restore from reference"
+                              ToolTip="{Binding DiscardChangesButtonTooltip}"
+                              ToolTipService.ShowOnDisabled="True"
                               Command="{Binding DiscardChangesCommand}"
                               IsEnabled="{Binding HasDifferences}" />
                 </MenuItem>
@@ -774,6 +778,8 @@
                     <Button Margin="8,0,0,0"
                             Command="{Binding UpdateReferenceCommand}"
                             IsEnabled="{Binding HasDifferences}"
+                            ToolTip="{Binding UpdateReferenceButtonTooltip}"
+                            ToolTipService.ShowOnDisabled="True"
                             Style="{StaticResource MaterialDesignOutlinedButton}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Check" 
@@ -782,13 +788,15 @@
                                                      VerticalAlignment="Center"
                                                      Margin="0,0,4,0" />
                             <TextBlock Text="{Binding UpdateReferenceButtonText}"
-                                       d:Text="Accept changes"
+                                       d:Text="Save to reference"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <Button Margin="8,0,0,0"
                             Command="{Binding DiscardChangesCommand}"
                             IsEnabled="{Binding HasDifferences}"
+                            ToolTip="{Binding DiscardChangesButtonTooltip}"
+                            ToolTipService.ShowOnDisabled="True"
                             Style="{StaticResource MaterialDesignOutlinedButton}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Delete" 
@@ -797,7 +805,7 @@
                                                      VerticalAlignment="Center"
                                                      Margin="0,0,4,0" />
                             <TextBlock Text="{Binding DiscardChangesButtonText}"
-                                       d:Text="Discard all changes"
+                                       d:Text="Restore from reference"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>

@@ -114,8 +114,10 @@
   "DiffDialog": {
     "WindowTitle": "ロードオーダーの変更",
     "DescriptionText": "現在のロードオーダーと参照の間で次の変更が検出されました：",
-    "AcceptChangesButtonText": "変更を承認",
-    "DiscardChangesButtonText": "変更を破棄",
+    "AcceptChangesButtonText": "参照に保存",
+    "DiscardChangesButtonText": "参照から復元",
+    "AcceptChangesButtonTooltip": "参照を現在の Plugins.txt の順序で上書きします",
+    "DiscardChangesButtonTooltip": "Plugins.txt の順序を参照から復元します",
     "CloseButtonText": "閉じる",
     "ChangeColumnHeader": "変更",
     "ModNameColumnHeader": "Mod 名",
@@ -130,11 +132,11 @@
     "DetectedChangesStatus": "変更を検出しました",
     "MatchesReferenceStatus": "Plugins.txt は参照ファイルと一致しています",
     "FailedToRefreshError": "差異の更新に失敗しました：",
-    "NoDifferencesToDiscardStatus": "破棄する差異がありません。",
-    "CannotDiscardNowStatus": "今は変更を破棄できません。",
-    "ConfirmDiscardTitle": "変更の破棄を確認",
+    "NoDifferencesToDiscardStatus": "復元する差異がありません。",
+    "CannotDiscardNowStatus": "今は参照から復元できません。",
+    "ConfirmDiscardTitle": "参照からの復元を確認",
     "ConfirmDiscardMessage": "すべての変更を破棄し、参照ファイルから Plugins.txt を復元しようとしています。\n\nこの操作は元に戻せません。続行してもよろしいですか？",
-    "DiscardCancelledStatus": "変更の破棄がキャンセルされました。",
+    "DiscardCancelledStatus": "参照からの復元がキャンセルされました。",
     "ReEnabledModStatus": "{0} を再有効化しました",
     "ModAlreadyEnabledStatus": "{0} は既に有効です。",
     "FailedToReEnableError": "{0} の再有効化に失敗しました：",
@@ -145,7 +147,7 @@
     "ModNoLongerPendingStatus": "{0} は保留中ではなくなりました。",
     "FailedToReplaceError": "{0} の置換に失敗しました：",
     "ConfirmUpdateTitle": "参照の更新を確認",
-    "ConfirmUpdateMessage": "現在の Plugins.txt で参照ファイルを更新しようとしています。\n\nこれにより、現在の変更が承認済みとしてマークされ、履歴に新しいバージョンが作成されます。\n\n続行してもよろしいですか？",
+    "ConfirmUpdateMessage": "現在の Plugins.txt で参照ファイルを更新しようとしています。\n\nこれにより、現在の Plugins.txt の順序が新しい参照として保存され、履歴に新しいバージョンが作成されます。\n\n続行してもよろしいですか？",
     "ReferenceUpdateCancelledStatus": "参照の更新がキャンセルされました。",
     "DebugStateCopiedTitle": "デバッグ状態がコピーされました",
     "DebugStateCopiedMessage": "デバッグ状態が JSON 形式でクリップボードに正常にコピーされました。\n\nこの情報を開発者と共有してトラブルシューティングに役立てることができます。",
@@ -198,7 +200,7 @@
     "GuidanceMovedCountSingular": "1 個の MOD が移動しました",
     "GuidanceNoChangesTitle": "変更なし",
     "GuidanceNoChangesBody": "現在のロード順序は参照ファイルと一致しています。",
-    "ConfirmUpdateMessage_RiskyChanges": "リスクのある変更を含む修正を受け入れようとしています：\n\n{0}\nこれらの変更を受け入れると、参照ファイルが更新されます。この操作により履歴に新しいバージョンが作成されますが、位置のシフトは永続的になります。\n\nすべての変更を受け入れてもよろしいですか？",
+    "ConfirmUpdateMessage_RiskyChanges": "リスクのある変更を含む修正を参照に保存しようとしています：\n\n{0}\nこれらの変更を保存すると、参照ファイルが更新されます。この操作により履歴に新しいバージョンが作成されますが、位置のシフトは永続的になります。\n\nすべての変更を参照に保存してもよろしいですか？",
     "ConfirmRiskyDetail_Removals": "• {0} 個の MOD が削除されました——位置がシフトされており、セーブ参照が破損する可能性があります",
     "ConfirmRiskyDetail_Insertions": "• {0} 個の MOD が挿入されました——後続の位置がシフトされました",
     "ConfirmRiskyDetail_RemovedSingular": "• 1 個の MOD が削除されました——位置がシフトされており、セーブ参照が破損する可能性があります",
@@ -327,9 +329,9 @@
     "ReferenceUpdatedSuccess": "参照ファイルが正常に更新されました！",
     "CreatingReference": "参照ファイルを作成しています...",
     "ReferenceCreatedSuccess": "参照が正常に作成されました！読み込み順序を修正できるようになりました。",
-    "DiscardingChanges": "読み込み順序の変更を破棄しています...",
+    "DiscardingChanges": "参照から読み込み順序を復元しています...",
     "ChangesDiscarded": "Plugins.txt が参照から復元されました。",
-    "RolledBackFormat": "バージョン {0} にロールバックしました。変更を受け入れて確認してください。"
+    "RolledBackFormat": "バージョン {0} にロールバックしました。変更を参照に保存して確認してください。"
   }
 }
 

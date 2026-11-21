@@ -164,6 +164,10 @@ namespace LoadOrderKeeper.ViewModels
 
         public string DiscardChangesButtonText => Texts.DiscardChangesButtonText;
 
+        public string UpdateReferenceButtonTooltip => Texts.AcceptChangesButtonTooltip;
+
+        public string DiscardChangesButtonTooltip => Texts.DiscardChangesButtonTooltip;
+
         public string CloseButtonText => Texts.CloseButtonText;
 
         public string NoDifferencesMessage => Texts.NoDifferencesMessage;

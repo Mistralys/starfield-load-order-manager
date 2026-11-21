@@ -695,7 +695,7 @@ namespace LoadOrderKeeper.ViewModels
                 AddStatusMessage($"ERROR: {ex.Message}", StatusMessageType.Error);
                 ConfirmationDialog.Show(
                     "Error",
-                    $"Failed to discard changes: {ex.Message}",
+                    $"Failed to restore from the reference: {ex.Message}",
                     ConfirmationIcon.Error,
                     ConfirmationButton.OK,
                     ConfirmationResult.OK,

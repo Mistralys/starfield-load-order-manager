@@ -85,7 +85,7 @@ namespace LoadOrderKeeper
             }
         }
 
-        private async void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        private async void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
         {
             e.SetObserved(); // Mark as observed to prevent app termination
             await HandleExceptionAsync(e.Exception);

@@ -61,7 +61,6 @@
 │  ├─ CoordinatorEventBinder.cs
 │  └─ SteamLibraryVdfParser.cs         (bounded parser for Steam libraryfolders.vdf)
 ├─ ViewModels/
-│  ├─ AboutViewModel.cs
 │  ├─ CommentInputViewModel.cs
 │  ├─ ConfirmationDialogViewModel.cs
 │  ├─ DiffDialogViewModel.cs

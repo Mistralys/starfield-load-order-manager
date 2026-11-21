@@ -4,7 +4,7 @@ Utility scripts for the Starfield Load Order Keeper project.
 
 ---
 
-## Merge-MarkdownDocs.ps1
+## MergeDocs.ps1
 
 Merges multiple markdown files from documentation folders into single-page documents.
 
@@ -12,7 +12,7 @@ Merges multiple markdown files from documentation folders into single-page docum
 
 **Merge both documentation folders (default):**
 ```powershell
-.\Merge-MarkdownDocs.ps1
+.\MergeDocs.ps1
 ```
 
 Outputs:
@@ -21,12 +21,12 @@ Outputs:
 
 **Merge a specific folder:**
 ```powershell
-.\Merge-MarkdownDocs.ps1 -FolderPath "..\Docs\Agents\Project Manifest"
+.\MergeDocs.ps1 -FolderPath "..\Docs\Agents\Project Manifest"
 ```
 
 **Merge with custom output filename:**
 ```powershell
-.\Merge-MarkdownDocs.ps1 -FolderPath "..\Docs\Agents\Project Manifest" -OutputPath "my-output.md"
+.\MergeDocs.ps1 -FolderPath "..\Docs\Agents\Project Manifest" -OutputPath "my-output.md"
 ```
 
 ### How it Works

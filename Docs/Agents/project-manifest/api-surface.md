@@ -894,6 +894,87 @@ public sealed class DiffDialogTexts : ObservableObject
 
 **Pattern:** Each property calls `_localization.GetString("DiffDialog", "<KeyName>")`. All properties are listed in `OnCultureChanged()` and raised via `OnPropertyChanged()` when the culture changes. The `CountFormat` properties are used with `string.Format(countFormat, count)` when count ≠ 1; the `CountSingular` properties are used directly when count == 1. The `ConfirmUpdateMessage_RiskyChanges` property contains a `{0}` placeholder for the composed detail block.
 
+### Text ViewModels (`LoadOrderKeeper.ViewTexts`)
+
+**Purpose:** One text ViewModel per window or message group. Every public member is a read-only `string` property that calls `_localization.GetString("<Section>", "<KeyName>")`; the property name equals the locale key. All properties are re-raised via `OnPropertyChanged()` when `LocalizationService.CultureChanged` fires. Keys and sections are documented in [localization.md](localization.md). `DiffDialogTexts` is documented separately above.
+
+| Type | Locale section |
+|------|----------------|
+| `LoadOrderKeeper.ViewTexts.CommentInputTexts` (`partial class CommentInputTexts : ObservableObject`) | `CommentInput` |
+| `LoadOrderKeeper.ViewTexts.CommonTexts` (`partial class CommonTexts : ObservableObject`) | `Common` |
+| `LoadOrderKeeper.ViewTexts.ConfigInvalidOverlayTexts` (`partial class ConfigInvalidOverlayTexts : ObservableObject`) | `ConfigInvalidOverlay` |
+| `LoadOrderKeeper.ViewTexts.ConfirmationDialogTexts` (`partial class ConfirmationDialogTexts : ObservableObject`) | `ConfirmationDialog` |
+| `LoadOrderKeeper.ViewTexts.ErrorDialogTexts` (`partial class ErrorDialogTexts : ObservableObject`) | `ErrorDialog` |
+| `LoadOrderKeeper.ViewTexts.MainWindowStatusTexts` (`partial class MainWindowStatusTexts : ObservableObject`) | `MainWindowStatus` |
+| `LoadOrderKeeper.ViewTexts.MainWindowTexts` (`partial class MainWindowTexts : ObservableObject`) | `MainWindow` |
+| `LoadOrderKeeper.ViewTexts.ManageProfilesTexts` (`partial class ManageProfilesTexts : ObservableObject`) | `ManageProfiles` |
+| `LoadOrderKeeper.ViewTexts.ProfilePropertiesTexts` (`partial class ProfilePropertiesTexts : ObservableObject`) | `ProfileProperties` |
+| `LoadOrderKeeper.ViewTexts.ReferenceHistoryTexts` (`partial class ReferenceHistoryTexts : ObservableObject`) | `ReferenceHistory` |
+| `LoadOrderKeeper.ViewTexts.ReferenceManagementStatusTexts` (`partial class ReferenceManagementStatusTexts : ObservableObject`) | `ReferenceManagementStatus` |
+| `LoadOrderKeeper.ViewTexts.SettingsWindowTexts` (`partial class SettingsWindowTexts : ObservableObject`) | `Settings` |
+| `LoadOrderKeeper.ViewTexts.SwitchProfileTexts` (`partial class SwitchProfileTexts : ObservableObject`) | `SwitchProfile` |
+| `LoadOrderKeeper.ViewTexts.UpdateOptionsTexts` (`partial class UpdateOptionsTexts : ObservableObject`) | `UpdateOptions` |
+| `LoadOrderKeeper.ViewTexts.ViewModelInitializerStatusTexts` (`partial class ViewModelInitializerStatusTexts : ObservableObject`) | `ViewModelInitializerStatus` |
+| `LoadOrderKeeper.ViewTexts.ViewPendingChangesTexts` (`partial class ViewPendingChangesTexts : ObservableObject`) | `ViewPendingChanges` |
+
+### `LoadOrderKeeper.ViewTexts.MenuViewModel`
+
+```csharp
+public partial class MenuViewModel : ObservableObject
+{
+    public MenuViewModel();
+
+    public string WindowTitle { get; }
+    // Menu headers and items of the main window, section "Menu":
+    // FileMenuHeader, OpenPluginsMenuText, OpenReferenceMenuText, OpenAppDataFolderMenuText,
+    // OpenGameFolderMenuText, ExitMenuText, EditMenuHeader, SettingsMenuText, ProfileMenuHeader,
+    // SwitchProfileMenuText, ManageProfilesMenuText, ReferenceHistoryMenuText,
+    // ViewPendingChangesMenuText, HelpMenuHeader, CheckForUpdatesMenuText, AboutMenuText,
+    // DebugMenuHeader, ResetConfigMenuText, OpenConfigFolderMenuText,
+    // ThrowTestExceptionMenuText, CopyDebugStateMenuText
+}
+```
+
+### `LoadOrderKeeper.ViewTexts.AboutViewModel`
+
+```csharp
+public partial class AboutViewModel : ObservableObject
+{
+    public AboutViewModel();
+
+    public string WindowTitle { get; }
+    public string ApplicationName { get; }
+    public string Description { get; }
+    public string HomepageButtonText { get; }
+    public string CloseButtonText { get; }
+    public string VersionLabelText { get; }
+    public string ApplicationVersion { get; }
+    public string Copyright { get; }
+    public string HomepageUrl { get; }
+
+    public IRelayCommand CloseCommand { get; }
+    public IRelayCommand OpenHomepageCommand { get; }
+
+    public event EventHandler? CloseRequested;
+}
+```
+
+### `LoadOrderKeeper.Helpers.CoordinatorEventBinder`
+
+```csharp
+public class CoordinatorEventBinder
+{
+    public CoordinatorEventBinder(Action<string> notifyPropertyChanged);
+
+    public void BindProperty(INotifyPropertyChanged coordinator, string coordinatorPropertyName, string viewModelPropertyName);
+    public void BindProperties(INotifyPropertyChanged coordinator, Dictionary<string, string> propertyMappings);
+    public void BindPropertiesDirect(INotifyPropertyChanged coordinator, params string[] propertyNames);
+    public void BindPropertyWithAction(INotifyPropertyChanged coordinator, string propertyName, Action action);
+}
+```
+
+**Purpose:** Forwards coordinator `PropertyChanged` notifications to ViewModel property-change notifications, so ViewModels never mutate coordinator state.
+
 ---
 
 ## ViewModels
@@ -1336,6 +1417,25 @@ public partial class CommentInputViewModel : ObservableObject
 
     public event EventHandler? OkRequested;
     public event EventHandler? CancelRequested;
+}
+```
+
+### `LoadOrderKeeper.ViewModels.UpdateOptionsViewModel`
+
+```csharp
+public partial class UpdateOptionsViewModel : ObservableObject
+{
+    public UpdateOptionsViewModel(string currentVersion, string? latestVersion);
+
+    public string WindowTitle { get; }
+    public string MessageText { get; }
+    public string NexusmodsButtonText { get; }
+    public string GitHubButtonText { get; }
+    public string CancelButtonText { get; }
+    public string NexusmodsUrl { get; }
+    public string GitHubUrl { get; }
+
+    public event EventHandler? CloseRequested;
 }
 ```
 

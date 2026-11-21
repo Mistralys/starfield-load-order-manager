@@ -194,6 +194,41 @@ public class SomeTexts : ObservableObject
 
 ---
 
+## Packaging & Distribution
+
+`release.yml` publishes the app with `dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -o installer/publish`, then builds the MSI from `installer/Product.wxs` (WiX) and zips `installer/publish/*`.
+
+### What "single file" does and does not contain
+
+Verified against Microsoft's single-file documentation (`docs/core/deploying/single-file/overview`, section "Native libraries") and by inspecting a real publish of this project:
+
+- Only **managed** assemblies are bundled into `StarfieldLoadOrderKeeper.exe`. Native binaries stay as separate files unless `IncludeNativeLibrariesForSelfExtract` is `true` (they are then embedded and extracted to `%TEMP%\.net` at startup).
+- Files copied through `<None ... CopyToOutputDirectory>` (the locale JSONs) are **not** bundled either. They land in `publish/ViewTexts/Locales/`, which is where `LocalizationService` reads them (`AppDomain.CurrentDomain.BaseDirectory`).
+- Without `IncludeNativeLibrariesForSelfExtract`, the publish output of this project was the exe plus five WPF/runtime native libraries (`PresentationNative_cor3.dll`, `wpfgfx_cor3.dll`, `PenImc_cor3.dll`, `D3DCompiler_47_cor3.dll`, `vcruntime140_cor3.dll`), `ViewTexts/Locales/*.json` and a `.pdb`.
+
+### Decision: native libraries are embedded (resolved 2026-11-21)
+
+`Starfield Load Order Keeper.csproj` sets `<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>`. The publish output is now only `StarfieldLoadOrderKeeper.exe`, `ViewTexts/Locales/*.json` and the `.pdb`. The embedded native DLLs are extracted to `%TEMP%\.net` on first start, so the first launch is slightly slower and writes to `%TEMP%`.
+
+Why: before this setting, `Product.wxs` installed only the exe, and the MSI payload crashed at startup. Evidence from a controlled test (each variant launched, 10 s wait, window and Application event log checked):
+
+| Variant | Result |
+|---------|--------|
+| Old publish, full folder (control) | Main window opened, no crash events |
+| Old publish, exe alone (what the MSI shipped) | No window, `APPCRASH` events (exception `0xc000041d`) |
+| New publish with the flag, exe + `ViewTexts/Locales` only (what the MSI ships) | Main window opened, no crash events |
+
+The MSI itself (WiX build and install) has not been run. The test reproduces its payload, so installing on a clean machine remains the final confirmation.
+
+Do **not** also add the native DLLs to `Product.wxs`; the embedded copies make that redundant, and the loader's preference between embedded and side-by-side copies was not tested. WPF self-contained single-file publishing has open upstream issues (e.g. dotnet/wpf#3875, dotnet/wpf#11842), so re-run the test above after upgrading the .NET SDK.
+
+### Rules
+
+- Any new file that must exist next to the exe at runtime (locale JSON, assets) must be added to `Product.wxs` **and** will be checked by `Tools/ReleaseCheck.ps1` (`packaging`) only for the locales; other files need a manual check.
+- Keep `UpgradeCode` and existing component GUIDs unchanged; new components need new GUIDs.
+
+---
+
 ## Navigation
 
 ### Modal Navigation

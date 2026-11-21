@@ -210,6 +210,11 @@ internal DiffDialogViewModel(ObservableCollection<DiffLineModel> diffLines)
 
 ---
 
+## Release Packaging
+
+- The single-file publish bundles managed assemblies only; the csproj setting `IncludeNativeLibrariesForSelfExtract=true` additionally embeds the WPF native DLLs, and it must stay on, because the MSI ships just the exe and the locale files. Locale JSONs are side-by-side files and must be shipped by every distribution channel (ZIP and MSI). See [tech-stack.md](tech-stack.md#packaging--distribution).
+- `installer/Product.wxs` must list every locale file; `UpgradeCode` and existing component GUIDs must not change.
+
 ## Configuration Validation
 
 - `ConfigurationCoordinator` caches validation state to minimize repeated file system checks.

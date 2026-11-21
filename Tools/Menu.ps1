@@ -9,6 +9,8 @@ function Write-Menu {
     Write-Host '[d] Build (Debug)' -ForegroundColor Green
     Write-Host '[r] Run (Debug)' -ForegroundColor Cyan
     Write-Host '[m] Merge Docs' -ForegroundColor Yellow
+    Write-Host '[c] Release check (quick: no build, tests or advisories)' -ForegroundColor Magenta
+    Write-Host '[f] Release check (full)' -ForegroundColor Magenta
     Write-Host '[q] Quit' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Press a key to continue.'
@@ -61,6 +63,19 @@ function Invoke-MergeDocs {
     Write-Host 'Docs merged successfully.' -ForegroundColor Green
 }
 
+function Invoke-ReleaseCheck {
+    param([switch]$Quick)
+
+    $script = Join-Path $PSScriptRoot 'ReleaseCheck.ps1'
+    $arguments = @('-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $script, '-AllowDirty')
+    if ($Quick) { $arguments += '-Quick' }
+
+    Write-Host ''
+    Write-Host 'Running release check...' -ForegroundColor Magenta
+    # The script prints its own verdict and returns a non-zero exit code when the release is blocked.
+    & powershell @arguments
+}
+
 while ($true) {
     Write-Menu
 
@@ -76,6 +91,12 @@ while ($true) {
             }
             'm' {
                 Invoke-MergeDocs
+            }
+            'c' {
+                Invoke-ReleaseCheck -Quick
+            }
+            'f' {
+                Invoke-ReleaseCheck
             }
             'q' {
                 return

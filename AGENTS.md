@@ -37,6 +37,7 @@ The Project Manifest is the **canonical source of truth** for this codebase. Rea
 |----------|----------|---------|
 | Sorting Scenarios | `Docs/Agents/Sorting Scenarios/` | Test scenarios for mod list diff and sorting logic |
 | Example Files | `Docs/Agents/example-plugins.txt`, `Docs/Agents/example-steam-library.vdf` | Sample data files for reference |
+| Release Check | `Tools/ReleaseCheck.ps1` (script), `.github/skills/release-check/SKILL.md` (skill) | Mechanical release gate and the agent review that follows it; see `Tools/README.md` |
 
 ---
 
@@ -125,4 +126,7 @@ dotnet test "Tests/LoadOrderKeeper.Tests/LoadOrderKeeper.Tests.csproj" --configu
 
 # Run application
 dotnet run --project "Starfield Load Order Keeper.csproj"
+
+# Release gate: mechanical checks (read-only); add -Quick to skip build, tests and advisories
+pwsh -File Tools/ReleaseCheck.ps1 -AllowDirty
 ```

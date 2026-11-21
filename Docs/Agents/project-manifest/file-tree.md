@@ -164,6 +164,31 @@
 │     │  └─ *.md
 │     ├─ example-plugins.txt            (sample Plugins.txt for testing)
 │     └─ example-steam-library.vdf      (sample Steam library config for testing)
+├─ .github/
+│  ├─ dependabot.yml
+│  ├─ workflows/
+│  │  └─ release.yml                    (tag-triggered release: tests, MSI, ZIP, GitHub release)
+│  └─ skills/
+│     └─ release-check/
+│        └─ SKILL.md                    (agent skill: the judgment half of the release gate)
+├─ Tools/
+│  ├─ Menu.ps1                          (developer menu: build, run, merge docs, release check)
+│  ├─ MergeDocs.ps1
+│  ├─ README.md
+│  ├─ ReleaseCheck.ps1                  (entry point of the mechanical release gate)
+│  └─ ReleaseCheck/
+│     ├─ Common.ps1                     (result model, git/process helpers, version and changelog parsing)
+│     ├─ Self-Test.ps1                  (fixture-based tests of the checks themselves)
+│     ├─ ReleaseCheck.allow.json        (accepted findings, each with a reason; empty by default)
+│     └─ Checks/
+│        ├─ Version.ps1                 (changelog and version progression)
+│        ├─ Git.ps1                     (tree, branch, upstream, tags)
+│        ├─ Files.ps1                   (unicode integrity and repository hygiene)
+│        ├─ Localization.ps1            (locale files versus code, csproj, plural and access-key rules)
+│        ├─ Ui.ps1                      (menu wiring and hard-coded UI text)
+│        ├─ Docs.ps1                    (manifest sync and link integrity)
+│        ├─ Packaging.ps1               (csproj, installer, workflow consistency)
+│        └─ Dotnet.ps1                  (Release build, tests, advisories, optional publish)
 └─ Tests/
    └─ LoadOrderKeeper.Tests/
       ├─ LoadOrderKeeper.Tests.csproj

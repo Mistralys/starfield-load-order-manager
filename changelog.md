@@ -25,6 +25,9 @@ window now counts both changes and affected mods.
 - Translation: All new guidance texts are available in all 8 languages, with live switching.
 - Profiles: A stale active profile is now repaired to the default profile at startup.
 - General: Refreshed the window sizing and styling of the main and settings windows.
+- Translation: Fixed the About window title, the profile and history context menus and the profile input hints, which always appeared in English.
+- Translation: Fixed several clashing menu access keys in German, Spanish, French and Portuguese.
+- General: Fixed the MSI installer not starting the app and not including the translation files.
 
 ## v1.9.0 - External Editor
 - General: Added a setting to choose an external text editor for opening files.

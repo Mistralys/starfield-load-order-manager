@@ -86,5 +86,10 @@
       <ComponentRef Id="StartMenuShortcut" />
     </Feature>
 
+    <!-- Installer dialog: license and install button, progress, finish screen.
+         The RTF license text is generated from LICENSE by Tools/BuildMsi.ps1. -->
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+
   </Product>
 </Wix>

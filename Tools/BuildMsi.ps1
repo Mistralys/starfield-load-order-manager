@@ -105,12 +105,23 @@ $wxs = Join-Path $installerDir 'Product.wxs'
 $wixobj = Join-Path $objDir 'Product.wixobj'
 $source = Join-Path $outDir 'StarfieldLoadOrderKeeper.msi'
 
-& (Join-Path $wixBin 'candle.exe') -nologo -arch x64 `
-    "-dProductVersion=$msiVersion" "-dPublishDir=$publishDir" `
+# The installer dialog (WixUI_Minimal) shows the license as RTF; generate it from LICENSE so the two never drift.
+# LICENSE is hard-wrapped at about 80 columns, which wraps a second time in the dialog. Lines of one paragraph
+# are therefore joined with spaces, and only blank lines (paragraph breaks) become RTF paragraph breaks.
+$licenseRtf = Join-Path $objDir 'License.rtf'
+$licenseRaw = (Get-Content -Raw -Encoding UTF8 (Join-Path $repoRoot 'LICENSE')).Replace('\', '\').Replace('{', '\{').Replace('}', '\}')
+$licenseParagraphs = $licenseRaw -split '(?:\r?\n){2,}' |
+    ForEach-Object { (($_ -split '\r?\n' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) -join ' ') } |
+    Where-Object { $_ }
+$licenseBody = ($licenseParagraphs | ForEach-Object { $_ + '\par' }) -join "`r`n\par`r`n"
+Set-Content -Path $licenseRtf -Encoding ASCII -Value ('{\rtf1\ansi\deff0{\fonttbl{\f0 Segoe UI;}}\fs20 ' + $licenseBody + '}')
+
+& (Join-Path $wixBin 'candle.exe') -nologo -arch x64 -ext WixUIExtension `
+    "-dProductVersion=$msiVersion" "-dPublishDir=$publishDir" "-dLicenseRtf=$licenseRtf" `
     -out $wixobj $wxs
 if ($LASTEXITCODE -ne 0) { throw 'WiX candle (compile) failed.' }
 
-& (Join-Path $wixBin 'light.exe') -nologo -out $source $wixobj
+& (Join-Path $wixBin 'light.exe') -nologo -ext WixUIExtension -out $source $wixobj
 if ($LASTEXITCODE -ne 0) { throw 'WiX light (link) failed.' }
 
 if (-not (Test-Path $source)) { throw "Expected MSI not found: $source" }

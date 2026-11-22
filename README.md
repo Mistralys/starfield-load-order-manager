@@ -95,8 +95,14 @@ The repository includes a lightweight CLI menu for common maintenance tasks. Run
 
 [MIT License](/LICENSE)
 
+## Like it? A tea is appreciated!
+
+<a href="https://buymeacoffee.com/aeonoftime"><img src="Docs/Design/images/buy-me-a-tea.png" alt="Buy me a tea" width="200"></a>
+
 ## Credits
 
 I created this for my own use, and decided to share it with the community.
 
 It was entirely developed using **AI-assisted coding techniques**. Inititally developed with GPT-5.1-Codex and Claude Sonnet 4, it was later improved with Claude Opus 5.5 and Sonnet 5.5, with the agent personas from my [AI Insights](https://github.com/Mistralys/ai-insights) project. If you are interested in the development process, the folder [Docs/Agents/implementation-history](./Docs/Agents/implementation-history) contains the individual agent plans used to incrementally build and maintain the application.
+
+> NOTE: My guidance, the use of personas and detailed implementation plans guarantee that this is not a vibe-coded application.

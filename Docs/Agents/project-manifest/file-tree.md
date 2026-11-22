@@ -166,7 +166,7 @@
 ├─ .github/
 │  ├─ dependabot.yml
 │  ├─ workflows/
-│  │  └─ release.yml                    (tag-triggered release: tests, MSI, ZIP, GitHub release)
+│  │  └─ release.yml                    (tag-triggered release: tests, MSI, ZIP, GitHub release; manual run uploads artifacts only)
 │  └─ skills/
 │     └─ release-check/
 │        └─ SKILL.md                    (agent skill: the judgment half of the release gate)

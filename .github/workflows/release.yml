@@ -8,6 +8,9 @@ on:
   push:
     tags:
       - '[0-9]*'
+  # Manual run (Actions tab or `gh workflow run release.yml --ref <branch>`): builds and tests
+  # everything and uploads the MSI and ZIP as workflow artifacts, but never creates a release.
+  workflow_dispatch:
 
 jobs:
   build:
@@ -47,7 +50,13 @@ jobs:
         id: version
         run: |
           # The tag is validated against the semantic versioning pattern by Tools/BuildMsi.ps1.
-          echo "tag=${{ github.ref_name }}" >> $env:GITHUB_OUTPUT
+          # A manual run has no tag (ref_name is a branch), so it uses the csproj <Version> instead.
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $tag = (Select-String -Path "Starfield Load Order Keeper.csproj" -Pattern '<Version>\s*([^<\s]+)\s*</Version>' | Select-Object -First 1).Matches[0].Groups[1].Value
+          } else {
+            $tag = "${{ github.ref_name }}"
+          }
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
 
       - name: Determine previous tag
         id: prev
@@ -133,14 +142,25 @@ jobs:
           Compress-Archive -Path installer/publish/* -DestinationPath "StarfieldLoadOrderKeeper-$version.zip"
           echo "ZIP created: StarfieldLoadOrderKeeper-$version.zip"
 
+      - name: Upload build artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}
+          path: |
+            installer/bin/Release/StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}.msi
+            StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}.zip
+          if-no-files-found: error
+
       - name: Create GitHub Release
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}${{ steps.changelog.outputs.title && format(' - {0}', steps.changelog.outputs.title) || '' }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}${{ steps.changelog.outputs.title && format(' - {0}', steps.changelog.outputs.title) || '' }}
           body_path: RELEASE_NOTES.txt
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(steps.version.outputs.tag, '-') }}
           files: |
             installer/bin/Release/StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}.msi
             StarfieldLoadOrderKeeper-${{ steps.version.outputs.tag }}.zip

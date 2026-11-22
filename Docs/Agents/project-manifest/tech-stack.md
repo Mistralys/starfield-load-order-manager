@@ -196,7 +196,7 @@ public class SomeTexts : ObservableObject
 
 ## Packaging & Distribution
 
-`release.yml` publishes the app with `dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -o installer/publish`, then builds the MSI from `installer/Product.wxs` (WiX) and zips `installer/publish/*`.
+`release.yml` publishes the app with `dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -o installer/publish`, then builds the MSI from `installer/Product.wxs` (WiX) and zips `installer/publish/*`. A manual `workflow_dispatch` run (Actions tab or `gh workflow run release.yml --ref <branch>`) does the same using the csproj `<Version>`, uploads the MSI and ZIP as workflow artifacts and never creates a release.
 
 ### What "single file" does and does not contain
 

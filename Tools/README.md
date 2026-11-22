@@ -71,6 +71,17 @@ translation quality, risk review, go/no-go report) is the agent skill in
 Exit code: `0` no blocking problem, `1` at least one failing check (or a warning with `-Strict`), `2` usage error.
 The developer menu (`menu.cmd`) offers quick and full runs.
 
+## BuildMsi.ps1
+
+Builds the MSI installer locally, mirroring the publish and installer steps of `release.yml`: self-contained single-file publish into `installer/publish`, then `installer/Product.wxs` compiled with the WiX v3 tools (`candle`, `light`) directly, because the Chocolatey WiX install has no MSBuild targets for Visual Studio 2022. Output: `installer/bin/Release/StarfieldLoadOrderKeeper-<version>.msi`. Available from the developer menu (`menu.cmd`, key `i`).
+
+```powershell
+pwsh -File Tools\BuildMsi.ps1                  # version from the csproj
+pwsh -File Tools\BuildMsi.ps1 -Version 2.0.0   # explicit version
+```
+
+Requires WiX Toolset v3 (`choco install wixtoolset -y`). The script stops with a clear message when it is missing.
+
 ### Checks
 
 | Id | Verifies |

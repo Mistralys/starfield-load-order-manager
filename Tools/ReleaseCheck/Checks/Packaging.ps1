@@ -4,8 +4,9 @@ function Invoke-PackagingCheck {
     $csprojPath = 'Starfield Load Order Keeper.csproj'
     $wxsPath = 'installer/Product.wxs'
     $workflowPath = '.github/workflows/release.yml'
+    $buildScriptPath = 'Tools/BuildMsi.ps1'
 
-    foreach ($required in $csprojPath, $wxsPath, $workflowPath, 'installer/StarfieldLoadOrderKeeper.wixproj', 'LICENSE', 'README.md') {
+    foreach ($required in $csprojPath, $wxsPath, $workflowPath, $buildScriptPath, 'LICENSE', 'README.md') {
         if (-not (Test-Path -LiteralPath (Join-Path $script:RepoRoot $required))) {
             Add-Finding $r Fail "Required release file is missing: $required."
         }
@@ -15,6 +16,7 @@ function Invoke-PackagingCheck {
     $csproj = (Read-TextFile $csprojPath).Text
     $wxs = (Read-TextFile $wxsPath).Text
     $workflow = (Read-TextFile $workflowPath).Text
+    $buildScript = (Read-TextFile $buildScriptPath).Text
 
     # Files the csproj points to.
     foreach ($m in [regex]::Matches($csproj, '<(?:ApplicationIcon|Content\s+Include|None\s+Include)(?:>|=")(?<p>[^<"]+)')) {
@@ -32,15 +34,20 @@ function Invoke-PackagingCheck {
         Add-Finding $r Fail "The project targets net$($tfm.Groups['v'].Value) but release.yml installs .NET $($sdk.Groups['v'].Value)."
     }
 
-    # The version that release.yml would derive from the tag must be accepted by its own pattern.
+    # The version that release.yml passes to Tools/BuildMsi.ps1 must be accepted by that script's pattern.
     $top = Get-ChangelogTopVersion
-    $pattern = [regex]::Match($workflow, '\$pattern\s*=\s*''(?<p>[^'']+)''')
+    $pattern = [regex]::Match($buildScript, '\$pattern\s*=\s*''(?<p>[^'']+)''')
     if ($top -and $pattern.Success) {
         if ($top -notmatch $pattern.Groups['p'].Value) {
-            Add-Finding $r Fail "Tag $top would be rejected by the semantic version pattern in release.yml."
+            Add-Finding $r Fail "Tag $top would be rejected by the semantic version pattern in Tools/BuildMsi.ps1."
         }
     }
     if ($top -and $top -notmatch '^[0-9]') { Add-Finding $r Fail "Tag $top does not match the trigger glob of release.yml ('[0-9]*')." }
+
+    # CI must build the MSI through the same script as local builds.
+    if ($workflow -notmatch 'Tools/BuildMsi\.ps1') {
+        Add-Finding $r Fail 'release.yml does not build the MSI through Tools/BuildMsi.ps1; CI and local builds would diverge.'
+    }
 
     # The installer must package the executable the project produces.
     $assembly = [regex]::Match($csproj, '<AssemblyName>(?<n>[^<]+)</AssemblyName>')

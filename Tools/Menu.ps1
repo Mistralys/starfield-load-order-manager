@@ -11,6 +11,7 @@ function Write-Menu {
     Write-Host '[m] Merge Docs' -ForegroundColor Yellow
     Write-Host '[c] Release check (quick: no build, tests or advisories)' -ForegroundColor Magenta
     Write-Host '[f] Release check (full)' -ForegroundColor Magenta
+    Write-Host '[i] Build MSI installer (Release publish + WiX)' -ForegroundColor Green
     Write-Host '[q] Quit' -ForegroundColor DarkGray
     Write-Host ''
     Write-Host 'Press a key to continue.'
@@ -76,6 +77,18 @@ function Invoke-ReleaseCheck {
     & powershell @arguments
 }
 
+function Invoke-BuildMsi {
+    $script = Join-Path $PSScriptRoot 'BuildMsi.ps1'
+
+    Write-Host ''
+    Write-Host 'Building MSI installer...' -ForegroundColor Green
+    & powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File $script
+
+    if ($LASTEXITCODE -ne 0) {
+        throw 'MSI build failed.'
+    }
+}
+
 while ($true) {
     Write-Menu
 
@@ -97,6 +110,9 @@ while ($true) {
             }
             'f' {
                 Invoke-ReleaseCheck
+            }
+            'i' {
+                Invoke-BuildMsi
             }
             'q' {
                 return

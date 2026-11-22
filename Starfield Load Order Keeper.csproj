@@ -31,7 +31,7 @@
   <ItemGroup>
     <None Include=".github\dependabot.yml" />
     <None Include=".github\workflows\release.yml" />
-    <None Include="installer\StarfieldLoadOrderKeeper.wixproj" />
+    <None Include="Tools\BuildMsi.ps1" />
     <None Include="Tests\LoadOrderKeeper.Tests\LoadOrderKeeper.Tests.csproj" />
   </ItemGroup>
 

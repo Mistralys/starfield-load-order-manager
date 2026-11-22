@@ -171,7 +171,8 @@
 │     └─ release-check/
 │        └─ SKILL.md                    (agent skill: the judgment half of the release gate)
 ├─ Tools/
-│  ├─ Menu.ps1                          (developer menu: build, run, merge docs, release check)
+│  ├─ BuildMsi.ps1                      (local MSI build, mirrors release.yml publish + WiX steps)
+│  ├─ Menu.ps1                          (developer menu: build, run, merge docs, release check, MSI build)
 │  ├─ MergeDocs.ps1
 │  ├─ README.md
 │  ├─ ReleaseCheck.ps1                  (entry point of the mechanical release gate)

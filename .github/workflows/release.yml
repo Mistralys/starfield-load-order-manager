@@ -131,6 +131,18 @@ jobs:
             "" | Out-File -FilePath $notesPath -Encoding utf8 -Append
           }
 
+          # Download hints always close the release text
+          @'
+          ----
+
+          ## Download hints:
+
+          - Use the `.msi` if you prefer an official installer with uninstall functionality.
+          - Use the `.zip` if you prefer a portable install. Extract & start from the folder.
+
+          > NOTE: The MSI is not signed (signing is expensive). Use the hashes to verify your downloaded file to guarantee that it's valid.
+          '@ | Out-File -FilePath $notesPath -Encoding utf8 -Append
+
       - name: Build MSI installer
         # Publishes the app into installer/publish and builds
         # installer/bin/Release/StarfieldLoadOrderKeeper-<tag>.msi. The same script runs locally.

@@ -28,6 +28,10 @@ window now counts both changes and affected mods.
 - Translation: Fixed the About window title, the profile and history context menus and the profile input hints, which always appeared in English.
 - Translation: Fixed several clashing menu access keys in German, Spanish, French and Portuguese.
 - General: Fixed the MSI installer not starting the app and not including the translation files.
+- General: The MSI installer now shows a dialog with the license, an install button and a finish screen.
+- Build: Fixed the MSI installer not including the translation files.
+- Build: The MSI installer now displays a "Installation completed" dialog instead of finishing silently.
+- Build: Unified local and CI build pipelines for local testing, & manual CI workflow for live testing.
 
 ## v1.9.0 - External Editor
 - General: Added a setting to choose an external text editor for opening files.
